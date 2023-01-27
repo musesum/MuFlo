@@ -5,7 +5,7 @@
 //  License: Apache 2.0 - see License file
 
 import QuartzCore
-import Par // visitor
+import MuPar // visitor
 
 extension Flo {
 

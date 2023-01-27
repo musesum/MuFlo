@@ -5,7 +5,7 @@
 //  License: Apache 2.0 - see License file
 
 import Foundation
-import Par
+import MuPar
 
 
 /// Dictionary of all Flos in graph based on path based hash.

@@ -5,7 +5,7 @@
 import Foundation
 import CoreGraphics
 import MuTime
-import Par
+import MuPar
 
 protocol FloValProtocal {
 

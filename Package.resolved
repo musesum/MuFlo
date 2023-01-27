@@ -1,12 +1,21 @@
 {
   "pins" : [
     {
+      "identity" : "mupar",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/musesum/MuPar.git",
+      "state" : {
+        "revision" : "9d9860026fa5d21256814edb7ebeabb8347a7d6e",
+        "version" : "0.23.127"
+      }
+    },
+    {
       "identity" : "muskyflo",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/musesum/MuSkyFlo.git",
       "state" : {
-        "revision" : "b89367d68a180988f54d47d10adcacf9cb93fa9d",
-        "version" : "0.3.230108"
+        "revision" : "78b717c6f34f4ecf9c294f946a8edd6f999dbce6",
+        "version" : "0.23.127"
       }
     },
     {
@@ -15,16 +24,7 @@
       "location" : "https://github.com/musesum/MuTime.git",
       "state" : {
         "revision" : "38d57f280b615f0efb7c744c180ef3ee29a0d9f4",
-        "version" : "0.3.230125"
-      }
-    },
-    {
-      "identity" : "par",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/musesum/Par.git",
-      "state" : {
-        "revision" : "1f8b01bc5b5164cb11e3e0b2f66bb021f21ffce6",
-        "version" : "0.3.230122"
+        "version" : "0.23.127"
       }
     },
     {

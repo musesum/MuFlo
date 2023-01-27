@@ -1,7 +1,7 @@
 
-# Flo /trē/
+# MuFlo /micro flow/
 
-Flo (as in "tree") is a data flow graph with the following features:
+MuFlo is a data flow graph with the following features:
 
 - **Node** with names, values, edges, and closures
 - **Edges** with inputs, outputs, and switches

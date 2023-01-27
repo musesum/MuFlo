@@ -3,30 +3,30 @@
 import PackageDescription
 
 let package = Package(
-    name: "Flo",
+    name: "MuFlo",
     platforms: [.iOS(.v15)],
     products: [
         .library(
-            name: "Flo",
-            targets: ["Flo"]),
+            name: "MuFlo",
+            targets: ["MuFlo"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/musesum/Par.git", from: "0.3.0"),
-        .package(url: "https://github.com/musesum/MuSkyFlo.git", from: "0.3.0"),
-        .package(url: "https://github.com/musesum/MuTime.git", from: "0.3.0"),
+        .package(url: "https://github.com/musesum/MuPar.git", from: "0.23.0"),
+        .package(url: "https://github.com/musesum/MuSkyFlo.git", from: "0.23.0"),
+        .package(url: "https://github.com/musesum/MuTime.git", from: "0.23.0"),
         .package(url: "https://github.com/apple/swift-collections.git",
                  .upToNextMajor(from: "1.0.0") // or `.upToNextMinor
         )
     ],
 
     targets: [
-        .target(name: "Flo",
+        .target(name: "MuFlo",
                 dependencies: [
                     .product(name: "Collections", package: "swift-collections"),
                     .product(name: "MuSkyFlo", package: "MuSkyFlo"),
                     .product(name: "MuTime", package: "MuTime"),
-                    .product(name: "Par", package: "Par")],
+                    .product(name: "MuPar", package: "MuPar")],
                 resources: [.process("Resources")]),
-        .testTarget(name: "FloTests", dependencies: ["MuSkyFlo","Flo"]),
+        .testTarget(name: "MuFloTests", dependencies: ["MuSkyFlo","MuFlo"]),
     ]
 )

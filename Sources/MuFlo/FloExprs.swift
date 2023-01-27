@@ -8,7 +8,7 @@
 import QuartzCore
 import Collections
 import Foundation
-import Par
+import MuPar
 
 public class FloExprs: FloVal {
 

@@ -6,7 +6,7 @@
 //  License: Apache 2.0 - see License file
 
 import Foundation
-import Par
+import MuPar
 
 // Flo
 public typealias FloVisitor = ((Flo, Visitor)->())

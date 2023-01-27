@@ -1,11 +1,11 @@
 import CoreFoundation
 import XCTest
-import Par
+import MuPar
 import MuSkyFlo
 
-@testable import Flo
+@testable import MuFlo
 
-final class FloTests: XCTestCase {
+final class MuFloTests: XCTestCase {
 
     var floParse = FloParse()
 

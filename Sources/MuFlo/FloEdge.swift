@@ -6,7 +6,7 @@
 //  License: Apache 2.0 - see License file
 
 import Foundation
-import Par
+import MuPar
 
 public class FloEdge: Hashable {
 

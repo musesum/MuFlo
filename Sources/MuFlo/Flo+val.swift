@@ -5,7 +5,7 @@
 
 import QuartzCore
 import Collections
-import Par
+import MuPar
 
 extension Flo {
 

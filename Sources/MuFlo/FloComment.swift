@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Par
+import MuPar
 
 public enum FloCommentType { case unknown, child, edges }
 

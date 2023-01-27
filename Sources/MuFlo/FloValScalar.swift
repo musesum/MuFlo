@@ -6,7 +6,7 @@
 
 import QuartzCore
 import Foundation
-import Par // visitor
+import MuPar // visitor
 import MuTime // NextFrame
 
 public class FloValScalar: FloVal {
