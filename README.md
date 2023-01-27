@@ -1,11 +1,11 @@
 
 # MuFlo /micro flow/
 
-MuFlo is a data flow graph with the following features:
+Flo is a data flow graph with the following features:
 
 - **Node** with names, values, edges, and closures
 - **Edges** with inputs, outputs, and switches
-- **Values** that transform, as it flows through a graph
+- **Values** which transform, as it flows through a graph
 
 ## Goals
 
@@ -13,10 +13,11 @@ MuFlo is a data flow graph with the following features:
 - Human readable declarative data flow 
 - Play nice with syntax highlighting and code folding
 - Minimal use of parsing cruft, like semicommas, and commas
-- Explore live patching without crashing or infinite loops 
-- Concise expression of full body input as controller
 - Synchronize state while managing circular references
-- Synchronize amorphous devices and ledgers 
+- Explore live patching without crashing or infinite loops 
+- Concise expression of hand pose for menu navigation 
+- Concise expression of body pose for avatars and robots
+- Synchronize amorphous devices 
 
 ## Nodes
 
@@ -286,76 +287,26 @@ The `Deep Muse` app script should provide some insight as to how Flo is used in 
 - `Sources/Flo/Resources/*.flo.h` contains scripts from `Deep Muse` app
 - `Sources/Flo/Resources/test.output.flo.h` contains scripts from `Deep Muse` app
 
-## Future
-
-### Classes  
-
-- Add **timeline** class to record, playback, state of flo (2021)
-- Extend expressions with string parsing, using Par syntax (2022)
-- Add node based visitor coordination to synchronize beyond a single device (2022)
-- Support cryptographically synchronized timelines between devices (2022)
-
-### Syntax
-
-- Map Pythonic `INDENT`/`REDENT`/`DEDENT` to `{`  / `,` / `}` respectively 
-- Better error trapping for parsing errors 
-- Merge with Par, where modified BNF becomes a value type 
-
-### Values
-
-- Fully connected node layers
-- Sha256
-- L-systems to generate Merkle trees
-- Tanh, RELU support
-- Refractory periods for edges (ADSR style)
-- String parser as expression
-
-### Runtime
-
-- Runtime edge creation, akin to neuroplasticity
-- Command line tool to activate and inspect ontology
-- Command line interpreter to create and manipulate graphs
-
-### Backend
-
-- embed Metal shaders (for Muse Sky app) (worked for OpenGL)
-- optimize for MLIR?
-- support AutoGraph
-
-### D3.JS
-- Visualize Graph, port of [Prefuse version]( https://www.youtube.com/watch?v=a703TTbxghc)
-- Visualize dataflow as cross between Sankey and Node diagram (see Vizster demos)
-
-### Editor
-- auto layout vertical / horizontal
-- auto map  `INDENT`/`REDENT`/`DEDENT` to `{`  / `,` / `}` respectively 
-- Pinch to Fold/Unfold
-
 ### Packages
 
-Par - parser for DSLs and flexible NLP in Swift
+MuPar - parser for DSLs and flexible NLP in Swift
 
 - tree + graph base parser
 - contains a definition of the Flo Syntax
 - vertically integrated with Flo
 - Source [here](https://github.com/musesum/Par)
 
-FloD3 (pending)
+MuFloD3 (pending)
 
 - simple visualization of the Flo graph, using D3JS
 - continuation of prototype of previous version of Flo
 - Proof of concept [here]( https://www.youtube.com/watch?v=a703TTbxghc) (using Prefuse toolkit)
 
-FloDock (pending)
-
-- Flo based UI with dataflow broadcasting and ternaries 
-- Demo of UI [here](https://www.youtube.com/watch?v=peZFo8JnhuU)
-
 ## Use cases
 
-### Deep Muse iOS App
+### DeepMuse iOS App
 
-Toy Visual Synth for iPad and iPhone called "Muse Sky"
+Toy Visual Synth for iPad and iPhone called "DeepMuse"
 - See test script in Sources/Flo/Resources/*.flo.h
 - See test output in  Sources/Flo/Resources/test.output.flo.h
 - Code folding and syntax highlighting works in Xcode
@@ -369,7 +320,18 @@ Inspired by:
 - Analog music synthesizers, like Moog Modular, Arp 2600, with patchchords
 - Media Dataflow scripting : Max, QuartzComposer, Plogue Bidule
 
-### Avatars
+
+### Hand Pose Controlers
+
+You hand has 21 joints when can be used as a gestural controller 
+
+### Body Pose Avatars
+
+Imagine using a camera to record body pose  
+- Record total state of  `graph << body˚˚`
+- Playback total state of  `graph >> body˚˚`
+- Create a functional mirror `twin: body ←@→ body`
+- Inspired by a Kinect/OpenNI experiment, shown [here](https://www.youtube.com/watch?v=aFO6j6tvdk8)
 
 Check out `test.robot.input.flo.h`, which defines a Humanoid robot in three lines of code:
 ```c
@@ -377,19 +339,7 @@ body {left right}.{shoulder.elbow.wrist {thumb index middle ring pinky}.{meta pr
 ˚˚ <> ..
 ˚˚ { pos(x 0…1, y 0…1, z 0…1) angle(roll %360, pitch %360, yaw %360) mm(0…3000)})
 ```
-Imagine wearing a motion capture suit that you have record every movement and then playback
-- Record total state of  `graph << body˚˚`
-- Playback total state of  `graph >> body˚˚`
-- Create a functional mirror `twin: body ←@→ body`
-- Inspired by a Kinect/OpenNI experiment, shown [here](https://www.youtube.com/watch?v=aFO6j6tvdk8)
 
 ### Vehicles and Simulators 
 
 In 2004, NASA put on a conference called [Virtual Iron Bird](https://www.nasa.gov/vision/earth/technologies/Virtual_Iron_Bird_jb.html) to encourage modeling of Spacecraft. One question was how to manage the dataflow between sensors and actuators. How does one simulate a vehicle? Or synchonize co-pilot controls? 
-
-### Ledgers
-
-- A billion people with a billion private graphs ,
-- each with millions of nodes,
-- which synchronize
-
