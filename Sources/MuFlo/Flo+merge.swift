@@ -431,7 +431,7 @@ extension Flo {
         func bindVal(_ val: FloVal?) {
             if let val {
                 switch val {
-                    case let t as FloExprs:  t.setDefaults()
+                    case let t as FloValExprs:  t.setDefaults()
                     case let s as FloValScalar: s.setDefault()
                     default: break
                 }
@@ -449,7 +449,7 @@ extension Flo {
         func bindVal(_ val: FloVal?) {
             if let val {
                 switch val {
-                    case let t as FloExprs:  t.setNows()
+                    case let t as FloValExprs:  t.setNows()
                     case let s as FloValScalar: s.setNow()
                     default: break
                 }

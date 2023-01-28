@@ -81,11 +81,11 @@ public class FloParse {
             case "expr":
                 if let edgeDef = flo.edgeDefs.edgeDefs.last,
                    let edgePath = edgeDef.pathVals.pathVal.keys.last,
-                   let edgeVal = edgeDef.pathVals.pathVal[edgePath] as? FloExprs {
+                   let edgeVal = edgeDef.pathVals.pathVal[edgePath] as? FloValExprs {
 
                     parseNextExpr(flo, edgeVal, par, prior)
                 }
-                else if let floVal = flo.val as? FloExprs {
+                else if let floVal = flo.val as? FloValExprs {
 
                     parseNextExpr(flo, floVal, par, prior)
                 }
@@ -130,7 +130,7 @@ public class FloParse {
 
         switch val {
             case let val as FloValScalar: parseDeepScalar(val, par)
-            case let val as FloExprs:     parseNextExpr(flo, val, par, pattern)
+            case let val as FloValExprs:     parseNextExpr(flo, val, par, pattern)
             case let val as FloValTern:   parseTernary(flo, val, par, pattern)
             default: break
         }
@@ -150,7 +150,7 @@ public class FloParse {
                 parseDeepScalar(scalar, par)
 
             case "data":  val.deepAddVal(FloValData(flo,"data"))
-            case "exprs": val.deepAddVal(FloExprs(flo, "exprs"))
+            case "exprs": val.deepAddVal(FloValExprs(flo, "exprs"))
             default: parseDeepVal(flo, val.getVal(), par) // decorate deepest non tern value
         }
     }
@@ -163,8 +163,8 @@ public class FloParse {
         let pattern = par.node?.pattern ?? ""
 
         switch pattern {
-            case "thru": scalar.addFlag(.thru)
-            case "modu": scalar.addFlag(.modu)
+            case "thru": scalar.valOps += .thru
+            case "modu": scalar.valOps += .modu
             case "num" : scalar.parseNum(par.getFirstDouble())
             case "dflt": scalar.parseDflt(par.getFirstDouble())
             case "now" : scalar.parseNow(par.getFirstDouble())
@@ -183,7 +183,7 @@ public class FloParse {
     ///     }
     ///
     func parseNextExpr(_ flo: Flo,
-                       _ exprs: FloExprs,
+                       _ exprs: FloValExprs,
                        _ par: ParItem,
                        _ prior: String) {
 
@@ -271,7 +271,7 @@ public class FloParse {
             case "many",
                 "child":
 
-                flo.val = FloExprs(flo, prior)
+                flo.val = FloValExprs(flo, prior)
                 
             case "edges":
 
@@ -306,7 +306,7 @@ public class FloParse {
                 case "embed"    : flo.val = FloValEmbed(flo, str: par.getFirstValue())
                 case "scalar1"  : flo.val = FloValScalar(flo, pattern)
                 case "data"     : flo.val = FloValData(flo, pattern)
-                case "exprs"    : flo.val = FloExprs(flo, pattern)
+                case "exprs"    : flo.val = FloValExprs(flo, pattern)
                 default         : break
             }
         } else {
@@ -339,7 +339,7 @@ public class FloParse {
                     case "embed"   : addVal(FloValEmbed(flo, str: par.getFirstValue()))
                     case "scalar1" : addVal(FloValScalar(flo, pattern))
                     case "data"    : addVal(FloValData(flo, pattern))
-                    case "exprs"   : addVal(FloExprs(flo, pattern))
+                    case "exprs"   : addVal(FloValExprs(flo, pattern))
                     case "ternIf"  : addVal(FloValTern(flo, level))
                     default        : break
                 }

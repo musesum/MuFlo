@@ -43,7 +43,7 @@ public class FloValData: FloVal {
     public override func printVal() -> String {
         return scriptVal()
     }
-    public override func scriptVal(_ scriptFlags: FloScriptFlags = [.parens,.expand]) -> String {
+    public override func scriptVal(_ scriptOpts: FloScriptOps = [.parens,.expand]) -> String {
         return "[data]"
     }
 

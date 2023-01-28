@@ -48,9 +48,9 @@ public class FloValPath: FloVal {
             else                  { return script }
         }
     }
-    public override func scriptVal(_ scriptFlags: FloScriptFlags = [.parens]) -> String {
+    public override func scriptVal(_ scriptOpts: FloScriptOps = [.parens]) -> String {
         
-        if scriptFlags.expand {
+        if scriptOpts.expand {
             var script = Flo.scriptFlos(pathFlos)
             if script.first != "(" {
                 script = "(\(script))"
@@ -67,7 +67,7 @@ public class FloValPath: FloVal {
     }
 
     public override func setVal(_ any: Any?,
-                                _ visitor: Visitor) -> Bool {
+                                _ visit: Visitor) -> Bool {
         //TODO: is ever used during runtime?
         return true
     }

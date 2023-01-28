@@ -88,13 +88,13 @@ extension Flo {
     }
 
     // `..`, `...`, `..a`
-    func getNearDots(_ wildcard: String, _ suffix: String, _ findFlags: FloFindFlags) -> [Flo] {
+    func getNearDots(_ wildcard: String, _ suffix: String, _ findOps: FloFindOps) -> [Flo] {
         if wildcard == ".*" {
             return children
         }
         if let parent = getDotParent(wildcard.count-1) {
-            let nextFlags = findFlags.intersection([.parents, .children, .makePath])
-            return parent.findPathFlos(suffix, nextFlags)
+            let nextOps = findOps.intersection([.parents, .children, .makePath])
+            return parent.findPathFlos(suffix, nextOps)
         }
         else {
             return []
@@ -102,46 +102,46 @@ extension Flo {
     }
 
     /// find preexisting item 
-    public func findAnchor(_ path: String, _ findFlags: FloFindFlags) -> [Flo] {
+    public func findAnchor(_ path: String, _ findOps: FloFindOps) -> [Flo] {
 
         let (prefix, wildcard, suffix) = path.splitWild(".*˚")
 
-        let deeperFlags = findFlags.intersection([.children, .makePath])
+        let deeperOps = findOps.intersection([.children, .makePath])
 
         if name == prefix, type == .name {
             return findPathFlos(wildcard + suffix, [.children])
         }
         else if name == prefix, wildcard == "", type == .copyat, let parent = parent {
-            return parent.findPathFlos(path, findFlags)
+            return parent.findPathFlos(path, findOps)
         }
         else if prefix == "", let parent = parent {
-            return parent.findPathFlos(wildcard + suffix, deeperFlags)
+            return parent.findPathFlos(wildcard + suffix, deeperOps)
         }
-        else if findFlags.children {
+        else if findOps.children {
             for child in children {
                 if child.name == prefix, child.type == .name {
-                    return child.findPathFlos(wildcard + suffix, deeperFlags)
+                    return child.findPathFlos(wildcard + suffix, deeperOps)
                 }
             }
         }
         // still no match, so maybe search parents
-        if findFlags.parents {
+        if findOps.parents {
             if let parent {
-                return parent.findAnchor(path, findFlags)
+                return parent.findAnchor(path, findOps)
             }
             else if prefix == "" {
-                return findPathFlos(wildcard + suffix, findFlags)
+                return findPathFlos(wildcard + suffix, findOps)
             }
         }
         return []
     }
 
-    func findPrefixFlo(_ prefix: String, _ findFlags: FloFindFlags) -> Flo? {
+    func findPrefixFlo(_ prefix: String, _ findOps: FloFindOps) -> Flo? {
         if prefix == ""   {
             return self }
         if name == prefix {
             return self }
-        if findFlags.children {
+        if findOps.children {
             for child in children {
                 if child.type == .remove { continue }
                 if child.type == .copyat { continue }
@@ -150,22 +150,22 @@ extension Flo {
             }
         }
         // still no match, so maybe search parents
-        if findFlags.parents,
+        if findOps.parents,
             let parent = parent {
-            return parent.findPrefixFlo(prefix, findFlags)
+            return parent.findPrefixFlo(prefix, findOps)
         }
         return nil
     }
 
-    func getWildSuffix(_ wildcard: String, _ suffix: String, _ findFlags: FloFindFlags) -> [Flo] {
+    func getWildSuffix(_ wildcard: String, _ suffix: String, _ findOps: FloFindOps) -> [Flo] {
         // after finding starting point, only search children
         // and maybe create a flos, when specified in some cases.
-        let nextFlags = findFlags.intersection([.children, .makePath])
+        let nextOps = findOps.intersection([.children, .makePath])
 
         func getWild(flo: Flo) -> [Flo] {
 
             switch wildcard.first {
-            case ".": return flo.getNearDots(wildcard, suffix, nextFlags)
+            case ".": return flo.getNearDots(wildcard, suffix, nextOps)
             case "˚": return flo.getDegreeFlos(wildcard, suffix)
             default:  return [flo]
             }
@@ -183,7 +183,7 @@ extension Flo {
         return found
     }
 
-    func findPathFlos(_ path: String, _ findFlags: FloFindFlags) -> [Flo] {
+    func findPathFlos(_ path: String, _ findOps: FloFindOps) -> [Flo] {
 
         let (prefix, wildcard, suffix) = path.splitWild(".*˚")
 
@@ -209,15 +209,15 @@ extension Flo {
         if isStarMatch() {
             return [self]
         }
-        else if let prefixFlo = findPrefixFlo(prefix, findFlags) {
-            let found = prefixFlo.getWildSuffix(wildcard, suffix, findFlags)
+        else if let prefixFlo = findPrefixFlo(prefix, findOps) {
+            let found = prefixFlo.getWildSuffix(wildcard, suffix, findOps)
             if found.count > 0 { return found }
         }
 
         // still no match, so maybe make a new flo
         // make a.b, c.d in in `a.b { c.d }`
         // make e.f but not g.h in `e.f <- g.h`
-        if findFlags.makePath {
+        if findOps.makePath {
 
             if !prefix.isEmpty {
                 // cannot make b in `a˚b` or `a.*.b`

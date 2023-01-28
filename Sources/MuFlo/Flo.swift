@@ -106,17 +106,17 @@ public class Flo: Hashable {
     - Parameters:
         - flo: The parent Flo, which may be a leaf to attach or has children to scan deeper.
 
-        - visitor: the same "_:_" clone may be attached to multiple parent before consolication.
+        - visit: the same "_:_" clone may be attached to multiple parent before consolication.
      */
-    func attachDeep(_ flo: Flo, _ visitor: Visitor) {
-        if visitor.newVisit(id) {
+    func attachDeep(_ flo: Flo, _ visit: Visitor) {
+        if visit.newVisit(id) {
             if children.count == 0 {
                 flo.parent = self 
                 children.append(flo)
             }
             else {
                 for child in children {
-                    child.attachDeep(flo, visitor)
+                    child.attachDeep(flo, visit)
                 }
             }
         }

@@ -9,25 +9,25 @@ import MuPar // ParItem
 
 public class FloEdgeDef {
 
-    var edgeFlags = FloEdgeFlags()
+    var edgeOps = FlowEdgeOps()
     var pathVals = FloPathVals()
     var ternVal: FloValTern?
     var edges = [String: FloEdge]() // each edge is also shared by two Flos
     
     init() { }
 
-    init(flags: FloEdgeFlags) {
-        self.edgeFlags = flags
+    init(_ edgeOps: FlowEdgeOps) {
+        self.edgeOps = edgeOps
     }
     
     init(with fromDef: FloEdgeDef) {
         
-        edgeFlags = fromDef.edgeFlags
+        edgeOps = fromDef.edgeOps
         for (path,val) in fromDef.pathVals.pathVal { // pathVals = with.pathVal
             switch val {
                 case let val as FloValTern:   pathVals.add(path: path, val: val.copy())
                 case let val as FloValScalar: pathVals.add(path: path, val: val.copy())
-                case let val as FloExprs:     pathVals.add(path: path, val: val.copy())
+                case let val as FloValExprs:     pathVals.add(path: path, val: val.copy())
                 default:                      pathVals.add(path: path, val: val)
             }
         }
@@ -65,18 +65,18 @@ public class FloEdgeDef {
         return scriptVal([.parens,.now,.expand])
     }
     
-    public func scriptVal(_ scriptFlags: FloScriptFlags) -> String{
+    public func scriptVal(_ scriptOpts: FloScriptOps) -> String{
         
-        var script = edgeFlags.script()
+        var script = edgeOps.script()
         
         if let tern = ternVal {
-            script.spacePlus(tern.scriptVal(scriptFlags))
+            script.spacePlus(tern.scriptVal(scriptOpts))
         }
         else {
             if pathVals.pathVal.count > 1 { script += "(" }
             for (path,val) in pathVals.pathVal {
                 script += path
-                script += val?.scriptVal(scriptFlags) ?? ""
+                script += val?.scriptVal(scriptOpts) ?? ""
             }
             if pathVals.pathVal.count > 1 { script += ")" }
         }

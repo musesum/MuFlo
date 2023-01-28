@@ -207,7 +207,7 @@ Wildcard searches can occur on both left and rights sides to support fully conne
 ˚˚>>.*  // flow from each node to its children, top down
 ˚˚<>..  // flow in both directions, middle out?
 ```
-Because the visitor pattern breaks loops, the `˚˚<>..`  maps well to devices that combine sensors and actuators, such as:
+Because the visit pattern breaks loops, the `˚˚<>..`  maps well to devices that combine sensors and actuators, such as:
 -  a flying fader on a mix board, 
 - a co-pilot's steering wheel 
 - the joints on an Human body capture skeleton

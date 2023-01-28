@@ -47,10 +47,10 @@ public class FloEdgeDefs {
         
         for mergeDef in merge.edgeDefs {
             if isUnique(mergeDef) {
-                if mergeDef.edgeFlags.solo {
+                if mergeDef.edgeOps.solo {
                     edgeDefs = merge.edgeDefs
                 }
-                else if edgeDefs.first?.edgeFlags.solo ?? false {
+                else if edgeDefs.first?.edgeOps.solo ?? false {
                     // keep solo from previous definition
                 }
                 else {
@@ -95,7 +95,7 @@ public class FloEdgeDefs {
      */
     public func parseEdgeExprs(_ flo: Flo) {
         if let pathVals = edgeDefs.last?.pathVals {
-            pathVals.add(val: FloExprs(flo, "edge")) //?? 
+            pathVals.add(val: FloValExprs(flo, "edge")) //?? 
         }
         else {
             print("🚫 \(#function) no edgeDefs to add edge")
@@ -104,8 +104,8 @@ public class FloEdgeDefs {
 
     public func addEdgeDef(_ edgeOp: String?) {
         if let edgeOp {
-            let edgeFlags = FloEdgeFlags(with: edgeOp)
-            let edgeDef = FloEdgeDef(flags: edgeFlags)
+            let edgeOps = FlowEdgeOps(with: edgeOp)
+            let edgeDef = FloEdgeDef(edgeOps)
             edgeDefs.append(edgeDef)
         }
     }

@@ -10,7 +10,7 @@ import MuPar
 extension Flo {
 
     public func StringVal() -> String? {
-        if let exprs = val as? FloExprs,
+        if let exprs = val as? FloValExprs,
                   let str = exprs.exprs.first?.val as? String {
             // anonymous String inside expression
             // example `color ("pipe.color.metal")`
@@ -30,7 +30,7 @@ extension Flo {
         if let v = val as? FloValScalar {
             return v.now
         }
-        else if let exprs = val as? FloExprs {
+        else if let exprs = val as? FloValExprs {
             if let f = (exprs.nameAny["v"] as? FloValScalar)?.now {
                 return f
             } else if let scalar = exprs.nameAny.values.last as? FloValScalar  {
@@ -44,7 +44,7 @@ extension Flo {
         if let v = val as? FloValScalar {
             return [v.normalized()]
         }
-        else if let exprs = val as? FloExprs {
+        else if let exprs = val as? FloValExprs {
             if let v = exprs.nameAny["v"] as? FloValScalar {
                 return [v.normalized()]
             } else  {
@@ -77,7 +77,7 @@ extension Flo {
 
     public func CGPointVal() -> CGPoint? {
 
-        if let exprs = val as? FloExprs {
+        if let exprs = val as? FloValExprs {
             if let x = (exprs.nameAny["x"] as? FloValScalar)?.now,
                let y = (exprs.nameAny["y"] as? FloValScalar)?.now {
 
@@ -88,7 +88,7 @@ extension Flo {
     }
     
     public func CGSizeVal() -> CGSize? {
-        if let v = val as? FloExprs {
+        if let v = val as? FloValExprs {
             if let w = (v.nameAny["w"] as? FloValScalar)?.now,
                let h = (v.nameAny["h"] as? FloValScalar)?.now {
 
@@ -99,7 +99,7 @@ extension Flo {
     }
 
     public func CGRectVal() -> CGRect? {
-        if let v = val as? FloExprs {
+        if let v = val as? FloValExprs {
             let ns = v.nameAny
             if ns.count >= 4,
                let x = (ns["x"] as? FloValScalar)?.now,
@@ -117,7 +117,7 @@ extension Flo {
     }
 
     public func NamesVal() -> [String]? {
-        if let v = val as? FloExprs,
+        if let v = val as? FloValExprs,
            v.nameAny.count > 0 {
             return Array<String>(v.nameAny.keys)
         }
@@ -125,7 +125,7 @@ extension Flo {
     }
     /// get first occurence name in Set of types (there should only be one)
     public func getName(in types: Set<String>) -> String? {
-        if let exprs = val as? FloExprs {
+        if let exprs = val as? FloValExprs {
             for expr in exprs.exprs {
                 if (expr.op == .name || expr.op == .path),
                    let name = expr.val as? String,
@@ -146,7 +146,7 @@ extension Flo {
             }
             return false
         }
-        if let exprs = val as? FloExprs {
+        if let exprs = val as? FloValExprs {
             var matchCount = 0
             for expr in exprs.exprs {
                 if (expr.op == .name || expr.op == .path),
@@ -164,7 +164,7 @@ extension Flo {
 
     /// get nameed value
     public func component(named: String) -> Any? {
-        if let exprs = val as? FloExprs {
+        if let exprs = val as? FloValExprs {
             if let val = exprs.nameAny[named] {
 
                 return val
@@ -177,7 +177,7 @@ extension Flo {
     public func components(named: [String]) -> [(String,Any?)] {
         var result = [(String, Any?)] ()
         for name in named {
-            let val = (val as? FloExprs)?.nameAny[name] ?? nil
+            let val = (val as? FloValExprs)?.nameAny[name] ?? nil
             result.append((name,val))
         }
         return result
@@ -185,6 +185,6 @@ extension Flo {
 
     /// convert FloExprs contiguous array to dictionary
     public func components() ->  OrderedDictionary<String,Any>? {
-        return (val as? FloExprs)?.nameAny ?? nil
+        return (val as? FloValExprs)?.nameAny ?? nil
     }
 }

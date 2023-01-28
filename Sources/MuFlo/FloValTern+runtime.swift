@@ -5,7 +5,7 @@
 //  License: Apache 2.0 - see License file
 
 import Foundation
-import MuPar // visitor
+import MuPar // visit
 
 extension FloValTern {
 
@@ -13,7 +13,7 @@ extension FloValTern {
                      _ prevFlo: Flo,
                      _ nextFlo: Flo,
                      _ act:     FloAct,
-                     _ visitor: Visitor) {
+                     _ visit: Visitor) {
 
         func setTernEdges(_ val: FloVal?, active: Bool) {
 
@@ -41,15 +41,15 @@ extension FloValTern {
         func recalcPathVal(_ val: FloVal?) {
 
             if  let tern = val as? FloValTern {
-                tern.recalc(prevFlo, nextFlo, act, visitor)
+                tern.recalc(prevFlo, nextFlo, act, visit)
             }
             else if act != .sneak {
-                _ = flo.setEdgeVal(val, visitor)
+                _ = flo.setEdgeVal(val, visit)
             }
         }
         func neitherPathVal(_ val: FloVal?) {
             forTernPathVal(val) { tern in
-                tern.changeState(.noVal, prevFlo, nextFlo, act, visitor)
+                tern.changeState(.noVal, prevFlo, nextFlo, act, visit)
             }
         }
 
@@ -88,11 +88,11 @@ extension FloValTern {
     // follow radio linked list to beginnning and change state along the way
     func changeRadio(_ prevFlo: Flo,
                      _ nextFlo: Flo,
-                     _ visitor: Visitor) {
+                     _ visit: Visitor) {
 
         for radioFlo in pathFlos {
             if let tern = radioFlo.val as? FloValTern {
-                tern.changeState(.noVal, prevFlo, nextFlo, .sneak, visitor)
+                tern.changeState(.noVal, prevFlo, nextFlo, .sneak, visit)
             }
             if let thenPath = thenVal as? FloValPath {
                 for thenFlo in thenPath.pathFlos {
@@ -115,25 +115,25 @@ extension FloValTern {
     // follow radio linked list to beginnning and change state along the way
     func changeRadioPrev(_ prevFlo: Flo,
                          _ nextFlo: Flo,
-                         _ visitor: Visitor) {
+                         _ visit: Visitor) {
 
-        changeRadio(prevFlo, nextFlo, visitor)
-        radioPrev?.changeRadioPrev(prevFlo, nextFlo, visitor)
+        changeRadio(prevFlo, nextFlo, visit)
+        radioPrev?.changeRadioPrev(prevFlo, nextFlo, visit)
     }
 
     // follow radio linked list to beginnning and change state along the way
     func changeRadioNext(_ prevFlo: Flo,
                          _ nextFlo: Flo,
-                         _ visitor: Visitor) {
+                         _ visit: Visitor) {
 
-        changeRadio(prevFlo, nextFlo, visitor)
-        radioNext?.changeRadioNext(prevFlo, nextFlo, visitor)
+        changeRadio(prevFlo, nextFlo, visit)
+        radioNext?.changeRadioNext(prevFlo, nextFlo, visit)
     }
 
     func recalc(_ prevFlo: Flo?,
                 _ nextFlo: Flo?,
                 _ act:     FloAct,
-                _ visitor: Visitor) {
+                _ visit: Visitor) {
 
         guard let prevFlo else { print("🚫 prevFlo = nil"); return }
         guard let nextFlo else { print("🚫 nextFlo = nil"); return }
@@ -141,20 +141,20 @@ extension FloValTern {
         // a in `w <-(a == b ? x : y)`  when a == b
         if testCondition(prevFlo, act) {
 
-            radioPrev?.changeRadioPrev(prevFlo, nextFlo, visitor)
-            radioNext?.changeRadioNext(prevFlo, nextFlo, visitor)
-            changeState(.thenVal, prevFlo, nextFlo, act, visitor)
+            radioPrev?.changeRadioPrev(prevFlo, nextFlo, visit)
+            radioNext?.changeRadioNext(prevFlo, nextFlo, visit)
+            changeState(.thenVal, prevFlo, nextFlo, act, visit)
         }
             // during bindTerns, deactivate edges when there is no value or comparison
         else if act == .sneak {
             // deactive both Then, Else edges
-            radioPrev?.changeRadioPrev(prevFlo, nextFlo, visitor)
-            radioNext?.changeRadioNext(prevFlo, nextFlo, visitor)
-            changeState(.noVal, prevFlo, nextFlo, act, visitor) // a ?? b fails comparison
+            radioPrev?.changeRadioPrev(prevFlo, nextFlo, visit)
+            radioNext?.changeRadioNext(prevFlo, nextFlo, visit)
+            changeState(.noVal, prevFlo, nextFlo, act, visit) // a ?? b fails comparison
         }
             // when a != b in `w <-(a == b ? x : y)`
         else {
-            changeState(.elseVal, prevFlo, nextFlo, act, visitor) // a ?? b fails comparison
+            changeState(.elseVal, prevFlo, nextFlo, act, visit) // a ?? b fails comparison
         }
     }
 
@@ -162,7 +162,7 @@ extension FloValTern {
     func setFloVal(_ left:    Flo,
                    _ right:   Flo,
                    _ act:     FloAct,
-                   _ visitor: Visitor) {
+                   _ visit: Visitor) {
 
         // DebugPrint("dst:%s src:%s \n&src.val:%p \n&event.val:%p\n\n", dst.name.c_str(), src.name.c_str(), src.val, event.val)
 
@@ -171,10 +171,10 @@ extension FloValTern {
             left.val = right.val
         }
         else {
-            isOk = left.val?.setVal(right.val!, visitor) != nil
+            isOk = left.val?.setVal(right.val!, visit) != nil
         }
         if act == .activate, isOk {
-            left.activate(visitor)
+            left.activate(visit)
         }
     }
 

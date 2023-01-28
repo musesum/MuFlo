@@ -18,22 +18,22 @@ public class FloExpr {
     init(from   : FloExpr)      { self.op = from.op ; val = from.val }
     init(scalar : FloValScalar) { self.op = .scalar ; val = scalar }
 
-    func script(_ scriptFlags: FloScriptFlags) -> String {
+    func script(_ scriptOpts: FloScriptOps) -> String {
         
         switch op {
             case .name: return val as? String ?? "??"
             case .quote: return "\"\(val as? String ?? "??")\""
             case .scalar:
                 if let v = val as? FloValScalar {
-                    var scriptFlags2 = scriptFlags
-                    scriptFlags2.remove(.parens)
-                    scriptFlags2.insert(.expand)
-                    return v.scriptVal(scriptFlags2)
+                    var scriptOps2 = scriptOpts
+                    scriptOps2.remove(.parens)
+                    scriptOps2.insert(.expand)
+                    return v.scriptVal(scriptOps2)
                 }
             case .comma: return op.rawValue
             default : break
         }
-        return scriptFlags.now ? "" : op.rawValue
+        return scriptOpts.now ? "" : op.rawValue
         
     }
 

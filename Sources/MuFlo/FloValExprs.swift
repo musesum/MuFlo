@@ -10,7 +10,7 @@ import Collections
 import Foundation
 import MuPar
 
-public class FloExprs: FloVal {
+public class FloValExprs: FloVal {
 
     /// `t(x 1, y 2)` ⟹ `["x": 1, "y": 2]`
     public var nameAny: OrderedDictionary<String,Any> = [:]
@@ -32,9 +32,9 @@ public class FloExprs: FloVal {
     override init(with floVal: FloVal) {
         super.init(with: floVal)
 
-        if let v = floVal as? FloExprs {
+        if let v = floVal as? FloValExprs {
             
-            valFlags = v.valFlags
+            valOps = v.valOps
             for (name, val) in v.nameAny {
                 nameAny[name] = val
             }
@@ -59,8 +59,8 @@ public class FloExprs: FloVal {
             addNameNum(name, num)
         }
     }
-    override func copy() -> FloExprs {
-        let newFloExprs = FloExprs(with: self)
+    override func copy() -> FloValExprs {
+        let newFloExprs = FloValExprs(with: self)
         return newFloExprs
     }
 
@@ -93,48 +93,48 @@ public class FloExprs: FloVal {
     }
     // MARK: - Set
     public override func setVal(_ any: Any?, //???
-                                _ visitor: Visitor) -> Bool {
+                                _ visit: Visitor) -> Bool {
         guard let any else { return false }
 
         switch any {
-            case let v as Float:    return setDouble(Double(v), visitor)
-            case let v as CGFloat:  return setDouble(Double(v), visitor)
-            case let v as Double:   return setDouble(Double(v), visitor)
-            case let v as CGPoint:  return setPoint(v, visitor)
-            case let v as FloExprs: return setExprs(v, visitor)
-            case let (n,v) as (String,Float):   return setNamed(n, Double(v), visitor)
-            case let (n,v) as (String,Double):  return setNamed(n, Double(v), visitor)
-            case let (n,v) as (String,CGFloat): return setNamed(n, Double(v), visitor)
+            case let v as Float:    return setDouble(Double(v), visit)
+            case let v as CGFloat:  return setDouble(Double(v), visit)
+            case let v as Double:   return setDouble(Double(v), visit)
+            case let v as CGPoint:  return setPoint(v, visit)
+            case let v as FloValExprs: return setExprs(v, visit)
+            case let (n,v) as (String,Float):   return setNamed(n, Double(v), visit)
+            case let (n,v) as (String,Double):  return setNamed(n, Double(v), visit)
+            case let (n,v) as (String,CGFloat): return setNamed(n, Double(v), visit)
             default: print("🚫 mismatched setVal(\(any))")
         }
         return false
 
-        func setExprs(_ exprs: FloExprs,
-                      _ visitor: Visitor) -> Bool {
+        func setExprs(_ exprs: FloValExprs,
+                      _ visit: Visitor) -> Bool {
 
-            if !visitor.newVisit(id) { return false }
-            _ = exprs.evalExprs(nil,visitor)
-            return evalExprs(exprs, visitor)
+            if !visit.newVisit(id) { return false }
+            _ = exprs.evalExprs(nil,visit)
+            return evalExprs(exprs, visit)
         }
         func setNamed(_ name: String,
                       _ value: Double,
-                      _ visitor: Visitor) -> Bool {
+                      _ visit: Visitor) -> Bool {
 
             if let scalar = nameAny[name] as? FloValScalar {
-                _ = scalar.setVal(value, visitor)
+                _ = scalar.setVal(value, visit)
             } else {
                 nameAny[name] = FloValScalar(flo, name: name, num: value)
             }
-            addFlag(.now)
+            valOps += .now
             return true
         }
 
         func setDouble(_ v: Double,
-                       _ visitor: Visitor) -> Bool {
+                       _ visit: Visitor) -> Bool {
 
             if let n = nameAny["val"] as? FloValScalar {
-                _ = n.setVal(v, visitor)
-                n.addFlag(.now)
+                _ = n.setVal(v, visit)
+                n.valOps += .now
             }
             else {
                 nameAny["val"] = FloValScalar(flo, name: "val", num: v) //TODO: remove this kludge for DeepMenu
@@ -143,7 +143,7 @@ public class FloExprs: FloVal {
         }
 
         func setPoint(_ p: CGPoint,
-                      _ visitor: Visitor) -> Bool {
+                      _ visit: Visitor) -> Bool {
 
             if exprs.isEmpty {
                 // create a new expr list
@@ -153,7 +153,7 @@ public class FloExprs: FloVal {
             let copy = copy()
             copy.injectNameNum("x", Double(p.x))
             copy.injectNameNum("y", Double(p.y))
-            return evalExprs(copy, visitor)
+            return evalExprs(copy, visit)
         }
     }
     func setNows() {
@@ -183,11 +183,11 @@ public class FloExprs: FloVal {
         }
         return script.with(trailing: ")")
     }
-    public override func scriptVal(_ scriptFlags: FloScriptFlags) -> String {
+    public override func scriptVal(_ scriptOpts: FloScriptOps) -> String {
 
         var script = ""
-        script = scriptExprs(scriptFlags)
-        return script.isEmpty ? "" : scriptFlags.parens ? "(\(script))" : script
+        script = scriptExprs(scriptOpts)
+        return script.isEmpty ? "" : scriptOpts.parens ? "(\(script))" : script
     }
     override public func hasDelta() -> Bool {
         for val in nameAny.values {

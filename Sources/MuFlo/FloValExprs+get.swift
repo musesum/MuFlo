@@ -2,7 +2,7 @@
 //
 
 import Foundation
-extension FloExprs {
+extension FloValExprs {
 
     func getCGPoint() -> CGPoint? {
         if nameAny.count == 2,

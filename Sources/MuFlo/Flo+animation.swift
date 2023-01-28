@@ -7,10 +7,10 @@ extension Flo { // + animation
 
     func setAnimation(_ fromFlo: Flo) {
         guard let val else { return }
-        val.valFlags.insert(.anim)
+        val.valOps += .anim
         switch val {
             case let v as FloValScalar: v.setAnimation(fromFlo)
-            case let v as FloExprs:     v.setAnimation(fromFlo)
+            case let v as FloValExprs:     v.setAnimation(fromFlo)
             default: break
         }
     }
@@ -25,7 +25,7 @@ extension FloValScalar {
 
                 setAnim(from.now)
 
-            case let from as FloExprs:
+            case let from as FloValExprs:
 
                 for fromAny in from.nameAny.values {
 
@@ -41,7 +41,7 @@ extension FloValScalar {
     }
 }
 
-extension FloExprs {
+extension FloValExprs {
 
     func setAnimation(_ fromFlo: Flo) {
 
@@ -56,7 +56,7 @@ extension FloExprs {
                         destScalar.setAnim(fromScalar.now)
                     }
                 }
-            case let fromExprs as FloExprs:
+            case let fromExprs as FloValExprs:
 
                 for (fromName,fromAny) in fromExprs.nameAny {
 

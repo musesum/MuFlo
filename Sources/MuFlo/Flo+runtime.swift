@@ -5,30 +5,30 @@
 //  License: Apache 2.0 - see License file
 
 import QuartzCore
-import MuPar // visitor
+import MuPar // visit
 
 extension Flo {
 
     /// combine several expressions into one transaction and activate the callbacks only once
     public func setNameAnys(_ nameAnys: [(String,Any)],
-                            _ options: FloSetOptions,
-                            _ visitor: Visitor) {
+                            _ options: FloSetOps,
+                            _ visit: Visitor) {
 
         // defer activation until after setting value
         let noActivate = options.subtracting(.activate)
 
         // set all the expressions
         for nameAny in nameAnys {
-            setAny(nameAny, noActivate, visitor)
+            setAny(nameAny, noActivate, visit)
         }
         // do the deferred activations, if there was one
         if options.activate {
-            activate(visitor)
+            activate(visit)
         }
     }
     public func setAny(_ any: Any,
-                       _ options: FloSetOptions,
-                       _ visitor: Visitor = Visitor(0)) {
+                       _ options: FloSetOps,
+                       _ visit: Visitor = Visitor(0)) {
 
         /// clean up scaffolding from parsing a Ternary,
         /// todo: scaffolding instead of overloading val
@@ -43,14 +43,14 @@ extension Flo {
                 val = fromVal
             } else if let val {
                 // set my val to fromVal, with rescaling
-                if val.setVal(fromVal, visitor) == false {
+                if val.setVal(fromVal, visit) == false {
                     // condition failed, so avoid activatating edges, below
                     return
                 }
             }
         } else if let val {
             // any is not a FloVal, so pass onto my FloVal if it exists
-            if val.setVal(any, visitor) == false {
+            if val.setVal(any, visit) == false {
                 // condition failed, so avoid activatating edges, below
                 return
             }
@@ -59,30 +59,30 @@ extension Flo {
             passthrough = false
 
             switch any {
-                case let v as Int:                val = FloValScalar(self, name: name, num: Double(v))
-                case let v as Double:             val = FloValScalar(self, name: name, num: v)
-                case let v as CGFloat:            val = FloValScalar(self, name: name, num: Double(v))
-                case let v as CGPoint:            val = FloExprs(self, point: v)
-                //??? case let v as [(String, Double)]: val = FloExprs(self, nameNums: v)
+                case let v as Int:     val = FloValScalar(self, name: name, num: Double(v))
+                case let v as Double:  val = FloValScalar(self, name: name, num: v)
+                case let v as CGFloat: val = FloValScalar(self, name: name, num: Double(v))
+                case let v as CGPoint: val = FloValExprs(self, point: v)
+                case let v as [(String, Double)]: val = FloValExprs(self, nameNums: v)
                 default: print("🚫 unknown val(\(any))")
             }
         }
         // maybe pass along my FloVal to other FloNodes and closures
         if options.activate {
-            activate(visitor)
+            activate(visit)
         }
     }
 
-    public func activate(_ visitor: Visitor) {
+    public func activate(_ visit: Visitor) {
 
-        if visitor.newVisit(id) {
+        if visit.newVisit(id) {
             for closure in closures {
-                closure(self, visitor)
+                closure(self, visit)
             }
             for floEdge in floEdges.values {
                 
                 if floEdge.active {
-                    floEdge.followEdge(self, visitor.via(.model))
+                    floEdge.followEdge(self, visit.via(.model))
                 }
             }
         }
@@ -103,9 +103,9 @@ extension Flo {
     /// its value and the range of the incoming value.
     ///
     func setEdgeVal(_ fromVal: FloVal?,
-                    _ visitor: Visitor) -> Bool {
+                    _ visit: Visitor) -> Bool {
         
-        if visitor.wasHere(id) { return false }
+        if visit.wasHere(id) { return false }
         guard let fromVal else { return true }
 
         if val == nil {
@@ -117,26 +117,26 @@ extension Flo {
         else if let val {
             switch val {
 
-                case let v as FloExprs:
+                case let v as FloValExprs:
 
-                    if let fr = fromVal as? FloExprs {
-                        return v.setVal(fr, visitor)
+                    if let fr = fromVal as? FloValExprs {
+                        return v.setVal(fr, visit)
                     }
                 case let v as FloValScalar:
 
                     if let fr = fromVal as? FloValScalar {
-                        return v.setVal(fr, visitor)
+                        return v.setVal(fr, visit)
                     }
-                    else if let frExprs = fromVal as? FloExprs,
+                    else if let frExprs = fromVal as? FloValExprs,
                             let lastExpr = frExprs.nameAny.values.first,
                             let fr = lastExpr as? FloValScalar {
 
-                        return v.setVal(fr, visitor)
+                        return v.setVal(fr, visit)
                     }
                 case let v as FloValData:
                     
                     if let fr = fromVal as? FloValData {
-                        return v.setVal(fr, visitor)
+                        return v.setVal(fr, visit)
                     }
                 default: break
             }

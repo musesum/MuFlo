@@ -13,7 +13,7 @@ public class FloEdge: Hashable {
     var id = Visitor.nextId()
     var edgeKey = "" // created with makeKey()
 
-    var edgeFlags = FloEdgeFlags()
+    var edgeOps = FlowEdgeOps()
     var active = true
     var leftFlo: Flo
     var rightFlo: Flo
@@ -30,28 +30,28 @@ public class FloEdge: Hashable {
     }
 
     convenience init(with: FloEdge) { // was operator = in c++ version
-        self.init(with.leftFlo, with.rightFlo, with.edgeFlags)
+        self.init(with.leftFlo, with.rightFlo, with.edgeOps)
         self.active = with.active
         self.defVal = with.defVal
         makeKey()
     }
 
-   init(_ leftFlo: Flo, _ rightFlo: Flo, _ edgeflags: FloEdgeFlags) {
+   init(_ leftFlo: Flo, _ rightFlo: Flo, _ edgeOps: FlowEdgeOps) {
         //self.init()
-        self.edgeFlags = edgeflags
+        self.edgeOps = edgeOps
         self.leftFlo = leftFlo
         self.rightFlo = rightFlo
         makeKey()
     }
     convenience init(_ def: FloEdgeDef, _ leftFlo: Flo, _ rightFlo: Flo, _ floVal: FloVal?) {
-        self.init(leftFlo, rightFlo, def.edgeFlags)
+        self.init(leftFlo, rightFlo, def.edgeOps)
         self.defVal = floVal
         makeKey()
     }
     func makeKey() {
         let lhs = "\(leftFlo.id)"
         let rhs = "\(rightFlo.id)"
-        let arrow = edgeFlags.script(active: false)
+        let arrow = edgeOps.script(active: false)
         edgeKey = lhs + arrow + rhs
     }
     

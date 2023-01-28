@@ -3,9 +3,9 @@
 
 import MuPar
 
-extension FloExprs {
+extension FloValExprs {
     
-    private func scriptNames(_ scriptFlags: FloScriptFlags) -> String {
+    private func scriptNames(_ scriptOps: FloScriptOps) -> String {
         var script = ""
         var delim = ""
         for (name,val) in nameAny {
@@ -18,7 +18,7 @@ extension FloExprs {
             switch val {
                 case let v as FloValScalar:
                     
-                    script.spacePlus(v.scriptVal(scriptFlags))
+                    script.spacePlus(v.scriptVal(scriptOps))
                     
                 case let v as String:
                     
@@ -30,9 +30,9 @@ extension FloExprs {
         return script
     }
     
-    public func scriptExprs(_ scriptFlags: FloScriptFlags) -> String {
+    public func scriptExprs(_ scriptOpts: FloScriptOps) -> String {
         var script = ""
-        if scriptFlags.now  {
+        if scriptOpts.now  {
             
             var lastNamePath = ""
             var assigned = false
@@ -87,9 +87,9 @@ extension FloExprs {
                     if !literals {
                         if lastNamePath.count > 0,
                            let val = nameAny[lastNamePath] as? FloVal {
-                            var scriptFlags2 = scriptFlags
-                            scriptFlags2.remove(.parens)
-                            let s = val.scriptVal(scriptFlags2)
+                            var scriptOps2 = scriptOpts
+                            scriptOps2.remove(.parens)
+                            let s = val.scriptVal(scriptOps2)
                             script.spacePlus(s)
                             lastNamePath = ""
                         }
@@ -98,7 +98,7 @@ extension FloExprs {
             }
         } else {
             for expr in exprs {
-                script.spacePlus(expr.script(scriptFlags))
+                script.spacePlus(expr.script(scriptOpts))
             }
         }
         return script

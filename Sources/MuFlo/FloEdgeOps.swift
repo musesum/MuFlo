@@ -1,4 +1,4 @@
-// FloEdgeFlags.swift
+// FlowEdgeOps.swift
 //
 //  Created by warren on 3/10/19.
 //  Copyright © 2019 DeepMuse
@@ -6,18 +6,18 @@
 
 import Foundation
 
-public struct FloEdgeFlags: OptionSet {
+public struct FlowEdgeOps: OptionSet {
 
     public let rawValue: Int
 
-    public static let input   = FloEdgeFlags(rawValue: 1 << 0) //  1 `<` in ` a << b            a <> b`
-    public static let output  = FloEdgeFlags(rawValue: 1 << 1) //  2 `>` in  `a >> b            a <> b`
-    public static let solo    = FloEdgeFlags(rawValue: 1 << 2) //  4 `=` in  `a <= b   a => b   a <=> b`
-    public static let exclude = FloEdgeFlags(rawValue: 1 << 3) //  8 `!` in  `a <! b   a !> b   a <!> b`
-    public static let ternIf  = FloEdgeFlags(rawValue: 1 << 5) // 32 ternary `a⟐→z` in `z(a ? b : c)`
-    public static let ternGo  = FloEdgeFlags(rawValue: 1 << 6) // 64 ternary `b◇→z`,`c◇→` in `z(a ? b : c)`
-    public static let copyat  = FloEdgeFlags(rawValue: 1 << 7) // 128 a @ b
-    public static let animate = FloEdgeFlags(rawValue: 1 << 8) // 256 a ~ b
+    public static let input   = FlowEdgeOps(rawValue: 1 << 0) //  1 `<` in ` a << b            a <> b`
+    public static let output  = FlowEdgeOps(rawValue: 1 << 1) //  2 `>` in  `a >> b            a <> b`
+    public static let solo    = FlowEdgeOps(rawValue: 1 << 2) //  4 `=` in  `a <= b   a => b   a <=> b`
+    public static let exclude = FlowEdgeOps(rawValue: 1 << 3) //  8 `!` in  `a <! b   a !> b   a <!> b`
+    public static let ternIf  = FlowEdgeOps(rawValue: 1 << 5) // 32 ternary `a⟐→z` in `z(a ? b : c)`
+    public static let ternGo  = FlowEdgeOps(rawValue: 1 << 6) // 64 ternary `b◇→z`,`c◇→` in `z(a ? b : c)`
+    public static let copyat  = FlowEdgeOps(rawValue: 1 << 7) // 128 a @ b
+    public static let animate = FlowEdgeOps(rawValue: 1 << 8) // 256 a ~ b
 
     public init(rawValue: Int = 0) { self.rawValue = rawValue }
 
@@ -25,18 +25,18 @@ public struct FloEdgeFlags: OptionSet {
         self.init()
         for char in str {
             switch char {
-            case "<","←": self.insert(.input)   // callback
-            case ">","→": self.insert(.output)  // call out
-            case "⟡"    : self.insert(.solo)    // overwrite
-            case "!"    : self.insert(.exclude) // remove edge(s) //TODO: test
-            case "?"    : self.insert(.ternIf)  // edge to ternary condition
-            case "@"    : self.insert(.copyat)  // edge to ternary condition
-            case "~"    : self.insert(.animate) // edge to ternary condition
+            case "<","←": insert(.input)   // callback
+            case ">","→": insert(.output)  // call out
+            case "⟡"    : insert(.solo)    // overwrite
+            case "!"    : insert(.exclude) // remove edge(s) //TODO: test
+            case "?"    : insert(.ternIf)  // edge to ternary condition
+            case "@"    : insert(.copyat)  // edge to ternary condition
+            case "~"    : insert(.animate) // edge to ternary condition
             default     : continue
             }
         }
     }
-    public init(flipIO: FloEdgeFlags) {
+    public init(flipIO: FlowEdgeOps) {
         self.init(rawValue: flipIO.rawValue)
 
         let hasInput  = self.input
@@ -55,7 +55,7 @@ public struct FloEdgeFlags: OptionSet {
     var copyat  : Bool { contains(.copyat  )}
     var animate : Bool { contains(.animate )}
 
-    public func scriptExpicitFlags() -> String {
+    public func scriptExpicitOps() -> String {
 
         switch self {
             case [.input,.output]: return "<>"
@@ -63,11 +63,11 @@ public struct FloEdgeFlags: OptionSet {
             case [.output]: return ">>"
             case [.input,.animate]: return "<~"
             case [.output,.animate]: return "~>"
-            default: print( "⚠️ unexpected scriptEdgeFlags")
+            default: print( "⚠️ unexpected scriptEdgeOps")
         }
         return ""
     }
-    public func scriptImplicitFlags(_ active: Bool) -> String {
+    public func scriptImplicitOps(_ active: Bool) -> String {
 
         var script = self.input ? "←" : ""
 
@@ -91,9 +91,9 @@ public struct FloEdgeFlags: OptionSet {
 
     public func script(active: Bool = true) -> String {
         if isImplicit {
-            return scriptImplicitFlags(active)
+            return scriptImplicitOps(active)
         } else {
-            return scriptExpicitFlags()
+            return scriptExpicitOps()
         }
     }
 

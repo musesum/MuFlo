@@ -10,7 +10,7 @@ import Foundation
 extension FloEdge {
 
     func makeD3Edge(_ separator: String) -> String {
-        let arrow = edgeFlags.script()
+        let arrow = edgeOps.script()
         return separator + "'\(leftFlo.id)\(arrow)\(rightFlo.id)'"
     }
 }
@@ -80,7 +80,7 @@ extension Flo {
             let rightId = edge.rightFlo.id
             if leftId == id {
 
-                let type = edge.edgeFlags.script(active: false)
+                let type = edge.edgeOps.script(active: false)
                 script += "{'id':'\(leftId)\(type)\(rightId)', 'source':\(leftId), 'target':\(rightId), 'type':'\(type)'},\n"
             }
         }

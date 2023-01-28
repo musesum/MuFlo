@@ -6,21 +6,21 @@
 //  License: Apache 2.0 - see License file
 
 import Foundation
-import MuPar // visitor
+import MuPar // visit
 
 extension FloEdge {
     
     func followEdge(_ fromFlo: Flo,
-                    _ visitor: Visitor) {
+                    _ visit: Visitor) {
 
         let leftToRight = fromFlo == leftFlo // a >> b
         let rightToLeft = !leftToRight       // a << b
         let destFlo = leftToRight ? rightFlo : leftFlo
 
-        if edgeFlags.animate {
+        if edgeOps.animate {
 
-            if  (leftToRight && edgeFlags.output ||
-                 rightToLeft && edgeFlags.input) {
+            if  (leftToRight && edgeOps.output ||
+                 rightToLeft && edgeOps.input) {
 
                 let destPath = destFlo.parentPath(9)
                 let fromPath = fromFlo.parentPath(9)
@@ -33,29 +33,29 @@ extension FloEdge {
                 }
                 destFlo.setAnimation(fromFlo)
             }
-        } else if edgeFlags.ternIf {
+        } else if edgeOps.ternIf {
 
             if leftToRight, let ternVal = rightFlo.findEdgeTern(self) {
 
-                ternVal.recalc(leftFlo, rightFlo, .activate , visitor)
-                rightFlo.activate(visitor)
+                ternVal.recalc(leftFlo, rightFlo, .activate , visit)
+                rightFlo.activate(visit)
                 //print("\(fromFlo.name)◇→\(destFlo?.name ?? "")")
             }
             else if rightToLeft, let ternVal = leftFlo.findEdgeTern(self) {
 
-                ternVal.recalc(rightFlo, leftFlo, .activate, visitor)
-                leftFlo.activate(visitor)
+                ternVal.recalc(rightFlo, leftFlo, .activate, visit)
+                leftFlo.activate(visit)
                 //print("\(fromFlo.name)◇→\(destFlo?.name ?? "")")
             }
         }
         else {
 
-            if  leftToRight && edgeFlags.output ||
-                rightToLeft && edgeFlags.input {
+            if  leftToRight && edgeOps.output ||
+                rightToLeft && edgeOps.input {
 
                 let val = assignNameVals()
-                if  destFlo.setEdgeVal(val, visitor) {
-                    destFlo.activate(visitor)
+                if  destFlo.setEdgeVal(val, visit) {
+                    destFlo.activate(visit)
                 } else {
                     /// Did not meet conditionals, so stop.
                     /// for example, when cc != 13 for
@@ -71,8 +71,8 @@ extension FloEdge {
 
             if let defVal {
 
-                if let defExprs = defVal as? FloExprs,
-                   let frExprs = fromFlo.val as? FloExprs {
+                if let defExprs = defVal as? FloValExprs,
+                   let frExprs = fromFlo.val as? FloValExprs {
 
                     for (name,val) in defExprs.nameAny {
                         if (val as? String) == "" {

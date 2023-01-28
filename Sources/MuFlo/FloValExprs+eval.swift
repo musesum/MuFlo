@@ -6,7 +6,7 @@
 import Foundation
 import MuPar
 
-extension FloExprs { // + set
+extension FloValExprs { // + set
 
     typealias ExprSetters = ContiguousArray<(String,Any?)>
 
@@ -31,8 +31,8 @@ extension FloExprs { // + set
     ///
     ///  -note: failed conditional will abort all setters and should abort activate edges
     ///
-    func evalExprs(_ frExprs: FloExprs?,
-                   _ visitor: Visitor) -> Bool {
+    func evalExprs(_ frExprs: FloValExprs?,
+                   _ visit: Visitor) -> Bool {
 
         var mySetters = ExprSetters()
         var toVal: Any?
@@ -44,7 +44,7 @@ extension FloExprs { // + set
 
             if i==exprs.count {
                 endParameter()
-                setSetters(mySetters, visitor)
+                setSetters(mySetters, visit)
                 return true
             }
             let expr = exprs[i]
@@ -111,7 +111,7 @@ extension FloExprs { // + set
 
     ///execute all deferrred setters
     func setSetters(_ mySetters: ExprSetters,
-                    _ visitor: Visitor) {
+                    _ visit: Visitor) {
         
         for (name,val) in mySetters {
 
@@ -119,7 +119,7 @@ extension FloExprs { // + set
                 case let val as FloValScalar:
                     if let toVal = nameAny[name] as? FloVal {
                         /// `x` in `a(x 1) << b`
-                        _ = toVal.setVal(val, visitor)
+                        _ = toVal.setVal(val, visit)
                     } else {
                         /// `x` in `a(x) << b`
                         nameAny[name] = val.copy()
@@ -132,7 +132,7 @@ extension FloExprs { // + set
                     if let toVal = nameAny[name] as? FloVal {
                         if !val.isEmpty {
                             /// `x` in `a(x in 2…4) << b, `b(x 3)`
-                            _ = toVal.setVal(val, visitor)
+                            _ = toVal.setVal(val, visit)
                         }
                     }
                 default : break

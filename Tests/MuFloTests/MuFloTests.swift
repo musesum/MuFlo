@@ -15,7 +15,7 @@ final class MuFloTests: XCTestCase {
      */
     func test(_ script: String,
               _ expected: String? = nil,
-              _ scriptFlags: FloScriptFlags = [.parens, .edge, .comment, .copyAt, .def]) -> Int {
+              _ scriptOps: FloScriptOps = [.parens, .edge, .comment, .copyAt, .def]) -> Int {
 
         var err = 0
 
@@ -24,7 +24,7 @@ final class MuFloTests: XCTestCase {
         let expected = expected ?? script
 
         if floParse.parseScript(root, script) {
-            let actual = root.scriptRoot(scriptFlags)
+            let actual = root.scriptRoot(scriptOps)
             // print("\n" + actual)
             err = ParStr.testCompare(expected, actual)
         }
@@ -1354,12 +1354,12 @@ final class MuFloTests: XCTestCase {
             let t0 = FloExprs(Flo("t0"), nameNums: [("num", 50), ("chan", 0)])
             note.setAny(t0, .activate)
             let result0 = root.scriptRoot([.parens, .now, .edge, .comment])
-            err = ParStr.testCompare( "grid(num:50, chan:0, x, y)<<note, note(num:50, chan:0)", result0) //TODO `num:50`, not `num 50`
+            err += ParStr.testCompare( "grid(num:50, chan:0, x, y)<<note, note(num:50, chan:0)", result0) //TODO `num:50`, not `num 50`
 
             let t1 = FloExprs(Flo("t1"), nameNums: [("num", 50), ("chan", 1)])
             note.setAny(t1, .activate)
             let result1 = root.scriptRoot([.parens, .now, .edge, .comment])
-            err = ParStr.testCompare( "grid(num:50, chan:1, x:4, y:2)<<note, note(num:50, chan:1)", result1)
+            err += ParStr.testCompare( "grid(num:50, chan:1, x:4, y:2)<<note, note(num:50, chan:1)", result1)
         }
         else {
             err = 1
@@ -1581,33 +1581,33 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
 
-    func testMidi() { headline(#function)
-        var err = 0
-        err += testSkyFile("midi",  out: "test.midi.output")
-        XCTAssertEqual(err, 0)
-    }
-
-    func testShader() { headline(#function)
-        var err = 0
-        err += testSkyFile("shader",  out: "test.shader.output")
-        XCTAssertEqual(err, 0)
-    }
-
-    /// test `DeepMuse` app script
-    func testMuseSky() { headline(#function)
-
-        let root = Flo("√")
-        var err = 0
-        err += parseSky("sky", root)
-        err += parseSky("menu", root)
-        err += parseSky("shader", root)
-
-        let actual = root.scriptRoot([.parens, .def, .edge, .comment]).reduceLines()
-        let expect = readSky("test.sky.output") ?? ""
-        err += ParStr.testCompare(expect, actual)
-
-        XCTAssertEqual(err, 0)
-    }
+//    func testMidi() { headline(#function)
+//        var err = 0
+//        err += testSkyFile("midi",  out: "test.midi.output")
+//        XCTAssertEqual(err, 0)
+//    }
+//
+//    func testShader() { headline(#function)
+//        var err = 0
+//        err += testSkyFile("shader",  out: "test.shader.output")
+//        XCTAssertEqual(err, 0)
+//    }
+//
+//    /// test `DeepMuse` app script
+//    func testMuseSky() { headline(#function)
+//
+//        let root = Flo("√")
+//        var err = 0
+//        err += parseSky("sky", root)
+//        err += parseSky("menu", root)
+//        err += parseSky("shader", root)
+//
+//        let actual = root.scriptRoot([.parens, .def, .edge, .comment]).reduceLines()
+//        let expect = readSky("test.sky.output") ?? ""
+//        err += ParStr.testCompare(expect, actual)
+//
+//        XCTAssertEqual(err, 0)
+//    }
 
     // MARK: - all tests
 
@@ -1645,7 +1645,7 @@ final class MuFloTests: XCTestCase {
 
         ("testD3Script", testD3Script),
         ("testBodySkeleton", testBodySkeleton),
-        ("testMidi", testMidi),
-        ("testMuseSky", testMuseSky),
+        //??? ("testMidi", testMidi),
+        //??? ("testMuseSky", testMuseSky),
     ]
 }

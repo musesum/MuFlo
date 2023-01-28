@@ -23,37 +23,37 @@ extension Flo {
         return false
     }
 
-    public func script(_ scriptFlags: FloScriptFlags) -> String {
+    public func script(_ scriptOpts: FloScriptOps) -> String {
         
         var script = name
-        script.spacePlus(val?.scriptVal(scriptFlags))
+        script.spacePlus(val?.scriptVal(scriptOpts))
         
-        if scriptFlags.compact {
+        if scriptOpts.compact {
             switch children.count {
-                case 0: script.spacePlus(comments.getComments(.child, scriptFlags))
+                case 0: script.spacePlus(comments.getComments(.child, scriptOpts))
                 case 1: scriptAddOnlyChild()
                 default: scriptAddChildren()
             }
         } else { // not pretty
             switch children.count {
-                case 0: script.spacePlus(comments.getComments(.child, scriptFlags))
+                case 0: script.spacePlus(comments.getComments(.child, scriptOpts))
                 default: scriptAddChildren()
             }
         }
-        script += edgeDefs.scriptVal(scriptFlags)
-        script += comments.getComments(.edges, scriptFlags)
+        script += edgeDefs.scriptVal(scriptOpts)
+        script += comments.getComments(.edges, scriptOpts)
         return script
         
         func scriptAddChildren() {
             script.spacePlus("{")
-            script.spacePlus(comments.getComments(.child, scriptFlags))
+            script.spacePlus(comments.getComments(.child, scriptOpts))
             if (script.last != "\n"),
                (script.last != ",") {
                 
                 script += "\n"
             }
             for child in children {
-                script.spacePlus(child.script(scriptFlags))
+                script.spacePlus(child.script(scriptOpts))
                 if (script.last != "\n"),
                    (script.last != ",") {
                     
@@ -66,7 +66,7 @@ extension Flo {
         func scriptAddOnlyChild() {
             script += "."
             for child in children {
-                script += child.script(scriptFlags)
+                script += child.script(scriptOpts)
             }
         }
     }
@@ -84,17 +84,17 @@ extension Flo {
         return result
     }
     
-    private func scriptEdgeDefs(_ scriptFlags: FloScriptFlags) -> String {
+    private func scriptEdgeDefs(_ scriptOpts: FloScriptOps) -> String {
         var script = ""
-        if let edgesScript = scriptFloEdges(scriptFlags) {
+        if let edgesScript = scriptFloEdges(scriptOpts) {
             script = edgesScript
             if floEdges.count == 1 {
-                script += comments.getComments(.edges, scriptFlags)
+                script += comments.getComments(.edges, scriptOpts)
             }
         }
         else if edgeDefs.edgeDefs.count > 0 {
-            script += edgeDefs.scriptVal(scriptFlags)
-            script += comments.getComments(.edges, scriptFlags)
+            script += edgeDefs.scriptVal(scriptOpts)
+            script += comments.getComments(.edges, scriptOpts)
         }
         return script
     }
@@ -115,10 +115,10 @@ extension Flo {
     }
     
     func scriptTypeEdges(_ edges: [FloEdge],
-                         _ scriptEdgeFlags: FloScriptFlags) -> String {
+                         _ scriptOps: FloScriptOps) -> String {
 
         guard let firstEdge = edges.first else { return "" }
-        var script = firstEdge.edgeFlags.script(active: firstEdge.active)
+        var script = firstEdge.edgeOps.script(active: firstEdge.active)
         if edges.count > 1 { script += "(" }
         var delim = ""
         for edge in edges  {
@@ -128,7 +128,7 @@ extension Flo {
                 script += delim + pathScript
             }
             else {
-                script += delim + edge.scriptEdgeVal(self, scriptEdgeFlags)
+                script += delim + edge.scriptEdgeVal(self, scriptOps)
                 delim = comments.getEdgesDelim()
             }
         }
@@ -136,7 +136,7 @@ extension Flo {
         return script
     }
     
-    private func scriptFloEdges(_ scriptFlags: FloScriptFlags) -> String? {
+    private func scriptFloEdges(_ scriptOpts: FloScriptOps) -> String? {
         
         if floEdges.count > 0 {
             
@@ -150,32 +150,32 @@ extension Flo {
                 
                 leftEdges.sort { $0.id < $1.id }
                 var result = ""
-                var edgeFlags = FloEdgeFlags()
+                var edgeOps = FlowEdgeOps()
                 var leftTypeEdges = [FloEdge]()
                 for edge in leftEdges {
-                    if edge.edgeFlags != edgeFlags {
+                    if edge.edgeOps != edgeOps {
                         
-                        edgeFlags = edge.edgeFlags
-                        result += scriptTypeEdges(leftTypeEdges, scriptFlags)
+                        edgeOps = edge.edgeOps
+                        result += scriptTypeEdges(leftTypeEdges, scriptOpts)
                         leftTypeEdges.removeAll()
                     }
                     leftTypeEdges.append(edge)
                 }
-                result += scriptTypeEdges(leftTypeEdges, scriptFlags)
+                result += scriptTypeEdges(leftTypeEdges, scriptOpts)
                 return result
             }
         }
         return nil
     }
 
-    func scriptChildren(_ scriptFlags: FloScriptFlags) -> String {
+    func scriptChildren(_ scriptOpts: FloScriptOps) -> String {
 
-        let showKids = showChildren(scriptFlags)
+        let showKids = showChildren(scriptOpts)
         switch showKids.count {
 
             case 0: return ""
             case 1:
-                if scriptFlags.compact {
+                if scriptOpts.compact {
                     return scriptCompactChild()
                 } else {
                     return scriptManyChildren()
@@ -183,10 +183,10 @@ extension Flo {
             default: return scriptManyChildren()
         }
         func scriptCompactChild() -> String {
-            return "." + (showKids.first?.scriptFlo(scriptFlags) ?? "")
+            return "." + (showKids.first?.scriptFlo(scriptOpts) ?? "")
         }
         func scriptManyChildren() -> String {
-            let comment = comments.getComments(.child, scriptFlags).without(trailing: " \n")
+            let comment = comments.getComments(.child, scriptOpts).without(trailing: " \n")
 
             var script = (comment.count > 0
                           ? "{ " + comment + "\n"
@@ -194,7 +194,7 @@ extension Flo {
 
             var kidScript = ""
             for kid in showKids {
-                kidScript.spacePlus(kid.scriptFlo(scriptFlags))
+                kidScript.spacePlus(kid.scriptFlo(scriptOpts))
             }
 
             script.spacePlus(kidScript)
@@ -203,8 +203,8 @@ extension Flo {
         }
     }
 
-    func showChildren(_ scriptFlags: FloScriptFlags) -> [Flo] {
-        if scriptFlags.delta {
+    func showChildren(_ scriptOpts: FloScriptOps) -> [Flo] {
+        if scriptOpts.delta {
             if changes == 0 { return [] }
             var result = [Flo]()
             for child in children {
@@ -217,10 +217,10 @@ extension Flo {
             return children
         }
     }
-    public func scriptCompactRoot(_ scriptFlags: FloScriptFlags) -> String {
+    public func scriptCompactRoot(_ scriptOpts: FloScriptOps) -> String {
         var script = ""
         for child in children {
-            script += child.script(scriptFlags)
+            script += child.script(scriptOpts)
         }
         return script
     }
@@ -228,7 +228,7 @@ extension Flo {
     /// Populate tree hierarchy of total changes made to each subtree.
     /// When using FloScriptFlag .delta, no changes to subtree are printed out
     func countDeltas() -> UInt {
-        if let val, !val.valFlags.isTransient(), val.hasDelta() {
+        if let val, !val.valOps.isTransient(), val.hasDelta() {
             changes += 1
         }
         for child in children {
@@ -236,19 +236,19 @@ extension Flo {
         }
         return changes
     }
-    public func scriptRoot(_ scriptFlags: FloScriptFlags = []) -> String {
+    public func scriptRoot(_ scriptOpts: FloScriptOps = []) -> String {
         var script = ""
-        if scriptFlags.delta {
+        if scriptOpts.delta {
             changes = countDeltas()
             for child in children {
                 if child.changes > 0 {
-                    let childScript = child.scriptFlo(scriptFlags)
+                    let childScript = child.scriptFlo(scriptOpts)
                     script.spacePlus(childScript)
                 }
             }
         } else {
             for child in children {
-                let childScript = child.scriptFlo(scriptFlags)
+                let childScript = child.scriptFlo(scriptOpts)
                 script.spacePlus(childScript)
             }
         }
@@ -257,22 +257,22 @@ extension Flo {
     
     /// create a parse ready String
     ///
-    public func scriptFlo(_ scriptFlags: FloScriptFlags) -> String {
+    public func scriptFlo(_ scriptOpts: FloScriptOps) -> String {
 
-        if scriptFlags.delta && changes == 0 { return "" }
+        if scriptOpts.delta && changes == 0 { return "" }
 
         var script = name
-        if scriptFlags.copyAt {
+        if scriptOpts.copyAt {
             script.spacePlus(getCopiedFrom())
         }
-        let scriptVal = val?.scriptVal(scriptFlags) ?? ""
+        let scriptVal = val?.scriptVal(scriptOpts) ?? ""
         script += scriptVal
-        if scriptFlags.edge {
-            script += scriptEdgeDefs(scriptFlags)
+        if scriptOpts.edge {
+            script += scriptEdgeDefs(scriptOpts)
         }
         if children.isEmpty {
             
-            let comments = comments.getComments(.child, scriptFlags)
+            let comments = comments.getComments(.child, scriptOpts)
             script.spacePlus(comments)
             if scriptVal.count > 0,
                comments.count == 0 {
@@ -280,7 +280,7 @@ extension Flo {
             }
         }
         else {
-            let childScript = scriptChildren(scriptFlags)
+            let childScript = scriptChildren(scriptOpts)
             if childScript.first == "." {
                 script += childScript
             } else {

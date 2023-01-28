@@ -5,7 +5,7 @@
 import Foundation
 import MuPar
 
-extension FloExprs {
+extension FloValExprs {
 
     func addScalar(_ scalar: FloValScalar) {
         let expr = FloExpr(scalar: scalar)

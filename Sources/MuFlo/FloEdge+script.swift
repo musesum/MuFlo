@@ -8,7 +8,7 @@ import Foundation
 
 extension FloEdge {
     
-    func scriptEdgeVal(_ flo: Flo, _ scriptFlags: FloScriptFlags) -> String {
+    func scriptEdgeVal(_ flo: Flo, _ scriptOpts: FloScriptOps) -> String {
 
         var script = ""
 
@@ -18,7 +18,7 @@ extension FloEdge {
         else if rightFlo == flo {
             script += leftFlo.scriptLineage(FloEdge.LineageDepth)
         }
-        script += defVal?.scriptVal(scriptFlags) ?? ""
+        script += defVal?.scriptVal(scriptOpts) ?? ""
         return script
     }
 

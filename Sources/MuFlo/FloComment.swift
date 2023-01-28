@@ -73,9 +73,9 @@ public class FloComments {
     }
 
     public func getComments(_ getType: FloCommentType,
-                            _ scriptFlags: FloScriptFlags) -> String {
+                            _ scriptOpts: FloScriptOps) -> String {
         var result = ""
-        if scriptFlags.comment, have(type: getType) {
+        if scriptOpts.comment, have(type: getType) {
             for comment in comments {
                 if comment.type == getType {
                     switch comment.text.prefix(1) {

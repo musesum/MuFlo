@@ -19,7 +19,7 @@ class FloPathVals {
             if pathVal.keys.isEmpty {
                 pathVal[path] = val
             }
-            else if let exprs = pathVal[path] as? FloExprs,
+            else if let exprs = pathVal[path] as? FloValExprs,
                     let scalar = val as? FloValScalar {
 
                 exprs.addDeepScalar(scalar)

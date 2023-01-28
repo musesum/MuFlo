@@ -24,7 +24,7 @@ public class FloValEmbed: FloVal {
     }
 
     public override func setVal(_ any: Any?,
-                                _ visitor: Visitor) -> Bool {
+                                _ visit: Visitor) -> Bool {
         
         if let v = any as? FloValEmbed {
             embed = v.embed
@@ -37,7 +37,7 @@ public class FloValEmbed: FloVal {
         return embed
     }
     
-    public override func scriptVal(_ scriptFlags: FloScriptFlags = [.parens]) -> String {
+    public override func scriptVal(_ scriptOpts: FloScriptOps = [.parens]) -> String {
         return " {{\n" + embed +  "}}\n"
     }
 

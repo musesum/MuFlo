@@ -182,10 +182,10 @@ public class FloValTern: FloValPath {
         return "??"
     }
 
-    public override func scriptVal(_ scriptFlags: FloScriptFlags) -> String {
+    public override func scriptVal(_ scriptOpts: FloScriptOps) -> String {
 
-        var script = scriptFlags.parens ? "(" : ""
-        if scriptFlags.expand {
+        var script = scriptOpts.parens ? "(" : ""
+        if scriptOpts.expand {
             script += Flo.scriptFlos(pathFlos)
             script.spacePlus(compareOp)
             script.spacePlus(Flo.scriptFlos(compareRight?.pathFlos ?? []))
@@ -206,7 +206,7 @@ public class FloValTern: FloValPath {
             script.spacePlus("|")
             script.spacePlus(radioNext.scriptVal([.def, .now]))
         }
-        script += scriptFlags.parens ? ")" : ""
+        script += scriptOpts.parens ? ")" : ""
         return script
     }
 }

@@ -28,7 +28,7 @@ extension FloValTern {
 
             for pathFlo in pathFlos {
                 if let pathVal = pathFlo.val {
-                    if bothMatchFlags(pathVal, rightVal, [.now])  {
+                    if bothMatchOps(pathVal, rightVal, [.now])  {
 
                         switch compareOp {
                         case "==": return pathVal == rightVal
@@ -46,13 +46,13 @@ extension FloValTern {
         return false
 
         // check if both match and are scalars or quotes
-        func bothMatchFlags(_ left: FloVal,
+        func bothMatchOps(_ left: FloVal,
                             _ right: FloVal,
-                            _ matchFlags: [FloValFlags]) -> Bool {
+                            _ matchOps: [FloValOps]) -> Bool {
             
-            for matchFlag in matchFlags {
-                if  left.valFlags.contains(matchFlag),
-                    right.valFlags.contains(matchFlag) {
+            for matchFlag in matchOps {
+                if  left.valOps.contains(matchFlag),
+                    right.valOps.contains(matchFlag) {
                     return true
                 }
             }

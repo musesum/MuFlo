@@ -1,9 +1,4 @@
-//
-//  File.swift
-//  
-//
 //  Created by warren on 1/24/23.
-//
 
 import Foundation
 
@@ -11,39 +6,39 @@ extension FloValScalar { // + Parse
     
     func parseNum(_ n: Double) {
 
-        if valFlags.thru {
-            if valFlags.max {
+        if valOps.thru {
+            if valOps.max {
                 now = n
-            } else if valFlags.min {
-                valFlags.insert(.max)
+            } else if valOps.min {
+                valOps += .max
                 max = n
             } else {
-                valFlags.insert(.min)
+                valOps += .min
                 min = n
             }
-        } else if valFlags.modu {
-            if valFlags.max {
+        } else if valOps.modu {
+            if valOps.max {
                 now = n
             } else {
-                valFlags.insert(.max)
+                valOps += .max
                 max = n
             }
         } else {
-            valFlags.insert(.lit)
+            valOps += .lit
             dflt = n
             now = n
         }
     }
     func parseDflt(_ n: Double) {
         if !n.isNaN {
-            valFlags.insert(.dflt)
+            valOps += .dflt
             dflt = n
             now = n
         }
     }
     func parseNow(_ n: Double) {
         if !n.isNaN {
-            valFlags.insert(.now)
+            valOps += .now
             now = n
         }
     }

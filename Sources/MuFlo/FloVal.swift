@@ -10,20 +10,20 @@ import MuPar
 protocol FloValProtocal {
 
     func copy() -> FloVal
-    func setVal(_ from: Any?, _ option: FloSetOptions?) -> Bool
+    func setVal(_ from: Any?, _ option: FloSetOps?) -> Bool
     func getVal() -> Any
 }
 
 open class FloVal: Comparable {
 
     var id = -Visitor.nextId()
-    var valFlags = FloValFlags(rawValue: 0) // which combination of the following?
+    var valOps = FloValOps(rawValue: 0) // which combination of the following?
     var name: String
 
     public var flo: Flo  // flo that declared and contains this value
 
     public static func == (lhs: FloVal, rhs: FloVal) -> Bool {
-        return lhs.valFlags == rhs.valFlags
+        return lhs.valOps == rhs.valOps
     }
     public static func < (lhs: FloVal, rhs: FloVal) -> Bool {
         return lhs.id < rhs.id
@@ -36,16 +36,11 @@ open class FloVal: Comparable {
     init(with: FloVal) {
         self.flo = with.flo
         self.name = with.name
-        self.valFlags = with.valFlags
+        self.valOps = with.valOps
     }
     func parse(string: String) -> Bool {
         print("FloVal parsing:" + string)
         return true
-    }
-
-
-    func addFlag(_ flag_: FloValFlags) {
-        valFlags.insert(flag_)
     }
 
     // print current state "2" in `a:(0…9=2)`
@@ -53,7 +48,7 @@ open class FloVal: Comparable {
         return ""
     }
    // print internal connections "a╌>w", "b╌>w", "c╌>w" in  `w<-(a ? 1 : b ? 2 : c ? 3)`
-  public func scriptVal(_ scriptFlags: FloScriptFlags = [.parens]) -> String {
+  public func scriptVal(_ scriptOpts: FloScriptOps = [.parens]) -> String {
        return " "
    }
 
@@ -66,7 +61,7 @@ open class FloVal: Comparable {
         return FloVal(with: self)
     }
     public func setVal(_ from: Any?,
-                       _ visitor: Visitor) -> Bool {
+                       _ visit: Visitor) -> Bool {
 
         assertionFailure("🚫 setVal needs override")
         return false

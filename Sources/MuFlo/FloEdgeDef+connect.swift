@@ -19,16 +19,16 @@ extension FloEdgeDef {
         }
         func excludeEdge() {
             if let oldEdge = edges[newKey] {
-                oldEdge.edgeFlags.remove(edgeFlags)
-                if oldEdge.edgeFlags.isEmpty {
+                oldEdge.edgeOps.remove(edgeOps)
+                if oldEdge.edgeOps.isEmpty {
                     edges.removeValue(forKey: newKey)
                 }
             }
         }
         // begin -----------------------------
-        if edgeFlags.exclude {
+        if edgeOps.exclude {
             excludeEdge()
-        } else if edgeFlags.copyat {
+        } else if edgeOps.copyat {
             addEdge()
             connectCopyr(leftFlo, rightFlo, floVal)
         } else {
@@ -42,7 +42,7 @@ extension FloEdgeDef {
         }
         for leftChild in leftFlo.children {
             if let rightChild = rights[leftChild.name] {
-                FloEdgeDef(flags: edgeFlags)
+                FloEdgeDef(edgeOps)
                 .connectNewEdge(leftChild, rightChild, floVal)
             }
         }
@@ -103,13 +103,13 @@ extension FloEdgeDef {
     /// output from ternary is input to pathFlo
     func connectTernPathEdge(_ ternFlo: Flo, _ pathFlo: Flo) {
         //print(pathFlo.scriptLineage(3) + " ◇→ " + pathFlo.scriptLineage(2))
-        let flipFlags = FloEdgeFlags(flipIO: edgeFlags)
-        let edge = FloEdge(pathFlo, ternFlo, flipFlags)
+        let flipOps = FlowEdgeOps(flipIO: edgeOps)
+        let edge = FloEdge(pathFlo, ternFlo, flipOps)
         
-        edge.edgeFlags.insert(.ternGo)
+        edge.edgeOps.insert(.ternGo)
         
         pathFlo.floEdges[edge.edgeKey] = edge
-        if flipFlags.input {
+        if flipOps.input {
             ternFlo.floEdges[edge.edgeKey] = edge
         }
     }
