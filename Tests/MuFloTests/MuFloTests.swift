@@ -994,7 +994,7 @@ final class MuFloTests: XCTestCase {
 
             _ = root.scriptRoot([.parens, .now])
             // 0, 0, 0 --------------------------------------------------
-            let t0 = FloExprs(Flo("t0"), nameNums: [("x", 0), ("y", 0), ("z", 0)])
+            let t0 = FloValExprs(Flo("t0"), nameNums: [("x", 0), ("y", 0), ("z", 0)])
             w.setAny(t0, .activate)
             let result0 = root.scriptRoot([.parens, .now, .edge])
             let expect0 = """
@@ -1005,7 +1005,7 @@ final class MuFloTests: XCTestCase {
             err += ParStr.testCompare(expect0, result0)
 
             // 10, 11, 12 --------------------------------------------------
-            let t1 = FloExprs(Flo("t1"), nameNums: [("x", 10), ("y", 11), ("z", 12)])
+            let t1 = FloValExprs(Flo("t1"), nameNums: [("x", 10), ("y", 11), ("z", 12)])
             w.setAny(t1, .activate)
             let result1 = root.scriptRoot([.parens, .now, .edge])
             let expect1 = """
@@ -1016,7 +1016,7 @@ final class MuFloTests: XCTestCase {
             err += ParStr.testCompare(expect1, result1)
 
             // 20, 21, 22 --------------------------------------------------
-            let t2 = FloExprs(Flo("t2"), nameNums: [("x", 20), ("y", 21), ("z", 22)])
+            let t2 = FloValExprs(Flo("t2"), nameNums: [("x", 20), ("y", 21), ("z", 22)])
 
             w.setAny(t2, .activate)
 
@@ -1029,7 +1029,7 @@ final class MuFloTests: XCTestCase {
             err += ParStr.testCompare(expect2, result2)
 
             // 10, 21, 33 --------------------------------------------------
-            let t3 = FloExprs(Flo("t3"), nameNums: [("x", 10), ("y", 21), ("z", 33)])
+            let t3 = FloValExprs(Flo("t3"), nameNums: [("x", 10), ("y", 21), ("z", 33)])
             w.setAny(t3, .activate)
             let result3 = root.scriptRoot([.parens, .now, .edge])
             let expect3 = """
@@ -1211,7 +1211,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseScript(root, script, tracePar: false),
            let a = root.findPath("a") {
 
-            let t0 = FloExprs(Flo("t0"), nameNums: [("x", 1), ("y", 2), ("z", 3)])
+            let t0 = FloValExprs(Flo("t0"), nameNums: [("x", 1), ("y", 2), ("z", 3)])
             a.setAny(t0, .activate)
 
             let result = root.scriptRoot([.parens, .now, .edge, .comment])
@@ -1236,7 +1236,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseScript(root, script, tracePar: false),
            let a = root.findPath("a") {
 
-            let t0 = FloExprs(Flo("t0"), nameNums: [("x", 1), ("y", 2), ("z", 3)])
+            let t0 = FloValExprs(Flo("t0"), nameNums: [("x", 1), ("y", 2), ("z", 3)])
             a.setAny(t0, .activate)
 
             let result = root.scriptRoot([.parens, .now, .edge, .comment])
@@ -1266,7 +1266,7 @@ final class MuFloTests: XCTestCase {
             let expect0 = "a(x, y) b(v 0) >> a(x:v)"
             err = ParStr.testCompare(expect0, result0, echo: true)
 
-            let t1 = FloExprs(Flo("t0"), nameNums: [("v", 1)])
+            let t1 = FloValExprs(Flo("t0"), nameNums: [("v", 1)])
             b.setAny(t1, .activate)
             let result1 = root.scriptRoot([.parens, .now, .edge])
             let expect1 = "a(x:1, y) b(v:1) >> a(x:1)"
@@ -1295,7 +1295,7 @@ final class MuFloTests: XCTestCase {
             let expect0 = "a(x, y) b(v 0) >> a(x: v/2, y: v*2)"
             err = ParStr.testCompare(expect0, result0, echo: true)
 
-            let t1 = FloExprs(Flo("t1"), nameNums: [("v", 1)])
+            let t1 = FloValExprs(Flo("t1"), nameNums: [("v", 1)])
             b.setAny(t1, .activate)
             let result1 = root.scriptRoot([.parens, .now, .edge])
             let expect1 = "a(x:0.5, y:2) b(v:1)>>a(x:0.5, y:2)"
@@ -1323,7 +1323,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseScript(root, script, tracePar: false),
            let note = root.findPath("note") {
 
-            let num = FloExprs(Flo("num"), nameNums: [("num", 50)])
+            let num = FloValExprs(Flo("num"), nameNums: [("num", 50)])
             note.setAny(num, .activate)
 
             let result = root.scriptRoot([.parens, .now, .edge, .comment])
@@ -1351,12 +1351,12 @@ final class MuFloTests: XCTestCase {
         if floParse.parseScript(root, script, tracePar: false),
            let note = root.findPath("note") {
 
-            let t0 = FloExprs(Flo("t0"), nameNums: [("num", 50), ("chan", 0)])
+            let t0 = FloValExprs(Flo("t0"), nameNums: [("num", 50), ("chan", 0)])
             note.setAny(t0, .activate)
             let result0 = root.scriptRoot([.parens, .now, .edge, .comment])
             err += ParStr.testCompare( "grid(num:50, chan:0, x, y)<<note, note(num:50, chan:0)", result0) //TODO `num:50`, not `num 50`
 
-            let t1 = FloExprs(Flo("t1"), nameNums: [("num", 50), ("chan", 1)])
+            let t1 = FloValExprs(Flo("t1"), nameNums: [("num", 50), ("chan", 1)])
             note.setAny(t1, .activate)
             let result1 = root.scriptRoot([.parens, .now, .edge, .comment])
             err += ParStr.testCompare( "grid(num:50, chan:1, x:4, y:2)<<note, note(num:50, chan:1)", result1)

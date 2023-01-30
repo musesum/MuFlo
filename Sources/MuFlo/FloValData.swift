@@ -21,8 +21,7 @@ public class FloValData: FloVal {
         data = with.data //TODO: allocate new memory and copy}
     }
     override func copy() -> FloVal {
-        let newFloValData = FloValData(with: self)
-        return newFloValData
+        return FloValData(with: self)
     }
     public static func == (lhs: FloValData, rhs: FloValData) -> Bool {
 

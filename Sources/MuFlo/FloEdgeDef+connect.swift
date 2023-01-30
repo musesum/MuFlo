@@ -103,7 +103,7 @@ extension FloEdgeDef {
     /// output from ternary is input to pathFlo
     func connectTernPathEdge(_ ternFlo: Flo, _ pathFlo: Flo) {
         //print(pathFlo.scriptLineage(3) + " ◇→ " + pathFlo.scriptLineage(2))
-        let flipOps = FlowEdgeOps(flipIO: edgeOps)
+        let flipOps = FloEdgeOps(flipIO: edgeOps)
         let edge = FloEdge(pathFlo, ternFlo, flipOps)
         
         edge.edgeOps.insert(.ternGo)
@@ -182,11 +182,11 @@ extension FloEdgeDef {
         if pathVals.pathVal.count > 0 {
             
             for (path,val) in pathVals.pathVal {
-                if let pathrefs = flo.pathrefs {
-                    for pathref in pathrefs {
-                        let rightFlos = pathref.findPathFlos(path, [.parents, .children])
+                if let pathRefs = flo.pathRefs {
+                    for pathRef in pathRefs {
+                        let rightFlos = pathRef.findPathFlos(path, [.parents, .children])
                         for rightFlo in rightFlos {
-                            connectNewEdge(pathref, rightFlo, val)
+                            connectNewEdge(pathRef, rightFlo, val)
                         }
                     }
                 }

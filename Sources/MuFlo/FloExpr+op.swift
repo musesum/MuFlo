@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum FloExprOp: String {
+enum FloOp: String {
 
     case none   = ""
     case path   = "path"
@@ -32,28 +32,43 @@ enum FloExprOp: String {
     case assign = ":"  // assign value
     case comma  = ","
 
-    init(_ op: String) { self = FloExprOp(rawValue: op) ?? .none }
-    static let pathNames: Set<FloExprOp> = [.path, .name]
-    static let literals: Set<FloExprOp> = [.path, .name, .quote, .scalar, .num]
-    static let conditionals: Set<FloExprOp> = [.EQ, .LE, .GE, .LT, .GT, .In]
-    static let operations: Set<FloExprOp> = [.add,.sub,.muy,.divi,.div,.mod,.assign]
+    init(_ op: String) { self = FloOp(rawValue: op) ?? .none }
 
-    func hasConditionals(_ test: Set<FloExprOp> ) -> Bool {
-        return !test.isDisjoint(with: FloExprOp.conditionals)
+    enum FloOpType { case none, pathName, literal, condition, operation, endop }
+
+    var opType: FloOpType {
+        switch self {
+
+            case .quote, .scalar, .num:
+
+                return .literal
+
+            case .EQ, .LE, .GE, .LT, .GT, .In:
+
+                return .condition
+
+            case .add, .sub, .muy, .divi, .div, .mod, .assign:
+
+                return .operation
+
+            case .path, .name:
+
+                return .pathName
+
+            case .comma:
+
+                return .endop
+
+            case .none:
+
+                return .none
+        }
     }
-    func hasOperations(_ test: Set<FloExprOp> ) -> Bool {
-        return !test.isDisjoint(with: FloExprOp.operations)
-    }
-    func isPathName() -> Bool {
-        return FloExprOp.pathNames.contains(self)
-    }
-    func isLiteral() -> Bool {
-        return FloExprOp.literals.contains(self)
-    }
-    func isConditional() -> Bool {
-        return FloExprOp.conditionals.contains(self)
-    }
-    func isOperation() -> Bool {
-        return FloExprOp.operations.contains(self)
-    }
+
+    var literal   : Bool { opType == .literal   }
+    var condition : Bool { opType == .condition }
+    var operation : Bool { opType == .operation }
+    var pathName  : Bool { opType == .pathName  }
 }
+
+

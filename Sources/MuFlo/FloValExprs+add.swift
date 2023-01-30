@@ -1,4 +1,4 @@
-// FloExprs+add
+// FloValExprs+add
 //
 //  Created by warren on 8/21/22.
 
@@ -8,13 +8,13 @@ import MuPar
 extension FloValExprs {
 
     func addScalar(_ scalar: FloValScalar) {
-        let expr = FloExpr(scalar: scalar)
-        exprs.append(expr)
+        let opVal = FloOpVal(scalar: scalar)
+        opVals.append(opVal)
         opSet.insert(.scalar)
     }
     func addDeepScalar(_ scalar: FloValScalar) {
-        let expr = FloExpr(scalar: scalar)
-        exprs.append(expr)
+        let opVal = FloOpVal(scalar: scalar)
+        opVals.append(opVal)
         nameAny[nameAny.keys.last ?? anonKey] = scalar
         opSet.insert(.scalar)
     }
@@ -33,21 +33,21 @@ extension FloValExprs {
     }
 
     func addPoint(_ p: CGPoint) {
-        opSet = Set<FloExprOp>([.name,.num])
+        opSet = Set<FloOp>([.name,.num])
         injectNameNum("x", Double(p.x))
         addOpStr(",")
         injectNameNum("y", Double(p.y))
     }
     func addOpStr(_ opStr: String?) {
         if let opStr = opStr?.without(trailing: " ")  {
-            let expr = FloExpr(op: opStr)
-            exprs.append(expr)
+            let opVal = FloOpVal(op: opStr)
+            opVals.append(opVal)
         }
     }
     func addQuote(_ quote: String?) {
         if let quote = quote?.without(trailing: " ")  {
-            let expr = FloExpr(quote: quote)
-            exprs.append(expr)
+            let opVal = FloOpVal(quote: quote)
+            opVals.append(opVal)
             nameAny[nameAny.keys.last ?? anonKey] = quote
             opSet.insert(.quote)
         }
@@ -55,8 +55,8 @@ extension FloValExprs {
     func addName(_ name: String?) {
 
         guard let name else { return }
-        let expr = FloExpr(name: name)
-        exprs.append(expr)
+        let opVal = FloOpVal(name: name)
+        opVals.append(opVal)
         opSet.insert(.name)
 
         if !nameAny.keys.contains(name) {

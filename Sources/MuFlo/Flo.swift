@@ -37,7 +37,7 @@ public class Flo: Hashable {
 
     var changes: UInt = 0       // temporary count of changes to descendants
 
-    var pathrefs: [Flo]?        // b in `a.b <-> c` for `a{b{c}} a.b <-> c
+    var pathRefs: [Flo]?        // b in `a.b <-> c` for `a{b{c}} a.b <-> c
     var passthrough = false /// does not have its own FloVal, so pass through events
     
     public var val: FloVal? = nil

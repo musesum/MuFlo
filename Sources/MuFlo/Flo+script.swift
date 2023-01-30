@@ -100,15 +100,15 @@ extension Flo {
     }
     
     private func scriptPathRefs(_ edge: FloEdge) -> String {
-        if let pathrefs = edge.rightFlo.pathrefs, pathrefs.count > 0  {
-            var script = pathrefs.count > 1 ? "(" : ""
+        if let pathRefs = edge.rightFlo.pathRefs, pathRefs.count > 0  {
+            var script = pathRefs.count > 1 ? "(" : ""
             var delim = ""
             
-            for pathref in pathrefs {
-                script += delim + pathref.scriptLineage(2)
+            for pathRef in pathRefs {
+                script += delim + pathRef.scriptLineage(2)
                 delim = comments.getEdgesDelim()
             }
-            if pathrefs.count > 1 { script += ") " }
+            if pathRefs.count > 1 { script += ") " }
             return script
         }
         return ""
@@ -150,7 +150,7 @@ extension Flo {
                 
                 leftEdges.sort { $0.id < $1.id }
                 var result = ""
-                var edgeOps = FlowEdgeOps()
+                var edgeOps = FloEdgeOps()
                 var leftTypeEdges = [FloEdge]()
                 for edge in leftEdges {
                     if edge.edgeOps != edgeOps {

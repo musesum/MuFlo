@@ -172,9 +172,9 @@ extension Flo {
         }
 
         var found = [Flo]()
-        if let pathrefs {
-            for pathref in pathrefs {
-                found.append(contentsOf:  getWild(flo: pathref))
+        if let pathRefs {
+            for pathRef in pathRefs {
+                found.append(contentsOf:  getWild(flo: pathRef))
             }
         }
         else {

@@ -5,11 +5,11 @@ import Foundation
 extension Double {
     
 }
-extension FloExpr {
+extension FloOpVal {
 
     func evaluate(_ toVal: Any?,
                   _ frVal: Any?,
-                  _ opNow: FloExprOp) -> Any? {
+                  _ opNow: FloOp) -> Any? {
 
         if (opNow == .none ||
             opNow == .assign) {
@@ -19,7 +19,7 @@ extension FloExpr {
         if let toNow = ((toVal as? FloValScalar)?.now ?? (toVal as? Double)),
            let frNow = ((frVal as? FloValScalar)?.now ?? (frVal as? Double)) {
 
-            if opNow.isConditional() {
+            if opNow.condition {
                 switch opNow {
                     case .EQ: return frNow == toNow ? frVal : nil
                     case .LE: return frNow <= toNow ? frVal : nil
@@ -35,7 +35,7 @@ extension FloExpr {
                         return isIn ? frVal : nil
                     default : break
                 }
-            } else if opNow.isOperation() {
+            } else if opNow.operation {
 
                 switch opNow {
                     case .add   : return frNow + toNow

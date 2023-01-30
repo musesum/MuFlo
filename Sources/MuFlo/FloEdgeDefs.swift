@@ -104,7 +104,7 @@ public class FloEdgeDefs {
 
     public func addEdgeDef(_ edgeOp: String?) {
         if let edgeOp {
-            let edgeOps = FlowEdgeOps(with: edgeOp)
+            let edgeOps = FloEdgeOps(with: edgeOp)
             let edgeDef = FloEdgeDef(edgeOps)
             edgeDefs.append(edgeDef)
         }

@@ -7,11 +7,8 @@ import CoreGraphics
 import MuTime
 import MuPar
 
-protocol FloValProtocal {
-
-    func copy() -> FloVal
-    func setVal(_ from: Any?, _ option: FloSetOps?) -> Bool
-    func getVal() -> Any
+protocol FloAnimProtocal {
+    func animateNowToNext(_ visit: Visitor)
 }
 
 open class FloVal: Comparable {
@@ -19,6 +16,8 @@ open class FloVal: Comparable {
     var id = -Visitor.nextId()
     var valOps = FloValOps(rawValue: 0) // which combination of the following?
     var name: String
+    var anim = TimeInterval.zero
+    var steps = TimeInterval.zero
 
     public var flo: Flo  // flo that declared and contains this value
 
@@ -56,10 +55,15 @@ open class FloVal: Comparable {
         return false
     }
 
-
     func copy() -> FloVal {
         return FloVal(with: self)
     }
+
+    public func setAnim(_ val: Double) {
+        valOps += .anim
+        anim = val
+    }
+
     public func setVal(_ from: Any?,
                        _ visit: Visitor) -> Bool {
 

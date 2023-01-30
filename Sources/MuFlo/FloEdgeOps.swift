@@ -1,4 +1,4 @@
-// FlowEdgeOps.swift
+// FloEdgeOps.swift
 //
 //  Created by warren on 3/10/19.
 //  Copyright © 2019 DeepMuse
@@ -6,18 +6,18 @@
 
 import Foundation
 
-public struct FlowEdgeOps: OptionSet {
+public struct FloEdgeOps: OptionSet {
 
     public let rawValue: Int
 
-    public static let input   = FlowEdgeOps(rawValue: 1 << 0) //  1 `<` in ` a << b            a <> b`
-    public static let output  = FlowEdgeOps(rawValue: 1 << 1) //  2 `>` in  `a >> b            a <> b`
-    public static let solo    = FlowEdgeOps(rawValue: 1 << 2) //  4 `=` in  `a <= b   a => b   a <=> b`
-    public static let exclude = FlowEdgeOps(rawValue: 1 << 3) //  8 `!` in  `a <! b   a !> b   a <!> b`
-    public static let ternIf  = FlowEdgeOps(rawValue: 1 << 5) // 32 ternary `a⟐→z` in `z(a ? b : c)`
-    public static let ternGo  = FlowEdgeOps(rawValue: 1 << 6) // 64 ternary `b◇→z`,`c◇→` in `z(a ? b : c)`
-    public static let copyat  = FlowEdgeOps(rawValue: 1 << 7) // 128 a @ b
-    public static let animate = FlowEdgeOps(rawValue: 1 << 8) // 256 a ~ b
+    public static let input   = FloEdgeOps(rawValue: 1 << 0) //  1 `<` in ` a << b            a <> b`
+    public static let output  = FloEdgeOps(rawValue: 1 << 1) //  2 `>` in  `a >> b            a <> b`
+    public static let solo    = FloEdgeOps(rawValue: 1 << 2) //  4 `=` in  `a <= b   a => b   a <=> b`
+    public static let exclude = FloEdgeOps(rawValue: 1 << 3) //  8 `!` in  `a <! b   a !> b   a <!> b`
+    public static let ternIf  = FloEdgeOps(rawValue: 1 << 5) // 32 ternary `a⟐→z` in `z(a ? b : c)`
+    public static let ternGo  = FloEdgeOps(rawValue: 1 << 6) // 64 ternary `b◇→z`,`c◇→` in `z(a ? b : c)`
+    public static let copyat  = FloEdgeOps(rawValue: 1 << 7) // 128 a @ b
+    public static let animate = FloEdgeOps(rawValue: 1 << 8) // 256 a ~ b
 
     public init(rawValue: Int = 0) { self.rawValue = rawValue }
 
@@ -36,7 +36,7 @@ public struct FlowEdgeOps: OptionSet {
             }
         }
     }
-    public init(flipIO: FlowEdgeOps) {
+    public init(flipIO: FloEdgeOps) {
         self.init(rawValue: flipIO.rawValue)
 
         let hasInput  = self.input
@@ -46,14 +46,14 @@ public struct FlowEdgeOps: OptionSet {
         if hasOutput { insert(.input)  } else { remove(.input)  }
     }
 
-    var input   : Bool { contains(.input   )}
-    var output  : Bool { contains(.output  )}
-    var solo    : Bool { contains(.solo    )}
-    var exclude : Bool { contains(.exclude )}
-    var ternIf  : Bool { contains(.ternIf  )}
-    var ternGo  : Bool { contains(.ternGo  )}
-    var copyat  : Bool { contains(.copyat  )}
-    var animate : Bool { contains(.animate )}
+    var input   : Bool { contains(.input  )}
+    var output  : Bool { contains(.output )}
+    var solo    : Bool { contains(.solo   )}
+    var exclude : Bool { contains(.exclude)}
+    var ternIf  : Bool { contains(.ternIf )}
+    var ternGo  : Bool { contains(.ternGo )}
+    var copyat  : Bool { contains(.copyat )}
+    var animate : Bool { contains(.animate)}
 
     public func scriptExpicitOps() -> String {
 

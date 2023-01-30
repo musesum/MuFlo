@@ -39,13 +39,13 @@ extension FloValExprs {
             var literals = false
             var hasOp = false
             
-            for i in 0...exprs.count {
-                if i == exprs.count {
+            for i in 0...opVals.count {
+                if i == opVals.count {
                     /// finish `y` in `a(x,y)`
                     scriptPassthrough()
                     break
                 }
-                let expr = exprs[i]
+                let expr = opVals[i]
                 switch expr.op {
                         
                     case .comma:
@@ -97,8 +97,8 @@ extension FloValExprs {
                 }
             }
         } else {
-            for expr in exprs {
-                script.spacePlus(expr.script(scriptOpts))
+            for opVal in opVals {
+                script.spacePlus(opVal.script(scriptOpts))
             }
         }
         return script

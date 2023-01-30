@@ -22,7 +22,11 @@ public struct FloSetOps: OptionSet {
     var animNow  : Bool { contains(.animNow ) }
 
     static public func += (lhs: inout FloSetOps, rhs: FloSetOps) {
-        lhs.rawValue &= rhs.rawValue
+        lhs.rawValue |= rhs.rawValue
+    }
+
+    static public func - (lhs: inout FloSetOps, rhs: FloSetOps) -> FloSetOps {
+        return lhs.subtracting(rhs)
     }
 
 }

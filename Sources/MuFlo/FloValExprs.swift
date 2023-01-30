@@ -1,5 +1,5 @@
 
-//  FloExprs.swift
+//  FloValExprs.swift
 //
 //  Created by warren on 4/4/19.
 //  Copyright © 2019 DeepMuse
@@ -9,6 +9,7 @@ import QuartzCore
 import Collections
 import Foundation
 import MuPar
+import MuTime
 
 public class FloValExprs: FloVal {
 
@@ -16,10 +17,10 @@ public class FloValExprs: FloVal {
     public var nameAny: OrderedDictionary<String,Any> = [:]
 
     /// `t(x/2, y/2) << u(x 1, y 2)` ⟹ `t(x 0.5, y 1.0)` // after u fires
-    public var exprs = ContiguousArray<FloExpr>()
+    public var opVals = ContiguousArray<FloOpVal>()
 
     /// set of all ops in exprs
-    var opSet = Set<FloExprOp>()
+    var opSet = Set<FloOp>()
 
     /// return _0, _1, ... for anonymous values
     var anonKey: String {
@@ -38,8 +39,8 @@ public class FloValExprs: FloVal {
             for (name, val) in v.nameAny {
                 nameAny[name] = val
             }
-            for expr in v.exprs {
-                exprs.append(FloExpr(from: expr))
+            for opVal in v.opVals {
+                opVals.append(FloOpVal(from: opVal))
             }
             opSet = v.opSet
         }
@@ -50,18 +51,17 @@ public class FloValExprs: FloVal {
     }
     public init(_ flo: Flo, nameNums: [(String, Double)]) {
         super.init(flo, "nameNums")
-        opSet = Set<FloExprOp>([.name,.num])
+        opSet = Set<FloOp>([.name,.num])
 
         for (name, num) in nameNums {
-            if exprs.count > 0 {
+            if opVals.count > 0 {
                 addOpStr(",")
             }
             addNameNum(name, num)
         }
     }
     override func copy() -> FloValExprs {
-        let newFloExprs = FloValExprs(with: self)
-        return newFloExprs
+        return FloValExprs(with: self)
     }
 
     // MARK: - Get
@@ -95,37 +95,59 @@ public class FloValExprs: FloVal {
     public override func setVal(_ any: Any?, //???
                                 _ visit: Visitor) -> Bool {
         guard let any else { return false }
+        if !visit.newVisit(self.id) { return false }
+        if visit.from.tween { return false }
+
+        if valOps.anim {
+            steps = NextFrame.shared.fps * anim
+            if steps > 0 {
+                visit.from += .tween
+            }
+        }
+
+        var ok = false
 
         switch any {
-            case let v as Float:    return setDouble(Double(v), visit)
-            case let v as CGFloat:  return setDouble(Double(v), visit)
-            case let v as Double:   return setDouble(Double(v), visit)
-            case let v as CGPoint:  return setPoint(v, visit)
-            case let v as FloValExprs: return setExprs(v, visit)
-            case let (n,v) as (String,Float):   return setNamed(n, Double(v), visit)
-            case let (n,v) as (String,Double):  return setNamed(n, Double(v), visit)
-            case let (n,v) as (String,CGFloat): return setNamed(n, Double(v), visit)
+            case let v as Float:    ok = setDouble(Double(v), visit)
+            case let v as CGFloat:  ok = setDouble(Double(v), visit)
+            case let v as Double:   ok = setDouble(Double(v), visit)
+            case let v as CGPoint:  ok = setPoint(v, visit)
+            case let v as FloValExprs: ok = setExprs(v, visit)
+            case let n as [(String,Double)]: ok = setNameVals(n, visit)
+            case let (n,v) as (String,Double):  ok = setNameVal(n, Double(v), visit)
+            case let (n,v) as (String,Float):   ok = setNameVal(n, Double(v), visit)
+            case let (n,v) as (String,CGFloat): ok = setNameVal(n, Double(v), visit)
             default: print("🚫 mismatched setVal(\(any))")
         }
-        return false
+        if ok {
+            animateNowToNext(visit)
+        }
+        return ok
 
         func setExprs(_ exprs: FloValExprs,
                       _ visit: Visitor) -> Bool {
 
-            if !visit.newVisit(id) { return false }
             _ = exprs.evalExprs(nil,visit)
             return evalExprs(exprs, visit)
         }
-        func setNamed(_ name: String,
-                      _ value: Double,
-                      _ visit: Visitor) -> Bool {
+        func setNameVal(_ name: String,
+                        _ val: Double,
+                        _ visit: Visitor) -> Bool {
 
             if let scalar = nameAny[name] as? FloValScalar {
-                _ = scalar.setVal(value, visit)
+                _ = scalar.setVal(val, visit)
             } else {
-                nameAny[name] = FloValScalar(flo, name: name, num: value)
+                nameAny[name] = FloValScalar(flo, name: name, num: val)
             }
             valOps += .now
+            return true
+        }
+        func setNameVals(_ nameVals: [(String,Double)],
+                        _ visit: Visitor) -> Bool {
+
+            for (name,val) in nameVals {
+               _ = setNameVal(name, val, visit)
+            }
             return true
         }
 
@@ -145,8 +167,8 @@ public class FloValExprs: FloVal {
         func setPoint(_ p: CGPoint,
                       _ visit: Visitor) -> Bool {
 
-            if exprs.isEmpty {
-                // create a new expr list
+            if opVals.isEmpty {
+                // create a new opVal list
                 addPoint(p)
                 return true
             }
@@ -197,4 +219,40 @@ public class FloValExprs: FloVal {
         }
         return false
     }
+}
+
+extension FloValExprs: NextFrameDelegate, FloAnimProtocal {
+
+    func animateNowToNext(_ visit: Visitor) {
+
+        if visit.from.tween {
+            logTween("􁒖ⁿ", 0)
+            steps = NextFrame.shared.fps * anim
+            NextFrame.shared.addFrameDelegate(self.id, self)
+        } else {
+            for val in nameAny.values {
+                if let v = val as? FloValScalar {
+                    v.now = v.next
+                }
+            }
+        }
+    }
+    func tweenSteps(_ steps: Double) -> Double {
+        for val in nameAny.values {
+            if let v = val as? FloValScalar {
+                _ = v.tweenSteps(steps)
+            }
+        }
+        return Swift.max(0.0, steps - 1)
+    }
+    func logTween(_ title: String, _ steps: Double) {
+        print("\(title) \(flo.name).\(id): steps: \(steps.digits(0...1))")
+    }
+    public func nextFrame() -> Bool {
+        logTween("􀎶ⁿ", steps)
+        steps = tweenSteps(steps)
+        flo.activate(Visitor(.tween))
+        return steps > 0
+    }
+
 }

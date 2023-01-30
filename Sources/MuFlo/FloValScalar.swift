@@ -14,9 +14,7 @@ public class FloValScalar: FloVal {
     // default scalar value is (0…1 = 1)
     public var now = Double(0) // current value; 2 in 0…3=1:2
     var next = Double(0) // target value
-    var anim = TimeInterval.zero
-    var steps = TimeInterval.zero
-
+    
     var min  = Double(0) // minimum value; 0 in 0…3
     var max  = Double(1) // maximum value; 3 in 0…3
     var dflt = Double(0) // default value; 1 in 0…3=1
@@ -62,10 +60,6 @@ public class FloValScalar: FloVal {
         if !valOps.now {
              setDefault()
         }
-    }
-    func setAnim(_ val: Double) {
-        valOps += .anim
-        anim = val
     }
 
     func setDefault() { // was setDefault
@@ -166,7 +160,7 @@ public class FloValScalar: FloVal {
         
         guard let val else { return true }
 
-        //??? if visit.wasHere(id) { return false }
+        //???? if visit.wasHere(id) { return false }
         switch val {
             case let v as FloValScalar : setFrom(v)
             case let v as Double       : setNumWithFlag(v)
@@ -175,23 +169,14 @@ public class FloValScalar: FloVal {
             case let v as Int          : setNumWithFlag(Double(v))
             default: print("🚫 setVal unknown type for: from")
         }
-        animateNowToNext()
+        animateNowToNext(visit)
         return true
 
-        func animateNowToNext() {
-            if valOps.anim {
-                print("􁒖")
-                steps = NextFrame.shared.fps * anim
-                NextFrame.shared.addFrameDelegate(self.id, self)
-            } else {
-                now = next
-            }
-        }
 
         func setFrom(_ v: FloValScalar) {
 
-            if   valOps.thru,
-                 v.valOps.thru {
+            if valOps.thru,
+               v.valOps.thru {
 
                 let toMax   = max
                 let frMax   = v.max
@@ -218,10 +203,9 @@ public class FloValScalar: FloVal {
         }
         
         func setInRange() {
-
             if valOps.modu { next = fmod(next, max) }
-            if valOps.min , next < min { next = min }
-            if valOps.max , next > max { next = max }
+            if valOps.min, next < min { next = min }
+            if valOps.max, next > max { next = max }
         }
     }
 
@@ -230,20 +214,38 @@ public class FloValScalar: FloVal {
     }
 
     public override func copy() -> FloVal {
-        let newFloValScalar = FloValScalar(with: self)
-        return newFloValScalar
+        return FloValScalar(with: self)
     }
 }
 
-extension FloValScalar: NextFrameDelegate {
+extension FloValScalar: NextFrameDelegate, FloAnimProtocal {
+
+    func animateNowToNext(_ visit: Visitor) {
+        if visit.from.tween {
+            logTween("􁒖⁰",0)
+            // now is set by FloEValxprs
+        } else if valOps.anim {
+            logTween("􁒖¹",0)
+            steps = NextFrame.shared.fps * anim
+            NextFrame.shared.addFrameDelegate(self.id, self)
+        } else {
+            now = next
+        }
+    }
+    func logTween(_ title: String, _ steps: Double) {
+        print("\(title) \(flo.name).\(name).\(id): (\(now.digits(3...3)) ~> \(next.digits(3...3))) steps: \(steps.digits(0...1))")
+    }
+    func tweenSteps(_ steps: Double) -> Double {
+        let delta = (next - now)
+        if delta == 0 { return 0 }
+        now += (steps <= 1 ? delta : delta / steps)
+        logTween("􀎶¹", steps)
+        return Swift.max(0.0, steps - 1)
+    }
 
     public func nextFrame() -> Bool {
-        let delta = (next - now)
-        if delta == 0 { steps = 0 ; return false }
-        now += (steps <= 1 ? delta : delta / steps)
-        steps = Swift.max(0.0, steps - 1)
-        print("􀎶 \(flo.name).\(name).\(id) \(now.digits(3...3)) ~> \(next.digits(3...3)) steps: \(steps.digits(0...1))")
-        flo.activate(Visitor(flo.id, from: .animate))
+        steps = tweenSteps(steps)
+        flo.activate(Visitor(.tween))
         return steps > 0
     }
 

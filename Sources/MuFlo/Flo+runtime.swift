@@ -10,25 +10,22 @@ import MuPar // visit
 extension Flo {
 
     /// combine several expressions into one transaction and activate the callbacks only once
-    public func setNameAnys(_ nameAnys: [(String,Any)],
-                            _ options: FloSetOps,
+    public func setNameVals(_ nameAnys: [(String,Double)],
+                            _ setOps: FloSetOps,
                             _ visit: Visitor) {
 
         // defer activation until after setting value
-        let noActivate = options.subtracting(.activate)
+        let noActivate = setOps.subtracting(.activate)
+        setAny(nameAnys, noActivate, visit)
 
-        // set all the expressions
-        for nameAny in nameAnys {
-            setAny(nameAny, noActivate, visit)
-        }
         // do the deferred activations, if there was one
-        if options.activate {
+        if setOps.activate {
             activate(visit)
         }
     }
     public func setAny(_ any: Any,
                        _ options: FloSetOps,
-                       _ visit: Visitor = Visitor(0)) {
+                       _ visit: Visitor) {
 
         /// clean up scaffolding from parsing a Ternary,
         /// todo: scaffolding instead of overloading val

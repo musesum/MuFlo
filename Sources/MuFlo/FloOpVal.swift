@@ -6,17 +6,18 @@
 
 import Foundation
 
-public class FloExpr {
+public class FloOpVal {
 
-    var op = FloExprOp.none
+    var op = FloOp.none
     var val: Any?
     
-    init(op     : String)       { self.op = FloExprOp(op) }
+    init(op     : String)       { self.op = FloOp(op) }
     init(name   : String)       { self.op = .name   ; val = name }
     init(path   : String)       { self.op = .path   ; val = path }
     init(quote  : String)       { self.op = .quote  ; val = quote }
-    init(from   : FloExpr)      { self.op = from.op ; val = from.val }
     init(scalar : FloValScalar) { self.op = .scalar ; val = scalar }
+    init(from   : FloOpVal)     { self.op = from.op ; val = from.val }
+    func copy() -> FloOpVal     { return FloOpVal(from: self) }
 
     func script(_ scriptOpts: FloScriptOps) -> String {
         

@@ -9,14 +9,14 @@ import MuPar // ParItem
 
 public class FloEdgeDef {
 
-    var edgeOps = FlowEdgeOps()
+    var edgeOps = FloEdgeOps()
     var pathVals = FloPathVals()
     var ternVal: FloValTern?
     var edges = [String: FloEdge]() // each edge is also shared by two Flos
     
     init() { }
 
-    init(_ edgeOps: FlowEdgeOps) {
+    init(_ edgeOps: FloEdgeOps) {
         self.edgeOps = edgeOps
     }
     

@@ -11,7 +11,7 @@ extension Flo {
 
     public func StringVal() -> String? {
         if let exprs = val as? FloValExprs,
-                  let str = exprs.exprs.first?.val as? String {
+                  let str = exprs.opVals.first?.val as? String {
             // anonymous String inside expression
             // example `color ("pipe.color.metal")`
             return str
@@ -126,9 +126,9 @@ extension Flo {
     /// get first occurence name in Set of types (there should only be one)
     public func getName(in types: Set<String>) -> String? {
         if let exprs = val as? FloValExprs {
-            for expr in exprs.exprs {
-                if (expr.op == .name || expr.op == .path),
-                   let name = expr.val as? String,
+            for opVal in exprs.opVals {
+                if opVal.op.pathName,
+                   let name = opVal.val as? String,
                    types.contains(name) {
                     return name
                 }
@@ -148,9 +148,9 @@ extension Flo {
         }
         if let exprs = val as? FloValExprs {
             var matchCount = 0
-            for expr in exprs.exprs {
-                if (expr.op == .name || expr.op == .path),
-                   let name = expr.val as? String,
+            for opVal in exprs.opVals {
+                if opVal.op.pathName,
+                   let name = opVal.val as? String,
                    inNames(name) {
                     matchCount += 1
                 }
@@ -173,7 +173,7 @@ extension Flo {
         return nil
     }
 
-    /// convert FloExprs contiguous array to dictionary
+    /// convert FloValExprs contiguous array to dictionary
     public func components(named: [String]) -> [(String,Any?)] {
         var result = [(String, Any?)] ()
         for name in named {
@@ -183,7 +183,7 @@ extension Flo {
         return result
     }
 
-    /// convert FloExprs contiguous array to dictionary
+    /// convert FloValExprs contiguous array to dictionary
     public func components() ->  OrderedDictionary<String,Any>? {
         return (val as? FloValExprs)?.nameAny ?? nil
     }

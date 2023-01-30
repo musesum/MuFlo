@@ -13,7 +13,7 @@ public class FloEdge: Hashable {
     var id = Visitor.nextId()
     var edgeKey = "" // created with makeKey()
 
-    var edgeOps = FlowEdgeOps()
+    var edgeOps = FloEdgeOps()
     var active = true
     var leftFlo: Flo
     var rightFlo: Flo
@@ -36,8 +36,7 @@ public class FloEdge: Hashable {
         makeKey()
     }
 
-   init(_ leftFlo: Flo, _ rightFlo: Flo, _ edgeOps: FlowEdgeOps) {
-        //self.init()
+   init(_ leftFlo: Flo, _ rightFlo: Flo, _ edgeOps: FloEdgeOps) {
         self.edgeOps = edgeOps
         self.leftFlo = leftFlo
         self.rightFlo = rightFlo

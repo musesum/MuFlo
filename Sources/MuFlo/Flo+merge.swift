@@ -153,7 +153,7 @@ extension Flo {
             }
             else {
                 // a.b in `a { b { c } }  a.b <-> c`
-                pathrefs = found
+                pathRefs = found
                 return [self]
             }
         }

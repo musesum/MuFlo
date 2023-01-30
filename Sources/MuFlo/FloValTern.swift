@@ -29,8 +29,8 @@ public enum FloTernState { case
 ///     w << (a ? 1 : b ? 2 : c ? 3) // recv 1 if a, 2 if a&b, 3 if a & b & c
 ///     w << (a ? a1 : a2 | b ? b1 : b2 | c ? c1 : c2) // recv a1 if , else recv a2, b block b1, b2, c1, c2
 ///
-///     w >> (a == b) // not a ternary, is a FloExprs
-///     w >> (a == b : 1) / not a ternary, is a FloExprs
+///     w >> (a == b) // not a ternary, is a FloValExprs
+///     w >> (a == b : 1) / not a ternary, is a FloValExprs
 ///     
 ///     w >> (a == b ? c : d) // if a==b, send w to c, else send w to d
 ///     w >> (a ? 1 : b ? 2 : c ? 3) // recv 1 if a, 2 if a&b, 3 if a & b & c
@@ -80,8 +80,7 @@ public class FloValTern: FloValPath {
         }
     }
     override func copy() -> FloValTern {
-        let newFloValTern = FloValTern(with: self)
-        return newFloValTern
+        return FloValTern(with: self)
     }
 
     init(_ flo: Flo, _ parseLevel: Int) {

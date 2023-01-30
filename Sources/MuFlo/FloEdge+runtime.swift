@@ -55,7 +55,9 @@ extension FloEdge {
 
                 let val = assignNameVals()
                 if  destFlo.setEdgeVal(val, visit) {
+
                     destFlo.activate(visit)
+
                 } else {
                     /// Did not meet conditionals, so stop.
                     /// for example, when cc != 13 for
