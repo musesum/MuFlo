@@ -1354,7 +1354,7 @@ final class MuFloTests: XCTestCase {
             let t0 = FloValExprs(Flo("t0"), nameNums: [("num", 50), ("chan", 0)])
             note.setAny(t0, .activate)
             let result0 = root.scriptRoot([.parens, .now, .edge, .comment])
-            err += ParStr.testCompare( "grid(num:50, chan:0, x, y)<<note, note(num:50, chan:0)", result0) //TODO `num:50`, not `num 50`
+            err += ParStr.testCompare( "grid(num, chan, x, y)<<note, note(num :50, chan :0)", result0) //TODO `num:50`, not `num 50`
 
             let t1 = FloValExprs(Flo("t1"), nameNums: [("num", 50), ("chan", 1)])
             note.setAny(t1, .activate)

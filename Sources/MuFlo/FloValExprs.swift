@@ -113,7 +113,7 @@ public class FloValExprs: FloVal {
             case let v as Double:   ok = setDouble(Double(v), visit)
             case let v as CGPoint:  ok = setPoint(v, visit)
             case let v as FloValExprs: ok = setExprs(v, visit)
-            case let n as [(String,Double)]: ok = setNameVals(n, visit)
+            case let n as [(String,Any)]: ok = setNameVals(n, visit)
             case let (n,v) as (String,Double):  ok = setNameVal(n, Double(v), visit)
             case let (n,v) as (String,Float):   ok = setNameVal(n, Double(v), visit)
             case let (n,v) as (String,CGFloat): ok = setNameVal(n, Double(v), visit)
@@ -142,11 +142,18 @@ public class FloValExprs: FloVal {
             valOps += .now
             return true
         }
-        func setNameVals(_ nameVals: [(String,Double)],
+        func setNameVals(_ nameVals: [(String,Any)],
                         _ visit: Visitor) -> Bool {
 
-            for (name,val) in nameVals {
-               _ = setNameVal(name, val, visit)
+            for (name,any) in nameVals {
+                switch any {
+                    case let v as Double:   _ = setNameVal(name, Double(v), visit)
+                    case let v as Float:    _ = setNameVal(name, Double(v), visit)
+                    case let v as CGFloat:  _ = setNameVal(name, Double(v), visit)
+                    case let v as Int:      _ = setNameVal(name, Double(v), visit)
+                    default: break
+                }
+
             }
             return true
         }

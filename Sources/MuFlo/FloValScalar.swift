@@ -30,6 +30,7 @@ public class FloValScalar: FloVal {
         self.min = fmin(num, 0.0)
         self.max = fmax(num, 1.0)
         self.now = num
+        self.next = num
     }
 
     init (with scalar: FloValScalar) {
@@ -39,6 +40,7 @@ public class FloValScalar: FloVal {
         max  = scalar.max
         dflt = scalar.dflt
         now  = scalar.now
+        next = scalar.next
     }
 
     public func normalized() -> Double {

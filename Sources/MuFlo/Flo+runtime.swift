@@ -25,7 +25,7 @@ extension Flo {
     }
     public func setAny(_ any: Any,
                        _ options: FloSetOps,
-                       _ visit: Visitor) {
+                       _ visit: Visitor = Visitor(0)) {
 
         /// clean up scaffolding from parsing a Ternary,
         /// todo: scaffolding instead of overloading val
