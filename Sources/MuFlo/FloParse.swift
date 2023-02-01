@@ -36,8 +36,8 @@ public class FloParse {
             dispatchFunc(parseTree, from: ["child", "many", "copyat"])
 
             dispatchFunc(parseValue, from: ["data",
-                                            "scalar1",
-                                            "thru", "modu", "dflt", "now", "num",
+                                            "scalar1", "thru", "thri",
+                                            "modu", "dflt", "now", "num",
                                             "quote", "embed", "expr"])
 
             dispatchFunc(parseEdge, from: ["edges", "edgeOp",
@@ -164,6 +164,7 @@ public class FloParse {
 
         switch pattern {
             case "thru": scalar.valOps += .thru
+            case "thri": scalar.valOps += .thri
             case "modu": scalar.valOps += .modu
             case "num" : scalar.parseNum(par.getFirstDouble())
             case "dflt": scalar.parseDflt(par.getFirstDouble())

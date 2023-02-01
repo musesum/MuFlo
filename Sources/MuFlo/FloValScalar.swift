@@ -57,19 +57,34 @@ public class FloValScalar: FloVal {
         return min...max
     }
 
-    func setNow() { // was setDefault //??
+    // user may double tap to kickoff defaults with optional animation
+    func setNow(_ visit: Visitor) {
 
         if !valOps.now {
-             setDefault()
+            setDefault(visit)
         }
     }
 
-    func setDefault() { // was setDefault
+    // startup set values without animatin
+    func bindNow() { // was setDefault //??
 
-        if      valOps.dflt           { now = dflt }
-        else if valOps.min, now < min { now = min  }
-        else if valOps.max, now > max { now = max  }
-        else if valOps.modu           { now = 0    }
+        if !valOps.now {
+            setDefault(Visitor(.bind))
+            now = next
+        }
+    }
+
+    func setDefault(_ visit: Visitor) { // was setDefault
+
+        if      valOps.dflt           { next = dflt }
+        else if valOps.min, now < min { next = min  }
+        else if valOps.max, now > max { next = max  }
+        else if valOps.modu           { next = 0    }
+        if visit.from.bind {
+            now = next
+        } else {
+            animateNowToNext(visit)
+        }
     }
     static func |= (lhs: FloValScalar, rhs: FloValScalar) {
         
@@ -120,6 +135,7 @@ public class FloValScalar: FloVal {
         if scriptOpts.def {
             if valOps.min  { script += min.digits(0...6) }
             if valOps.thru { script += "…" /* option+`;` */}
+            if valOps.thru { script += "_" /* option+`;` */}
             if valOps.modu { script += "%" }
             if valOps.max  { script += max.digits(0...6) }
             if valOps.dflt { script += "=" + dflt.digits(0...6) }
@@ -175,15 +191,20 @@ public class FloValScalar: FloVal {
         return true
 
 
+        /// map ranges between doubles and quasi integers
+        ///
+        ///     0…1 is a double
+        ///     0_127 is an integer
+        ///
+        /// - note: this is a kludge, should use something else for counting integers
         func setFrom(_ v: FloValScalar) {
 
-            if valOps.thru,
-               v.valOps.thru {
+            if valOps.thrui,
+               v.valOps.thrui {
 
-                let toMax   = max
-                let frMax   = v.max
-                let toRange = toMax -   min
-                let frRange = frMax - v.min
+                let toRange = (  max -   min) + (   valOps.thri ? 1.0 : 0.0)
+                let frRange = (v.max - v.min) + ( v.valOps.thri ? 1.0 : 0.0)
+
                 next = (v.now - v.min) * (toRange / frRange) + min
                 valOps += .now
             }

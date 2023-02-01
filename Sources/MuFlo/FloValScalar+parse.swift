@@ -6,7 +6,7 @@ extension FloValScalar { // + Parse
     
     func parseNum(_ n: Double) {
 
-        if valOps.thru {
+        if valOps.thrui {
             if valOps.max {
                 now = n
             } else if valOps.min {

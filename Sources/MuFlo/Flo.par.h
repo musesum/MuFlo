@@ -13,8 +13,9 @@ flo ≈ left right* {
 
     scalar ≈ "(" scalar1 ")"
     scalars ≈ "(" scalar1 ("," scalar1)* ")"
-    scalar1 ≈ (thru | modu | data | num) {
+    scalar1 ≈ (thru | thri | modu | data | num) {
         thru ≈ num ("..." | "…") num dflt? now?
+        thri ≈ num ("_") num dflt? now?
         modu ≈ "%" num dflt? now?
         index ≈ "[" (name | num) "]"
         data ≈ "*"

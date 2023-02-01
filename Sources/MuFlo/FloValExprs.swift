@@ -92,7 +92,7 @@ public class FloValExprs: FloVal {
         return nums
     }
     // MARK: - Set
-    public override func setVal(_ any: Any?, //???
+    public override func setVal(_ any: Any?,
                                 _ visit: Visitor) -> Bool {
         guard let any else { return false }
         if !visit.newVisit(self.id) { return false }
@@ -185,20 +185,20 @@ public class FloValExprs: FloVal {
             return evalExprs(copy, visit)
         }
     }
-    func setNows() {
+    func bindNows() {
         if nameAny.count > 0 {
             for value in nameAny.values {
                 if let scalar = value as? FloValScalar {
-                    scalar.setNow()
+                    scalar.bindNow()
                 }
             }
         }
     }
-    func setDefaults() {
+    func setDefaults(_ visit: Visitor) {
         if nameAny.count > 0 {
             for value in nameAny.values {
                 if let scalar = value as? FloValScalar {
-                    scalar.setDefault()
+                    scalar.setDefault(visit)
                 }
             }
         }

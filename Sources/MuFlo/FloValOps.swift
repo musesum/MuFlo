@@ -14,17 +14,18 @@ import Foundation
  */
 public struct FloValOps: OptionSet {
 
-    public static let thru = FloValOps(rawValue: 1 <<  1) // 0…1 range including 1
-    public static let modu = FloValOps(rawValue: 1 <<  2) // %2 modulo
-    public static let min  = FloValOps(rawValue: 1 <<  3) // 0 in 0…1, min of range
-    public static let max  = FloValOps(rawValue: 1 <<  4) // 1 in 0…1, max of range
-    public static let dflt = FloValOps(rawValue: 1 <<  5) // = n default value
-    public static let now  = FloValOps(rawValue: 1 <<  6) // current value
-    public static let lit  = FloValOps(rawValue: 1 <<  7) // literal value
-    public static let anim = FloValOps(rawValue: 1 <<  8) // animated
+    public static let thru = FloValOps(rawValue: 1 <<  1) // double 0…1 range including 1
+    public static let thri = FloValOps(rawValue: 1 <<  2) // integer 0_n range including n
+    public static let modu = FloValOps(rawValue: 1 <<  3) // %2 modulo
+    public static let min  = FloValOps(rawValue: 1 <<  4) // 0 in 0…1, min of range
+    public static let max  = FloValOps(rawValue: 1 <<  5) // 1 in 0…1, max of range
+    public static let dflt = FloValOps(rawValue: 1 <<  6) // = n default value
+    public static let now  = FloValOps(rawValue: 1 <<  7) // current value
+    public static let lit  = FloValOps(rawValue: 1 <<  8) // literal value
+    public static let anim = FloValOps(rawValue: 1 <<  9) // animated
 
     func hasDef() -> Bool {
-        let defset: FloValOps = [.thru, .modu, .min, .max, .dflt]
+        let defset: FloValOps = [.thru, .thri, .modu, .min, .max, .dflt]
         return (self.rawValue & defset.rawValue) > 0
     }
 
@@ -40,7 +41,9 @@ public struct FloValOps: OptionSet {
     public var rawValue: Int
     public init(rawValue: Int) { self.rawValue = rawValue }
 
+    var thrui: Bool { contains(.thru) || contains(.thri) }
     var thru : Bool { contains(.thru) }
+    var thri : Bool { contains(.thri) }
     var modu : Bool { contains(.modu) }
     var min  : Bool { contains(.min ) }
     var max  : Bool { contains(.max ) }
@@ -53,6 +56,7 @@ extension FloValOps: CustomStringConvertible {
 
     static public var debugDescriptions: [(Self, String)] = [
         (.thru, "thru"),
+        (.thri, "thri"),
         (.modu, "modu"),
         (.min , "min" ),
         (.max , "max" ),

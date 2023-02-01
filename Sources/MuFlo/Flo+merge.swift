@@ -420,19 +420,19 @@ extension Flo {
         }
     }
 
-    public func bindDefaults() {
+    public func bindDefaults(_ visit: Visitor) {
         bindVal(val)
         for edge in floEdges {
             bindVal(edge.value.defVal)
         }
         for child in children {
-            child.bindDefaults()
+            child.bindDefaults(visit)
         }
         func bindVal(_ val: FloVal?) {
             if let val {
                 switch val {
-                    case let t as FloValExprs:  t.setDefaults()
-                    case let s as FloValScalar: s.setDefault()
+                    case let t as FloValExprs:  t.setDefaults(visit)
+                    case let s as FloValScalar: s.setDefault(visit)
                     default: break
                 }
             }
@@ -449,8 +449,8 @@ extension Flo {
         func bindVal(_ val: FloVal?) {
             if let val {
                 switch val {
-                    case let t as FloValExprs:  t.setNows()
-                    case let s as FloValScalar: s.setNow()
+                    case let t as FloValExprs:  t.bindNows()
+                    case let s as FloValScalar: s.bindNow()
                     default: break
                 }
             }
