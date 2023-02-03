@@ -27,9 +27,9 @@ extension FloEdge {
                 let fromVal  = "(\(fromFlo.val?.scriptVal(.now) ?? "??"))"
 
                 if leftToRight {
-                    print("􁒖\(fromPath)\(fromVal) ~> \(destPath)")
+                    print("􁒖\(fromPath)\(fromVal) => \(destPath)")
                 } else {
-                    print("􁒖\(destPath) <~ \(fromPath)\(fromVal)")
+                    print("􁒖\(destPath) <= \(fromPath)\(fromVal)")
                 }
                 destFlo.setAnimation(fromFlo)
             }

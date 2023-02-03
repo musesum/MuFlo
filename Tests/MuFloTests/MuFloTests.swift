@@ -327,6 +327,7 @@ final class MuFloTests: XCTestCase {
         var err = 0
         err += test("a (1)")
         err += test("a (1…2)")
+        err += test("a (1_2)") // integer range
         err += test("a (1, 2)")
         err += test("a (x 1, y 2)")
         err += test("a (%2)")
@@ -1645,7 +1646,7 @@ final class MuFloTests: XCTestCase {
 
         ("testD3Script", testD3Script),
         ("testBodySkeleton", testBodySkeleton),
-        //??? ("testMidi", testMidi),
-        //??? ("testMuseSky", testMuseSky),
+        //?? ("testMidi", testMidi),
+        //?? ("testMuseSky", testMuseSky),
     ]
 }

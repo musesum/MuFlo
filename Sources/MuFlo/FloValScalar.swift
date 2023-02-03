@@ -135,7 +135,7 @@ public class FloValScalar: FloVal {
         if scriptOpts.def {
             if valOps.min  { script += min.digits(0...6) }
             if valOps.thru { script += "…" /* option+`;` */}
-            if valOps.thru { script += "_" /* option+`;` */}
+            if valOps.thri { script += "_" /* option+`;` */}
             if valOps.modu { script += "%" }
             if valOps.max  { script += max.digits(0...6) }
             if valOps.dflt { script += "=" + dflt.digits(0...6) }
@@ -178,7 +178,6 @@ public class FloValScalar: FloVal {
         
         guard let val else { return true }
 
-        //???? if visit.wasHere(id) { return false }
         switch val {
             case let v as FloValScalar : setFrom(v)
             case let v as Double       : setNumWithFlag(v)
@@ -256,7 +255,7 @@ extension FloValScalar: NextFrameDelegate, FloAnimProtocal {
         }
     }
     func logTween(_ title: String, _ steps: Double) {
-        print("\(title) \(flo.name).\(name).\(id): (\(now.digits(3...3)) ~> \(next.digits(3...3))) steps: \(steps.digits(0...1))")
+        print("\(title) \(flo.name).\(name).\(id): (\(now.digits(3...3)) => \(next.digits(3...3))) steps: \(steps.digits(0...1))")
     }
     func tweenSteps(_ steps: Double) -> Double {
         let delta = (next - now)

@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/musesum/MuPar.git",
       "state" : {
-        "revision" : "eff1688ca02c8825e1add54428626ff238cf9c0b",
-        "version" : "0.23.130"
+        "revision" : "84c1daaebac2091286b4da2381a5fc4108f276d3",
+        "version" : "0.23.201"
       }
     },
     {

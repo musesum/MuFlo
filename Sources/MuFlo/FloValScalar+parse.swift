@@ -8,6 +8,7 @@ extension FloValScalar { // + Parse
 
         if valOps.thrui {
             if valOps.max {
+                next = n
                 now = n
             } else if valOps.min {
                 valOps += .max
@@ -18,6 +19,7 @@ extension FloValScalar { // + Parse
             }
         } else if valOps.modu {
             if valOps.max {
+                next = n
                 now = n
             } else {
                 valOps += .max
@@ -26,6 +28,7 @@ extension FloValScalar { // + Parse
         } else {
             valOps += .lit
             dflt = n
+            next = n
             now = n
         }
     }
