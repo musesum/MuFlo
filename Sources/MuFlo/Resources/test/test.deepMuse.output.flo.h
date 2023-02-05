@@ -53,25 +53,25 @@ shader {
     model {
         cell {
             fade (0…1=0.5) {
-                on (0…1=0) >> (shader.model.cell.fade.on(0) , shader.model.cell.ave.on(0) , shader.model.cell.melt.on(0) , shader.model.cell.tunl.on(0) , shader.model.cell.slide.on(0) , shader.model.cell.fred.on(0) , shader.model.cell.zha.on(0) )<< shader.model.cell.fade
+                on (0…1=0) >> (shader.cell.fade.on(0) , shader.cell.ave.on(0) , shader.cell.melt.on(0) , shader.cell.tunl.on(0) , shader.cell.slide.on(0) , shader.cell.fred.on(0) , shader.cell.zha.on(0) )<< shader.cell.fade
             }
             ave (0…1=0.5) {
-                on (0…1=1) >> (shader.model.cell.fade.on(0) , shader.model.cell.ave.on(0) , shader.model.cell.melt.on(0) , shader.model.cell.tunl.on(0) , shader.model.cell.slide.on(0) , shader.model.cell.fred.on(0) , shader.model.cell.zha.on(0) )<< shader.model.cell.ave
+                on (0…1=1) >> (shader.cell.fade.on(0) , shader.cell.ave.on(0) , shader.cell.melt.on(0) , shader.cell.tunl.on(0) , shader.cell.slide.on(0) , shader.cell.fred.on(0) , shader.cell.zha.on(0) )<< shader.cell.ave
             }
             melt (0…1=0.5) {
-                on (0…1=0) >> (shader.model.cell.fade.on(0) , shader.model.cell.ave.on(0) , shader.model.cell.melt.on(0) , shader.model.cell.tunl.on(0) , shader.model.cell.slide.on(0) , shader.model.cell.fred.on(0) , shader.model.cell.zha.on(0) )<< shader.model.cell.melt
+                on (0…1=0) >> (shader.cell.fade.on(0) , shader.cell.ave.on(0) , shader.cell.melt.on(0) , shader.cell.tunl.on(0) , shader.cell.slide.on(0) , shader.cell.fred.on(0) , shader.cell.zha.on(0) )<< shader.cell.melt
             }
             tunl (0…5=1) {
-                on (0…1=0) >> (shader.model.cell.fade.on(0) , shader.model.cell.ave.on(0) , shader.model.cell.melt.on(0) , shader.model.cell.tunl.on(0) , shader.model.cell.slide.on(0) , shader.model.cell.fred.on(0) , shader.model.cell.zha.on(0) )<< shader.model.cell.tunl
+                on (0…1=0) >> (shader.cell.fade.on(0) , shader.cell.ave.on(0) , shader.cell.melt.on(0) , shader.cell.tunl.on(0) , shader.cell.slide.on(0) , shader.cell.fred.on(0) , shader.cell.zha.on(0) )<< shader.cell.tunl
             }
             slide (0…7=3) {
-                on (0…1=0) >> (shader.model.cell.fade.on(0) , shader.model.cell.ave.on(0) , shader.model.cell.melt.on(0) , shader.model.cell.tunl.on(0) , shader.model.cell.slide.on(0) , shader.model.cell.fred.on(0) , shader.model.cell.zha.on(0) )<< shader.model.cell.slide
+                on (0…1=0) >> (shader.cell.fade.on(0) , shader.cell.ave.on(0) , shader.cell.melt.on(0) , shader.cell.tunl.on(0) , shader.cell.slide.on(0) , shader.cell.fred.on(0) , shader.cell.zha.on(0) )<< shader.cell.slide
             }
             fred (0…4=4) {
-                on (0…1=0) >> (shader.model.cell.fade.on(0) , shader.model.cell.ave.on(0) , shader.model.cell.melt.on(0) , shader.model.cell.tunl.on(0) , shader.model.cell.slide.on(0) , shader.model.cell.fred.on(0) , shader.model.cell.zha.on(0) )<< shader.model.cell.fred
+                on (0…1=0) >> (shader.cell.fade.on(0) , shader.cell.ave.on(0) , shader.cell.melt.on(0) , shader.cell.tunl.on(0) , shader.cell.slide.on(0) , shader.cell.fred.on(0) , shader.cell.zha.on(0) )<< shader.cell.fred
             }
             zha (0…6=2) {
-                on (0…1=0) >> (shader.model.cell.fade.on(0) , shader.model.cell.ave.on(0) , shader.model.cell.melt.on(0) , shader.model.cell.tunl.on(0) , shader.model.cell.slide.on(0) , shader.model.cell.fred.on(0) , shader.model.cell.zha.on(0) )<< shader.model.cell.zha
+                on (0…1=0) >> (shader.cell.fade.on(0) , shader.cell.ave.on(0) , shader.cell.melt.on(0) , shader.cell.tunl.on(0) , shader.cell.slide.on(0) , shader.cell.fred.on(0) , shader.cell.zha.on(0) )<< shader.cell.zha
                 bits (2…4=3)
                 loops (11)
             }

@@ -256,7 +256,7 @@ extension FloValExprs: NextFrameDelegate, FloAnimProtocal {
         print("\(title) \(flo.name).\(id): steps: \(steps.digits(0...1))")
     }
     public func nextFrame() -> Bool {
-        logTween("􀎶ⁿ", steps)
+        // logTween("􀎶ⁿ", steps)
         steps = tweenSteps(steps)
         flo.activate(Visitor(.tween))
         return steps > 0

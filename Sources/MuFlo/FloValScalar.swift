@@ -261,7 +261,7 @@ extension FloValScalar: NextFrameDelegate, FloAnimProtocal {
         let delta = (next - now)
         if delta == 0 { return 0 }
         now += (steps <= 1 ? delta : delta / steps)
-        logTween("􀎶¹", steps)
+        //logTween("􀎶¹", steps)
         return Swift.max(0.0, steps - 1)
     }
 
