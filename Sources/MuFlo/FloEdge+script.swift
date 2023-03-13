@@ -14,8 +14,7 @@ extension FloEdge {
 
         if leftFlo == flo {
             script += rightFlo.scriptLineage(FloEdge.LineageDepth)
-        }
-        else if rightFlo == flo {
+        } else if rightFlo == flo {
             script += leftFlo.scriptLineage(FloEdge.LineageDepth)
         }
         script += defVal?.scriptVal(scriptOpts) ?? ""

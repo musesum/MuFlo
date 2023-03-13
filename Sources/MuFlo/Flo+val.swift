@@ -29,8 +29,8 @@ extension Flo {
     public func DoubleVal() -> Double? {
         if let v = val as? FloValScalar {
             return v.now
-        }
-        else if let exprs = val as? FloValExprs {
+        } else if let exprs = val as? FloValExprs {
+
             if let f = (exprs.nameAny["v"] as? FloValScalar)?.now {
                 return f
             } else if let scalar = exprs.nameAny.values.last as? FloValScalar  {
@@ -43,8 +43,7 @@ extension Flo {
     public func Normals() -> [Double] {
         if let v = val as? FloValScalar {
             return [v.normalized()]
-        }
-        else if let exprs = val as? FloValExprs {
+        } else if let exprs = val as? FloValExprs {
             if let v = exprs.nameAny["v"] as? FloValScalar {
                 return [v.normalized()]
             } else  {

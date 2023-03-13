@@ -40,29 +40,26 @@ extension FloEdge {
                 ternVal.recalc(leftFlo, rightFlo, .activate , visit)
                 rightFlo.activate(visit)
                 //print("\(fromFlo.name)◇→\(destFlo?.name ?? "")")
-            }
-            else if rightToLeft, let ternVal = leftFlo.findEdgeTern(self) {
+
+            } else if rightToLeft, let ternVal = leftFlo.findEdgeTern(self) {
 
                 ternVal.recalc(rightFlo, leftFlo, .activate, visit)
                 leftFlo.activate(visit)
                 //print("\(fromFlo.name)◇→\(destFlo?.name ?? "")")
             }
-        }
-        else {
+            
+        } else if  leftToRight && edgeOps.output ||
+                    rightToLeft && edgeOps.input {
 
-            if  leftToRight && edgeOps.output ||
-                rightToLeft && edgeOps.input {
+            let val = assignNameVals()
+            if  destFlo.setEdgeVal(val, visit) {
 
-                let val = assignNameVals()
-                if  destFlo.setEdgeVal(val, visit) {
+                destFlo.activate(visit)
 
-                    destFlo.activate(visit)
-
-                } else {
-                    /// Did not meet conditionals, so stop.
-                    /// for example, when cc != 13 for
-                    /// `repeatX(cc == 13, val 0…127, chan, time)`
-                }
+            } else {
+                /// Did not meet conditionals, so stop.
+                /// for example, when cc != 13 for
+                /// `repeatX(cc == 13, val 0…127, chan, time)`
             }
         }
 

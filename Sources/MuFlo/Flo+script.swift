@@ -87,12 +87,13 @@ extension Flo {
     private func scriptEdgeDefs(_ scriptOpts: FloScriptOps) -> String {
         var script = ""
         if let edgesScript = scriptFloEdges(scriptOpts) {
+            
             script = edgesScript
             if floEdges.count == 1 {
                 script += comments.getComments(.edges, scriptOpts)
             }
-        }
-        else if edgeDefs.edgeDefs.count > 0 {
+        } else if edgeDefs.edgeDefs.count > 0 {
+
             script += edgeDefs.scriptVal(scriptOpts)
             script += comments.getComments(.edges, scriptOpts)
         }
@@ -126,8 +127,7 @@ extension Flo {
             let pathScript = scriptPathRefs(edge)
             if pathScript.count > 0 {
                 script += delim + pathScript
-            }
-            else {
+            } else {
                 script += delim + edge.scriptEdgeVal(self, scriptOps)
                 delim = comments.getEdgesDelim()
             }
@@ -278,8 +278,7 @@ extension Flo {
                comments.count == 0 {
                 script += "\n"
             }
-        }
-        else {
+        } else {
             let childScript = scriptChildren(scriptOpts)
             if childScript.first == "." {
                 script += childScript
@@ -306,8 +305,7 @@ extension Flo {
     public func scriptLineage(_ level: Int = 999) -> String {
         if let parent = parent, parent.name != "√", level > 0  {
             return parent.scriptLineage(level-1) + "." + name
-        }
-        else {
+        } else {
             return name
         }
     }

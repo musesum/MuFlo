@@ -109,9 +109,11 @@ extension Flo {
             passthrough = true  // no defined value so pass though
         }
         if passthrough {
+
             val = fromVal // hold passthrough value, for successors to rescale
-        }
-        else if let val {
+
+        } else if let val {
+
             switch val {
 
                 case let v as FloValExprs:

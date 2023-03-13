@@ -53,8 +53,7 @@ extension Flo {
 
         if foundDuplicate {
             children = children.filter { $0.type != .remove }
-        }
-        else {
+        } else {
             children.append(merge)
         }
     }
@@ -124,8 +123,7 @@ extension Flo {
                 for child in children {
                     foundi.mergeDuplicate(child)
                 }
-            }
-            else {
+            } else {
                 // b.d in `a { b { c {c1 c2} d {d1 d2} } b.c @ b.d  }`
                 let copy = Flo(deepcopy: foundi, parent: self)
                 results.append(copy)
@@ -150,8 +148,7 @@ extension Flo {
                 // b.c in `a { b { c {c1 c2} d } b.c { c3 } }`
                 let results = mergeOrCopy(found)
                 return results
-            }
-            else {
+            } else {
                 // a.b in `a { b { c } }  a.b <-> c`
                 pathRefs = found
                 return [self]
@@ -171,8 +168,7 @@ extension Flo {
                 return [pathChain]
             }
             return found
-        }
-        else {
+        } else {
             // b.e in `a { b { c d } b.e }`
             // e in `a { b { c {c1 c2} d } } a @ e`
             return [self]
@@ -181,8 +177,7 @@ extension Flo {
     func bindPath() -> [Flo] {
         if let found = bindFindPath() {
             return found
-        }
-        else {
+        } else {
             return bindMakePath()
         }
     }
@@ -232,8 +227,7 @@ extension Flo {
             if let priorFlo = nameFlo[kid.name] {
                 mergeDuplicate(priorFlo, kid)
                 merged = true
-            }
-            else {
+            } else {
                 nameFlo[kid.name] = kid
             }
         }
@@ -318,8 +312,7 @@ extension Flo {
                 name = String(prefix)   // change name to only prefix
                 type = .name            // change my type to .name
                 child.expandDotPath()   // continue with `b.c`
-            }
-            else { // special case with `a.`
+            } else { // special case with `a.`
 
                 name = String(prefix)   // trim trailing .
                 type = .name            // change my type to .name

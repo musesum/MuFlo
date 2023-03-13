@@ -47,12 +47,10 @@ public class FloEdgeDef {
 
             if let _ = ternVal {
                 FloValTern.ternStack.last?.addPath(path)
-            }
-            else {
+            } else {
                 pathVals.add(path: path, val: nil)
             }
-        }
-        else {
+        } else {
             print("🚫 FloEdgeDef: \(self) cannot process addPath(\(parItem))")
         }
     }
@@ -71,8 +69,7 @@ public class FloEdgeDef {
         
         if let tern = ternVal {
             script.spacePlus(tern.scriptVal(scriptOpts))
-        }
-        else {
+        } else {
             if pathVals.pathVal.count > 1 { script += "(" }
             for (path,val) in pathVals.pathVal {
                 script += path

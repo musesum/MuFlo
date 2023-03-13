@@ -42,8 +42,7 @@ extension FloValTern {
 
             if  let tern = val as? FloValTern {
                 tern.recalc(prevFlo, nextFlo, act, visit)
-            }
-            else if act != .sneak {
+            } else if act != .sneak {
                 _ = flo.setEdgeVal(val, visit)
             }
         }

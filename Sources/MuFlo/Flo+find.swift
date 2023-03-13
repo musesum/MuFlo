@@ -36,8 +36,7 @@ extension Flo {
         // do not incude ˚˚ in `˚˚ <-> ..`
         if type == .path {
             return []
-        }
-        else if suffix.isEmpty {                        // for a { b { c } }
+        } else if suffix.isEmpty {                        // for a { b { c } }
 
             if greedy {                                 //  a, b, c in ˚˚˚
                 found.append(self)
@@ -48,8 +47,7 @@ extension Flo {
                 else                { findDeeper() }    // a, b in ˚.
             }
             return found
-        }
-        else {
+        } else {
             var found2 = [Flo]()
             let (prefix2, wild2, suffix2) = suffix.splitWild(".*˚")
             if name == prefix2 {
@@ -61,8 +59,7 @@ extension Flo {
                     found = [self]                          // b in ˚b,˚˚b
                     if greedy { findDeeper() }
                 }
-            }
-            else {                                          // !b in ˚b,˚˚b
+            } else {                                          // !b in ˚b,˚˚b
                 findDeeper()
             }
             for foundi in found {
@@ -78,11 +75,9 @@ extension Flo {
     func getDotParent(_ count: Int) -> Flo? {
         if count < 1 {
             return self
-        }
-        else if let parent {
+        } else if let parent {
             return parent.getDotParent(count-1)
-        }
-        else {
+        } else {
             return nil
         }
     }
@@ -95,8 +90,7 @@ extension Flo {
         if let parent = getDotParent(wildcard.count-1) {
             let nextOps = findOps.intersection([.parents, .children, .makePath])
             return parent.findPathFlos(suffix, nextOps)
-        }
-        else {
+        } else {
             return []
         }
     }
@@ -110,14 +104,11 @@ extension Flo {
 
         if name == prefix, type == .name {
             return findPathFlos(wildcard + suffix, [.children])
-        }
-        else if name == prefix, wildcard == "", type == .copyat, let parent = parent {
+        } else if name == prefix, wildcard == "", type == .copyat, let parent = parent {
             return parent.findPathFlos(path, findOps)
-        }
-        else if prefix == "", let parent = parent {
+        } else if prefix == "", let parent = parent {
             return parent.findPathFlos(wildcard + suffix, deeperOps)
-        }
-        else if findOps.children {
+        } else if findOps.children {
             for child in children {
                 if child.name == prefix, child.type == .name {
                     return child.findPathFlos(wildcard + suffix, deeperOps)
@@ -128,8 +119,7 @@ extension Flo {
         if findOps.parents {
             if let parent {
                 return parent.findAnchor(path, findOps)
-            }
-            else if prefix == "" {
+            } else if prefix == "" {
                 return findPathFlos(wildcard + suffix, findOps)
             }
         }
@@ -176,8 +166,7 @@ extension Flo {
             for pathRef in pathRefs {
                 found.append(contentsOf:  getWild(flo: pathRef))
             }
-        }
-        else {
+        } else {
             found.append(contentsOf:  getWild(flo: self))
         }
         return found
@@ -208,8 +197,9 @@ extension Flo {
 
         if isStarMatch() {
             return [self]
-        }
-        else if let prefixFlo = findPrefixFlo(prefix, findOps) {
+
+        } else if let prefixFlo = findPrefixFlo(prefix, findOps) {
+
             let found = prefixFlo.getWildSuffix(wildcard, suffix, findOps)
             if found.count > 0 { return found }
         }
@@ -249,10 +239,11 @@ extension Flo {
         if prefix != "" {
             let child = makeChild(prefix)
             if suffix.isEmpty, let head = head {
+
                 child.children = head.children
                 child.val = head.val
-            }
-            else {
+
+            } else {
                 // don't return tail of path chain
                 let _ = child.makePath(suffix, head)
             }

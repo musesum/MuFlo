@@ -37,8 +37,7 @@ public class FloValPath: FloVal {
 
         if pathFlos.isEmpty {
             return path
-        }
-        else {
+        } else {
             var script = pathFlos.count > 1 ? "(" : ""
 
             for pathFlo in pathFlos {

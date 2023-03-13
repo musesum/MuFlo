@@ -206,14 +206,14 @@ public class FloValScalar: FloVal {
 
                 next = (v.now - v.min) * (toRange / frRange) + min
                 valOps += .now
-            }
-            else if valOps.modu {
+
+            } else if valOps.modu {
 
                 min = 0
                 max = Double.maximum(1, max)
                 next = fmod(v.now, max)
-            }
-            else {
+            } else {
+                
                 setNumWithFlag(v.now)
             }
         }

@@ -26,9 +26,10 @@ extension FloValExprs {
                 let wNum = Double(w.now)
                 let hNum = Double(h.now)
                 return CGRect(x: xNum, y: yNum, width: wNum, height: hNum)
-            }
-            else  if let w = nameAny["width"] as? FloValScalar,
-                     let h = nameAny["height"] as? FloValScalar {
+
+            } else if let w = nameAny["width"] as? FloValScalar,
+                      let h = nameAny["height"] as? FloValScalar {
+
                 let wNum = Double(w.now)
                 let hNum = Double(h.now)
                 return CGRect(x: xNum, y: yNum, width: wNum, height: hNum)

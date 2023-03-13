@@ -113,8 +113,7 @@ public class Flo: Hashable {
             if children.count == 0 {
                 flo.parent = self 
                 children.append(flo)
-            }
-            else {
+            } else {
                 for child in children {
                     child.attachDeep(flo, visit)
                 }

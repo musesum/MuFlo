@@ -73,8 +73,7 @@ public class FloValTern: FloValPath {
             radioPrev    = from.radioPrev
             radioNext    = from.radioNext
             parseLevel   = from.parseLevel
-        }
-        else {
+        } else {
             //TODO: placeholder?
             super.init(Flo(),"ternary")
         }
@@ -95,8 +94,7 @@ public class FloValTern: FloValPath {
         }
         if let ternLast = ternStack.last {
             return ternLast
-        }
-        else {
+        } else {
             print("🚫 FloValTern.getTernLevel(\(level)) not found")
         }
         return nil
@@ -161,8 +159,7 @@ public class FloValTern: FloValPath {
                 default: break
             }
             FloValTern.ternStack.append(ternVal)
-        }
-        else {
+        } else {
             switch ternState {
                 case .ifVal, .thenVal: thenVal = val
                 case .elseVal:         elseVal = val

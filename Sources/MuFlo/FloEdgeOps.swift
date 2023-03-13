@@ -82,6 +82,7 @@ public struct FloEdgeOps: OptionSet {
 
         return script
     }
+
     var isImplicit: Bool {
         self.intersection([.solo,
                            .ternIf,
@@ -96,6 +97,5 @@ public struct FloEdgeOps: OptionSet {
             return scriptExpicitOps()
         }
     }
-
 
 }

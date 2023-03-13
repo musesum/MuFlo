@@ -85,8 +85,7 @@ extension FloEdgeDef {
             tern.pathFlos.append(contentsOf: foundSet)
             // sorting by triplet (a.b.c) is unnecessary for runtime, but nice for debugging
             tern.pathFlos.sort(by:{ $0.scriptLineage(2) < $1.scriptLineage(2) })
-        }
-        else {
+        } else {
             tern.pathFlos = found
         }
         for pathFlo in tern.pathFlos {

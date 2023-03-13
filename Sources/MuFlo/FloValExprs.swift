@@ -162,10 +162,12 @@ public class FloValExprs: FloVal {
                        _ visit: Visitor) -> Bool {
 
             if let n = nameAny["val"] as? FloValScalar {
+                
                 _ = n.setVal(v, visit)
                 n.valOps += .now
-            }
-            else {
+
+            } else {
+
                 nameAny["val"] = FloValScalar(flo, name: "val", num: v) //TODO: remove this kludge for DeepMenu
             }
             return true

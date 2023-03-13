@@ -27,8 +27,7 @@ final class MuFloTests: XCTestCase {
             let actual = root.scriptRoot(scriptOps)
             // print("\n" + actual)
             err = ParStr.testCompare(expected, actual)
-        }
-        else  {
+        } else  {
             print(" 🚫 failed parse")
             err += 1  // error found
         }
@@ -649,8 +648,7 @@ final class MuFloTests: XCTestCase {
             b.activate(Visitor(.model))
             let result =  root.scriptRoot([.parens, .now, .edge])
             err = ParStr.testCompare("a(:2) b >> a(2)", result)
-        }
-        else {
+        } else {
             err = 1
         }
         XCTAssertEqual(err, 0)
@@ -673,8 +671,7 @@ final class MuFloTests: XCTestCase {
             b.activate(Visitor(.model))
             let result = root.scriptRoot([.parens, .now, .edge])
             err = ParStr.testCompare("a { a1(2) a2(2) } b >> (a.a1(2), a.a2(2))", result)
-        }
-        else {
+        } else {
             err = 1
         }
         XCTAssertEqual(err, 0)
@@ -693,8 +690,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseScript(root, script) {
             let result = root.scriptRoot([.parens, .now])
             err += ParStr.testCompare("a { b { f g } c { f g } }", result)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -716,8 +712,7 @@ final class MuFloTests: XCTestCase {
             z.activate(Visitor(.model))
             let result = root.scriptRoot([.parens, .now, .edge])
             err += ParStr.testCompare("a { b { f g(2) } c { f g(2) } } z >> (a.b.g(2), a.c.g(2))", result)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -745,8 +740,7 @@ final class MuFloTests: XCTestCase {
                 c { f g(2) } }
             z >> (a.b.g(2), a.c.g(2))
             """, result1)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -774,8 +768,7 @@ final class MuFloTests: XCTestCase {
                 c { f    g(2) } }
             z >> (a.b.f(1), a.b.g(2), a.c.g(2))
             """, result1)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -1069,8 +1062,7 @@ final class MuFloTests: XCTestCase {
             let result1 = root.scriptRoot([.parens, .def, .edge, .comment])
             let expect1 = "a(x, y) << b, b(x 1, y 2)"
             err = ParStr.testCompare(expect1, result1, echo: true)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -1093,8 +1085,7 @@ final class MuFloTests: XCTestCase {
             let result = root.scriptRoot([.parens, .now, .edge, .comment])
             let expect = "a(x:1) << c, c(x:1, y:2)"
             err = ParStr.testCompare(expect, result, echo: true)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -1117,8 +1108,7 @@ final class MuFloTests: XCTestCase {
             let result = root.scriptRoot([.parens, .now, .edge, .comment])
             let expect = "a(x:1) << c, b(y:2) << c, c(x:1, y:2)"
             err = ParStr.testCompare(expect, result, echo: true)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -1152,8 +1142,7 @@ final class MuFloTests: XCTestCase {
             let result1 = root.scriptRoot([.parens, .def, .edge, .comment])
             let expect1 = "a(x 0…2, y 0…2, z 99), b(x 0…2, y 0…2) << a"
             err += ParStr.testCompare(expect1, result1, echo: true)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -1217,8 +1206,7 @@ final class MuFloTests: XCTestCase {
 
             let result = root.scriptRoot([.parens, .now, .edge, .comment])
             err = ParStr.testCompare("a(x:1, y:2, z:3), b(sum:6) << a, c(x:6) << a", result)
-        }
-        else {
+        } else {
             err = 1
         }
         XCTAssertEqual(err, 0)
@@ -1242,8 +1230,7 @@ final class MuFloTests: XCTestCase {
 
             let result = root.scriptRoot([.parens, .now, .edge, .comment])
             err = ParStr.testCompare("a(x:1, y:2, z:3), b(x, y, z)<<a, c(x:1, y:2, z:3)<<a", result)
-        }
-        else {
+        } else {
             err = 1
         }
         XCTAssertEqual(err, 0)
@@ -1272,8 +1259,7 @@ final class MuFloTests: XCTestCase {
             let result1 = root.scriptRoot([.parens, .now, .edge])
             let expect1 = "a(x:1, y) b(v:1) >> a(x:1)"
             err = ParStr.testCompare(expect1, result1, echo: true)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -1301,8 +1287,7 @@ final class MuFloTests: XCTestCase {
             let result1 = root.scriptRoot([.parens, .now, .edge])
             let expect1 = "a(x:0.5, y:2) b(v:1)>>a(x:0.5, y:2)"
             err = ParStr.testCompare(expect1, result1, echo: true)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -1329,8 +1314,7 @@ final class MuFloTests: XCTestCase {
 
             let result = root.scriptRoot([.parens, .now, .edge, .comment])
             err = ParStr.testCompare("grid(x:4, y:2) << note, note(num:50)", result)
-        }
-        else {
+        } else {
             err = 1
         }
         XCTAssertEqual(err, 0)
@@ -1361,8 +1345,7 @@ final class MuFloTests: XCTestCase {
             note.setAny(t1, .activate)
             let result1 = root.scriptRoot([.parens, .now, .edge, .comment])
             err += ParStr.testCompare( "grid(num:50, chan:1, x:4, y:2)<<note, note(num:50, chan:1)", result1)
-        }
-        else {
+        } else {
             err = 1
         }
         XCTAssertEqual(err, 0)
@@ -1390,8 +1373,7 @@ final class MuFloTests: XCTestCase {
                 a.setAny(0.1, .activate) }
             err += testAct("b(0.2)", "b(0.2) a(0.020000000000000004) c(0.20000000000000004)") {
                 b.setAny(0.2, .activate) }
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -1411,8 +1393,7 @@ final class MuFloTests: XCTestCase {
             print("expected ⟹ \(expected)")
             print("actual   ⟹ \(actual.removeLines())")
             err += 1
-        }
-        else {
+        } else {
             print ("⟹ " + TestResult + " ✓")
         }
         return err
@@ -1443,8 +1424,7 @@ final class MuFloTests: XCTestCase {
             let expect3 =  "a(:10)⟐→c b(:20)⟐→c c(:20)<<(a ? b)"
             let result3 = root.scriptRoot([.parens, .now, .edge]).removeLines()
             err += ParStr.testCompare(expect3, result3, echo: true)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -1475,8 +1455,7 @@ final class MuFloTests: XCTestCase {
             let expect1 = "a(:0)⟐→w b(:0)⟐→w c⟐→w w(:3)<<(a ? 1 : b ? 2 : c ? 3)"
             let result1 = root.scriptRoot([.parens, .now, .edge])
             err += ParStr.testCompare(expect1, result1, echo: true)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -1511,8 +1490,7 @@ final class MuFloTests: XCTestCase {
             let expect1 = "a(0)⟐→w x(:12)◇→w y(:22)⟐→w w(y)<<(a ? x : y)"
             let result1 = root.scriptRoot([.parens, .now, .edge, .expand])
             err += ParStr.testCompare(expect1, result1, echo: true)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -1545,8 +1523,7 @@ final class MuFloTests: XCTestCase {
             let expect0 = "a(:1)⟐→w x(:4)←⟐→w y(:3)←◇→w w(:4)<>(a ? x : y)"
             let result0 = root.scriptRoot([.parens, .now, .edge]).removeLines()
             err += ParStr.testCompare(expect0, result0, echo: true)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
@@ -1566,8 +1543,7 @@ final class MuFloTests: XCTestCase {
 
             let d3Script = root.makeD3Script()
             print(d3Script)
-        }
-        else {
+        } else {
             err += 1
         }
         XCTAssertEqual(err, 0)

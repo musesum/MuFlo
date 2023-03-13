@@ -24,10 +24,12 @@ extension FloParse {
         var arrayOp = ""
         for nextPar in parItem.nextPars {
             if let pattern = nextPar.node?.pattern, pattern != "" {
+
                 nextArray += arrayOp + pattern
                 arrayOp = ", "
-            }
-            else if let value = nextPar.value {
+
+            } else if let value = nextPar.value {
+
                 nextArray += arrayOp + value
                 arrayOp = ", "
             }
