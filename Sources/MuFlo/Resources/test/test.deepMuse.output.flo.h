@@ -8,10 +8,10 @@ sky { // visual music program
     }
     pipeline { // default metal pipeline at atartup
 
-        draw ("draw") // drawing layer
-        ave ("compute") // compute layer
-        color ("color") // colorizing layer
-        render ("render") // render layer al
+        draw    // drawing layer
+        ave     // compute layer
+        color   // colorizing layer
+        render // render layer
     }
     color { // false color mapping palette
 
