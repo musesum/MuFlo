@@ -126,7 +126,7 @@ public class FloValScalar: FloVal {
             if !hasDelta() {
                 return ""
             }
-            print("*** \(flo.name) [\(scriptOpts.description)].[\(valOps.description)] : \(now)") //??
+            print("*** \(flo.name) [\(scriptOpts.description)].[\(valOps.description)] : \(now)")
         }
 
         var script = scriptOpts.parens ? "(" : ""
