@@ -7,7 +7,6 @@
 import Foundation
 import MuPar
 
-
 /// Dictionary of all Flos in graph based on path based hash.
 /// This is useful for updating state of a flo node from duplicate
 /// graph with exactly the same namespace. Useful for saving and
@@ -17,15 +16,16 @@ public class FloDispatch {
     public var dispatch = [Int: (Flo,TimeInterval)]()
 }
 
-public class Flo: Hashable {
+public class Flo {
 
     public static var LogBindScript = false // debug while binding
     public static var LogMakeScript = false // debug while binding
 
-    public var id = Visitor.nextId()
+    var id = Visitor.nextId()
     public var dispatch: FloDispatch? // Global dispatch for each root
 
     public var name = ""
+    public var val: FloVal? = nil
     public var parent: Flo? = nil   // parent flo
     public var children = [Flo]()   // expanded flo from  wheres˚flo
     public var comments = FloComments()
@@ -40,24 +40,20 @@ public class Flo: Hashable {
     public var bool    : Bool      { get { BoolVal()    }}
     public var names   : [String]? { get { NamesVal()   }}
 
-    var time = TimeInterval(0)  // UTC time of last change time
+    private var time = TimeInterval(0)  // UTC time of last change time
     public func updateTime() {
         time = Date().timeIntervalSince1970
     }
 
-    var changes: UInt = 0       // temporary count of changes to descendants
-
-    var pathRefs: [Flo]?        // b in `a.b <-> c` for `a{b{c}} a.b <-> c
-    var passthrough = false /// does not have its own FloVal, so pass through events
-    
-    public var val: FloVal? = nil
+    var changes: UInt = 0           // temporary count of changes to descendants
+    var pathRefs: [Flo]?            // b in `a.b <-> c` for `a{b{c}} a.b <-> c
+    var passthrough = false         // does not have its own FloVal, so pass through events
     var cacheVal: Any? = nil        // cached value is drained
-
     var edgeDefs = FloEdgeDefs()    // for a<-(b.*++), this saves "++" and "b.*)
     var floEdges = [String: FloEdge]() // some edges are defined by another Flo
 
     var closures = [FloVisitor]()  // during activate call a list of closures and return with FloVal ((FloVal?)->(FloVal?))
-    public var type = FloType.unknown
+    var type = FloType.unknown
     var copied = [Flo]()
 
     public lazy var hash: Int = {
@@ -65,18 +61,6 @@ public class Flo: Hashable {
         if time == 0 { updateTime()}
         return hashed
     }()
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(hash)
-    }
-
-    public static func == (lhs: Flo, rhs: Flo) -> Bool { return lhs.id == rhs.id }
-
-    public convenience init(_ name: String, _ type: FloType = .name) {
-        self.init()
-        self.name = name
-        self.type = type
-    }
 
     public convenience init(deepcopy from: Flo, parent: Flo) {
 
@@ -209,3 +193,20 @@ public class Flo: Hashable {
     
 }
 
+extension Flo: Hashable {
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(hash)
+    }
+
+    public static func == (lhs: Flo, rhs: Flo) -> Bool {
+        return lhs.id == rhs.id
+    }
+
+    public convenience init(_ name: String, _ type: FloType = .name) {
+        self.init()
+        self.name = name
+        self.type = type
+    }
+
+}
