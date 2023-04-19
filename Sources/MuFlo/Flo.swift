@@ -30,6 +30,16 @@ public class Flo: Hashable {
     public var children = [Flo]()   // expanded flo from  wheres˚flo
     public var comments = FloComments()
 
+    public var string  : String?   { get { StringVal()  }}
+    public var double  : Double?   { get { DoubleVal()  }}
+    public var float   : Float?    { get { FloatVal()   }}
+    public var cgFloat : CGFloat?  { get { CGFloatVal() }}
+    public var cgPoint : CGPoint?  { get { CGPointVal() }}
+    public var cgSize  : CGSize?   { get { CGSizeVal()  }}
+    public var int     : Int?      { get { IntVal()     }}
+    public var bool    : Bool      { get { BoolVal()    }}
+    public var names   : [String]? { get { NamesVal()   }}
+
     var time = TimeInterval(0)  // UTC time of last change time
     public func updateTime() {
         time = Date().timeIntervalSince1970

@@ -8,29 +8,29 @@ import Collections
 import MuPar
 
 extension Flo {
-
-    public func StringVal() -> String? {
+    
+    func StringVal() -> String? {
         if let exprs = val as? FloValExprs,
-                  let str = exprs.opVals.first?.val as? String {
+           let str = exprs.opVals.first?.val as? String {
             // anonymous String inside expression
             // example `color ("pipe.color.metal")`
             return str
         }
         return nil
     }
-
-    public func BoolVal() -> Bool {
+    
+    func BoolVal() -> Bool {
         if let v = val as? FloValScalar {
             return v.now > 0
         }
         return false
     }
-
-    public func DoubleVal() -> Double? {
+    
+    func DoubleVal() -> Double? {
         if let v = val as? FloValScalar {
             return v.now
         } else if let exprs = val as? FloValExprs {
-
+            
             if let f = (exprs.nameAny["v"] as? FloValScalar)?.now {
                 return f
             } else if let scalar = exprs.nameAny.values.last as? FloValScalar  {
@@ -39,8 +39,8 @@ extension Flo {
         }
         return nil
     }
-
-    public func Normals() -> [Double] {
+    
+    func Normals() -> [Double] {
         if let v = val as? FloValScalar {
             return [v.normalized()]
         } else if let exprs = val as? FloValExprs {
@@ -58,46 +58,46 @@ extension Flo {
         }
         return []
     }
-
-    public func IntVal() -> Int? {
+    
+    func IntVal() -> Int? {
         if let num = DoubleVal() { return Int(num) }
         return nil
     }
-
-    public func CGFloatVal() -> CGFloat? {
+    
+    func CGFloatVal() -> CGFloat? {
         if let f = DoubleVal() { return CGFloat(f) }
         return nil
     }
     
-    public func FloatVal() -> Float? {
+    func FloatVal() -> Float? {
         if let f = DoubleVal() { return Float(f) }
         return nil
     }
-
-    public func CGPointVal() -> CGPoint? {
-
+    
+    func CGPointVal() -> CGPoint? {
+        
         if let exprs = val as? FloValExprs {
             if let x = (exprs.nameAny["x"] as? FloValScalar)?.now,
                let y = (exprs.nameAny["y"] as? FloValScalar)?.now {
-
+                
                 return CGPoint(x: CGFloat(x), y: CGFloat(y))
             }
         }
         return nil
     }
     
-    public func CGSizeVal() -> CGSize? {
+    func CGSizeVal() -> CGSize? {
         if let v = val as? FloValExprs {
             if let w = (v.nameAny["w"] as? FloValScalar)?.now,
                let h = (v.nameAny["h"] as? FloValScalar)?.now {
-
+                
                 return CGSize(width: CGFloat(w), height: CGFloat(h))
             }
         }
         return nil
     }
-
-    public func CGRectVal() -> CGRect? {
+    
+    func CGRectVal() -> CGRect? {
         if let v = val as? FloValExprs {
             let ns = v.nameAny
             if ns.count >= 4,
@@ -114,8 +114,8 @@ extension Flo {
         }
         return nil
     }
-
-    public func NamesVal() -> [String]? {
+    
+    func NamesVal() -> [String]? {
         if let v = val as? FloValExprs,
            v.nameAny.count > 0 {
             return Array<String>(v.nameAny.keys)
@@ -160,18 +160,18 @@ extension Flo {
         }
         return false
     }
-
+    
     /// get nameed value
     public func component(named: String) -> Any? {
         if let exprs = val as? FloValExprs {
             if let val = exprs.nameAny[named] {
-
+                
                 return val
             }
         }
         return nil
     }
-
+    
     /// convert FloValExprs contiguous array to dictionary
     public func components(named: [String]) -> [(String,Any?)] {
         var result = [(String, Any?)] ()
@@ -181,7 +181,7 @@ extension Flo {
         }
         return result
     }
-
+    
     /// convert FloValExprs contiguous array to dictionary
     public func components() ->  OrderedDictionary<String,Any>? {
         return (val as? FloValExprs)?.nameAny ?? nil
