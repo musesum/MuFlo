@@ -99,7 +99,7 @@ Each node may have a value of: scalar, expression, string, or embedded script
 ```c
 a (1)              // scalar with an initial value of 1
 b (0…1)            // scalar that ranges between 0 and 1
-c (0…127 = 1)      // scalar betwwn 0 and 127, defaulting to 1
+c (0…127 = 1)      // scalar between 0 and 127, defaulting to 1
 d "yo"             // a string value "yo"
 e (x 0…1, y 0…1)   // an expression (see below)
 ```
@@ -215,7 +215,7 @@ Because the visit pattern breaks loops, the `˚˚<>..`  maps well to devices tha
 
 ### Ternaries
 
-Edges may contain ternaries that switches dataflow. Somewhat akin to railroad switch, traffic may flow in either direction and do need to reevealate the switch as passes through. 
+Edges may contain ternaries that switches dataflow. Somewhat akin to railroad switch, traffic may flow in either direction and does NOT need to reevealate the switch as it passes through. 
 
 conditionals may switch the flow of data 
 ```c
@@ -296,7 +296,7 @@ MuPar - parser for DSLs and flexible NLP in Swift
 - vertically integrated with Flo
 - Source [here](https://github.com/musesum/Par)
 
-MuFloD3 (pending)
+MuFloD3 (future)
 
 - simple visualization of the Flo graph, using D3JS
 - continuation of prototype of previous version of Flo
@@ -306,11 +306,10 @@ MuFloD3 (pending)
 
 ### DeepMuse iOS App
 
-Toy Visual Synth for iPad and iPhone called "DeepMuse"
+Toy Visual Music Synth for iPad and iPhone called "DeepMuse"
 - See test script in Sources/Flo/Resources/*.flo.h
 - See test output in  Sources/Flo/Resources/test.output.flo.h
 - Code folding and syntax highlighting works in Xcode
-- Demo [here](https://www.youtube.com/watch?v=peZFo8JnhuU)
 
 Encourage users to tweak Flo scripts without recompiling
 - pass along Flo scripts, somewhat akin to Midi files for music synthesis
@@ -318,16 +317,11 @@ Encourage users to tweak Flo scripts without recompiling
 
 Inspired by:
 - Analog music synthesizers, like Moog Modular, Arp 2600, with patchchords
-- Media Dataflow scripting : Max, QuartzComposer, Plogue Bidule
-
-
-### Hand Pose Controlers
-
-You hand has 21 joints when can be used as a gestural controller 
+- Node based Dataflow scripting : Max, QuartzComposer, Plogue Bidule, 
 
 ### Body Pose Avatars
 
-Imagine using a camera to record body pose  
+Use a camera to record body pose  
 - Record total state of  `graph << body˚˚`
 - Playback total state of  `graph >> body˚˚`
 - Create a functional mirror `twin: body ←@→ body`
@@ -340,6 +334,18 @@ body {left right}.{shoulder.elbow.wrist {thumb index middle ring pinky}.{meta pr
 ˚˚ { pos(x 0…1, y 0…1, z 0…1) angle(roll %360, pitch %360, yaw %360) mm(0…3000)})
 ```
 
-### Vehicles and Simulators 
+### Virtual Vehicles and Simulators 
 
 In 2004, NASA put on a conference called [Virtual Iron Bird](https://www.nasa.gov/vision/earth/technologies/Virtual_Iron_Bird_jb.html) to encourage modeling of Spacecraft. One question was how to manage the dataflow between sensors and actuators. How does one simulate a vehicle? Or synchonize co-pilot controls? 
+
+### Hand Pose for an AR/VR HUD 
+
+DeepMuse uses a new menuing system with a focus on heads up displays. 
+
+The original problem was translating a tablet inteface to a touch screen menu. 
+
+The original DeepMuse synthezier had 2800 parameters mapped to a static template. That template was then overlayed on a Wacom tablet. There were tradeoffs. Pro: The interface was static. So, the performer could develop some muscle memory. Con: you still had to shift your gaze, thus losing awarenes of your surroundings.
+
+Mixed reality presents a new problem: there are no devices to touch. Instead, you wave your hands with an imaginary baton. You become the conductor of a generative tree which anticipates your next move. Over time, gestures and generated controls converge and congeal; fostering a new kind of muscle memory.  
+
+This is where Flo comes in: even though the flow graph is dynamic, the names remain fixed. As you develop muscle memory, your intent will be expressed as a kind of feeling; to be expressed as thoughtless gesture. 
