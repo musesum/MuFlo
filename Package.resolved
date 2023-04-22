@@ -14,7 +14,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/musesum/MuSkyFlo.git",
       "state" : {
-        "revision" : "78b717c6f34f4ecf9c294f946a8edd6f999dbce6",
+        "revision" : "088960da63b2f04b53d639bb8916c008daa56076",
         "version" : "0.23.127"
       }
     },

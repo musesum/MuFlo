@@ -13,7 +13,7 @@ extension Flo {
         if let exprs = val as? FloValExprs,
            let str = exprs.opVals.first?.val as? String {
             // anonymous String inside expression
-            // example `color ("pipe.color.metal")`
+            // example `color ("compute.color.metal")`
             return str
         }
         return nil

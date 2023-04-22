@@ -134,8 +134,8 @@ public class FloValScalar: FloVal {
 
         if scriptOpts.def {
             if valOps.min  { script += min.digits(0...6) }
-            if valOps.thru { script += "…" /* option+`;` */}
-            if valOps.thri { script += "_" /* option+`;` */}
+            if valOps.thru { script += "…" } // … is option+semicolon ⌥⃣; on mac keyboard
+            if valOps.thri { script += "_" }
             if valOps.modu { script += "%" }
             if valOps.max  { script += max.digits(0...6) }
             if valOps.dflt { script += "=" + dflt.digits(0...6) }
