@@ -17,7 +17,7 @@ Flo is a data flow graph with the following features:
 - Explore live patching without crashing or infinite loops 
 - Concise expression of hand pose for menu navigation 
 - Concise expression of body pose for avatars and robots
-- Synchronize amorphous devices 
+- Synchronize amorphous content and devices 
 
 ## Nodes
 
@@ -181,7 +181,7 @@ But, the sending event must have all of the values captured by the receiver, or 
 g (x==0, y 0) << z       // z! is ignored as z.x != 0 
 h (x==1, y 0) << z       // z! activates h(x 1, y 2) 
 i (x<10, y<10) << z      // z! activates i(x 1, y 2) 
-j (x in -1…3, y 0) << z // z! activates j(x 1, y 2) 
+j (x in -1…3, y 0) << z  // z! activates j(x 1, y 2) 
 k (x 0, y 0, z 0, t 0)   // z! ignored due to missing t
 ```
 #### Overrides
@@ -193,7 +193,7 @@ a.b.d (2)        // changes to  `a { b { d(2) e } c { d (1) e } }`
 ```
 #### Wildcards
 
-Include subtrees with wildcards. The new `˚` (option-k) wildcard behaves like an Xpath `/*/` where  it will perform a search on children, grandchildren, and so on. Using `˚.` includes all leaves,  and  `˚˚` will include the whole subtree
+Include subtrees with wildcards. The new `˚` (option-k) wildcard behaves like a Xpath `/*/` where  it will perform a search on children, grandchildren, and so on. Using `˚.` includes all leaves,  and  `˚˚` will include the whole subtree
 ```c
 a {b c}.{d e} // produces `a { b { d e } c { d e } }`
 p << a.*.d    // produces `p << (a.b.d, a.c.d)`
@@ -208,21 +208,21 @@ Wildcard searches can occur on both left and rights sides to support fully conne
 ˚˚<>..  // flow in both directions, middle out?
 ```
 Because the visit pattern breaks loops, the `˚˚<>..`  maps well to devices that combine sensors and actuators, such as:
--  a flying fader on a mix board, 
+- a flying fader on a mix board, 
 - a co-pilot's steering wheel 
 - the joints on an Human body capture skeleton
 - future hash trees (like Merkle trees) and graphs
 
 ### Ternaries
 
-Edges may contain ternaries that switches dataflow. Somewhat akin to railroad switch, traffic may flow in either direction and does NOT need to reevealate the switch as it passes through. 
+Edges may contain ternaries that switches dataflow. Somewhat akin to railroad switch, traffic may flow in either direction and does *not* need to reevealate the switch as it passes through. 
 
 conditionals may switch the flow of data 
 ```c
 a >> (b ? c : d)  // a flows to either c or d, when b activates
 e << (f ? g : h)  // f directs flow from either g or h, when f acts
 i <> (j ? k : l) // i synchronizes with either k or l, when j acts
-m <> (n ? n1 | p ? p1 | q ? q1) // radio button style, akin to solo switch
+m <> (n ? n1 | p ? p1 | q ? q1) // radio button style, akin to the "solo" switch on a mixing board
 ```
 conditionals may also compare its state
 ```c
@@ -231,7 +231,7 @@ e << (f == 1 ? g : h) // g or h flows to e, based on last f activation
 i <> (j1 < j2 ? k : l) // i syncs with either k or l, based on last j1 or j2 acts
 m <> (n > p ? n1 | p > q ? p1 | q > 0 ? q1) // radio button style
 ```
-when a comparison changes is state, it reevaluates its chain of conditions
+when a comparison changes its state, it reevaluates its chain of conditions
 
 - when `b` activates, it reevaluates `b > 0`
 - when `f` activates, it reevaluates `f == 1`
@@ -319,13 +319,17 @@ Inspired by:
 - Analog music synthesizers, like Moog Modular, Arp 2600, with patchchords
 - Node based Dataflow scripting : Max, QuartzComposer, Plogue Bidule, 
 
+### Virtual Vehicles and Simulators 
+
+In 2004, Barney Pell hosted a conference at NASA called [Virtual Iron Bird](https://www.nasa.gov/vision/earth/technologies/Virtual_Iron_Bird_jb.html) to encourage modeling of Spacecraft. One question was how to manage the dataflow between sensors and actuators. How does one simulate a vehicle? Or synchonize co-pilot controls? 
+
 ### Body Pose Avatars
 
 Use a camera to record body pose  
 - Record total state of  `graph << body˚˚`
 - Playback total state of  `graph >> body˚˚`
 - Create a functional mirror `twin: body ←@→ body`
-- Inspired by a Kinect/OpenNI experiment, shown [here](https://www.youtube.com/watch?v=aFO6j6tvdk8)
+- Proof of concept using Kinect/OpenNI, shown [here](https://www.youtube.com/watch?v=aFO6j6tvdk8)
 
 Check out `test.robot.input.flo.h`, which defines a Humanoid robot in three lines of code:
 ```c
@@ -334,18 +338,14 @@ body {left right}.{shoulder.elbow.wrist {thumb index middle ring pinky}.{meta pr
 ˚˚ { pos(x 0…1, y 0…1, z 0…1) angle(roll %360, pitch %360, yaw %360) mm(0…3000)})
 ```
 
-### Virtual Vehicles and Simulators 
-
-In 2004, NASA put on a conference called [Virtual Iron Bird](https://www.nasa.gov/vision/earth/technologies/Virtual_Iron_Bird_jb.html) to encourage modeling of Spacecraft. One question was how to manage the dataflow between sensors and actuators. How does one simulate a vehicle? Or synchonize co-pilot controls? 
-
-### Hand Pose for an AR/VR HUD 
+### Hand Pose for an AR/VR Heads up Display 
 
 DeepMuse uses a new menuing system with a focus on heads up displays. 
 
 The original problem was translating a tablet inteface to a touch screen menu. 
 
-The original DeepMuse synthezier had 2800 parameters mapped to a static template. That template was then overlayed on a Wacom tablet. There were tradeoffs. Pro: The interface was static. So, the performer could develop some muscle memory. Con: you still had to shift your gaze, thus losing awarenes of your surroundings.
+The original DeepMuse synthesizer had 2800 parameters mapped to a static template. That template was then overlayed on a Wacom tablet. There were tradeoffs. Pro: The interface was static. So, the performer could develop some muscle memory. Con: you still had to shift your gaze, thus losing awareness of your surroundings.
 
 Mixed reality presents a new problem: there are no devices to touch. Instead, you wave your hands with an imaginary baton. You become the conductor of a generative tree which anticipates your next move. Over time, gestures and generated controls converge and congeal; fostering a new kind of muscle memory.  
 
-This is where Flo comes in: even though the flow graph is dynamic, the names remain fixed. As you develop muscle memory, your intent will be expressed as a kind of feeling; to be expressed as thoughtless gesture. 
+This is where Flo comes in: even though the flow graph is dynamic, the names remain fixed. Muscle memory emerges. You begin perform without thinking -- dancing the dance of ideas. 
