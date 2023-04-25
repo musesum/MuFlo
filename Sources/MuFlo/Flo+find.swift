@@ -266,9 +266,9 @@ extension Flo {
         }
         return nil
     }
-    public func bindPath(_ path: String,
-                         _ showError: Bool = true,
-                         _ closure: FloVisitor? = nil) -> Flo {
+    public func bind(_ path: String,
+                     _ showError: Bool = true,
+                     _ closure: FloVisitor? = nil) -> Flo {
 
         if let flo = findPath(path) {
             if let closure {
@@ -282,5 +282,4 @@ extension Flo {
         return Flo()
     }
 
-   
 }

@@ -22,6 +22,14 @@ extension Flo {
     func BoolVal() -> Bool {
         if let v = val as? FloValScalar {
             return v.now > 0
+        }  else if let exprs = val as? FloValExprs {
+            if let f = (exprs.nameAny["tog"] as? FloValScalar)?.now {
+                return f > 0
+            } else if let f = (exprs.nameAny["tap"] as? FloValScalar)?.now {
+                return f > 0
+            } else if let scalar = exprs.nameAny.values.last as? FloValScalar  {
+                return scalar.now > 0
+            }
         }
         return false
     }
@@ -60,17 +68,20 @@ extension Flo {
     }
     
     func IntVal() -> Int? {
-        if let num = DoubleVal() { return Int(num) }
+        if let v = DoubleVal() { return Int(v) }
         return nil
     }
-    
+    func UInt32Val() -> UInt32? {
+        if let v = DoubleVal() { return UInt32(v) }
+        return nil
+    }
     func CGFloatVal() -> CGFloat? {
-        if let f = DoubleVal() { return CGFloat(f) }
+        if let v = DoubleVal() { return CGFloat(v) }
         return nil
     }
     
     func FloatVal() -> Float? {
-        if let f = DoubleVal() { return Float(f) }
+        if let v = DoubleVal() { return Float(v) }
         return nil
     }
     
