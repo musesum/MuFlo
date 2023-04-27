@@ -5,7 +5,7 @@
 //  License: Apache 2.0 - see License file
 
 import Foundation
-
+import MuPar
 
 extension Flo {
 
@@ -273,6 +273,7 @@ extension Flo {
         if let flo = findPath(path) {
             if let closure {
                 flo.addClosure(closure)
+                //??? closure(self, Visitor(0, from: .bind))
             }
             return flo
 

@@ -18,7 +18,7 @@ public class FloDispatch {
 
 public class Flo {
 
-    public static var root = Flo("√")
+    public static var root˚ = Flo("√")
     public static var LogBindScript = false // debug while binding
     public static var LogMakeScript = false // debug while binding
 
