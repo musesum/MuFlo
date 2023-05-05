@@ -1,9 +1,7 @@
-//
 //  Flo+script.swift
 //
 //  Created by warren on 4/16/19.
 //  Copyright © 2019 DeepMuse
-//  License: Apache 2.0 - see License file
 
 import Foundation
 
