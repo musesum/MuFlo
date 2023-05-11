@@ -65,6 +65,7 @@ public class FloValPath: FloVal {
         return newFloValPath
     }
 
+    @discardableResult
     public override func setVal(_ any: Any?,
                                 _ visit: Visitor) -> Bool {
         //TODO: is ever used during runtime?

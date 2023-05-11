@@ -234,6 +234,7 @@ extension Flo {
         }
         return changes
     }
+    @discardableResult
     public func scriptRoot(_ scriptOpts: FloScriptOps = []) -> String {
         var script = ""
         if scriptOpts.delta {

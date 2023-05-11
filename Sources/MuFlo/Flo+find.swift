@@ -233,6 +233,7 @@ extension Flo {
     ///     a.b.c.d { e.f } ⟹
     ///     √ { a { b { c { d { e { f } } } } } }
     ///
+    @discardableResult
     func makePath(_ path: String, _ head: Flo?) -> Flo? {
 
         let (prefix, _, suffix) = path.splitWild(".")
@@ -245,7 +246,7 @@ extension Flo {
 
             } else {
                 // don't return tail of path chain
-                let _ = child.makePath(suffix, head)
+                child.makePath(suffix, head)
             }
             // return nead of path chain
             return child

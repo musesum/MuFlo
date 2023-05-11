@@ -23,6 +23,7 @@ public class FloValEmbed: FloVal {
         return embed
     }
 
+    @discardableResult
     public override func setVal(_ any: Any?,
                                 _ visit: Visitor) -> Bool {
         

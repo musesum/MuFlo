@@ -986,7 +986,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseScript(root, script),
            let w = root.findPath("w") {
 
-            _ = root.scriptRoot([.parens, .now])
+            root.scriptRoot([.parens, .now])
             // 0, 0, 0 --------------------------------------------------
             let t0 = FloValExprs(Flo("t0"), nameNums: [("x", 0), ("y", 0), ("z", 0)])
             w.setAny(t0, .activate)

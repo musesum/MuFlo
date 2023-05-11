@@ -135,7 +135,7 @@ public class Flo {
         attachDeep(many, Visitor(0))
         return many
     }
-
+    @discardableResult
     public func addChild(_ parItem: ParItem, _ type_: FloType)  -> Flo {
 
         if let value = parItem.nextPars.first?.value {

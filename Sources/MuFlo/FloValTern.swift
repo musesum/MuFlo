@@ -90,7 +90,7 @@ public class FloValTern: FloValPath {
 
     static func getTernLevel(_ level: Int) -> FloValTern?  {
         while ternStack.last?.parseLevel ?? 0 > level {
-            let _ = ternStack.popLast()
+            _ = ternStack.popLast()
         }
         if let ternLast = ternStack.last {
             return ternLast

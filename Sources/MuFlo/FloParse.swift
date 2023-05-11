@@ -76,7 +76,7 @@ public class FloParse {
 
             case "copyat":
 
-                let _ = flo.addChild(par, .copyat)
+                flo.addChild(par, .copyat)
 
             case "expr":
                 if let edgeDef = flo.edgeDefs.edgeDefs.last,
@@ -403,7 +403,7 @@ public class FloParse {
 
                 case "child", "many":
                     // push child of most recent name'd sibling to the next level
-                    let _ = self.dipatchParse(nextFlo, pattern, nextPar, level+1)
+                    self.dipatchParse(nextFlo, pattern, nextPar, level+1)
 
                 case "name", "path":
                     // add new named sibling to parent
@@ -427,7 +427,7 @@ public class FloParse {
                    _ level: Int) -> Flo {
 
         for nextPar in par.nextPars {
-            let _ = self.dipatchParse(flo, prior, nextPar, level+1)
+            self.dipatchParse(flo, prior, nextPar, level+1)
         }
         return flo
     }
@@ -439,6 +439,7 @@ public class FloParse {
     ///     - parseValue
     ///     - parseEdge
     ///
+    @discardableResult
     func dipatchParse(_ flo: Flo,
                       _ prior: String,
                       _ par: ParItem,
@@ -487,7 +488,7 @@ public class FloParse {
             }
             // reduce to keywords in floKeywords and print
             let reduce1 = par.reduceStart(floKeywords)
-            let _ = dipatchParse(root, "", reduce1, 0)
+            dipatchParse(root, "", reduce1, 0)
             root.bindRoot()
            
             return true
@@ -513,7 +514,7 @@ public class FloParse {
            let nowVal = now.val,
            let floVal = flo.val {
 
-            _ = floVal.setVal(nowVal, Visitor(0))
+            floVal.setVal(nowVal, Visitor(0))
         }
         for child in now.children {
             mergeNow(child, with: root)

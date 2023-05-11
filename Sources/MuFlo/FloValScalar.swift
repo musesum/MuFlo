@@ -80,11 +80,8 @@ public class FloValScalar: FloVal {
         else if valOps.min, now < min { next = min  }
         else if valOps.max, now > max { next = max  }
         else if valOps.modu           { next = 0    }
-        if visit.from.bind {
-            now = next
-        } else {
-            animateNowToNext(visit)
-        }
+
+        animateNowToNext(visit)
     }
     static func |= (lhs: FloValScalar, rhs: FloValScalar) {
         
@@ -173,6 +170,7 @@ public class FloValScalar: FloVal {
 
     // MARK: - set
 
+    @discardableResult
     public override func setVal(_ val: Any?,
                                 _ visit: Visitor) -> Bool {
         
@@ -186,7 +184,7 @@ public class FloValScalar: FloVal {
             case let v as Int          : setNumWithFlag(Double(v))
             default: print("🚫 setVal unknown type for: from")
         }
-        animateNowToNext(visit)
+        //??? animateNowToNext(visit)
         return true
 
 
@@ -252,17 +250,22 @@ extension FloValScalar: FloAnimProtocal {
 
     func animateNowToNext(_ visit: Visitor) {
         if visit.from.tween {
+            // already animating
             logTween("􁒖ˢᵗ", steps)
-            // now is set by FloEValxprs
         } else if valOps.anim {
+            // maybe setup animation callback
             steps = NextFrame.shared.fps * anim
             logTween("􁒖ˢª", steps)
-            NextFrame.shared.addFrameDelegate(self.id, self)
+            if steps > 0 {
+                visit.from += .tween
+                NextFrame.shared.addFrameDelegate(self.id, self)
+            }
         } else {
             logTween("􁒖ˢ⁼", steps)
             now = next
         }
     }
+    @discardableResult
     func tweenSteps(_ steps: Double) -> Double {
         let delta = (next - now)
         logTween("􀎷ˢˢ", steps)

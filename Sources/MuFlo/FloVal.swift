@@ -64,6 +64,7 @@ open class FloVal: Comparable {
         anim = val
     }
 
+    @discardableResult
     public func setVal(_ from: Any?,
                        _ visit: Visitor) -> Bool {
 

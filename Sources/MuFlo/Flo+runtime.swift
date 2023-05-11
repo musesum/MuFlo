@@ -98,7 +98,7 @@ extension Flo {
     /// to merely point to the the value, as it moves through.
     /// If the node has a value of its own, then remap
     /// its value and the range of the incoming value.
-    ///
+    @discardableResult
     func setEdgeVal(_ fromVal: FloVal?,
                     _ visit: Visitor) -> Bool {
         

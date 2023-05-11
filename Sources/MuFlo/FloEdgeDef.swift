@@ -45,7 +45,7 @@ public class FloEdgeDef {
 
         if let path = parItem.nextPars.first?.value {
 
-            if let _ = ternVal {
+            if ternVal != nil {
                 FloValTern.ternStack.last?.addPath(path)
             } else {
                 pathVals.add(path: path, val: nil)
