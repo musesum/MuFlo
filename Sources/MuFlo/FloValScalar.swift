@@ -24,7 +24,7 @@ public class FloValScalar: FloVal {
         self.name = name
     }
 
-    init(_ flo: Flo, name: String, num: Double) {
+    init(_ flo: Flo,_ name: String,_ num: Double) {
         super.init(flo, name)
         valOps = .now
         self.min = fmin(num, 0.0)
@@ -239,36 +239,38 @@ public class FloValScalar: FloVal {
         return FloValScalar(with: self)
     }
 }
-
-extension FloValScalar: NextFrameDelegate, FloAnimProtocal {
-
-    func animateNowToNext(_ visit: Visitor) {
-        if visit.from.tween {
-            logTween("􁒖⁰",0)
-            // now is set by FloEValxprs
-        } else if valOps.anim {
-            logTween("􁒖¹",0)
-            steps = NextFrame.shared.fps * anim
-            NextFrame.shared.addFrameDelegate(self.id, self)
-        } else {
-            now = next
-        }
-    }
-    func logTween(_ title: String, _ steps: Double) {
-        print("\(title) \(flo.name).\(name).\(id): (\(now.digits(3...3)) => \(next.digits(3...3))) steps: \(steps.digits(0...1))")
-    }
-    func tweenSteps(_ steps: Double) -> Double {
-        let delta = (next - now)
-        if delta == 0 { return 0 }
-        now += (steps <= 1 ? delta : delta / steps)
-        //logTween("􀎶¹", steps)
-        return Swift.max(0.0, steps - 1)
-    }
+extension FloValScalar: NextFrameDelegate {
 
     public func nextFrame() -> Bool {
         steps = tweenSteps(steps)
         flo.activate(Visitor(.tween))
         return steps > 0
     }
+}
 
+extension FloValScalar: FloAnimProtocal {
+
+    func animateNowToNext(_ visit: Visitor) {
+        if visit.from.tween {
+            logTween("􁒖ˢᵗ", steps)
+            // now is set by FloEValxprs
+        } else if valOps.anim {
+            steps = NextFrame.shared.fps * anim
+            logTween("􁒖ˢª", steps)
+            NextFrame.shared.addFrameDelegate(self.id, self)
+        } else {
+            logTween("􁒖ˢ⁼", steps)
+            now = next
+        }
+    }
+    func tweenSteps(_ steps: Double) -> Double {
+        let delta = (next - now)
+        logTween("􀎷ˢˢ", steps)
+        if delta == 0 { return 0 }
+        now += (steps <= 1 ? delta : delta / steps)
+        return Swift.max(0.0, steps - 1)
+    }
+    func logTween(_ title: String, _ steps: Double) {
+        print("\(title) \(flo.name).\(name).\(id): (\(now.digits(3...3)) => \(next.digits(3...3))) steps: \(steps.digits(0...1))")
+    }
 }

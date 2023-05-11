@@ -56,9 +56,9 @@ extension Flo {
             passthrough = false
 
             switch any {
-                case let v as Int:     val = FloValScalar(self, name: name, num: Double(v))
-                case let v as Double:  val = FloValScalar(self, name: name, num: v)
-                case let v as CGFloat: val = FloValScalar(self, name: name, num: Double(v))
+                case let v as Int:     val = FloValScalar(self, name, Double(v))
+                case let v as Double:  val = FloValScalar(self, name, v)
+                case let v as CGFloat: val = FloValScalar(self, name, Double(v))
                 case let v as CGPoint: val = FloValExprs(self, point: v)
                 case let v as [(String, Double)]: val = FloValExprs(self, nameNums: v)
                 default: print("🚫 unknown val(\(any))")

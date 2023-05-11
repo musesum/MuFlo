@@ -36,15 +36,6 @@ public class FloEdgeDefs {
     }
     func mergeEdgeDefs(_ merge: FloEdgeDefs) {
 
-        func isUnique(_ mergeDef: FloEdgeDef) -> Bool {
-            for edgeDef in edgeDefs {
-                if edgeDef == mergeDef { return false }
-            }
-            return true
-        }
-
-        // begin ----------------------
-        
         for mergeDef in merge.edgeDefs {
             if isUnique(mergeDef) {
                 if mergeDef.edgeOps.solo {
@@ -54,7 +45,7 @@ public class FloEdgeDefs {
                     // keep solo from previous definition
                 }
                 else {
-                     edgeDefs.append(mergeDef)
+                    edgeDefs.append(mergeDef)
                 }
                 break
             }
@@ -63,6 +54,13 @@ public class FloEdgeDefs {
                     addEdgeTernary(mergeTernVal)
                 }
             }
+        }
+        
+        func isUnique(_ mergeDef: FloEdgeDef) -> Bool {
+            for edgeDef in edgeDefs {
+                if edgeDef == mergeDef { return false }
+            }
+            return true
         }
     }
     /** add ternary to array of edgeDefs

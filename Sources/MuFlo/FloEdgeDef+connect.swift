@@ -12,6 +12,15 @@ extension FloEdgeDef {
         let newEdge = FloEdge(self, leftFlo, rightFlo, floVal)
         let newKey = newEdge.edgeKey
 
+        if edgeOps.exclude {
+            excludeEdge()
+        } else if edgeOps.copyat {
+            addEdge()
+            connectCopyr(leftFlo, rightFlo, floVal)
+        } else {
+            addEdge()
+        }
+
         func addEdge() {
             leftFlo.floEdges[newKey] = newEdge
             rightFlo.floEdges[newKey] = newEdge
@@ -24,15 +33,6 @@ extension FloEdgeDef {
                     edges.removeValue(forKey: newKey)
                 }
             }
-        }
-        // begin -----------------------------
-        if edgeOps.exclude {
-            excludeEdge()
-        } else if edgeOps.copyat {
-            addEdge()
-            connectCopyr(leftFlo, rightFlo, floVal)
-        } else {
-            addEdge()
         }
     }
     func connectCopyr(_ leftFlo: Flo, _ rightFlo: Flo, _ floVal: FloVal?)  {

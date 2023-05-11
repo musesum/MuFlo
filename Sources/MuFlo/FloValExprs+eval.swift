@@ -120,7 +120,7 @@ extension FloValExprs { // + set
                     }
                 case let val as Double:
 
-                    nameAny[name] = FloValScalar(flo, name: name, num: val)
+                    nameAny[name] = FloValScalar(flo, name, val)
 
                 case let val as String:
                     if let toVal = nameAny[name] as? FloVal {

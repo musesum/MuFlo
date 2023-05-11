@@ -18,18 +18,18 @@ extension FloEdge {
         let destFlo = leftToRight ? rightFlo : leftFlo
 
         if edgeOps.animate {
-
-            if  (leftToRight && edgeOps.output ||
-                 rightToLeft && edgeOps.input) {
-
+            
+            if (leftToRight && edgeOps.output ||
+                rightToLeft && edgeOps.input) {
+                
                 let destPath = destFlo.parentPath(9)
                 let fromPath = fromFlo.parentPath(9)
                 let fromVal  = "(\(fromFlo.val?.scriptVal(.now) ?? "??"))"
 
                 if leftToRight {
-                    print("􁒖\(fromPath)\(fromVal) => \(destPath)")
+                    print("􁒖→\(fromPath)\(fromVal) => \(destPath)")
                 } else {
-                    print("􁒖\(destPath) <= \(fromPath)\(fromVal)")
+                    print("􁒖←\(destPath) <= \(fromPath)\(fromVal)")
                 }
                 destFlo.setAnimation(fromFlo)
             }
@@ -52,8 +52,8 @@ extension FloEdge {
                     rightToLeft && edgeOps.input {
 
             let val = assignNameVals()
-            if  destFlo.setEdgeVal(val, visit) {
 
+            if  destFlo.setEdgeVal(val, visit) {
                 destFlo.activate(visit)
 
             } else {

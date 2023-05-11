@@ -79,11 +79,11 @@ public class FloValExprs: FloVal {
         var nums = [Double]()
         for value in nameAny.values {
             switch value {
-                case let v as FloValScalar: nums.append(Double(v.now))
-                case let v as CGFloat: nums.append(Double(v))
-                case let v as Float: nums.append(Double(v))
-                case let v as Double: nums.append(v)
-                default: nums.append(0)
+            case let v as FloValScalar : nums.append(Double(v.now))
+            case let v as CGFloat      : nums.append(Double(v))
+            case let v as Float        : nums.append(Double(v))
+            case let v as Double       : nums.append(v)
+            default                    : nums.append(0)
             }
         }
         if nums.isEmpty {
@@ -96,7 +96,9 @@ public class FloValExprs: FloVal {
                                 _ visit: Visitor) -> Bool {
         guard let any else { return false }
         if !visit.newVisit(self.id) { return false }
-        if visit.from.tween { return false }
+        if visit.from.tween {
+            return setAnyVisit(Visitor(self.id))
+        }
 
         if valOps.anim {
             steps = NextFrame.shared.fps * anim
@@ -105,25 +107,26 @@ public class FloValExprs: FloVal {
             }
         }
 
-        var ok = false
-
-        switch any {
-            case let v as Float:    ok = setDouble(Double(v), visit)
-            case let v as CGFloat:  ok = setDouble(Double(v), visit)
-            case let v as Double:   ok = setDouble(Double(v), visit)
-            case let v as CGPoint:  ok = setPoint(v, visit)
-            case let v as FloValExprs: ok = setExprs(v, visit)
-            case let n as [(String,Any)]: ok = setNameVals(n, visit)
-            case let (n,v) as (String,Double):  ok = setNameVal(n, Double(v), visit)
-            case let (n,v) as (String,Float):   ok = setNameVal(n, Double(v), visit)
-            case let (n,v) as (String,CGFloat): ok = setNameVal(n, Double(v), visit)
-            default: print("🚫 mismatched setVal(\(any))")
-        }
-        if ok {
+        if setAnyVisit(visit) {
             animateNowToNext(visit)
+            return true
         }
-        return ok
+        return false
 
+        func setAnyVisit(_ visit: Visitor) -> Bool {
+            switch any {
+            case let     v as Float:            return setDouble(Double(v), visit)
+            case let     v as CGFloat:          return setDouble(Double(v), visit)
+            case let     v as Double:           return setDouble(Double(v), visit)
+            case let     v as CGPoint:          return setPoint(v, visit)
+            case let     v as FloValExprs:      return setExprs(v, visit)
+            case let     n as [(String,Any)]:   return setNameVals(n, visit)
+            case let (n,v) as (String,Double):  return setNameVal(n, Double(v), visit)
+            case let (n,v) as (String,Float):   return setNameVal(n, Double(v), visit)
+            case let (n,v) as (String,CGFloat): return setNameVal(n, Double(v), visit)
+            default: print("🚫 mismatched setVal(\(any))"); return false
+            }
+        }
         func setExprs(_ exprs: FloValExprs,
                       _ visit: Visitor) -> Bool {
 
@@ -137,7 +140,7 @@ public class FloValExprs: FloVal {
             if let scalar = nameAny[name] as? FloValScalar {
                 _ = scalar.setVal(val, visit)
             } else {
-                nameAny[name] = FloValScalar(flo, name: name, num: val)
+                nameAny[name] = FloValScalar(flo, name, val)
             }
             valOps += .now
             return true
@@ -147,11 +150,11 @@ public class FloValExprs: FloVal {
 
             for (name,any) in nameVals {
                 switch any {
-                    case let v as Double:   _ = setNameVal(name, Double(v), visit)
-                    case let v as Float:    _ = setNameVal(name, Double(v), visit)
-                    case let v as CGFloat:  _ = setNameVal(name, Double(v), visit)
-                    case let v as Int:      _ = setNameVal(name, Double(v), visit)
-                    default: break
+                case let v as Double  : _ = setNameVal(name, Double(v), visit)
+                case let v as Float   : _ = setNameVal(name, Double(v), visit)
+                case let v as CGFloat : _ = setNameVal(name, Double(v), visit)
+                case let v as Int     : _ = setNameVal(name, Double(v), visit)
+                default: break
                 }
 
             }
@@ -168,7 +171,7 @@ public class FloValExprs: FloVal {
 
             } else {
 
-                nameAny["val"] = FloValScalar(flo, name: "val", num: v) //TODO: remove this kludge for DeepMenu
+                nameAny["val"] = FloValScalar(flo, "val", v) //TODO: remove this kludge for DeepMenu
             }
             return true
         }
@@ -229,14 +232,23 @@ public class FloValExprs: FloVal {
         return false
     }
 }
+extension FloValExprs: NextFrameDelegate {
 
-extension FloValExprs: NextFrameDelegate, FloAnimProtocal {
+    public func nextFrame() -> Bool {
+        logTween("􀎶ᵉⁿ", steps)
+        steps = tweenSteps(steps)
+        flo.activate(Visitor(.tween))
+        return steps > 0
+    }
+}
+
+extension FloValExprs: FloAnimProtocal {
 
     func animateNowToNext(_ visit: Visitor) {
 
         if visit.from.tween {
-            logTween("􁒖ⁿ", 0)
             steps = NextFrame.shared.fps * anim
+            logTween("􁒖ᵉᵗ", steps)
             NextFrame.shared.addFrameDelegate(self.id, self)
         } else {
             for val in nameAny.values {
@@ -257,11 +269,4 @@ extension FloValExprs: NextFrameDelegate, FloAnimProtocal {
     func logTween(_ title: String, _ steps: Double) {
         print("\(title) \(flo.name).\(id): steps: \(steps.digits(0...1))")
     }
-    public func nextFrame() -> Bool {
-        // logTween("􀎶ⁿ", steps)
-        steps = tweenSteps(steps)
-        flo.activate(Visitor(.tween))
-        return steps > 0
-    }
-
 }

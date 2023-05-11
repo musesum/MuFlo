@@ -20,13 +20,13 @@ extension FloValExprs {
     }
     func addNameNum(_ name: String, _ num: Double) {
         addName(name)
-        addDeepScalar(FloValScalar(flo, name: name, num: num))
+        addDeepScalar(FloValScalar(flo, name, num))
     }
     func injectNameNum(_ name: String, _ num: Double) {
         if let val = nameAny[name] as? FloValScalar {
             val.now = num
         } else {
-            nameAny[name] = FloValScalar(flo, name: name, num: num)
+            nameAny[name] = FloValScalar(flo, name, num)
         }
         opSet.insert(.name)
         opSet.insert(.scalar)
