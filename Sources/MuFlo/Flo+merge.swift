@@ -81,7 +81,7 @@ extension Flo {
         return result
     }
 
-    func bindCopyr() -> [Flo] {
+    func bindCopyat() -> [Flo] {
 
         if let found = bindFindPath() {
         
@@ -246,7 +246,7 @@ extension Flo {
             switch child.type {
             case .path:   newKids.append(contentsOf: child.bindPath())
             case .many:   newKids.append(contentsOf: child.bindMany())
-            case .copyat: newKids.append(contentsOf: child.bindCopyr())
+            case .copyat: newKids.append(contentsOf: child.bindCopyat())
             case .name:   newKids.append(contentsOf: child.bindName(newKids))
             case .remove: break
             default:      newKids.append(child)

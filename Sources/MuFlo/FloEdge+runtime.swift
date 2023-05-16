@@ -3,7 +3,6 @@
 //
 //  Created by warren on 5/10/19.
 //  Copyright © 2019 DeepMuse
-//  License: Apache 2.0 - see License file
 
 import Foundation
 import MuPar // visit
@@ -13,25 +12,15 @@ extension FloEdge {
     func followEdge(_ fromFlo: Flo,
                     _ visit: Visitor) {
 
-        let leftToRight = fromFlo == leftFlo // a >> b
-        let rightToLeft = !leftToRight       // a << b
+        let leftToRight = fromFlo == leftFlo    // a >> b, a <> b
+        let rightToLeft = fromFlo == rightFlo   // a << b, a <> b
         let destFlo = leftToRight ? rightFlo : leftFlo
 
-        if edgeOps.animate {
-            
-            if (leftToRight && edgeOps.output ||
-                rightToLeft && edgeOps.input) {
-                
-                let destPath = destFlo.parentPath(9)
-                let fromPath = fromFlo.parentPath(9)
-                let fromVal  = "(\(fromFlo.val?.scriptVal(.now) ?? "??"))"
-
-                if leftToRight {
-                    print("􁒖→\(fromPath)\(fromVal) => \(destPath)")
-                } else {
-                    print("􁒖←\(destPath) <= \(fromPath)\(fromVal)")
-                }
-                destFlo.setAnimation(fromFlo)
+        if edgeOps.plugin,
+           let leftExprs = leftFlo.val as? FloValExprs,
+           let rightExprs = rightFlo.val as? FloValExprs {
+            if leftExprs.plugin == nil {
+                leftExprs.plugin = FloPlugin(leftExprs,rightExprs)
             }
         } else if edgeOps.ternIf {
 

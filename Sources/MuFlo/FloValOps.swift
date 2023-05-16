@@ -8,9 +8,9 @@ import Foundation
 
 /** options for scalar ranges
 
-        A scalar range may have minimum and maximum value. It may have both a default value `dflt` and current value `now`. So, 0…3=1:2 has a min of 0, max of 3, dflt of 1 and a now of 2.
+ A scalar range may have minimum and maximum value. It may have both a default value `dflt` and current value `now`. So, 0…3=1:2 has a min of 0, max of 3, dflt of 1 and a now of 2.
 
-        When assigning from another scalar range, the values are remapped to relative position with each respective range. So, a current value of 1 in range 0…2
+ When assigning from another scalar range, the values are remapped to relative position with each respective range. So, a current value of 1 in range 0…2
  */
 public struct FloValOps: OptionSet {
 

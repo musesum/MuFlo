@@ -36,11 +36,11 @@ public class FloValScalar: FloVal {
     init (with scalar: FloValScalar) {
         super.init(scalar.flo, scalar.name)
         valOps = scalar.valOps // use default values
-        min  = scalar.min
-        max  = scalar.max
-        dflt = scalar.dflt
-        now  = scalar.now
-        next = scalar.next
+        min    = scalar.min
+        max    = scalar.max
+        dflt   = scalar.dflt
+        now    = scalar.now
+        next   = scalar.next
     }
 
     public func normalized() -> Double {
@@ -54,11 +54,15 @@ public class FloValScalar: FloVal {
         }
     }
     public func range() -> ClosedRange<Double> {
-        return min...max
+        if min <= max {
+            return min...max
+        } else {
+            return min...(min+1)
+        }
     }
 
     // user may double tap to kickoff defaults with optional animation
-    func setNow(_ visit: Visitor) {
+    func setNowDefault(_ visit: Visitor) {
 
         if !valOps.now {
             setDefault(visit)
@@ -76,19 +80,19 @@ public class FloValScalar: FloVal {
 
     func setDefault(_ visit: Visitor) { // was setDefault
 
-        if      valOps.dflt           { next = dflt }
+         if     valOps.dflt           { next = dflt }
         else if valOps.min, now < min { next = min  }
         else if valOps.max, now > max { next = max  }
         else if valOps.modu           { next = 0    }
 
-        animateNowToNext(visit)
+        // testNextEqualNow()
     }
     static func |= (lhs: FloValScalar, rhs: FloValScalar) {
         
         let mergeOps = lhs.valOps.rawValue |  rhs.valOps.rawValue
         lhs.valOps = FloValOps(rawValue: mergeOps)
-        if rhs.valOps.min { lhs.min = rhs.min }
-        if rhs.valOps.max { lhs.max = rhs.max }
+        if rhs.valOps.min  { lhs.min = rhs.min }
+        if rhs.valOps.max  { lhs.max = rhs.max }
         if rhs.valOps.now { lhs.now = rhs.now }
     }
 
@@ -177,14 +181,17 @@ public class FloValScalar: FloVal {
         guard let val else { return true }
 
         switch val {
-            case let v as FloValScalar : setFrom(v)
-            case let v as Double       : setNumWithFlag(v)
-            case let v as Float        : setNumWithFlag(Double(v))
-            case let v as CGFloat      : setNumWithFlag(Double(v))
-            case let v as Int          : setNumWithFlag(Double(v))
-            default: print("🚫 setVal unknown type for: from")
+        case let v as FloValScalar : setFrom(v)
+        case let v as Double       : setNextOpNow(v)
+        case let v as Float        : setNextOpNow(Double(v))
+        case let v as CGFloat      : setNextOpNow(Double(v))
+        case let v as Int          : setNextOpNow(Double(v))
+        default: print("🚫 setVal unknown type for: from")
         }
-        //??? animateNowToNext(visit)
+        if !visit.from.tween {
+            now = next
+        }
+        // testNextEqualNow()
         return true
 
 
@@ -201,22 +208,23 @@ public class FloValScalar: FloVal {
 
                 let toRange = (  max -   min) + (   valOps.thri ? 1.0 : 0.0)
                 let frRange = (v.max - v.min) + ( v.valOps.thri ? 1.0 : 0.0)
-
-                next = (v.now - v.min) * (toRange / frRange) + min
+                now = (v.now - v.min) * (toRange / frRange) + min
+                next = (v.next - v.min) * (toRange / frRange) + min
                 valOps += .now
 
             } else if valOps.modu {
 
                 min = 0
                 max = Double.maximum(1, max)
-                next = fmod(v.now, max)
+                now = fmod(v.now, max) 
+                next = fmod(v.next, max)
             } else {
                 
-                setNumWithFlag(v.now)
+                setNextOpNow(v.next)
             }
         }
 
-        func setNumWithFlag(_ n: Double) {
+        func setNextOpNow(_ n: Double) {
             next = n
             valOps += .now
             setInRange()
@@ -237,43 +245,28 @@ public class FloValScalar: FloVal {
         return FloValScalar(with: self)
     }
 }
-extension FloValScalar: NextFrameDelegate {
-
-    public func nextFrame() -> Bool {
-        steps = tweenSteps(steps)
-        flo.activate(Visitor(.tween))
-        return steps > 0
-    }
-}
-
-extension FloValScalar: FloAnimProtocal {
+extension FloValScalar {
 
     func animateNowToNext(_ visit: Visitor) {
         if visit.from.tween {
             // already animating
-            logTween("􁒖ˢᵗ", steps)
-        } else if valOps.anim {
-            // maybe setup animation callback
-            steps = NextFrame.shared.fps * anim
-            logTween("􁒖ˢª", steps)
-            if steps > 0 {
-                visit.from += .tween
-                NextFrame.shared.addFrameDelegate(self.id, self)
-            }
+            logNextNows("􀋽⁰")
         } else {
-            logTween("􁒖ˢ⁼", steps)
+            logNextNows("􀋽⁼")
             now = next
         }
     }
-    @discardableResult
-    func tweenSteps(_ steps: Double) -> Double {
-        let delta = (next - now)
-        logTween("􀎷ˢˢ", steps)
-        if delta == 0 { return 0 }
-        now += (steps <= 1 ? delta : delta / steps)
-        return Swift.max(0.0, steps - 1)
+    func testNextEqualNow() {
+        if next == now {
+            logNextNows("== ")
+        }
     }
-    func logTween(_ title: String, _ steps: Double) {
-        print("\(title) \(flo.name).\(name).\(id): (\(now.digits(3...3)) => \(next.digits(3...3))) steps: \(steps.digits(0...1))")
+    func logNextNows(_ prefix: String,
+                     _ suffix: String = "") {
+
+        let id = "\(id)".pad(6)
+        let path = flo.path(9).pad(-18)
+        let nextNow = " (next: \(next.digits(2)) - now: \(now.digits(2))) "
+        print(prefix + id + path + nextNow + suffix)
     }
 }

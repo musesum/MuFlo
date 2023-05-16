@@ -12,10 +12,29 @@ public extension FloatingPoint {
         Formatter.number.maximumFractionDigits = range.upperBound
         return Formatter.number.string(for:  self) ?? ""
     }
+    func digits(_ num: Int) -> String {
+        return digits(num...num)
+    }
 }
 
 
 extension String {
+
+    func pad(_ len: Int) -> String {
+        let ofs = len < 0 ? max(0, count+len) : 0
+        let last = min(ofs + abs(len), count)
+        let start = index(startIndex,offsetBy: ofs)
+        let until = index(startIndex,offsetBy: last)
+        let range = start..<until
+
+        let str =  String(self[range])
+        if abs(len) <= count {
+            return str
+        }
+        let padLen = abs(len) - count
+        let padStr = " ".padding(toLength: padLen, withPad: " ", startingAt: 0)
+        return len > 0 ? str + padStr : padStr + str
+    }
 
     /// transform `"CamelBackName"` => `"camel back name"`
     /// - note: https://stackoverflow.com/a/50202999/419740

@@ -26,9 +26,10 @@ public class FloValExprs: FloVal {
     var anonKey: String {
         String(format: "_%i", nameAny.keys.count)
     }
+    var plugin: FloPlugin?
 
     override init(_ flo: Flo, _ name: String) {
-        super.init(flo, name)
+        super.init(flo, "_\(flo.name)")
     }
     override init(with floVal: FloVal) {
         super.init(with: floVal)
@@ -60,6 +61,7 @@ public class FloValExprs: FloVal {
             addNameNum(name, num)
         }
     }
+
     override func copy() -> FloValExprs {
         return FloValExprs(with: self)
     }
@@ -72,7 +74,7 @@ public class FloValExprs: FloVal {
 
         if nameAny.values.count > 0 { return nameAny.values }
         print("*** unknown expression values")
-        return []
+        return [] as [Double]
     }
     /// used for metal shader in Sky
     public func getValNums() -> [Double] {
@@ -92,18 +94,42 @@ public class FloValExprs: FloVal {
         return nums
     }
     // MARK: - Set
+
+
+    
+    func logNextNows(_ suffix: String = "") {
+        for val in nameAny.values {
+            if let val = val as? FloValScalar {
+                val.logNextNows("􁒖 ", suffix)
+            }
+        }
+    }
     @discardableResult
     public override func setVal(_ any: Any?,
                                 _ visit: Visitor) -> Bool {
         guard let any else { return false }
+
         if !visit.newVisit(self.id) { return false }
 
-        if setAnyVisit(visit) {
-            animateNowToNext(visit)
+        if !visit.from.tween,
+           let plugin {
+
+            visit.from += .tween
+            setAnyVisit(visit)
+            logNextNows(visit.log)
+            plugin.startAnimating(id)
+            return true
+
+        } else if setAnyVisit(visit) {
+
+            if !visit.from.tween {
+                setNow()
+            }
             return true
         }
         return false
-
+        
+        @discardableResult
         func setAnyVisit(_ visit: Visitor) -> Bool {
             switch any {
             case let v     as Float            : return set(Double(v),visit)
@@ -118,11 +144,24 @@ public class FloValExprs: FloVal {
             default: print("🚫 mismatched setVal(\(any))"); return false
             }
         }
-        func set(_ exprs: FloValExprs,
+
+        func setNow() {
+
+            for val in nameAny.values {
+                if let v = val as? FloValScalar {
+                    v.now = v.next
+                }
+            }
+        }
+
+        func set(_ fromExprs: FloValExprs,
                  _ visit: Visitor) -> Bool {
 
-            exprs.evalExprs(nil,visit)
-            return evalExprs(exprs, visit)
+            // first evaluate source expression values
+            fromExprs.evalExprs(nil,visit)
+            // next evalute destination expression result
+            let result = evalExprs(fromExprs, visit)
+            return result
         }
         @discardableResult
         func set(_ name: String,
@@ -148,7 +187,6 @@ public class FloValExprs: FloVal {
                 case let v as Int     : set(name, Double(v), visit)
                 default: break
                 }
-
             }
             return true
         }
@@ -224,42 +262,4 @@ public class FloValExprs: FloVal {
         return false
     }
 }
-extension FloValExprs: NextFrameDelegate {
 
-    public func nextFrame() -> Bool {
-        logTween("􀎶ᵉⁿ", steps)
-        steps = tweenSteps(steps)
-        flo.activate(Visitor(.tween))
-        return steps > 0
-    }
-}
-
-extension FloValExprs: FloAnimProtocal {
-
-    func animateNowToNext(_ visit: Visitor) {
-        if visit.from.tween {
-            // already animating
-            logTween("􁒖ᵉᵗ", steps)
-        } else if valOps.anim {
-            // maybe setup animation callback
-            steps = NextFrame.shared.fps * anim
-            logTween("􁒖ᵉª", steps)
-            if steps > 0 {
-                visit.from += .tween
-                NextFrame.shared.addFrameDelegate(self.id, self)
-            }
-        }
-    }
-
-    func tweenSteps(_ steps: Double) -> Double {
-        for val in nameAny.values {
-            if let v = val as? FloValScalar {
-                v.tweenSteps(steps)
-            }
-        }
-        return Swift.max(0.0, steps - 1)
-    }
-    func logTween(_ title: String, _ steps: Double) {
-        print("\(title) \(flo.name).\(id): steps: \(steps.digits(0...1))")
-    }
-}

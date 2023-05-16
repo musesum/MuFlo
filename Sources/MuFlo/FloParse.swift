@@ -70,34 +70,34 @@ public class FloParse {
 
         switch prior {
 
-            case "edges", "ternIf", "ternThen", "ternElse", "ternRadio", "ternCompare":
+        case "edges", "ternIf", "ternThen", "ternElse", "ternRadio", "ternCompare":
 
-                flo.edgeDefs.lastEdgeDef().addPath(par)
+            flo.edgeDefs.lastEdgeDef().addPath(par)
 
-            case "copyat":
+        case "copyat":
 
-                flo.addChild(par, .copyat)
+            flo.addChild(par, .copyat)
 
-            case "expr":
-                if let edgeDef = flo.edgeDefs.edgeDefs.last,
-                   let edgePath = edgeDef.pathVals.pathVal.keys.last,
-                   let edgeVal = edgeDef.pathVals.pathVal[edgePath] as? FloValExprs {
+        case "expr":
+            if let edgeDef = flo.edgeDefs.edgeDefs.last,
+               let edgePath = edgeDef.pathVals.pathVal.keys.last,
+               let edgeVal = edgeDef.pathVals.pathVal[edgePath] as? FloValExprs {
 
-                    parseNextExpr(flo, edgeVal, par, prior)
-                }
-                else if let floVal = flo.val as? FloValExprs {
+                parseNextExpr(flo, edgeVal, par, prior)
+            }
+            else if let floVal = flo.val as? FloValExprs {
 
-                    parseNextExpr(flo, floVal, par, prior)
-                }
+                parseNextExpr(flo, floVal, par, prior)
+            }
 
-            default:
-                let pattern = par.node?.pattern
-                switch pattern {
-                    case "comment": flo.comments.addComment(flo, par, prior)
-                    case "name": return flo.addChild(par, .name)
-                    case "path": return flo.addChild(par, .path)
-                    default: break
-                }
+        default:
+            let pattern = par.node?.pattern
+            switch pattern {
+            case "comment": flo.comments.addComment(flo, par, prior)
+            case "name": return flo.addChild(par, .name)
+            case "path": return flo.addChild(par, .path)
+            default: break
+            }
         }
         return flo
     }
@@ -129,10 +129,10 @@ public class FloParse {
         let pattern = par.node?.pattern ?? ""
 
         switch val {
-            case let val as FloValScalar: parseDeepScalar(val, par)
-            case let val as FloValExprs:     parseNextExpr(flo, val, par, pattern)
-            case let val as FloValTern:   parseTernary(flo, val, par, pattern)
-            default: break
+        case let val as FloValScalar: parseDeepScalar(val, par)
+        case let val as FloValExprs:  parseNextExpr(flo, val, par, pattern)
+        case let val as FloValTern:   parseTernary(flo, val, par, pattern)
+        default: break
         }
     }
 
@@ -144,14 +144,14 @@ public class FloParse {
                       _ pattern: String)  {
         switch pattern {
 
-            case "scalar1":
-                let scalar = FloValScalar(flo, "scalar1")
-                val.deepAddVal(scalar)
-                parseDeepScalar(scalar, par)
+        case "scalar1":
+            let scalar = FloValScalar(flo, "scalar1")
+            val.deepAddVal(scalar)
+            parseDeepScalar(scalar, par)
 
-            case "data":  val.deepAddVal(FloValData(flo,"data"))
-            case "exprs": val.deepAddVal(FloValExprs(flo, "exprs"))
-            default: parseDeepVal(flo, val.getVal(), par) // decorate deepest non tern value
+        case "data":  val.deepAddVal(FloValData(flo,"data"))
+        case "exprs": val.deepAddVal(FloValExprs(flo, "exprs"))
+        default: parseDeepVal(flo, val.getVal(), par) // decorate deepest non tern value
         }
     }
 
@@ -163,13 +163,13 @@ public class FloParse {
         let pattern = par.node?.pattern ?? ""
 
         switch pattern {
-            case "thru": scalar.valOps += .thru
-            case "thri": scalar.valOps += .thri
-            case "modu": scalar.valOps += .modu
-            case "num" : scalar.parseNum(par.getFirstDouble())
-            case "dflt": scalar.parseDflt(par.getFirstDouble())
-            case "now" : scalar.parseNow(par.getFirstDouble())
-            default:     break
+        case "thru": scalar.valOps += .thru
+        case "thri": scalar.valOps += .thri
+        case "modu": scalar.valOps += .modu
+        case "num" : scalar.parseNum(par.getFirstDouble())
+        case "dflt": scalar.parseDflt(par.getFirstDouble())
+        case "now" : scalar.parseNow(par.getFirstDouble())
+        default:     break
         }
         for nextPar in par.nextPars {
             parseDeepScalar(scalar, nextPar)
@@ -196,11 +196,11 @@ public class FloParse {
         for nextPar in par.nextPars {
             let pattern = nextPar.node?.pattern
             switch pattern {
-                case ""        : addExprOp(nextPar)
-                case "name"    : addName(nextPar)
-                case "quote"   : addQuote(nextPar)
-                case "scalar1" : addDeepScalar(nextPar)
-                default        : break
+            case ""        : addExprOp(nextPar)
+            case "name"    : addName(nextPar)
+            case "quote"   : addQuote(nextPar)
+            case "scalar1" : addDeepScalar(nextPar)
+            default        : break
             }
         }
         finishExpr()
@@ -239,17 +239,17 @@ public class FloParse {
             let val = nextPar.value
             exprs.addOpStr(val)
             switch val {
-                case ",":
-                    finishExpr()
-                    hasOp = false
+            case ",":
+                finishExpr()
+                hasOp = false
 
-                case "in":
+            case "in":
 
-                    hasOp = true
-                    hasIn = true
+                hasOp = true
+                hasIn = true
 
-                default:
-                    hasOp = true
+            default:
+                hasOp = true
             }
         }
         func nextNextVal(_ nextPar: ParItem) -> String? {
@@ -269,16 +269,16 @@ public class FloParse {
                     _ par: ParItem,
                     _ level: Int) -> Flo {
         switch prior {
-            case "many",
-                "child":
+        case "many",
+            "child":
 
-                flo.val = FloValExprs(flo, prior)
-                
-            case "edges":
+            flo.val = FloValExprs(flo, prior)
 
-                flo.edgeDefs.parseEdgeExprs(flo)
+        case "edges":
 
-            default: print("🚫 unknown prior: \(prior)")
+            flo.edgeDefs.parseEdgeExprs(flo)
+
+        default: print("🚫 unknown prior: \(prior)")
         }
         let pattern = par.node?.pattern ?? ""
         let nextFlo = parseNext(flo, pattern, par, level+1)
@@ -304,11 +304,11 @@ public class FloParse {
         } else if flo.val == nil {
             // nil in `a*_`
             switch pattern {
-                case "embed"    : flo.val = FloValEmbed(flo, str: par.getFirstValue())
-                case "scalar1"  : flo.val = FloValScalar(flo, pattern)
-                case "data"     : flo.val = FloValData(flo, pattern)
-                case "exprs"    : flo.val = FloValExprs(flo, pattern)
-                default         : break
+            case "embed"    : flo.val = FloValEmbed(flo, str: par.getFirstValue())
+            case "scalar1"  : flo.val = FloValScalar(flo, pattern)
+            case "data"     : flo.val = FloValData(flo, pattern)
+            case "exprs"    : flo.val = FloValExprs(flo, pattern)
+            default         : break
             }
         } else {
             // x y in `a(x y)`
@@ -337,12 +337,12 @@ public class FloParse {
                     edgeDef.pathVals.add(path: path, val: val)
                 }
                 switch pattern {
-                    case "embed"   : addVal(FloValEmbed(flo, str: par.getFirstValue()))
-                    case "scalar1" : addVal(FloValScalar(flo, pattern))
-                    case "data"    : addVal(FloValData(flo, pattern))
-                    case "exprs"   : addVal(FloValExprs(flo, pattern))
-                    case "ternIf"  : addVal(FloValTern(flo, level))
-                    default        : break
+                case "embed"   : addVal(FloValEmbed(flo, str: par.getFirstValue()))
+                case "scalar1" : addVal(FloValScalar(flo, pattern))
+                case "data"    : addVal(FloValData(flo, pattern))
+                case "exprs"   : addVal(FloValExprs(flo, pattern))
+                case "ternIf"  : addVal(FloValTern(flo, level))
+                default        : break
                 }
             }
 
@@ -364,14 +364,14 @@ public class FloParse {
         if let pattern = par.node?.pattern {
 
             switch pattern {
-                case "edgeOp"      : flo.edgeDefs.addEdgeDef(par.getFirstValue())
-                case "edges"       : flo.edgeDefs.addEdgeDef(par.getFirstValue())
-                case "ternIf"      : flo.edgeDefs.addEdgeTernary(FloValTern(flo, level))
-                case "ternThen"    : FloValTern.setTernState(.thenVal,  level)
-                case "ternElse"    : FloValTern.setTernState(.elseVal,  level)
-                case "ternRadio"   : FloValTern.setTernState(.radioVal, level)
-                case "ternCompare" : FloValTern.setCompare(par.getFirstValue())
-                default            : break
+            case "edgeOp"      : flo.edgeDefs.addEdgeDef(par.getFirstValue())
+            case "edges"       : flo.edgeDefs.addEdgeDef(par.getFirstValue())
+            case "ternIf"      : flo.edgeDefs.addEdgeTernary(FloValTern(flo, level))
+            case "ternThen"    : FloValTern.setTernState(.thenVal,  level)
+            case "ternElse"    : FloValTern.setTernState(.elseVal,  level)
+            case "ternRadio"   : FloValTern.setTernState(.radioVal, level)
+            case "ternCompare" : FloValTern.setCompare(par.getFirstValue())
+            default            : break
             }
             return parseNext(flo, pattern, par, level+1)
         }
@@ -388,10 +388,10 @@ public class FloParse {
         let pattern = par.node?.pattern ?? ""
 
         switch pattern {
-            case "name"     : return flo.addChild(par, .name)
-            case "path"     : return flo.addChild(par, .path)
-            case "comment"  : flo.comments.addComment(flo, par, prior)
-            default         : break
+        case "name"     : return flo.addChild(par, .name)
+        case "path"     : return flo.addChild(par, .path)
+        case "comment"  : flo.comments.addComment(flo, par, prior)
+        default         : break
         }
 
         let parentFlo = pattern == "many" ? flo.makeMany() : flo
@@ -401,17 +401,17 @@ public class FloParse {
 
             switch  nextPar.node?.pattern  {
 
-                case "child", "many":
-                    // push child of most recent name'd sibling to the next level
-                    self.dipatchParse(nextFlo, pattern, nextPar, level+1)
+            case "child", "many":
+                // push child of most recent name'd sibling to the next level
+                self.dipatchParse(nextFlo, pattern, nextPar, level+1)
 
-                case "name", "path":
-                    // add new named sibling to parent
-                    nextFlo = self.dipatchParse(parentFlo, pattern, nextPar, level+1)
+            case "name", "path":
+                // add new named sibling to parent
+                nextFlo = self.dipatchParse(parentFlo, pattern, nextPar, level+1)
 
-                default:
-                    // decorate current sibling with new values
-                    nextFlo = self.dipatchParse(nextFlo, pattern, nextPar, level+1)
+            default:
+                // decorate current sibling with new values
+                nextFlo = self.dipatchParse(nextFlo, pattern, nextPar, level+1)
             }
         }
         return nextFlo
@@ -419,8 +419,8 @@ public class FloParse {
 
     // MARK: - script
 
-   ///  decorate current flo with additional attributes
-   ///
+    ///  decorate current flo with additional attributes
+    ///
     func parseNext(_ flo: Flo,
                    _ prior: String,
                    _ par: ParItem,
@@ -480,7 +480,7 @@ public class FloParse {
 
         let parStr = ParStr(script)
         parStr.whitespace = whitespace
-    
+
         if let par = rootParNode.findMatch(parStr, 0).parLast {
 
             if printGraph {
@@ -490,7 +490,7 @@ public class FloParse {
             let reduce1 = par.reduceStart(floKeywords)
             dipatchParse(root, "", reduce1, 0)
             root.bindRoot()
-           
+
             return true
         }
         return false

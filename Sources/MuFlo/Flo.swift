@@ -59,7 +59,7 @@ public class Flo {
     var copied = [Flo]()
 
     public lazy var hash: Int = {
-        let hashed = parentPath(9999).strHash()
+        let hashed = path(9999).strHash()
         if time == 0 { updateTime()}
         return hashed
     }()
@@ -158,10 +158,10 @@ public class Flo {
     public func addClosure(_ closure: @escaping FloVisitor) {
         closures.append(closure)
     }
-    public func parentPath(_ depth: Int = 2, withId: Bool = false) -> String {
+    public func path(_ depth: Int = 2, withId: Bool = false) -> String {
         var path = name
         if withId { path += "." + String(id) }
-        if depth > 1, let parentPath =  parent?.parentPath(depth-1) {
+        if depth > 1, let parentPath =  parent?.path(depth-1) {
             path = parentPath + "." + path
         }
         return path

@@ -56,12 +56,12 @@ extension Flo {
             passthrough = false
 
             switch any {
-                case let v as Int:     val = FloValScalar(self, name, Double(v))
-                case let v as Double:  val = FloValScalar(self, name, v)
-                case let v as CGFloat: val = FloValScalar(self, name, Double(v))
-                case let v as CGPoint: val = FloValExprs(self, point: v)
-                case let v as [(String, Double)]: val = FloValExprs(self, nameNums: v)
-                default: print("🚫 unknown val(\(any))")
+            case let v as Int:     val = FloValScalar(self, name, Double(v))
+            case let v as Double:  val = FloValScalar(self, name, v)
+            case let v as CGFloat: val = FloValScalar(self, name, Double(v))
+            case let v as CGPoint: val = FloValExprs(self, point: v)
+            case let v as [(String, Double)]: val = FloValExprs(self, nameNums: v)
+            default: print("🚫 unknown val(\(any))")
             }
         }
         // maybe pass along my FloVal to other FloNodes and closures
@@ -94,52 +94,47 @@ extension Flo {
         return nil
     }
 
-    /// Some nodes have no value of its own, acting as a switch
-    /// to merely point to the the value, as it moves through.
-    /// If the node has a value of its own, then remap
-    /// its value and the range of the incoming value.
     @discardableResult
     func setEdgeVal(_ fromVal: FloVal?,
                     _ visit: Visitor) -> Bool {
         
         if visit.wasHere(id) { return false }
         guard let fromVal else { return true }
-
-        if val == nil {
+        guard let val else {
             passthrough = true  // no defined value so pass though
+            val = fromVal       // spoof my val as fromVal
+            return true
         }
-        if passthrough {
 
-            val = fromVal // hold passthrough value, for successors to rescale
+        switch val {
 
-        } else if let val {
+        case let v as FloValExprs:
 
-            switch val {
-
-                case let v as FloValExprs:
-
-                    if let fr = fromVal as? FloValExprs {
-                        return v.setVal(fr, visit)
-                    }
-                case let v as FloValScalar:
-
-                    if let fr = fromVal as? FloValScalar {
-                        return v.setVal(fr, visit)
-                    }
-                    else if let frExprs = fromVal as? FloValExprs,
-                            let lastExpr = frExprs.nameAny.values.first,
-                            let fr = lastExpr as? FloValScalar {
-
-                        return v.setVal(fr, visit)
-                    }
-                case let v as FloValData:
-                    
-                    if let fr = fromVal as? FloValData {
-                        return v.setVal(fr, visit)
-                    }
-                default: break
+            if let fromExprs = fromVal as? FloValExprs {
+                return v.setVal(fromExprs, visit)
             }
+            
+        case let v as FloValScalar:
+
+            if let fromScalar = fromVal as? FloValScalar {
+                return v.setVal(fromScalar, visit)
+            }
+            else if let fromExprs = fromVal as? FloValExprs {
+                for val in fromExprs.nameAny.values {
+                    if let fromScalar = val as? FloValScalar {
+                        return v.setVal(fromScalar, visit)
+                    }
+                }
+            }
+        case let v as FloValData:
+
+            if let fr = fromVal as? FloValData {
+                return v.setVal(fr, visit)
+            }
+        default: break
         }
         return true
     }
+
 }
+

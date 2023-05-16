@@ -42,7 +42,7 @@ flo ≈ left right* {
     }
     edges ≈ edgeOp (edgePar | exprs | edgeItem) comment* {
 
-        edgeOp ≈ '^([<←][<!~@⟐⟡◇→>]+|[!~@⟐⟡◇→>]+[>→])'
+        edgeOp ≈ '^([\^]|[<←][<!@⟐⟡◇→>]+|[!@⟐⟡◇→>]+[>→])'
         edgePar ≈ "(" edgeItem+ ")" edges?
         edgeItem ≈ (edgeVal | ternary) comment*
         edgeVal ≈ (path | name) (edges+ | value)?

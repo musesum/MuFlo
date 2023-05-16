@@ -17,7 +17,7 @@ public struct FloEdgeOps: OptionSet {
     public static let ternIf  = FloEdgeOps(rawValue: 1 << 5) // 32 ternary `a⟐→z` in `z(a ? b : c)`
     public static let ternGo  = FloEdgeOps(rawValue: 1 << 6) // 64 ternary `b◇→z`,`c◇→` in `z(a ? b : c)`
     public static let copyat  = FloEdgeOps(rawValue: 1 << 7) // 128 a @ b
-    public static let animate = FloEdgeOps(rawValue: 1 << 8) // 256 a ~ b
+    public static let plugin  = FloEdgeOps(rawValue: 1 << 8) // 256 a ^ b
 
     public init(rawValue: Int = 0) { self.rawValue = rawValue }
 
@@ -31,7 +31,7 @@ public struct FloEdgeOps: OptionSet {
             case "!"    : insert(.exclude) // remove edge(s) //TODO: test
             case "?"    : insert(.ternIf)  // edge to ternary condition
             case "@"    : insert(.copyat)  // edge to ternary condition
-            case "~"    : insert(.animate) // edge to ternary condition
+            case "^"    : insert(.plugin) // edge to ternary condition
             default     : continue
             }
         }
@@ -53,7 +53,7 @@ public struct FloEdgeOps: OptionSet {
     var ternIf  : Bool { contains(.ternIf )}
     var ternGo  : Bool { contains(.ternGo )}
     var copyat  : Bool { contains(.copyat )}
-    var animate : Bool { contains(.animate)}
+    var plugin  : Bool { contains(.plugin )}
 
     public func scriptExpicitOps() -> String {
 
@@ -61,8 +61,7 @@ public struct FloEdgeOps: OptionSet {
             case [.input,.output]: return "<>"
             case [.input]: return "<<"
             case [.output]: return ">>"
-            case [.input,.animate]: return "<~"
-            case [.output,.animate]: return "~>"
+            case [.plugin]: return "^"
             default: print( "⚠️ unexpected scriptEdgeOps")
         }
         return ""
@@ -71,12 +70,12 @@ public struct FloEdgeOps: OptionSet {
 
         var script = self.input ? "←" : ""
 
-        if !active           { script += "◇" }
-        else if self.solo    { script += "⟡" }
-        else if self.ternIf  { script += "⟐" }
-        else if self.ternGo  { script += "⟐" }
-        else if self.copyat  { script += "@" }
-        else if self.animate { script += "~" }
+        if !active          { script += "◇" }
+        else if self.solo   { script += "⟡" }
+        else if self.ternIf { script += "⟐" }
+        else if self.ternGo { script += "⟐" }
+        else if self.copyat { script += "@" }
+        else if self.plugin { script += "^" }
 
         script += self.output ? "→" : ""
 
