@@ -514,7 +514,7 @@ public class FloParse {
            let nowVal = now.val,
            let floVal = flo.val {
 
-            floVal.setVal(nowVal, Visitor(0))
+            floVal.setVal(nowVal, Visitor(0), [.now, .next])
         }
         for child in now.children {
             mergeNow(child, with: root)

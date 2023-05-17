@@ -1,6 +1,5 @@
 //  Created by warren on 5/13/23.
 
-
 import UIKit
 import MuPar
 import MuTime
@@ -8,7 +7,7 @@ import MuTime
 enum FloAnimType { case linear, easeinout }
 
 protocol FloPluginProtocal {
-    func startAnimating(_ key: Int)
+    func startPlugin(_ key: Int)
 }
 
 
@@ -59,17 +58,21 @@ extension FloPlugin: NextFrameDelegate {
 
 extension FloPlugin: FloPluginProtocal {
 
-    func startAnimating(_ key: Int) {
+    func startPlugin(_ key: Int) {
         if duration > 0 {
+
             let timeNow = Date().timeIntervalSince1970
             let timeDelta = timeNow - timeStart
+
             if  timeDelta > duration {
+
                 NextFrame.shared.addFrameDelegate(key, self)
                 timeStart = timeNow
+
             } else {
+
                 timeStart = timeNow - timeDelta / 2
             }
-
         }
     }
 

@@ -67,6 +67,7 @@ public class FloValExprs: FloVal {
     }
 
     // MARK: - Get
+    
     public override func getVal() -> Any {
 
         if let cgPoint = getCGPoint() { return cgPoint }
@@ -95,8 +96,6 @@ public class FloValExprs: FloVal {
     }
     // MARK: - Set
 
-
-    
     func logNextNows(_ suffix: String = "") {
         for val in nameAny.values {
             if let val = val as? FloValScalar {
@@ -104,23 +103,41 @@ public class FloValExprs: FloVal {
             }
         }
     }
+    func setDefaults(_ visit: Visitor) {
+        var nameVals = [(String,Double)]()
+        if nameAny.count > 0 {
+            for (name,any) in nameAny {
+                if let scalar = any as? FloValScalar,
+                   scalar.valOps.dflt {
+                    let nameVal = (name, scalar.dflt)
+                    nameVals.append(nameVal)
+                }
+            }
+            if nameVals.count > 0 {
+                setVal(nameVals, visit, [])
+            }
+        }
+    }
+
     @discardableResult
     public override func setVal(_ any: Any?,
-                                _ visit: Visitor) -> Bool {
-        guard let any else { return false }
+                                _ visit: Visitor,
+                                _ _: FloValOps) -> Bool {
 
+        guard let any else { return false }
         if !visit.newVisit(self.id) { return false }
 
         if !visit.from.tween,
+           !visit.from.remote,
            let plugin {
 
             visit.from += .tween
-            setAnyVisit(visit)
+            setAnyVisit(any, visit)
             logNextNows(visit.log)
-            plugin.startAnimating(id)
+            plugin.startPlugin(id)
             return true
 
-        } else if setAnyVisit(visit) {
+        } else if setAnyVisit(any, visit) {
 
             if !visit.from.tween {
                 setNow()
@@ -128,98 +145,111 @@ public class FloValExprs: FloVal {
             return true
         }
         return false
-        
-        @discardableResult
-        func setAnyVisit(_ visit: Visitor) -> Bool {
-            switch any {
-            case let v     as Float            : return set(Double(v),visit)
-            case let v     as CGFloat          : return set(Double(v),visit)
-            case let v     as Double           : return set(Double(v),visit)
-            case let v     as CGPoint          : return set(v,visit)
-            case let v     as FloValExprs      : return set(v,visit)
-            case let n     as [(String,Any)]   : return set(n,visit)
-            case let (n,v) as (String,Double)  : return set(n,Double(v),visit)
-            case let (n,v) as (String,Float)   : return set(n,Double(v),visit)
-            case let (n,v) as (String,CGFloat) : return set(n,Double(v),visit)
-            default: print("🚫 mismatched setVal(\(any))"); return false
+    }
+    func setNow() {
+
+        for val in nameAny.values {
+            if let v = val as? FloValScalar {
+                v.now = v.next
             }
-        }
-
-        func setNow() {
-
-            for val in nameAny.values {
-                if let v = val as? FloValScalar {
-                    v.now = v.next
-                }
-            }
-        }
-
-        func set(_ fromExprs: FloValExprs,
-                 _ visit: Visitor) -> Bool {
-
-            // first evaluate source expression values
-            fromExprs.evalExprs(nil,visit)
-            // next evalute destination expression result
-            let result = evalExprs(fromExprs, visit)
-            return result
-        }
-        @discardableResult
-        func set(_ name: String,
-                 _ val: Double,
-                 _ visit: Visitor) -> Bool {
-
-            if let scalar = nameAny[name] as? FloValScalar {
-                scalar.setVal(val, visit)
-            } else {
-                nameAny[name] = FloValScalar(flo, name, val)
-            }
-            valOps += .now
-            return true
-        }
-        func set(_ nameVals: [(String,Any)],
-                 _ visit: Visitor) -> Bool {
-
-            for (name,any) in nameVals {
-                switch any {
-                case let v as Double  : set(name, Double(v), visit)
-                case let v as Float   : set(name, Double(v), visit)
-                case let v as CGFloat : set(name, Double(v), visit)
-                case let v as Int     : set(name, Double(v), visit)
-                default: break
-                }
-            }
-            return true
-        }
-
-        func set(_ v: Double,
-                 _ visit: Visitor) -> Bool {
-
-            if let n = nameAny["val"] as? FloValScalar {
-                
-                n.setVal(v, visit)
-                n.valOps += .now
-
-            } else {
-
-                nameAny["val"] = FloValScalar(flo, "val", v) //TODO: remove this kludge for DeepMenu
-            }
-            return true
-        }
-
-        func set(_ p: CGPoint,
-                 _ visit: Visitor) -> Bool {
-
-            if opVals.isEmpty {
-                // create a new opVal list
-                addPoint(p)
-                return true
-            }
-            let copy = copy()
-            copy.injectNameNum("x", Double(p.x))
-            copy.injectNameNum("y", Double(p.y))
-            return evalExprs(copy, visit)
         }
     }
+
+    @discardableResult
+    func setAnyVisit(_ any: Any,
+                     _ visit: Visitor) -> Bool {
+
+        switch any {
+        case let v     as Float            : return set(Double(v),visit)
+        case let v     as CGFloat          : return set(Double(v),visit)
+        case let v     as Double           : return set(Double(v),visit)
+
+        case let v     as CGPoint          : return set(v,visit)
+        case let v     as FloValExprs      : return set(v,visit)
+        case let n     as [(String,Any)]   : return set(n,visit)
+
+        case let (n,v) as (String,Double)  : return set(n,Double(v),visit)
+        case let (n,v) as (String,Float)   : return set(n,Double(v),visit)
+        case let (n,v) as (String,CGFloat) : return set(n,Double(v),visit)
+        default: print("🚫 mismatched setVal(\(any))"); return false
+        }
+    }
+
+    // set expression
+    func set(_ fromExprs: FloValExprs,
+             _ visit: Visitor) -> Bool {
+
+        // first evaluate source expression values
+        fromExprs.evalExprs(nil,visit)
+        // next evalute destination expression result
+        let result = evalExprs(fromExprs, visit)
+        return result
+    }
+    // set name double
+    @discardableResult
+    func set(_ name: String,
+             _ val: Double,
+             _ visit: Visitor) -> Bool {
+
+        let ops: FloValOps = (plugin == nil ? [.now, .next] : [.next])
+
+        if let scalar = nameAny[name] as? FloValScalar {
+            scalar.setVal(val, visit, ops)
+        } else {
+            nameAny[name] = FloValScalar(flo, name, val)
+        }
+        valOps += .now
+        return true
+    }
+    // set [(name,any)]
+    func set(_ nameVals: [(String,Any)],
+             _ visit: Visitor) -> Bool {
+
+        for (name,any) in nameVals {
+            switch any {
+            case let v as Double  : set(name, Double(v), visit)
+            case let v as Float   : set(name, Double(v), visit)
+            case let v as CGFloat : set(name, Double(v), visit)
+            case let v as Int     : set(name, Double(v), visit)
+            default: break
+            }
+        }
+        return true
+    }
+
+    // set anonymous ("val", double)
+    func set(_ v: Double,
+             _ visit: Visitor) -> Bool {
+
+            let ops: FloValOps = (plugin == nil ? [.now, .next] : [.next])
+
+        if let n = nameAny["val"] as? FloValScalar {
+
+            n.setVal(v, visit, ops)
+            n.valOps += ops //??? redundant?
+
+        } else {
+
+            nameAny["val"] = FloValScalar(flo, "val", v) //TODO: remove this kludge for DeepMenu
+        }
+        return true
+    }
+
+    // set [("x",x), ("y",y)]
+    func set(_ p: CGPoint,
+             _ visit: Visitor) -> Bool {
+
+        if opVals.isEmpty {
+            // create a new opVal list
+            addPoint(p)
+            return true
+        }
+        let copy = copy()
+        copy.injectNameNum("x", Double(p.x))
+        copy.injectNameNum("y", Double(p.y))
+        return evalExprs(copy, visit)
+    }
+    // now = dflt, next = dflt
     func bindNows() {
         if nameAny.count > 0 {
             for value in nameAny.values {
@@ -229,17 +259,8 @@ public class FloValExprs: FloVal {
             }
         }
     }
-    func setDefaults(_ visit: Visitor) {
-        if nameAny.count > 0 {
-            for value in nameAny.values {
-                if let scalar = value as? FloValScalar {
-                    scalar.setDefault(visit)
-                }
-            }
-        }
-    }
+    // MARK: - Script
 
-    
     public override func printVal() -> String {
         var script = "("
         for num in nameAny.values {

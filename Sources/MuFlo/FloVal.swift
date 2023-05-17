@@ -9,13 +9,14 @@ import MuPar
 
 
 open class FloVal: Comparable {
-
+    
+    static var IdFloVal = [Int: FloVal]()
     var id = -Visitor.nextId()
     var valOps = FloValOps(rawValue: 0) // which combination of the following?
     var name: String
 
     public var flo: Flo  // flo that declared and contains this value
-
+	
     public static func == (lhs: FloVal, rhs: FloVal) -> Bool {
         return lhs.valOps == rhs.valOps
     }
@@ -27,11 +28,13 @@ open class FloVal: Comparable {
     init(_ flo: Flo, _ name: String) {
         self.flo = flo
         self.name = name
+        FloVal.IdFloVal[id] = self
     }
     init(with: FloVal) {
         self.flo = with.flo
         self.name = with.name
         self.valOps = with.valOps
+        FloVal.IdFloVal[id] = self
     }
 
     func parse(string: String) -> Bool {
@@ -58,7 +61,8 @@ open class FloVal: Comparable {
 
     @discardableResult
     public func setVal(_ from: Any?,
-                       _ visit: Visitor) -> Bool {
+                       _ visit: Visitor,
+                       _ setOp: FloValOps) -> Bool {
 
         assertionFailure("🚫 setVal needs override")
         return false

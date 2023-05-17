@@ -70,7 +70,7 @@ public class FloValScalar: FloVal {
     }
 
     // startup set values without animatin
-    func bindNow() { // was setDefault //??
+    func bindNow() {
 
         if !valOps.now {
             setDefault(Visitor(.bind))
@@ -80,12 +80,14 @@ public class FloValScalar: FloVal {
 
     func setDefault(_ visit: Visitor) { // was setDefault
 
-         if     valOps.dflt           { next = dflt }
-        else if valOps.min, now < min { next = min  }
-        else if valOps.max, now > max { next = max  }
-        else if valOps.modu           { next = 0    }
+        if      valOps.dflt            { next = dflt }
+        else if valOps.min, next < min { next = min  }
+        else if valOps.max, next > max { next = max  }
+        else if valOps.modu            { next = 0    }
 
-        // testNextEqualNow()
+        now = next
+        
+        testNextEqualNow()
     }
     static func |= (lhs: FloValScalar, rhs: FloValScalar) {
         
@@ -174,9 +176,19 @@ public class FloValScalar: FloVal {
 
     // MARK: - set
 
+    /// map between scalar ranges
+    ///
+    /// - parameters:
+    ///     - val: scalar with range or number
+    ///     - visit: ignored, see FloValExprs
+    ///     - ops: set .now andor .next
+    ///
+    ///  - note: plugins set .now in a callback loop from plugin
+    ///
     @discardableResult
     public override func setVal(_ val: Any?,
-                                _ visit: Visitor) -> Bool {
+                                _ visit: Visitor,
+                                _ ops: FloValOps) -> Bool {
         
         guard let val else { return true }
 
@@ -188,19 +200,11 @@ public class FloValScalar: FloVal {
         case let v as Int          : setNextOpNow(Double(v))
         default: print("🚫 setVal unknown type for: from")
         }
-        if !visit.from.tween {
-            now = next
-        }
+        valOps += ops
+
         // testNextEqualNow()
         return true
 
-
-        /// map ranges between doubles and quasi integers
-        ///
-        ///     0…1 is a double
-        ///     0_127 is an integer
-        ///
-        /// - note: this is a kludge, should use something else for counting integers
         func setFrom(_ v: FloValScalar) {
 
             if valOps.thrui,
@@ -208,16 +212,16 @@ public class FloValScalar: FloVal {
 
                 let toRange = (  max -   min) + (   valOps.thri ? 1.0 : 0.0)
                 let frRange = (v.max - v.min) + ( v.valOps.thri ? 1.0 : 0.0)
-                now = (v.now - v.min) * (toRange / frRange) + min
-                next = (v.next - v.min) * (toRange / frRange) + min
-                valOps += .now
+                if ops.now  {
+                    now  = (v.now - v.min) * (toRange / frRange) + min }
+                if ops.next { next = (v.next - v.min) * (toRange / frRange) + min }
 
             } else if valOps.modu {
 
                 min = 0
                 max = Double.maximum(1, max)
-                now = fmod(v.now, max) 
-                next = fmod(v.next, max)
+                if ops.now  { now = fmod(v.now, max) }
+                if ops.next { next = fmod(v.next, max) }
             } else {
                 
                 setNextOpNow(v.next)
@@ -225,8 +229,8 @@ public class FloValScalar: FloVal {
         }
 
         func setNextOpNow(_ n: Double) {
-            next = n
-            valOps += .now
+            if ops.now  { now = n }
+            if ops.next { next = n }
             setInRange()
         }
         

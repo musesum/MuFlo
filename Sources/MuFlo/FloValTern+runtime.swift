@@ -170,7 +170,8 @@ extension FloValTern {
             left.val = right.val
         }
         else {
-            isOk = left.val?.setVal(right.val!, visit) != nil
+            
+            isOk = left.val?.setVal(right.val!, visit, [.now,.next]) != nil
         }
         if act == .activate, isOk {
             left.activate(visit)

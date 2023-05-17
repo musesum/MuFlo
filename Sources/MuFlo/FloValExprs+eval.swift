@@ -107,14 +107,15 @@ extension FloValExprs { // + set
     /// execute all deferrred setters
     func setSetters(_ mySetters: ExprSetters,
                     _ visit: Visitor) {
-        
+
+        let ops: FloValOps = (plugin == nil ? [.now, .next] : [.next])
         for (name,val) in mySetters {
 
             switch val {
                 case let val as FloValScalar:
                     if let toVal = nameAny[name] as? FloVal {
                         /// `x` in `a(x 1) << b`
-                        toVal.setVal(val, visit)
+                        toVal.setVal(val, visit, ops)
                     } else {
                         /// `x` in `a(x) << b`
                         nameAny[name] = val.copy()
@@ -127,7 +128,7 @@ extension FloValExprs { // + set
                     if let toVal = nameAny[name] as? FloVal {
                         if !val.isEmpty {
                             /// `x` in `a(x in 2…4) << b, b(x 3)`
-                            toVal.setVal(val, visit)
+                            toVal.setVal(val, visit, ops)
                         }
                     }
                 default : break

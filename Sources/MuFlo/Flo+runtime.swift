@@ -40,14 +40,14 @@ extension Flo {
                 val = fromVal
             } else if let val {
                 // set my val to fromVal, with rescaling
-                if val.setVal(fromVal, visit) == false {
+                if val.setVal(fromVal, visit, [.now, .next]) == false {
                     // condition failed, so avoid activatating edges, below
                     return
                 }
             }
         } else if let val {
             // any is not a FloVal, so pass onto my FloVal if it exists
-            if val.setVal(any, visit) == false {
+            if val.setVal(any, visit, [.now, .next]) == false {
                 // condition failed, so avoid activatating edges, below
                 return
             }
@@ -111,25 +111,25 @@ extension Flo {
         case let v as FloValExprs:
 
             if let fromExprs = fromVal as? FloValExprs {
-                return v.setVal(fromExprs, visit)
+                return v.setVal(fromExprs, visit, [.next])
             }
             
         case let v as FloValScalar:
 
             if let fromScalar = fromVal as? FloValScalar {
-                return v.setVal(fromScalar, visit)
+                return v.setVal(fromScalar, visit, [.now, .next])
             }
             else if let fromExprs = fromVal as? FloValExprs {
                 for val in fromExprs.nameAny.values {
                     if let fromScalar = val as? FloValScalar {
-                        return v.setVal(fromScalar, visit)
+                        return v.setVal(fromScalar, visit, [.now, .next])
                     }
                 }
             }
         case let v as FloValData:
 
             if let fr = fromVal as? FloValData {
-                return v.setVal(fr, visit)
+                return v.setVal(fr, visit, [.now, .next])
             }
         default: break
         }

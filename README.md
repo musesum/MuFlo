@@ -191,6 +191,24 @@ Override nodes with values
 a {b c}.{d(1) e} // produces    `a { b { d(1) e } c { d (1) e } }`
 a.b.d (2)        // changes to  `a { b { d(2) e } c { d (1) e } }`
 ```
+#### Plugins
+
+Send/receive values to an effect, akin to an insert on a mixing board
+
+```c
+a (x 0…1, 0…1) << (b,c)
+b (x 0…1, 0…1)
+c (x 0…1, 0…1)
+cubic(0.25) // cubic curve for last 0.25 seconds
+a ^ cubic // animate inputs from b,c
+```
+Plugins may be declared inline and sync
+
+```c
+a (x 0…1, 0…1) <> (b,c) ^ cubic
+```
+In the above example, activating b will animate both a and c. 
+
 #### Wildcards
 
 Include subtrees with wildcards. The new `˚` (option-k) wildcard behaves like a Xpath `/*/` where  it will perform a search on children, grandchildren, and so on. Using `˚.` includes all leaves,  and  `˚˚` will include the whole subtree
@@ -291,10 +309,10 @@ The `Deep Muse` app script should provide some insight as to how Flo is used in 
 
 MuPar - parser for DSLs and flexible NLP in Swift
 
-- tree + graph base parser
+- a quasi Backus-Naur script to define a parser
 - contains a definition of the Flo Syntax
 - vertically integrated with Flo
-- Source [here](https://github.com/musesum/Par)
+- Source [here](https://github.com/musesum/MuPar)
 
 MuFloD3 (future)
 
@@ -321,7 +339,7 @@ Inspired by:
 
 ### Virtual Vehicles and Simulators 
 
-In 2004, Barney Pell hosted a conference at NASA called [Virtual Iron Bird](https://www.nasa.gov/vision/earth/technologies/Virtual_Iron_Bird_jb.html) to encourage modeling of Spacecraft. One question was how to manage the dataflow between sensors and actuators. How does one simulate a vehicle? Or synchonize co-pilot controls? 
+In 2004, a conference at NASA called [Virtual Iron Bird](https://www.nasa.gov/vision/earth/technologies/Virtual_Iron_Bird_jb.html) explored how to model of spacecraft as dataflow between sensors and actuators. How does one simulate a vehicle? Or synchonize co-pilot controls? 
 
 ### Body Pose Avatars
 
@@ -348,4 +366,4 @@ The original DeepMuse synthesizer had 2800 parameters mapped to a static templat
 
 Mixed reality presents a new problem: there are no devices to touch. Instead, you wave your hands with an imaginary baton. You become the conductor of a generative tree which anticipates your next move. Over time, gestures and generated controls converge and congeal; fostering a new kind of muscle memory.  
 
-This is where Flo comes in: even though the flow graph is dynamic, the names remain fixed. Muscle memory emerges. You begin perform without thinking -- dancing the dance of ideas. 
+This is where Flo comes in: even though the flow graph is dynamic, the namespace remains fixed. Muscle memory emerges. Transformers learn to anticipate your next move. Gestures become a shorthand to confirm a kind of menu autocomplete. You begin perform without thinking. 

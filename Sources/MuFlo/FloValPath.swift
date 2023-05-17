@@ -67,7 +67,8 @@ public class FloValPath: FloVal {
 
     @discardableResult
     public override func setVal(_ any: Any?,
-                                _ visit: Visitor) -> Bool {
+                                _ visit: Visitor,
+                                _ ops: FloValOps) -> Bool {
         //TODO: is ever used during runtime?
         return true
     }
