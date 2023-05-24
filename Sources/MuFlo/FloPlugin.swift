@@ -10,7 +10,6 @@ protocol FloPluginProtocal {
     func startPlugin(_ key: Int)
 }
 
-
 public class FloPlugin {
 
     var type = FloAnimType.linear

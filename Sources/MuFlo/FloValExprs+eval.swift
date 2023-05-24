@@ -37,19 +37,19 @@ extension FloValExprs { // + set
                    _ visit: Visitor) -> Bool {
 
         var mySetters = ExprSetters()
-        var toVal: Any?
-        var myVal: Any?
+        var toAny: Any?
+        var myAny: Any?
         var myName: String?
         var opNow = FloOp.none
 
-        for i in 0...opVals.count {
+        for i in 0...opAnys.count {
 
-            if i==opVals.count {
+            if i==opAnys.count {
                 endParameter()
                 setSetters(mySetters, visit)
                 return true
             }
-            let expr = opVals[i]
+            let expr = opAnys[i]
 
             switch expr.op.opType {
                 case .literal   : if !exprLiteral() { return false }
@@ -63,20 +63,20 @@ extension FloValExprs { // + set
             /// match from and to parameters
             func exprName() -> Bool {
                 
-                if let name = expr.val as? String {
+                if let name = expr.any as? String {
 
                     if myName == nil {
                         myName = name
-                        myVal = nameAny[name]
+                        myAny = nameAny[name]
                     }
                     let nameAny = frExprs?.nameAny ?? nameAny
                     if let frVal = nameAny[name] {
                         if opNow != .none {
-                            toVal = expr.evaluate(toVal ?? myVal, frVal, opNow)
+                            toAny = expr.evaluate(toAny ?? myAny, frVal, opNow)
                             opNow = .none
-                            return toVal != nil
+                            return toAny != nil
                         } else {
-                            toVal = frVal
+                            toAny = frVal
                         }
                     }
                 }
@@ -85,22 +85,22 @@ extension FloValExprs { // + set
 
             /// evaluate numbers and strings, return false if should abort expression
             func exprLiteral() -> Bool  {
-                let frVal = toVal ?? myVal
-                toVal = expr.evaluate(expr.val, frVal, opNow)
-                return toVal != nil
+                let frVal = toAny ?? myAny
+                toAny = expr.evaluate(expr.any, frVal, opNow)
+                return toAny != nil
             }
         }
         return true
 
         /// reset current values after comma
         func endParameter() {
-            if let myName, let toVal {
-                mySetters.append((myName,toVal))
+            if let myName, let toAny {
+                mySetters.append((myName,toAny))
             }
             // reset for next expr parameter
             opNow = .none
             myName = nil
-            toVal = nil
+            toAny = nil
         }
     }
 
@@ -108,7 +108,7 @@ extension FloValExprs { // + set
     func setSetters(_ mySetters: ExprSetters,
                     _ visit: Visitor) {
 
-        let ops: FloValOps = (plugin == nil ? [.now, .next] : [.next])
+        let ops: FloValOps = (plugin == nil ? [.now_, .next] : [.next])
         for (name,val) in mySetters {
 
             switch val {

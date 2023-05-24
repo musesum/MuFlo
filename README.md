@@ -231,37 +231,8 @@ Because the visit pattern breaks loops, the `˚˚<>..`  maps well to devices tha
 - the joints on an Human body capture skeleton
 - future hash trees (like Merkle trees) and graphs
 
-### Ternaries
-
-Edges may contain ternaries that switches dataflow. Somewhat akin to railroad switch, traffic may flow in either direction and does *not* need to reevealate the switch as it passes through. 
-
-conditionals may switch the flow of data 
-```c
-a >> (b ? c : d)  // a flows to either c or d, when b activates
-e << (f ? g : h)  // f directs flow from either g or h, when f acts
-i <> (j ? k : l) // i synchronizes with either k or l, when j acts
-m <> (n ? n1 | p ? p1 | q ? q1) // radio button style, akin to the "solo" switch on a mixing board
-```
-conditionals may also compare its state
-```c
-a >> (b > 0 ? c : d) // a flows to either c or d, when b acts (default behavior)
-e << (f == 1 ? g : h) // g or h flows to e, based on last f activation
-i <> (j1 < j2 ? k : l) // i syncs with either k or l, based on last j1 or j2 acts
-m <> (n > p ? n1 | p > q ? p1 | q > 0 ? q1) // radio button style
-```
-when a comparison changes its state, it reevaluates its chain of conditions
-
-- when `b` activates, it reevaluates `b > 0`
-- when `f` activates, it reevaluates `f == 1`
-- when either `j1` or `j2` activates, it reevals `j1 < j2`
-- when `n`, `p`, or `q` acts, it reevals `n>p`, `p>q`, and `q>0`
-
-Ternaries act like railroad switches, where the condition merely switches the gate. So, each event passing through a gate does *not* need to re-invoke the condition
-
-- when `b` acts, it connects `c` and disconnects `d`
-- when `n`, `p`, or `q` acts, it is switching between `n1`, `p1`, `q1`
-
 #### Bidirectional flow
+
 Ternaries may aggregate multiple ihputs or broadcast to multiple outputs
 ```c
 a {b c}.{d e}.{f g} // produces `a{b {d {f g} e {f g}} c {d {f g} e {f g}}}`

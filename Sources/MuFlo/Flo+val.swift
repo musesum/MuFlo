@@ -11,7 +11,7 @@ extension Flo {
     
     func StringVal() -> String? {
         if let exprs = val as? FloValExprs,
-           let str = exprs.opVals.first?.val as? String {
+           let str = exprs.opAnys.first?.any as? String {
             // anonymous String inside expression
             // example `color ("compute.color.metal")`
             return str
@@ -136,9 +136,9 @@ extension Flo {
     /// get first occurence name in Set of types (there should only be one)
     public func getName(in types: Set<String>) -> String? {
         if let exprs = val as? FloValExprs {
-            for opVal in exprs.opVals {
-                if opVal.op.pathName,
-                   let name = opVal.val as? String,
+            for opAny in exprs.opAnys {
+                if opAny.op.pathName,
+                   let name = opAny.any as? String,
                    types.contains(name) {
                     return name
                 }
@@ -158,9 +158,9 @@ extension Flo {
         }
         if let exprs = val as? FloValExprs {
             var matchCount = 0
-            for opVal in exprs.opVals {
-                if opVal.op.pathName,
-                   let name = opVal.val as? String,
+            for opAny in exprs.opAnys {
+                if opAny.op.pathName,
+                   let name = opAny.any as? String,
                    inNames(name) {
                     matchCount += 1
                 }

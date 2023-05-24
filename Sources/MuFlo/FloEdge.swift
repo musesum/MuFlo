@@ -30,19 +30,27 @@ public class FloEdge: Hashable {
     }
 
     convenience init(with: FloEdge) { // was operator = in c++ version
+
         self.init(with.leftFlo, with.rightFlo, with.edgeOps)
         self.active = with.active
         self.defVal = with.defVal
         makeKey()
     }
 
-   init(_ leftFlo: Flo, _ rightFlo: Flo, _ edgeOps: FloEdgeOps) {
+   init(_ leftFlo: Flo,
+        _ rightFlo: Flo,
+        _ edgeOps: FloEdgeOps) {
+
         self.edgeOps = edgeOps
         self.leftFlo = leftFlo
         self.rightFlo = rightFlo
         makeKey()
     }
-    convenience init(_ def: FloEdgeDef, _ leftFlo: Flo, _ rightFlo: Flo, _ floVal: FloVal?) {
+    convenience init(_ def: FloEdgeDef,
+                     _ leftFlo: Flo,
+                     _ rightFlo: Flo,
+                     _ floVal: FloVal?) {
+
         self.init(leftFlo, rightFlo, def.edgeOps)
         self.defVal = floVal
         makeKey()

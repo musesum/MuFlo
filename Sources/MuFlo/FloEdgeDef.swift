@@ -11,7 +11,6 @@ public class FloEdgeDef {
 
     var edgeOps = FloEdgeOps()
     var pathVals = FloPathVals()
-    var ternVal: FloValTern?
     var edges = [String: FloEdge]() // each edge is also shared by two Flos
     
     init() { }
@@ -25,13 +24,11 @@ public class FloEdgeDef {
         edgeOps = fromDef.edgeOps
         for (path,val) in fromDef.pathVals.pathVal { // pathVals = with.pathVal
             switch val {
-                case let val as FloValTern:   pathVals.add(path: path, val: val.copy())
                 case let val as FloValScalar: pathVals.add(path: path, val: val.copy())
-                case let val as FloValExprs:     pathVals.add(path: path, val: val.copy())
+                case let val as FloValExprs:  pathVals.add(path: path, val: val.copy())
                 default:                      pathVals.add(path: path, val: val)
             }
         }
-        ternVal = fromDef.ternVal?.copy()
     }
     
     func copy() -> FloEdgeDef {
@@ -45,11 +42,7 @@ public class FloEdgeDef {
 
         if let path = parItem.nextPars.first?.value {
 
-            if ternVal != nil {
-                FloValTern.ternStack.last?.addPath(path)
-            } else {
-                pathVals.add(path: path, val: nil)
-            }
+            pathVals.add(path: path, val: nil)
         } else {
             print("🚫 FloEdgeDef: \(self) cannot process addPath(\(parItem))")
         }
@@ -60,23 +53,20 @@ public class FloEdgeDef {
     }
 
     public func printVal() -> String {
-        return scriptVal([.parens,.now,.expand])
+        return scriptVal([.parens, .current, .expand])
     }
     
-    public func scriptVal(_ scriptOpts: FloScriptOps) -> String{
+    public func scriptVal(_ scriptOps: FloScriptOps,
+                          noParens: Bool = false) -> String {
         
         var script = edgeOps.script()
         
-        if let tern = ternVal {
-            script.spacePlus(tern.scriptVal(scriptOpts))
-        } else {
-            if pathVals.pathVal.count > 1 { script += "(" }
-            for (path,val) in pathVals.pathVal {
-                script += path
-                script += val?.scriptVal(scriptOpts) ?? ""
-            }
-            if pathVals.pathVal.count > 1 { script += ")" }
+        if pathVals.pathVal.count > 1 { script += "(" }
+        for (path,val) in pathVals.pathVal {
+            script += path
+            script += val?.scriptVal(scriptOps) ?? ""
         }
+        if pathVals.pathVal.count > 1 { script += ")" }
         return script
     }
     

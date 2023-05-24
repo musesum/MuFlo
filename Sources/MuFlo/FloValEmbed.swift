@@ -39,7 +39,9 @@ public class FloValEmbed: FloVal {
         return embed
     }
     
-    public override func scriptVal(_ scriptOpts: FloScriptOps = [.parens]) -> String {
+    public override func scriptVal(_ scriptOps: FloScriptOps = [.parens],
+                                   noParens: Bool = false,
+                                   viaEdge: Bool = false) -> String {
         return " {{\n" + embed +  "}}\n"
     }
 

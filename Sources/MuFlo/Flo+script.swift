@@ -45,26 +45,28 @@ extension Flo {
         func scriptAddChildren() {
             script.spacePlus("{")
             script.spacePlus(comments.getComments(.child, scriptOpts))
-            if (script.last != "\n"),
-               (script.last != ",") {
-                
-                script += "\n"
-            }
+            optionalLineFeed()
+            
             for child in children {
                 script.spacePlus(child.script(scriptOpts))
-                if (script.last != "\n"),
-                   (script.last != ",") {
-                    
-                    script += "\n"
-                }
+                optionalLineFeed()
             }
-            script.spacePlus("}\n")
+            script.spacePlus("}")
+            script += scriptOpts.noLF ? "" : "\n"
         }
         /// print `a.b.c` instead of `a { b { c } } }`
         func scriptAddOnlyChild() {
             script += "."
             for child in children {
                 script += child.script(scriptOpts)
+            }
+        }
+        func optionalLineFeed() {
+            // optional line feed
+            if !scriptOpts.noLF,
+               script.last != "\n",
+               script.last != "," {
+                script += "\n"
             }
         }
     }
@@ -186,9 +188,9 @@ extension Flo {
         func scriptManyChildren() -> String {
             let comment = comments.getComments(.child, scriptOpts).without(trailing: " \n")
 
-            var script = (comment.count > 0
-                          ? "{ " + comment + "\n"
-                          : "{\n")
+            var script = "{"
+            script += (comment.count > 0 ? comment + "\n"
+                        : scriptOpts.noLF ? " " : "\n")
 
             var kidScript = ""
             for kid in showKids {
@@ -196,7 +198,8 @@ extension Flo {
             }
 
             script.spacePlus(kidScript)
-            script.spacePlus("}\n")
+            script.spacePlus("}")
+            script += scriptOpts.noLF ? "" : "\n"
             return script
         }
     }
@@ -273,7 +276,9 @@ extension Flo {
             
             let comments = comments.getComments(.child, scriptOpts)
             script.spacePlus(comments)
-            if scriptVal.count > 0,
+            // optional line feed
+            if !scriptOpts.noLF,
+               scriptVal.count > 0,
                comments.count == 0 {
                 script += "\n"
             }

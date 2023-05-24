@@ -20,7 +20,7 @@ public struct FloValOps: OptionSet {
     public static let min  = FloValOps(rawValue: 1 <<  4) // 0 in 0…1, min of range
     public static let max  = FloValOps(rawValue: 1 <<  5) // 1 in 0…1, max of range
     public static let dflt = FloValOps(rawValue: 1 <<  6) // = n default value
-    public static let now  = FloValOps(rawValue: 1 <<  7) // current value
+    public static let now_ = FloValOps(rawValue: 1 <<  7) // current value
     public static let next = FloValOps(rawValue: 1 <<  8) // next value
     public static let lit  = FloValOps(rawValue: 1 <<  9) // literal value
     public static let anim = FloValOps(rawValue: 1 << 10) // animated
@@ -35,7 +35,7 @@ public struct FloValOps: OptionSet {
     /// Otherwise, restoring from a .delta could activate stale values,
     /// such as a stale midi.note.on
     func isTransient() -> Bool {
-        let defset: FloValOps = [.now, .lit]
+        let defset: FloValOps = [.now_, .next, .lit]
         return (self.rawValue & defset.rawValue) == 0
     }
 
@@ -49,7 +49,7 @@ public struct FloValOps: OptionSet {
     var min  : Bool { contains(.min ) }
     var max  : Bool { contains(.max ) }
     var dflt : Bool { contains(.dflt) }
-    var now  : Bool { contains(.now ) }
+    var now_ : Bool { contains(.now_) }
     var next : Bool { contains(.next) }
     var lit  : Bool { contains(.lit ) }
     var anim : Bool { contains(.anim) }
@@ -63,8 +63,8 @@ extension FloValOps: CustomStringConvertible {
         (.min , "min" ),
         (.max , "max" ),
         (.dflt, "dflt"),
-        (.now , "now" ),
-        (.now , "next"),
+        (.now_, "now_"),
+        (.next ,"next"),
         (.lit , "lit" ),
         (.anim, "anim"),
     ]
@@ -77,5 +77,9 @@ extension FloValOps: CustomStringConvertible {
 
     public static func += (lhs: inout FloValOps, rhs: FloValOps) {
         lhs.rawValue |= rhs.rawValue
+    }
+    public static func -= (lhs: inout FloValOps, rhs: FloValOps) {
+        let neg = lhs.rawValue & rhs.rawValue
+        lhs.rawValue ^= neg
     }
 }

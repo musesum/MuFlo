@@ -40,14 +40,14 @@ extension Flo {
                 val = fromVal
             } else if let val {
                 // set my val to fromVal, with rescaling
-                if val.setVal(fromVal, visit, [.now, .next]) == false {
+                if val.setVal(fromVal, visit, [.now_, .next]) == false {
                     // condition failed, so avoid activatating edges, below
                     return
                 }
             }
         } else if let val {
             // any is not a FloVal, so pass onto my FloVal if it exists
-            if val.setVal(any, visit, [.now, .next]) == false {
+            if val.setVal(any, visit, [.now_, .next]) == false {
                 // condition failed, so avoid activatating edges, below
                 return
             }
@@ -60,7 +60,7 @@ extension Flo {
             case let v as Double:  val = FloValScalar(self, name, v)
             case let v as CGFloat: val = FloValScalar(self, name, Double(v))
             case let v as CGPoint: val = FloValExprs(self, point: v)
-            case let v as [(String, Double)]: val = FloValExprs(self, nameNums: v)
+            case let v as [(String, Double)]: val = FloValExprs(self, v)
             default: print("🚫 unknown val(\(any))")
             }
         }
@@ -83,15 +83,6 @@ extension Flo {
                 }
             }
         }
-    }
-
-    func findEdgeTern(_ edge: FloEdge) -> FloValTern? {
-        for edgeDef in edgeDefs.edgeDefs {
-            if edgeDef.edges.keys.contains(edge.edgeKey) {
-                return edgeDef.ternVal
-            }
-        }
-        return nil
     }
 
     @discardableResult
@@ -117,19 +108,19 @@ extension Flo {
         case let v as FloValScalar:
 
             if let fromScalar = fromVal as? FloValScalar {
-                return v.setVal(fromScalar, visit, [.now, .next])
+                return v.setVal(fromScalar, visit, [.now_, .next])
             }
             else if let fromExprs = fromVal as? FloValExprs {
                 for val in fromExprs.nameAny.values {
                     if let fromScalar = val as? FloValScalar {
-                        return v.setVal(fromScalar, visit, [.now, .next])
+                        return v.setVal(fromScalar, visit, [.now_, .next])
                     }
                 }
             }
         case let v as FloValData:
 
             if let fr = fromVal as? FloValData {
-                return v.setVal(fr, visit, [.now, .next])
+                return v.setVal(fr, visit, [.now_, .next])
             }
         default: break
         }
@@ -137,4 +128,3 @@ extension Flo {
     }
 
 }
-

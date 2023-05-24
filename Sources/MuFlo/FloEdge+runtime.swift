@@ -12,8 +12,8 @@ extension FloEdge {
     func followEdge(_ fromFlo: Flo,
                     _ visit: Visitor) {
 
-        let leftToRight = fromFlo == leftFlo    // a >> b, a <> b
-        let rightToLeft = fromFlo == rightFlo   // a << b, a <> b
+        let leftToRight = fromFlo == leftFlo // a >> b
+        let rightToLeft = !leftToRight       // a << b
         let destFlo = leftToRight ? rightFlo : leftFlo
 
         if edgeOps.plugin,
@@ -22,21 +22,6 @@ extension FloEdge {
             if leftExprs.plugin == nil {
                 leftExprs.plugin = FloPlugin(leftExprs,rightExprs)
             }
-        } else if edgeOps.ternIf {
-
-            if leftToRight, let ternVal = rightFlo.findEdgeTern(self) {
-
-                ternVal.recalc(leftFlo, rightFlo, .activate , visit)
-                rightFlo.activate(visit)
-                //print("\(fromFlo.name)◇→\(destFlo?.name ?? "")")
-
-            } else if rightToLeft, let ternVal = leftFlo.findEdgeTern(self) {
-
-                ternVal.recalc(rightFlo, leftFlo, .activate, visit)
-                leftFlo.activate(visit)
-                //print("\(fromFlo.name)◇→\(destFlo?.name ?? "")")
-            }
-            
         } else if  leftToRight && edgeOps.output ||
                     rightToLeft && edgeOps.input {
 

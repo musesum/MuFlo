@@ -47,9 +47,11 @@ public class FloValPath: FloVal {
             else                  { return script }
         }
     }
-    public override func scriptVal(_ scriptOpts: FloScriptOps = [.parens]) -> String {
+    public override func scriptVal(_ scriptOps: FloScriptOps = [.parens],
+                                   noParens: Bool = false,
+                                   viaEdge: Bool = false) -> String {
         
-        if scriptOpts.expand {
+        if scriptOps.expand {
             var script = Flo.scriptFlos(pathFlos)
             if script.first != "(" {
                 script = "(\(script))"

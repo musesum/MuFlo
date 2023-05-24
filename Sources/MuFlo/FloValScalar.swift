@@ -12,12 +12,11 @@ import MuTime // NextFrame
 public class FloValScalar: FloVal {
 
     // default scalar value is (0…1 = 1)
-    public var now = Double(0) // current value; 2 in 0…3=1:2
+    public var now = Double(0) // current value; 2 in 0…3~1:2
     var next = Double(0) // target value
-    
     var min  = Double(0) // minimum value; 0 in 0…3
     var max  = Double(1) // maximum value; 3 in 0…3
-    var dflt = Double(0) // default value; 1 in 0…3=1
+    var dflt = Double(0) // default value; 1 in 0…3~1
 
     override init(_ flo: Flo, _ name: String) {
         super.init(flo, name)
@@ -26,7 +25,7 @@ public class FloValScalar: FloVal {
 
     init(_ flo: Flo,_ name: String,_ num: Double) {
         super.init(flo, name)
-        valOps = .now
+        valOps = [.now_, .next] //?? .now
         self.min = fmin(num, 0.0)
         self.max = fmax(num, 1.0)
         self.now = num
@@ -62,17 +61,16 @@ public class FloValScalar: FloVal {
     }
 
     // user may double tap to kickoff defaults with optional animation
-    func setNowDefault(_ visit: Visitor) {
-
-        if !valOps.now {
+    func setNextDefault(_ visit: Visitor) {
+        if !valOps.next { //??
             setDefault(visit)
         }
     }
 
     // startup set values without animatin
-    func bindNow() {
+    func bindNext() { //??
 
-        if !valOps.now {
+        if !valOps.next {
             setDefault(Visitor(.bind))
             now = next
         }
@@ -86,8 +84,6 @@ public class FloValScalar: FloVal {
         else if valOps.modu            { next = 0    }
 
         now = next
-        
-        testNextEqualNow()
     }
     static func |= (lhs: FloValScalar, rhs: FloValScalar) {
         
@@ -95,7 +91,7 @@ public class FloValScalar: FloVal {
         lhs.valOps = FloValOps(rawValue: mergeOps)
         if rhs.valOps.min  { lhs.min = rhs.min }
         if rhs.valOps.max  { lhs.max = rhs.max }
-        if rhs.valOps.now { lhs.now = rhs.now }
+        if rhs.valOps.next { lhs.next = rhs.next } //??
     }
 
     public static func == (lhs: FloValScalar,
@@ -123,50 +119,49 @@ public class FloValScalar: FloVal {
         return String(now)
     }
 
-    public override func scriptVal(_ scriptOpts: FloScriptOps) -> String {
-
-        if scriptOpts.delta {
+    public override func scriptVal(_ scriptOps: FloScriptOps,
+                                   noParens: Bool = false,
+                                   viaEdge: Bool = false) -> String {
+        if scriptOps.delta {
             if !hasDelta() {
                 return ""
             }
-            print("*** \(flo.name) [\(scriptOpts.description)].[\(valOps.description)] : \(now)")
+            print("*** \(flo.name) [\(scriptOps.description)].[\(valOps.description)] : \(next)")
         }
 
-        var script = scriptOpts.parens ? "(" : ""
-        if valOps.rawValue == 0   { return "" }
-
-        if scriptOpts.def {
-            if valOps.min  { script += min.digits(0...6) }
-            if valOps.thru { script += "…" } // … is option+semicolon ⌥⃣; on mac keyboard
-            if valOps.thri { script += "_" }
-            if valOps.modu { script += "%" }
-            if valOps.max  { script += max.digits(0...6) }
-            if valOps.dflt { script += "=" + dflt.digits(0...6) }
-            if valOps.lit  { script += now.digits(0...6) }
-            if scriptOpts.now {
-                if valOps.lit, now == dflt {
-                    /// skip as `dflt` will set `now` anyway
-                 } else {
-                    script += ":" + now.digits(0...6)
-                }
-            }
-        } else if scriptOpts.now {
-            if valOps.lit, now == dflt {
-                script += now.digits(0...6)
-            } else {
-                script += ":" + now.digits(0...6)
-            }
-        } else if valOps.lit {
-            script += now.digits(0...6)
-        }
-        script += scriptOpts.parens ? ")" : ""
-        return script
+        let script = scriptScalar(scriptOps)
+        return (noParens ? script
+                : script.isEmpty ? script
+                : scriptOps.parens ? "(\(script))"
+                : script)
     }
-    
+
+    func scriptScalar(_ scriptOps: FloScriptOps,
+                      _ script: String = "") -> String {
+        var str = ""
+        if valOps.rawValue == 0   { return "" }
+       
+        if scriptOps.def {
+            if valOps.min  { str += min.digits(0...6) }
+            if valOps.thru { str += "…" } /// `…` is `⌥⃣;` on mac
+            if valOps.thri { str += "_" } /// integer range for midi
+            if valOps.modu { str += "%" } /// modulo
+            if valOps.max  { str += max.digits(0...6) }
+            if valOps.dflt { str += "~" + dflt.digits(0...6) }
+        }
+        if scriptOps.current && (valOps.next || valOps.lit) {
+            str += (valOps == .lit || str.isEmpty && script.isEmpty) ? "" : "="
+            str += next.digits(0...6)
+        }
+        if str.isEmpty, scriptOps.current {
+            str += next.digits(0...6)
+        }
+        return str
+    }
     override public func hasDelta() -> Bool {
-        if valOps.now {
+        if valOps.next {
             if valOps.dflt {
-                if now != dflt { return true }
+                if next != dflt { return true }
             } else {
                 return true
             }
@@ -212,15 +207,14 @@ public class FloValScalar: FloVal {
 
                 let toRange = (  max -   min) + (   valOps.thri ? 1.0 : 0.0)
                 let frRange = (v.max - v.min) + ( v.valOps.thri ? 1.0 : 0.0)
-                if ops.now  {
-                    now  = (v.now - v.min) * (toRange / frRange) + min }
+                if ops.now_ { now  = (v.now - v.min) * (toRange / frRange) + min }
                 if ops.next { next = (v.next - v.min) * (toRange / frRange) + min }
 
             } else if valOps.modu {
 
                 min = 0
                 max = Double.maximum(1, max)
-                if ops.now  { now = fmod(v.now, max) }
+                if ops.now_ { now = fmod(v.now, max) }
                 if ops.next { next = fmod(v.next, max) }
             } else {
                 
@@ -229,7 +223,7 @@ public class FloValScalar: FloVal {
         }
 
         func setNextOpNow(_ n: Double) {
-            if ops.now  { now = n }
+            if ops.now_ { now = n }
             if ops.next { next = n }
             setInRange()
         }
@@ -245,7 +239,7 @@ public class FloValScalar: FloVal {
         return now
     }
 
-    public override func copy() -> FloVal {
+    public override func copy() -> FloValScalar {
         return FloValScalar(with: self)
     }
 }

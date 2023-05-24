@@ -8,15 +8,15 @@ import MuPar
 extension FloValExprs {
 
     func addScalar(_ scalar: FloValScalar) {
-        let opVal = FloOpVal(scalar: scalar)
-        opVals.append(opVal)
-        opSet.insert(.scalar)
+        let opAny = FloOpAny(scalar: scalar)
+        opAnys.append(opAny)
+        opSet.insert(opAny.op)
     }
     func addDeepScalar(_ scalar: FloValScalar) {
-        let opVal = FloOpVal(scalar: scalar)
-        opVals.append(opVal)
+        let opAny = FloOpAny(scalar: scalar)
+        opAnys.append(opAny)
         nameAny[nameAny.keys.last ?? anonKey] = scalar
-        opSet.insert(.scalar)
+        opSet.insert(opAny.op)
     }
     func addNameNum(_ name: String, _ num: Double) {
         addName(name)
@@ -25,6 +25,7 @@ extension FloValExprs {
     func injectNameNum(_ name: String, _ num: Double) {
         if let val = nameAny[name] as? FloValScalar {
             val.now = num
+            val.next = num //??
         } else {
             nameAny[name] = FloValScalar(flo, name, num)
         }
@@ -40,24 +41,25 @@ extension FloValExprs {
     }
     func addOpStr(_ opStr: String?) {
         if let opStr = opStr?.without(trailing: " ")  {
-            let opVal = FloOpVal(op: opStr)
-            opVals.append(opVal)
+            let opAny = FloOpAny(op: opStr)
+            opAnys.append(opAny)
+            opSet.insert(opAny.op)
         }
     }
     func addQuote(_ quote: String?) {
         if let quote = quote?.without(trailing: " ")  {
-            let opVal = FloOpVal(quote: quote)
-            opVals.append(opVal)
+            let opAny = FloOpAny(quote: quote)
+            opAnys.append(opAny)
             nameAny[nameAny.keys.last ?? anonKey] = quote
-            opSet.insert(.quote)
+            opSet.insert(opAny.op)
         }
     }
     func addName(_ name: String?) {
 
         guard let name else { return }
-        let opVal = FloOpVal(name: name)
-        opVals.append(opVal)
-        opSet.insert(.name)
+        let opAny = FloOpAny(name: name)
+        opAnys.append(opAny)
+        opSet.insert(opAny.op)
 
         if !nameAny.keys.contains(name) {
             nameAny[name] = ""

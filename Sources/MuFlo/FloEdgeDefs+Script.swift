@@ -5,16 +5,17 @@ import Foundation
 extension FloEdgeDefs {
 
     func printVal() -> String {
-        return scriptVal([.now])
+        return scriptVal([.current])
     }
 
-    func scriptVal(_ scriptOpts: FloScriptOps) -> String {
+    func scriptVal(_ scriptOps: FloScriptOps,
+                   noParens: Bool = false) -> String {
 
         var script = ""
 
         for edgeDef in edgeDefs {
 
-            let val = edgeDef.scriptVal(scriptOpts)
+            let val = edgeDef.scriptVal(scriptOps)
 
             script += val
         }

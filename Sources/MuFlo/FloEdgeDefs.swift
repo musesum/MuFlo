@@ -21,19 +21,6 @@ public class FloEdgeDefs {
         return newEdgeDefs
     }
 
-    /// override old ternary with new value
-    public func overideEdgeTernary(_ tern_: FloValTern) -> Bool {
-
-        for edgeDef in edgeDefs {
-            if let ternPath = edgeDef.ternVal?.path,
-                ternPath == tern_.path {
-
-                edgeDef.ternVal = tern_.copy()
-                return true
-            }
-        }
-        return false
-    }
     func mergeEdgeDefs(_ merge: FloEdgeDefs) {
 
         for mergeDef in merge.edgeDefs {
@@ -49,11 +36,6 @@ public class FloEdgeDefs {
                 }
                 break
             }
-            if let mergeTernVal = mergeDef.ternVal {
-                if !overideEdgeTernary(mergeTernVal) {
-                    addEdgeTernary(mergeTernVal)
-                }
-            }
         }
         
         func isUnique(_ mergeDef: FloEdgeDef) -> Bool {
@@ -63,32 +45,7 @@ public class FloEdgeDefs {
             return true
         }
     }
-    /** add ternary to array of edgeDefs
-     */
-     public func addEdgeTernary(_ tern_: FloValTern, copyFrom: Flo? = nil) {
-
-         if let lastEdgeDef = edgeDefs.last {
-
-             if let lastTern = lastEdgeDef.ternVal {
-                 lastTern.deepAddVal(tern_)
-             }
-             else {
-                 lastEdgeDef.ternVal = tern_
-                 FloValTern.ternStack.append(tern_)
-             }
-         }
-             // copy edgeDef from search z in
-         else if let copyEdgeDef = copyFrom?.edgeDefs.edgeDefs.last {
-
-             let newEdgeDef = FloEdgeDef(with: copyEdgeDef)
-             edgeDefs.append(newEdgeDef)
-             newEdgeDef.ternVal = tern_
-             FloValTern.ternStack.append(tern_)
-         }
-         else {
-             print("🚫 \(#function) no edgeDefs to add edge")
-         }
-     }
+   
     /** add exprs to array of edgeDefs
      */
     public func parseEdgeExprs(_ flo: Flo) {

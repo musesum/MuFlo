@@ -362,21 +362,6 @@ extension Flo {
             child.bindTopDown()
         }
     }
-
-    /// activate or deactivate edges for ternaries 
-    func bindTernaries() {
-        for edgeDef in edgeDefs.edgeDefs {
-            
-            if  let ternVal = edgeDef.ternVal,
-                let leftFlo = edgeDef.edges.values.first?.leftFlo {
-                
-                ternVal.recalc(leftFlo, self, .sneak , Visitor(0)) 
-            }
-        }
-        for child in children {
-            child.bindTernaries()
-        }
-    }
     func bindEdges() {
         edgeDefs.bindEdges(self)
         for child in children {
@@ -431,19 +416,19 @@ extension Flo {
             }
         }
     }
-    public func bindNows() {
+    public func bindNexts() {
         bindVal(val)
         for edge in floEdges {
             bindVal(edge.value.defVal)
         }
         for child in children {
-            child.bindNows()
+            child.bindNexts()
         }
         func bindVal(_ val: FloVal?) {
             if let val {
                 switch val {
-                    case let t as FloValExprs:  t.bindNows()
-                    case let s as FloValScalar: s.bindNow()
+                    case let t as FloValExprs:  t.bindNexts()
+                    case let s as FloValScalar: s.bindNext()
                     default: break
                 }
             }
@@ -453,15 +438,14 @@ extension Flo {
     public func bindRoot() {
 
         func log(_ num: Int) {
-            Flo.LogBindScript ? print(scriptFlo(.now) + " // \(num)")  :
+            Flo.LogBindScript ? print(scriptFlo(.current) + " // \(num)")  :
             Flo.LogMakeScript ? print(script(.def) + " // \(num)")  : nil
         }
         bindTopDown()      ; log(1)
         bindBottomUp()     ; log(2)
         bindCopyatTypes()  ; log(3)
         bindEdges()        ; log(4)
-        bindTernaries()    ; log(5)
-        bindDispatch()     ; log(6)
-        bindNows()
+        bindDispatch()     ; log(5)
+        bindNexts()
     }
 }
