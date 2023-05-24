@@ -1,3 +1,10 @@
+/// below is an exploration of a command line interface, which is yet imlemented.
+/// most of Flo features have been, including `˚˚`, `<@>`, and `^`
+/// but, runtime manipuation of graph has not. Same goes for quasi-bash commands.
+///
+///  Futuremore, the super-connected section with distributed closures and
+///  activation iterations is rather aspiration, and subject to conceptual thrash.
+
 /// `√: ` is a command line prompt. So, for the next three lines declare `a,b,c`
 
 √: a: 10         /// `a` stores `10`
@@ -56,7 +63,7 @@ b(1) 🚫> c(0.5)  /// `b`is blocked from activating `b`
 a, b, c         /// which cleared all the connects to `b` and `c`
 
 √: a >> c       /// next, connect `a`'s output to `c`'s input
-a >> b          // so activations will only run in one direction
+a >> b         /// so activations will only run in one direction
 
 √: b >> c       ///. do the same for `b` to `c`
 b >> c
@@ -68,12 +75,219 @@ c >> a
 a(10) => b(2)   /// whereupon, `a` activates `b` and
 b(2)  => c(1)   /// `b` activates `c` -- consistently.
 
-√: a            /// anytime you want to show everthing
-a(10) <> (b,c)  /// type `a`s name and return the result
+√: a?            /// anytime you want to show a name's contents
+a(10) >> b      /// type `a`s name with a `?` to return the result
 
-√: b
-b(%4:2) >> c << a  // b shows both its and a's declaration
+√: b?
+b(%4:2) >> c     /// `b` shows both its and a's declaration
 
-√: b
+√: *            /// list everthing at this level
+a, b, c
 
+/// speaking levels, the `√:` prompts means ws are at the root level
+/// let's promate everything to a level deeper, called `d`
+
+
+√: mv * d       /// the `mv` command is akin to bash's move command
+d { a, b, c }   /// hover each name is both a file and a directory
+
+√: cd d         /// so the `cd` is akin the change directory
+
+√.d: *          /// resulting in a path prompt of `√.d`
+a, b, c         /// with the `*` replacing `ls` for list
+
+√.d: ..         /// `..` is shortcut for `cd ..`
+√: *            /// and now list the root directory
+d {a, b, c}     /// show the name tree one level deep
+
+√: a.*?         /// we can still access via path names
+a(10) <> (b,c)
+
+√: mv * d       /// attempt something unwise
+!! cannot move d to itself
+
+√: mv * e       /// ok, let's add e
+e { d { a, b, c } }
+
+√: cd e.d.c     /// we can move to a name like a directory
+√.e.d.c: *      /// though there is nothing here
+∅
+
+√.e.d.c: cd \   /// so let's go  back to the root
+√: e.d˚.        /// `˚.` wildcard finds all end names, like leaves on a tree
+ a, b, c
+
+√: e.d˚. <> ..   /// lets connect the leaves to their parent `d`
+
+e.d <> (e.d.a, e.d.b, e.d.c) /// which shows connections reative to root
+
+
+√: ˚˚           /// `˚˚` finds all levels
+e { d { a, b, c } }
+
+√: ../˚˚??      /// show everthing all at once (EAAO)
+√ {
+    e {
+        d <> (.a, .b, .c) {
+            a(10) <> .. >> b << c
+            b(%4:2) <> .. >> c << a
+            c(/2:1) <> .. >> a << b
+        }
+    }
+}
+√: rm e        /// let's remove `e`
+∅              /// oops, not what we want
+
+√: cmd-z       /// to undo
+e { d { a, b, c } }
+
+/// each change graph creats a snapshot, all the way to the beginning
+/// move forward with`shift-cmd-z` -- like any text editor
+
+√: mv e.d .     /// move `√.e.d` to `√.d`
+e d { a, b, c }
+
+√: rm e         /// now we can remove `e`
+d { a, b, c } }
+
+√: ../˚˚??      /// show EAAO again
+√ {
+    d <> (.a, .b, .c) {
+        a(10) <> .. >> b << c
+        b(%4:2) <> .. >> c << a
+        c(/2:1) <> .. >> a << b
+    }
+}
+/// notice that links are relative and thus preserved
+
+√: f @ d        /// let's copy contents of d to f
+{  d { a, b, c }
+    f { a, b, c } }
+
+√: ˚˚<>??       // EAAO again, to show that both
+{               /// values and edges are preserved
+    d <> (.a, .b, .c) {
+        a(10)   <> .. >> b
+        b(%4:2) <> .. >> c
+        c(/2:1) <> .. >> a
+    }
+    f @ d {
+        a(10)   <> .. >> b
+        b(%4:2) <> .. >> c
+        c(/2:1) <> .. >> a
+    }
+}
+
+√: ˚. /// here is a flat map of all the leaves
+d.a, d.b, d.c, f.a, f.b, f.c
+
+√: ˚˚--<>  /// lets get rid of the edges
+{
+    d {
+        a(10)
+        b(%4:2)
+        c(/2:1)
+    }
+    f @ d {
+        a(10)
+        b(%4:2)
+        c(/2:1)
+    }
+}
+√: ˚˚--() /// and for simplicy sake, let remove the values
+{
+    d     { a, b, c }
+    f @ d { a, b, c }
+}
+
+√: f <@ d       /// and lets connect `d` to `f` by name
+{               /// which allows `f` to shadow `d`
+    d { a, b, c }
+    f @d ←@ d {
+        a ←@ d.a
+        b ←@ d.b
+        c ←@ d.c
+    }
+}
+√: f <@> d      /// or we could synchronize between `f` and `d`
+{               /// which allows `f` co-pilot  `d`
+    d { a, b, c }
+    f @d ←@→ d {
+        a ←@→ d.a
+        b ←@→ d.b
+        c ←@→ d.c
+    }
+}
+√: f˚˚ ^ copilot(0.25) /// add a `^ copilot` plugin `0.25` seconds
+/// TBH, while there are animation plug-ins, there
+/// is no such thing copilot plug-in.
+
+
+√: f --<@>  \    /// or let's silently remove the co-pilot
+√: f˚. <> d˚. ??   /// and superconnect all the leavea, instead
+{
+    d {
+        a <> (f.a, f.b, f.c)
+        b <> (f.a, f.b, f.c)
+        c <> (f.a, f.b, f.c)
+    }
+    f {
+        a <> (d.a, d.b, d.c)
+        b <> (d.a, d.b, d.c)
+        c <> (d.a, d.b, d.c)
+    }
+}
+√: start <> d.*  \ /// connect a `start` node to `d.*`
+√: finish <> f.* \ /// connect a `finish` node to `f.*`
+√: start˚˚{ forward() } \ /// distribute a `forward()` closure from `start`
+√: finish˚˚{ backward() } \ /// distribute a `backward()` closure from `finish`
+√: (start,finish)! * 10000 /// run `forward` and `backward` passes `10000` times
+
+
+/// current, there are no run loops in flo
+/// the closest is in model.flo.h, used by the deepmuse app
+/// where the `^ sky.main.anim` plug-in generates an easeinout animation of scalar values
+///
+/// I wonder how easy it would be to create a texture atlas of compute shaders
+/// as a kind of specialzed cellular automata? moreover, what if the
+/// forward and backward propagation cells were asynchronous
+///
+/// where each cell has 64x64 one hot address vi
+
+    01234567 89012345 67890123 45678901
+    0_000000 00000000 00000000 00000000 0  1 * 2^0 => 1
+    00000000 00_00000 00000000 00000000 1 12 * 2^1 => 24
+    00000000 00000000 00000000 00000000 2
+    00000000 00000000 00000000 00000000 3
+    00000000 00000000 00000000 00000000 4
+    00000000 00000000 00000000 00000000 5
+    00000000 00000000 00000000 00000000 6
+    00000000 00000000 00000000 00000000 7
+
+    00000000 00000000 00000000 00000000 8
+    00000000 00000000 00000000 00000000 9
+    00000000 00000000 00000000 00000000 10
+    00000000 00000000 00000000 00000000 11
+    00000000 00000000 000_0000 00000000 12 19 * 2^12 => 77814
+    00000000 00000000 00000000 00000000 13
+    00000000 00000000 00000000 00000000 14
+    00000000 00000000 00000000 00000000 15
+
+    00000000 00000000 00000000 00000000 16
+    00000000 00000000 00000000 00000000 17
+    00000000 00000000 00000000 00000000 18
+    00000000 00000000 00000000 00000000 19
+    00000000 00000000 00000000 00000000 20
+    00000000 00000000 00000000 00000000 21
+    00000000 00000000 00000000 00000000 22
+    00000000 00000000 00000000 00000000 23
+
+    00000000 00000000 00000000 00000000 24
+    00000000 00000000 00000000 00000000 25
+    00000000 00000000 00000000 00000000 26
+    00000000 00000000 00000000 00000000 27
+    00000000 00000000 00000000 00000000 28
+    00000000 00000000 00000000 00000000 29
+    00000000 00000000 00000000 00000000 30
+    00000000 00000000 00000000 000000_0 31 31 * 2^31 => 64,424,509,440
 
