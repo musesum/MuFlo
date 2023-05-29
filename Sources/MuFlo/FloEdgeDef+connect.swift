@@ -7,16 +7,16 @@ import Foundation
 
 extension FloEdgeDef {
 
-    func connectNewEdge(_ leftFlo: Flo, _ rightFlo: Flo, _ floVal: FloVal?) {
+    func connectNewEdge(_ leftFlo: Flo, _ rightFlo: Flo, _ val: FloValExprs?) {
 
-        let newEdge = FloEdge(self, leftFlo, rightFlo, floVal)
+        let newEdge = FloEdge(self, leftFlo, rightFlo, val)
         let newKey = newEdge.edgeKey
 
         if edgeOps.exclude {
             excludeEdge()
         } else if edgeOps.copyat {
             addEdge()
-            connectCopyr(leftFlo, rightFlo, floVal)
+            connectCopyr(leftFlo, rightFlo, val)
         } else {
             addEdge()
         }
@@ -35,7 +35,7 @@ extension FloEdgeDef {
             }
         }
     }
-    func connectCopyr(_ leftFlo: Flo, _ rightFlo: Flo, _ floVal: FloVal?)  {
+    func connectCopyr(_ leftFlo: Flo, _ rightFlo: Flo, _ floVal: FloValExprs?)  {
         var rights = [String: Flo]()
         for rightChild in rightFlo.children {
             rights[rightChild.name] = rightChild
@@ -48,35 +48,7 @@ extension FloEdgeDef {
         }
     }
 
-    /// b in `<- (a ? b)`
-    /// Connect results of ternIf. Filter out redundant results in Set.
-    ///
-    /// in the following example:
-    ///
-    ///         d {a1 a2}:{b1 b2} e <- (d˚b1 ? d˚b2)
-    ///
-    /// the results of d˚b2 for both d.a1.b1 and d.a1.b2, will produce
-    ///
-    ///         (d.a1.b2 d.a2.b2) and (d.a1.b2 d.a2.b2)
-    ///
-    /// so use a Set<Flo> to filter out redundant flos
-    /// before saving filtered results into valPath.pathFlos
-    ///
-    func connectValPath(_ valPath: FloValPath, _ flo: Flo, _ leftFlos: [Flo]) {
-
-        var foundSet = Set<Flo>()
-
-        for leftFlo in leftFlos {
-            let foundFlos = leftFlo.findPathFlos(valPath.path, [.parents, .children])
-            for flo in foundFlos {
-                foundSet.insert(flo)
-            }
-        }
-        valPath.pathFlos.removeAll()
-        valPath.pathFlos.append(contentsOf: foundSet)
-        valPath.pathFlos.sort(by:{ $0.scriptLineage(2) < $1.scriptLineage(2) })
-    }
-
+    
     /// batch connect edges - convert from FloEdgeDef to FloEdges
     func connectEdges(_ flo: Flo)  {
         

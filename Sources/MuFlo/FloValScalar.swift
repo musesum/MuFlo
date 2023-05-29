@@ -148,13 +148,19 @@ public class FloValScalar: FloVal {
             if valOps.modu { str += "%" } /// modulo
             if valOps.max  { str += max.digits(0...6) }
             if valOps.dflt { str += "~" + dflt.digits(0...6) }
+            //... if valOps.lit  { str += next.digits(0...6) }
         }
-        if scriptOps.current && (valOps.next || valOps.lit) {
-            str += (valOps == .lit || str.isEmpty && script.isEmpty) ? "" : "="
-            str += next.digits(0...6)
-        }
-        if str.isEmpty, scriptOps.current {
-            str += next.digits(0...6)
+        if scriptOps.current {
+
+            if valOps.next || valOps.lit {
+                str += (valOps == .lit ||
+                        str.isEmpty && script.isEmpty ||
+                        script.hasSuffix(": "))
+                ? "" : ":"
+                str += next.digits(0...6)
+            } else if script.isEmpty {
+                str += next.digits(0...6)
+            }
         }
         return str
     }

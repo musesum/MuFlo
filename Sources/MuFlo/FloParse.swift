@@ -37,7 +37,7 @@ public class FloParse {
 
             dispatchFunc(parseValue, from: ["scalar", "thru", "thri",
                                             "modu", "dflt", "now", "num",
-                                            "quote", "embed", "expr"])
+                                            "quote", "expr"])
 
             dispatchFunc(parseEdge, from: ["edges", "edgeOp"])
 
@@ -78,13 +78,14 @@ public class FloParse {
         case "expr":
             if let edgeDef = flo.edgeDefs.edgeDefs.last,
                let edgePath = edgeDef.pathVals.pathVal.keys.last,
-               let edgeVal = edgeDef.pathVals.pathVal[edgePath] as? FloValExprs {
+               let edgeVal = edgeDef.pathVals.pathVal[edgePath],
+               let edgeVal {
 
                 parseNextExpr(flo, edgeVal, parItem, prior)
             }
-            else if let floVal = flo.val as? FloValExprs {
+            else if let val = flo.val {
 
-                parseNextExpr(flo, floVal, parItem, prior)
+                parseNextExpr(flo, val, parItem, prior)
             }
 
         default:
@@ -165,7 +166,7 @@ public class FloParse {
                        _ prior   : String      ) {
 
         var hasOp = false
-        var hasIn = false
+        //... var hasIn = false
         var scalar: FloValScalar?
         var name: String?
 
@@ -180,20 +181,20 @@ public class FloParse {
             }
         }
         finishExpr()
+
         func finishExpr() {
-            if hasIn, let name, let scalar {
-                hasIn = false
-                let copy = scalar.copy()
-                exprs.nameAny[name] = copy
-            }
+            scalar = nil
+            name = nil
         }
         func addDeepScalar(_ nextPar: ParItem) {
-            scalar = FloValScalar(flo, name ?? "addDeepScalar")
+
+            scalar = FloValScalar(flo, name ?? exprs.anonKey)
             guard let scalar else { return }
 
-            if hasOp {
-                /// `c` in `a(b < c)` so don't add nameAny["c"]
-                exprs.addScalar(scalar)
+            if name == nil {
+                name = exprs.anonKey
+                exprs.addAnonScalar(scalar)
+
             } else {
                 /// `b` in `a(b: c)` so add a nameAny["b"]
                 exprs.addDeepScalar(scalar)
@@ -215,16 +216,21 @@ public class FloParse {
             if let val = nextPar.value {
                 let op = FloOp(val)
                 exprs.addOpStr(val)
+
                 switch op {
+
                 case .comma:
                     finishExpr()
                     hasOp = false
-                case .assign:
-                    hasOp = true //???
+   
                 case .In:
 
                     hasOp = true
-                    hasIn = true
+                    //... hasIn = true
+
+                case .assign:
+
+                    break //???
 
                 default:
                     hasOp = true
@@ -282,13 +288,15 @@ public class FloParse {
             return parseEdgeDef(flo, edgeDef, parItem, level)
 
         } else if flo.val == nil {
-            // nil in `a*_`
-            switch pattern {
-            case "embed"  : flo.val = FloValEmbed(flo, str: parItem.getFirstValue())
-            case "scalar" : flo.val = FloValScalar(flo, pattern)
-            case "exprs"  : flo.val = FloValExprs(flo, pattern)
-            default       : break
-            }
+            flo.val = FloValExprs(flo, pattern)
+//...            // nil in `a*_`
+//            switch pattern {
+//
+//            case "scalar" : flo.val = FloValScalar(flo, pattern)
+//            case "exprs"  : flo.val = FloValExprs(flo, pattern)
+//            default       : break
+//            }
+
         } else {
             // x y in `a(x y)`
             parseDeepVal(flo, flo.val, parItem)
@@ -304,7 +312,7 @@ public class FloParse {
                       _ level   : Int        ) -> Flo {
 
         let pattern = parItem.node?.pattern ?? ""
-        // 9 in `a(8) <- (b ? 9)`
+        /// `9` in `a(8) << b(9)`
         if let path = edgeDef.pathVals.pathVal.keys.last {
 
             if let lastVal = edgeDef.pathVals.pathVal[path], lastVal != nil {
@@ -312,17 +320,15 @@ public class FloParse {
                 return flo
 
             } else  {
-                func addVal(_ val: FloVal) {
-                    edgeDef.pathVals.add(path: path, val: val)
+                func addVal(_ val: FloValExprs) {
+                    edgeDef.pathVals.addPathVal(path, val)
                 }
                 switch pattern {
-                case "embed"  : addVal(FloValEmbed(flo, str: parItem.getFirstValue()))
-                case "scalar" : addVal(FloValScalar(flo, pattern))
+                case "scalar" : addVal(FloValExprs(flo, pattern)) //.... Scalar
                 case "exprs"  : addVal(FloValExprs(flo, pattern))
                 default       : break
                 }
             }
-
         } 
         return parseNext(flo, pattern, parItem, level+1)
     }
@@ -437,13 +443,13 @@ public class FloParse {
     ///     - script: text of script to convert into subtree
     ///     - whitespace: default is single line, may add \n for multiline script
     ///
-    public func parseScript(_ root:     Flo,
-                            _ script:   String,
-                            whitespace: String = "\n\t ",
-                            printGraph: Bool = false,
-                            tracePar: Bool = false) -> Bool {
+    public func parseScript(_ root     : Flo,
+                            _ script   : String,
+                            whitespace : String = "\n\t ",
+                            printGraph : Bool = false,
+                            tracePar   : Bool = false) -> Bool {
 
-        ParStr.tracing = tracePar //??? tracePar
+        ParStr.tracing = tracePar
         Flo.LogBindScript = false
         Flo.LogMakeScript = false
 

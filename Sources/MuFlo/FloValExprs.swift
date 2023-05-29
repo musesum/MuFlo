@@ -19,9 +19,6 @@ public class FloValExprs: FloVal {
     /// `t(x/2, y/2) << u(x 1, y 2)` ⟹ `t(x 0.5, y 1.0)` // after u fires
     public var opAnys = ContiguousArray<FloOpAny>()
 
-    /// set of all ops in exprs
-    var opSet = Set<FloOp>()
-
     /// return _0, _1, ... for anonymous values
     var anonKey: String { String(format: "_%i", nameAny.keys.count) }
 
@@ -30,20 +27,25 @@ public class FloValExprs: FloVal {
     override init(_ flo: Flo, _ name: String) {
         super.init(flo, "_\(flo.name)")
     }
-    override init(with floVal: FloVal) {
-        super.init(with: floVal)
+    init(from: FloValExprs) {
+        super.init(with: from)
 
-        if let v = floVal as? FloValExprs {
+        //... if let fromExprs = from as? FloValExprs {
             
-            valOps = v.valOps
-            for (name, val) in v.nameAny {
-                nameAny[name] = val
+            valOps = from.valOps
+            for (name, val) in from.nameAny {
+                switch val {
+                case let v as FloValScalar  : nameAny[name] = v.copy()
+                case let v as FloValExprs   : nameAny[name] = v.copy()
+                case let v as FloVal        : nameAny[name] = v.copy()
+                default                     : nameAny[name] = val
+                }
+                //.... nameAny[name] = (val as? FloVal)?.copy() ?? val
             }
-            for opVal in v.opAnys {
+            for opVal in from.opAnys {
                 opAnys.append(FloOpAny(from: opVal))
             }
-            opSet = v.opSet
-        }
+       //... }
     }
     init(_ flo: Flo, point: CGPoint) {
         super.init(flo, "point")
@@ -51,7 +53,6 @@ public class FloValExprs: FloVal {
     }
     public init(_ flo: Flo,_ nameNums: [(String, Double)]) {
         super.init(flo, "nameNums")
-        opSet = Set<FloOp>([.name,.num])
 
         for (name, num) in nameNums {
             if opAnys.count > 0 {
@@ -62,7 +63,7 @@ public class FloValExprs: FloVal {
     }
 
     override func copy() -> FloValExprs {
-        return FloValExprs(with: self)
+        return FloValExprs(from: self)
     }
 
     // MARK: - Get
@@ -177,7 +178,7 @@ public class FloValExprs: FloVal {
 
     // set expression
     func setExprs(_ fromExprs: FloValExprs,
-             _ visit: Visitor) -> Bool {
+                  _ visit: Visitor) -> Bool {
 
         // first evaluate source expression values
         fromExprs.evalExprs(nil,visit)
@@ -234,14 +235,17 @@ public class FloValExprs: FloVal {
 
         let ops: FloValOps = (plugin == nil ? [.now_, .next] : [.next])
 
-        if let n = nameAny["val"] as? FloValScalar {
+        if let n = nameAny["_0"] as? FloValScalar {
 
             n.setVal(v, visit, ops)
-            n.valOps += ops //??? redundant?
+
+        } else if let n = nameAny["val"] as? FloValScalar {
+
+            n.setVal(v, visit, ops)
 
         } else {
             
-            nameAny["val"] = FloValScalar(flo, "val", v) //TODO: remove this kludge for DeepMenu
+            nameAny["val"] = FloValScalar(flo, "val", v) //...TODO: remove this kludge for DeepMenu
         }
         return true
     }

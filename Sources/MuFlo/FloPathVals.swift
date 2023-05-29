@@ -6,9 +6,9 @@ import Collections
 
 class FloPathVals {
 
-    var pathVal: OrderedDictionary<String,FloVal?> = [:] // eliminate duplicates
+    var pathVal: OrderedDictionary<String,FloValExprs?> = [:] // eliminate duplicates
 
-    func add(path: String = "", val: FloVal?) {
+    func addPathVal(_ path: String = "",_ val: FloValExprs?) {
         if path.isEmpty {
             if let lastKey = pathVal.keys.last {
                 pathVal[lastKey] = val
@@ -21,7 +21,7 @@ class FloPathVals {
                 pathVal[path] = val
 
             } else if let exprs = pathVal[path] as? FloValExprs,
-                    let scalar = val as? FloValScalar {
+                      let scalar = val as? FloValScalar {
 
                 exprs.addDeepScalar(scalar)
 

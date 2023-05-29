@@ -10,13 +10,16 @@ extension FloValExprs {
     func addScalar(_ scalar: FloValScalar) {
         let opAny = FloOpAny(scalar: scalar)
         opAnys.append(opAny)
-        opSet.insert(opAny.op)
     }
     func addDeepScalar(_ scalar: FloValScalar) {
         let opAny = FloOpAny(scalar: scalar)
         opAnys.append(opAny)
         nameAny[nameAny.keys.last ?? anonKey] = scalar
-        opSet.insert(opAny.op)
+    }
+    func addAnonScalar(_ scalar: FloValScalar) {
+        let opAny = FloOpAny(scalar: scalar)
+        opAnys.append(opAny)
+        nameAny[anonKey] = scalar
     }
     func addNameNum(_ name: String, _ num: Double) {
         addName(name)
@@ -29,12 +32,9 @@ extension FloValExprs {
         } else {
             nameAny[name] = FloValScalar(flo, name, num)
         }
-        opSet.insert(.name)
-        opSet.insert(.scalar)
     }
 
     func addPoint(_ p: CGPoint) {
-        opSet = Set<FloOp>([.name,.num])
         injectNameNum("x", Double(p.x))
         addOpStr(",")
         injectNameNum("y", Double(p.y))
@@ -43,7 +43,6 @@ extension FloValExprs {
         if let opStr = opStr?.without(trailing: " ")  {
             let opAny = FloOpAny(op: opStr)
             opAnys.append(opAny)
-            opSet.insert(opAny.op)
         }
     }
     func addQuote(_ quote: String?) {
@@ -51,7 +50,6 @@ extension FloValExprs {
             let opAny = FloOpAny(quote: quote)
             opAnys.append(opAny)
             nameAny[nameAny.keys.last ?? anonKey] = quote
-            opSet.insert(opAny.op)
         }
     }
     func addName(_ name: String?) {
@@ -59,7 +57,6 @@ extension FloValExprs {
         guard let name else { return }
         let opAny = FloOpAny(name: name)
         opAnys.append(opAny)
-        opSet.insert(opAny.op)
 
         if !nameAny.keys.contains(name) {
             nameAny[name] = ""

@@ -15,8 +15,7 @@ public struct FloScriptOps: OptionSet {
     public static let expand  = FloScriptOps(rawValue: 1 <<  5) ///   32 expand edgeDef to full list edges
     public static let comment = FloScriptOps(rawValue: 1 <<  6) ///   64 commas (`,`) and `// comment`
     public static let delta   = FloScriptOps(rawValue: 1 <<  7) ///  128 only values where `.now != .dflt`
-    public static let copyAt  = FloScriptOps(rawValue: 1 <<  8) ///  256 `@ output` in `input @ output
-    public static let noLF    = FloScriptOps(rawValue: 1 <<  9) ///  512 `no line feed
+    public static let noLF    = FloScriptOps(rawValue: 1 <<  8) ///  256 `no line feed
     public init(rawValue: Int = 0) { self.rawValue = rawValue }
 }
 
@@ -31,7 +30,6 @@ extension FloScriptOps: CustomStringConvertible {
         (.expand  , "expand"  ),
         (.comment , "comment" ),
         (.delta   , "delta"   ),
-        (.copyAt  , "copyAt"  ),
         (.noLF    , "noLF"  ),
     ]
 
@@ -41,8 +39,6 @@ extension FloScriptOps: CustomStringConvertible {
         return "\(joined)"
     }
 
-
-
     var def     : Bool { contains(.def    ) }
     var current : Bool { contains(.current) }
     var edge    : Bool { contains(.edge   ) }
@@ -51,7 +47,6 @@ extension FloScriptOps: CustomStringConvertible {
     var expand  : Bool { contains(.expand ) }
     var comment : Bool { contains(.comment) }
     var delta   : Bool { contains(.delta  ) }
-    var copyAt  : Bool { contains(.copyAt ) }
     var noLF    : Bool { contains(.noLF   ) }
 
     var onlyCurrent: FloScriptOps {

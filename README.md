@@ -320,11 +320,17 @@ Use a camera to record body pose
 - Create a functional mirror `twin: body ←@→ body`
 - Proof of concept using Kinect/OpenNI, shown [here](https://www.youtube.com/watch?v=aFO6j6tvdk8)
 
-Check out `test.robot.input.flo.h`, which defines a Humanoid robot in three lines of code:
+Check out `test.robot.input.flo.h`, which defines a Humanoid robot just a few lines of code:
 ```c
-body {left right}.{shoulder.elbow.wrist {thumb index middle ring pinky}.{meta prox dist} hip.knee.ankle.toes}
-˚˚ <> ..
-˚˚ { pos(x 0…1, y 0…1, z 0…1) angle(roll %360, pitch %360, yaw %360) mm(0…3000)})
+body {left right}
+    .{shoulder.elbow.wrist
+        {thumb index middle ring pinky}
+        .{meta prox dist }
+        hip.knee.ankle.toes}
+˚˚ <> .. // nervous system
+˚˚ {pos(x 0…1, y 0…1, z 0…1)
+    angle(roll %360, pitch %360, yaw %360)
+    mm(0…3000)})
 ```
 
 ### Hand Pose for an AR/VR Heads up Display 

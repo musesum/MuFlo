@@ -4,9 +4,9 @@ import Foundation
 
 extension FloEdgeDefs {
 
-    func printVal() -> String {
-        return scriptVal([.current])
-    }
+//....    func printVal() -> String {
+//        return scriptVal([.current])
+//    }
 
     func scriptVal(_ scriptOps: FloScriptOps,
                    noParens: Bool = false) -> String {

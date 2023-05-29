@@ -43,7 +43,7 @@ extension Flo {
         return script
         
         func scriptAddChildren() {
-            script.spacePlus("{")
+            script.spacePlus("(")
             script.spacePlus(comments.getComments(.child, scriptOpts))
             optionalLineFeed()
             
@@ -51,7 +51,7 @@ extension Flo {
                 script.spacePlus(child.script(scriptOpts))
                 optionalLineFeed()
             }
-            script.spacePlus("}")
+            script.spacePlus(")")
             script += scriptOpts.noLF ? "" : "\n"
         }
         /// print `a.b.c` instead of `a { b { c } } }`
@@ -84,18 +84,18 @@ extension Flo {
         return result
     }
     
-    private func scriptEdgeDefs(_ scriptOpts: FloScriptOps) -> String {
+    private func scriptEdgeDefs(_ scriptOps: FloScriptOps) -> String {
         var script = ""
-        if let edgesScript = scriptFloEdges(scriptOpts) {
+        if let edgesScript = scriptFloEdges(scriptOps) {
             
             script = edgesScript
             if floEdges.count == 1 {
-                script += comments.getComments(.edges, scriptOpts)
+                script += comments.getComments(.edges, scriptOps)
             }
         } else if edgeDefs.edgeDefs.count > 0 {
 
-            script += edgeDefs.scriptVal(scriptOpts)
-            script += comments.getComments(.edges, scriptOpts)
+            script += edgeDefs.scriptVal(scriptOps)
+            script += comments.getComments(.edges, scriptOps)
         }
         return script
     }
@@ -121,7 +121,7 @@ extension Flo {
         guard let firstEdge = edges.first else { return "" }
         var script = firstEdge.edgeOps.script(active: firstEdge.active)
         if edges.count > 1 { script += "(" }
-        var delim = ""
+        var delim = " "
         for edge in edges  {
             
             let pathScript = scriptPathRefs(edge)
@@ -206,10 +206,10 @@ extension Flo {
 
     func showChildren(_ scriptOpts: FloScriptOps) -> [Flo] {
         if scriptOpts.delta {
-            if changes == 0 { return [] }
+            if !hasDelta { return [] }
             var result = [Flo]()
             for child in children {
-                if child.changes > 0 {
+                if child.hasDelta {
                     result.append(child)
                 }
             }
@@ -228,29 +228,49 @@ extension Flo {
 
     /// Populate tree hierarchy of total changes made to each subtree.
     /// When using FloScriptFlag .delta, no changes to subtree are printed out
-    func countDeltas() -> UInt {
-        if let val, !val.valOps.isTransient(), val.hasDelta() {
-            changes += 1
+    func hasDeltas() -> Bool {
+        hasDelta = false
+        if let val {
+            for v in val.nameAny.values {
+                // does expression have a delta
+                if let vv = v as? FloValScalar,
+                   !vv.valOps.isTransient(),
+                   vv.hasDelta() {
+                    hasDelta = true
+                    break // only need to check for first occurence
+                }
+            }
         }
+        // need to set hasDelta for all descendants
         for child in children {
-            changes += child.countDeltas()
+            if child.hasDeltas() {
+                hasDelta = true
+            }
         }
-        return changes
+        return hasDelta
+    }
+
+    @discardableResult
+    public func scriptCompact(_ scriptOps: FloScriptOps = []) -> String {
+        var ops: FloScriptOps = [.parens, .compact, .noLF]
+        ops.insert(scriptOps)
+        return scriptRoot(ops)
     }
     @discardableResult
-    public func scriptRoot(_ scriptOpts: FloScriptOps = []) -> String {
+    public func scriptRoot(_ ops: FloScriptOps) -> String {
+
         var script = ""
-        if scriptOpts.delta {
-            changes = countDeltas()
+        if ops.delta {
+            hasDelta = hasDeltas()
             for child in children {
-                if child.changes > 0 {
-                    let childScript = child.scriptFlo(scriptOpts)
+                if child.hasDelta {
+                    let childScript = child.scriptFlo(ops)
                     script.spacePlus(childScript)
                 }
             }
         } else {
             for child in children {
-                let childScript = child.scriptFlo(scriptOpts)
+                let childScript = child.scriptFlo(ops)
                 script.spacePlus(childScript)
             }
         }
@@ -261,10 +281,12 @@ extension Flo {
     ///
     public func scriptFlo(_ scriptOpts: FloScriptOps) -> String {
 
-        if scriptOpts.delta && changes == 0 { return "" }
+        if scriptOpts.delta, !hasDelta {
+             return ""
+        }
 
         var script = name
-        if scriptOpts.copyAt {
+        if scriptOpts.def {
             script.spacePlus(getCopiedFrom())
         }
         let scriptVal = val?.scriptVal(scriptOpts) ?? ""

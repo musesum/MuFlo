@@ -27,8 +27,8 @@ public struct FloEdgeOps: OptionSet {
             case ">","→": insert(.output)  // call out
             case "⟡"    : insert(.solo)    // overwrite
             case "!"    : insert(.exclude) // remove edge(s) //TODO: test
-            case "@"    : insert(.copyat)  // edge to ternary condition
-            case "^"    : insert(.plugin) // edge to ternary condition
+            case "@"    : insert(.copyat)  // copy from another subtree
+            case "^"    : insert(.plugin)  // plug-in redirects expression vals
             default     : continue
             }
         }

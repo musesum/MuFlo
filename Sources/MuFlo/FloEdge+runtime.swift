@@ -17,8 +17,8 @@ extension FloEdge {
         let destFlo = leftToRight ? rightFlo : leftFlo
 
         if edgeOps.plugin,
-           let leftExprs = leftFlo.val as? FloValExprs,
-           let rightExprs = rightFlo.val as? FloValExprs {
+           let leftExprs = leftFlo.val,
+           let rightExprs = rightFlo.val {
             if leftExprs.plugin == nil {
                 leftExprs.plugin = FloPlugin(leftExprs,rightExprs)
             }
@@ -40,22 +40,21 @@ extension FloEdge {
         /// apply fromFlo values to edge expressions
         /// such as applyihg `b(v 1)` to `a(x:v),`
         /// for `a(x,y), b(v 0) >> a(x:v)`
-        func assignNameVals() -> FloVal? {
+        func assignNameVals() -> FloValExprs? {
 
-            if let defVal {
+            if let edgeVal {
 
-                if let defExprs = defVal as? FloValExprs,
-                   let frExprs = fromFlo.val as? FloValExprs {
+                if let frExprs = fromFlo.val {
 
-                    for (name,val) in defExprs.nameAny {
+                    for (name,val) in edgeVal.nameAny {
                         if (val as? String) == "" {
                             if let frVal = frExprs.nameAny[name] {
-                                defExprs.nameAny[name] = frVal
+                                edgeVal.nameAny[name] = frVal
                             }
                         }
                     }
                 }
-                return defVal
+                return edgeVal
             }
             return fromFlo.val
         }

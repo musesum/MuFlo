@@ -26,8 +26,8 @@ public class Flo {
     public var dispatch: FloDispatch? // Global dispatch for each root
 
     public var name = ""
-    public var val: FloVal? = nil
-    public var parent: Flo? = nil   // parent flo
+    public var val: FloValExprs?
+    public var parent: Flo?         // parent flo
     public var children = [Flo]()   // expanded flo from  wheres˚flo
     public var comments = FloComments()
 
@@ -42,19 +42,18 @@ public class Flo {
     public var bool    : Bool     { get { BoolVal()             }}
     public var names   : [String] { get { NamesVal()   ?? []    }}
 
-    public var scriptCurrent: String { scriptRoot([.parens, .current, .edge, .comment, .compact, .noLF]) }
-    public var scriptDef: String { scriptRoot([.parens, .def, .edge, .comment, .compact, .noLF]) }
-    public var scriptAll: String { scriptRoot([.parens, .def, .current, .edge, .comment, .compact, .noLF]) }
-    public var scriptDelta: String { scriptRoot([.parens, .current, .delta, .compact, .noLF])}
-
+    public var scriptCurrent: String { scriptCompact([        .current, .edge, .comment]) }
+    public var scriptDef    : String { scriptCompact([.def  ,           .edge, .comment]) }
+    public var scriptAll    : String { scriptCompact([.def  , .current, .edge, .comment]) }
+    public var scriptDelta  : String { scriptCompact([.delta, .current          ]) } //...
 
     private var time = TimeInterval(0)  // UTC time of last change time
     public func updateTime() {
         time = Date().timeIntervalSince1970
     }
 
-    var changes: UInt = 0           // temporary count of changes to descendants
-    var pathRefs: [Flo]?            // b in `a.b <-> c` for `a{b{c}} a.b <-> c
+    var hasDelta = false            // any changes to descendants?
+    var pathRefs: [Flo]?            // b in `a.b <> c` for `a{b{c}} a.b <> c
     var passthrough = false         // does not have its own FloVal, so pass through events
     var cacheVal: Any? = nil        // cached value is drained
     var edgeDefs = FloEdgeDefs()    // for a<-(b.*++), this saves "++" and "b.*)
@@ -90,11 +89,6 @@ public class Flo {
         edgeDefs = from.edgeDefs.copy()
         comments = from.comments
     }
-    public convenience init(with: FloVal) {
-        self.init()
-        val = FloVal(with: with)
-    }
-
     public func makeFloFrom(parItem: ParItem) -> Flo {
 
         if let value = parItem.value {

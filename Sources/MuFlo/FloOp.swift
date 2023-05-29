@@ -31,9 +31,9 @@ enum FloOp: String {
     
     init(_ op: String) { self = FloOp(rawValue: op) ?? .none }
     
-    enum FloOpType { case none, pathName, literal, condition, operation, endop }
+    public enum FloOpType { case none, pathName, literal, condition, operation, endop }
     
-    var opType: FloOpType {
+    public var opType: FloOpType {
 
         switch self {
         case .quote, .scalar, .num:            return .literal

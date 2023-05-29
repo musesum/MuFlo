@@ -24,10 +24,25 @@ public class FloOpAny {
         
         switch op {
         case .name   : return any as? String ?? ""
-        case .quote  : return "\"\(any as? String ?? "")\""
-        case .scalar : return (any as? FloValScalar)?.scriptScalar(scriptOps, script) ?? ""
-        case .comma  : return op.rawValue
+        case .quote  : return scriptQuote()
+        case .scalar : return scriptScalar()
+        case .comma  : return op.rawValue + " "
+        case .EQ     : return op.rawValue
+        case .assign : return op.rawValue + " "
         default      : return scriptOps.def ? op.rawValue : ""
+        }
+
+        func scriptScalar() -> String {
+            if let scalar = any as? FloValScalar {
+                return scalar.scriptScalar(scriptOps, script)
+            }
+            return ""
+        }
+        func scriptQuote() -> String {
+            if let str = any as? String {
+                return "\"\(str)\""
+            }
+            return ""
         }
     }
 

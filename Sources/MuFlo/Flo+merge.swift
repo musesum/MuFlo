@@ -83,9 +83,10 @@ extension Flo {
 
     func bindCopyat() -> [Flo] {
 
-        if let found = bindFindPath() {
-        
-            parent?.copied.append(self)
+        if let found = bindFindPath(),
+           let parent {
+
+            parent.copied.append(self)
 
             if  found.count == 1,
                 found.first?.id == id,
@@ -94,8 +95,8 @@ extension Flo {
                 type = .name
                 return [self]
             }
-            /// : _c in `a.b { _c { c1 c2 } c { d e } : _c }`
-            if found.count > 0, let parent = parent {
+            /// `: _c` in `a.b { _c { c1 c2 } c { d e } : _c }`
+            if found.count > 0 {
 
                 var newChildren = [Flo]()
                 for foundi in found {
@@ -107,7 +108,7 @@ extension Flo {
                 return newChildren
             }
         }
-        // @e in `a { b { c {c1 c2} d } } a@e`
+        /// `@e` in `a { b { c {c1 c2} d } } a@e`
         return [self]
     }
 
@@ -186,17 +187,16 @@ extension Flo {
     /// found unique name
     func bindName(_ siblings: [Flo]) -> [Flo] {
 
-            for sibling in siblings {
-                // sibling is candidate, no need to search anymore
-                if sibling.id == id {
-                    return [self]
-                }
-                // found sibling with same name so merge
-                if sibling.name == name {
-                    sibling.mergeSibling(self)
-                    return []
-                }
-
+        for sibling in siblings {
+            // sibling is candidate, no need to search anymore
+            if sibling.id == id {
+                return [self]
+            }
+            // found sibling with same name so merge
+            if sibling.name == name {
+                sibling.mergeSibling(self)
+                return []
+            }
         }
         // didn't find matching sibling so is unique
         return [self]
@@ -401,7 +401,7 @@ extension Flo {
     public func bindDefaults(_ visit: Visitor) {
         bindVal(val)
         for edge in floEdges {
-            bindVal(edge.value.defVal)
+            bindVal(edge.value.edgeVal)
         }
         for child in children {
             child.bindDefaults(visit)
@@ -419,7 +419,7 @@ extension Flo {
     public func bindNexts() {
         bindVal(val)
         for edge in floEdges {
-            bindVal(edge.value.defVal)
+            bindVal(edge.value.edgeVal)
         }
         for child in children {
             child.bindNexts()

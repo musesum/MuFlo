@@ -41,29 +41,30 @@ extension FloValExprs { // + set
         var myAny: Any?
         var myName: String?
         var opNow = FloOp.none
+        var anonId = 0  /// _0:`2` in `a(1) b >> a(2)`
 
         for i in 0...opAnys.count {
 
             if i==opAnys.count {
-                endParameter()
+                exprFinish()
                 setSetters(mySetters, visit)
                 return true
             }
-            let expr = opAnys[i]
+            let opAny = opAnys[i]
 
-            switch expr.op.opType {
+            switch opAny.op.opType {
                 case .literal   : if !exprLiteral() { return false }
-                case .condition : opNow = expr.op
-                case .operation : opNow = expr.op
+                case .condition : opNow = opAny.op
+                case .operation : opNow = opAny.op
                 case .pathName  : if !exprName() { return false }
-                case .endop     : endParameter()
+                case .endop     : exprFinish()
                 case .none      : break
             }
 
             /// match from and to parameters
             func exprName() -> Bool {
                 
-                if let name = expr.any as? String {
+                if let name = opAny.any as? String {
 
                     if myName == nil {
                         myName = name
@@ -72,7 +73,7 @@ extension FloValExprs { // + set
                     let nameAny = frExprs?.nameAny ?? nameAny
                     if let frVal = nameAny[name] {
                         if opNow != .none {
-                            toAny = expr.evaluate(toAny ?? myAny, frVal, opNow)
+                            toAny = opAny.evaluate(toAny ?? myAny, frVal, opNow)
                             opNow = .none
                             return toAny != nil
                         } else {
@@ -85,15 +86,26 @@ extension FloValExprs { // + set
 
             /// evaluate numbers and strings, return false if should abort expression
             func exprLiteral() -> Bool  {
+                if toAny == nil, myAny == nil {
+                    anonLiteral()
+                    return true
+                }
                 let frVal = toAny ?? myAny
-                toAny = expr.evaluate(expr.any, frVal, opNow)
+                toAny = opAny.evaluate(opAny.any, frVal, opNow)
                 return toAny != nil
+            }
+            func anonLiteral() {
+                if let frExprs,
+                   let frAny = frExprs.nameAny["_\(anonId)"] {
+                    toAny = frAny
+                    myName = "_\(anonId)"
+                    anonId += 1
+                }
             }
         }
         return true
 
-        /// reset current values after comma
-        func endParameter() {
+        func exprFinish() {
             if let myName, let toAny {
                 mySetters.append((myName,toAny))
             }
@@ -101,6 +113,7 @@ extension FloValExprs { // + set
             opNow = .none
             myName = nil
             toAny = nil
+            anonId = 0
         }
     }
 
@@ -110,28 +123,28 @@ extension FloValExprs { // + set
 
         let ops: FloValOps = (plugin == nil ? [.now_, .next] : [.next])
         for (name,val) in mySetters {
-
+            
             switch val {
-                case let val as FloValScalar:
-                    if let toVal = nameAny[name] as? FloVal {
-                        /// `x` in `a(x 1) << b`
+            case let val as FloValScalar:
+                if let toVal = nameAny[name] as? FloVal {
+                    /// `x` in `a(x 1) << b`
+                    toVal.setVal(val, visit, ops)
+                } else {
+                    /// `x` in `a(x) << b`
+                    nameAny[name] = val.copy()
+                }
+            case let val as Double:
+                
+                nameAny[name] = FloValScalar(flo, name, val)
+                
+            case let val as String:
+                if let toVal = nameAny[name] as? FloVal {
+                    if !val.isEmpty {
+                        /// `x` in `a(x in 2…4) << b, b(x 3)`
                         toVal.setVal(val, visit, ops)
-                    } else {
-                        /// `x` in `a(x) << b`
-                        nameAny[name] = val.copy()
                     }
-                case let val as Double:
-
-                    nameAny[name] = FloValScalar(flo, name, val)
-
-                case let val as String:
-                    if let toVal = nameAny[name] as? FloVal {
-                        if !val.isEmpty {
-                            /// `x` in `a(x in 2…4) << b, b(x 3)`
-                            toVal.setVal(val, visit, ops)
-                        }
-                    }
-                default : break
+                }
+            default : break
             }
         }
     }

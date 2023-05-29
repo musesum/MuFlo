@@ -50,7 +50,7 @@ public class FloEdgeDefs {
      */
     public func parseEdgeExprs(_ flo: Flo) {
         if let pathVals = edgeDefs.last?.pathVals {
-            pathVals.add(val: FloValExprs(flo, "edge"))
+            pathVals.addPathVal("", FloValExprs(flo, "edge"))
         } else {
             print("🚫 \(#function) no edgeDefs to add edge")
         }
@@ -75,7 +75,7 @@ public class FloEdgeDefs {
         }
     }
 
-    /// connect direct or ternary edges
+    /// connect direct edges
     func bindEdges(_ flo: Flo) {
         for edgeDef in edgeDefs {
             edgeDef.connectEdges(flo)

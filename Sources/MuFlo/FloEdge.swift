@@ -17,7 +17,7 @@ public class FloEdge: Hashable {
     var active = true
     var leftFlo: Flo
     var rightFlo: Flo
-    var defVal: FloVal?
+    var edgeVal: FloValExprs?
 
     public static var LineageDepth = 99 
 
@@ -33,7 +33,7 @@ public class FloEdge: Hashable {
 
         self.init(with.leftFlo, with.rightFlo, with.edgeOps)
         self.active = with.active
-        self.defVal = with.defVal
+        self.edgeVal = with.edgeVal
         makeKey()
     }
 
@@ -49,10 +49,10 @@ public class FloEdge: Hashable {
     convenience init(_ def: FloEdgeDef,
                      _ leftFlo: Flo,
                      _ rightFlo: Flo,
-                     _ floVal: FloVal?) {
+                     _ edgeVal: FloValExprs?) {
 
         self.init(leftFlo, rightFlo, def.edgeOps)
-        self.defVal = floVal
+        self.edgeVal = edgeVal
         makeKey()
     }
     func makeKey() {
