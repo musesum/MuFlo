@@ -22,12 +22,13 @@ extension FloEdge {
             if leftExprs.plugin == nil {
                 leftExprs.plugin = FloPlugin(leftExprs,rightExprs)
             }
-        } else if  leftToRight && edgeOps.output ||
+        } else if leftToRight && edgeOps.output ||
                     rightToLeft && edgeOps.input {
 
-            let val = assignNameVals()
+            let fromVal = assignNameVals()
+            let viaEdge = fromVal == edgeVal
 
-            if  destFlo.setEdgeVal(val, visit) {
+            if  destFlo.setEdgeVal(fromVal, viaEdge, visit) {
                 destFlo.activate(visit)
 
             } else {
@@ -35,28 +36,29 @@ extension FloEdge {
                 /// for example, when cc != 13 for
                 /// `repeatX(cc == 13, val 0…127, chan, time)`
             }
-        }
 
-        /// apply fromFlo values to edge expressions
-        /// such as applyihg `b(v 1)` to `a(x:v),`
-        /// for `a(x,y), b(v 0) >> a(x:v)`
-        func assignNameVals() -> FloValExprs? {
 
-            if let edgeVal {
+            /// apply fromFlo values to edge expressions
+            /// such as applyihg `b(v 1)` to `a(x:v),`
+            /// for `a(x,y), b(v 0) >> a(x:v)`
+            func assignNameVals() -> FloValExprs? {
 
-                if let frExprs = fromFlo.val {
+                if let edgeVal {
 
-                    for (name,val) in edgeVal.nameAny {
-                        if (val as? String) == "" {
-                            if let frVal = frExprs.nameAny[name] {
-                                edgeVal.nameAny[name] = frVal
+                    if let frExprs = fromFlo.val {
+
+                        for (name,val) in edgeVal.nameAny {
+                            if (val as? String) == "" {
+                                if let frVal = frExprs.nameAny[name] {
+                                    edgeVal.nameAny[name] = frVal
+                                }
                             }
                         }
                     }
+                    return edgeVal
                 }
-                return edgeVal
+                return fromFlo.val
             }
-            return fromFlo.val
         }
     }
 }

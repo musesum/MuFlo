@@ -25,16 +25,11 @@ public struct FloValOps: OptionSet {
     public static let lit  = FloValOps(rawValue: 1 <<  9) // literal value
     public static let anim = FloValOps(rawValue: 1 << 10) // animated
 
-    func hasDef() -> Bool {
-        let defset: FloValOps = [.thru, .thri, .modu, .min, .max, .dflt]
-        return (self.rawValue & defset.rawValue) > 0
-    }
-
     /// Some values like midi.note.on midi.note.off should not persist transient values.
     /// So, when saving FloScriptOps.delta, ignore a transient node.
     /// Otherwise, restoring from a .delta could activate stale values,
     /// such as a stale midi.note.on
-    func isTransient() -> Bool {
+    var isTransient: Bool {
         let defset: FloValOps = [.now_, .next, .lit]
         return (self.rawValue & defset.rawValue) == 0
     }
@@ -68,6 +63,12 @@ extension FloValOps: CustomStringConvertible {
         (.lit , "lit" ),
         (.anim, "anim"),
     ]
+
+   
+    var hasDef: Bool {
+        let defOps: FloValOps = [.min, .thru, .thri, .modu, .max, .dflt]
+        return self.intersection(defOps).rawValue > 0
+    }
 
     public var description: String {
         let result: [String] = Self.debugDescriptions.filter { contains($0.0) }.map { $0.1 }

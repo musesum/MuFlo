@@ -122,8 +122,8 @@ public class Flo {
 
     /** attach future children to parent's children, for a many:many relationship
 
-         a { b c } : { d e }      ⟹  a { b { d e } c { d e } }
-         a { b { c } } : { d e }  ⟹  a { b { c { d e } } }
+         a { b c } . { d e }      ⟹  a { b { d e } c { d e } }
+         a { b { c } } . { d e }  ⟹  a { b { c { d e } } }
 
     initial step is to create a placeholder _:_ for { d e }
 
@@ -181,6 +181,8 @@ public class Flo {
     /// There are two main usescases:
     ///    1) app saves .delta and restores .now values
     ///    2) another devices wants to synchronize state
+    ///
+    ///... still used in DeepMuse?
     ///
     public func bindDispatch(_ prior: Flo? = nil) {
 

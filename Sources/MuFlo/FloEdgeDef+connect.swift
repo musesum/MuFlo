@@ -53,9 +53,9 @@ extension FloEdgeDef {
     func connectEdges(_ flo: Flo)  {
         
         // non ternary edges
-        if pathVals.pathVal.count > 0 {
+        if pathVals.edgeVals.count > 0 {
             
-            for (path,val) in pathVals.pathVal {
+            for (path,val) in pathVals.edgeVals {
                 if let pathRefs = flo.pathRefs {
                     for pathRef in pathRefs {
                         let rightFlos = pathRef.findPathFlos(path, [.parents, .children])

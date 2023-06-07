@@ -32,14 +32,30 @@ public class FloValScalar: FloVal {
         self.next = num
     }
 
-    init (with scalar: FloValScalar) {
+    init (with scalar: FloValScalar, viaEval: Bool = false) {
         super.init(scalar.flo, scalar.name)
         valOps = scalar.valOps // use default values
+        if viaEval { valOps -= .lit }
         min    = scalar.min
         max    = scalar.max
         dflt   = scalar.dflt
         now    = scalar.now
         next   = scalar.next
+    }
+    /// `next` matches either `dflt` or `min`
+    ///
+    ///     - note: minimal script that will parse the same
+    ///     
+    var redundantNext: Bool {
+
+        if valOps.lit {
+            return next == dflt
+        } else if valOps.dflt {
+            return next == dflt
+        } else if (next == min) || (next == 0 && max >= 0) {
+            return true
+        }
+        return false
     }
 
     public func normalized() -> Double {
@@ -129,41 +145,51 @@ public class FloValScalar: FloVal {
             print("*** \(flo.name) [\(scriptOps.description)].[\(valOps.description)] : \(next)")
         }
 
-        let script = scriptScalar(scriptOps)
+        let script = scriptScalar(scriptOps, scriptOps)
         return (noParens ? script
                 : script.isEmpty ? script
                 : scriptOps.parens ? "(\(script))"
                 : script)
     }
 
-    func scriptScalar(_ scriptOps: FloScriptOps,
-                      _ script: String = "") -> String {
+    /// script scalar definition and/or current value
+    ///
+    ///  - parameters:
+    ///     - allOps: all options for all passes and maybe next pass
+    ///     - nowOps: only options for this pass
+    ///
+    ///   - note: maybe called to get definition, current value, or both.
+    ///
+    func scriptScalar(_ allOps: FloScriptOps,
+                      _ nowOps: FloScriptOps) -> String {
+
         var str = ""
         if valOps.rawValue == 0   { return "" }
-       
-        if scriptOps.def {
+
+        if nowOps.def {
             if valOps.min  { str += min.digits(0...6) }
             if valOps.thru { str += "…" } /// `…` is `⌥⃣;` on mac
             if valOps.thri { str += "_" } /// integer range for midi
             if valOps.modu { str += "%" } /// modulo
             if valOps.max  { str += max.digits(0...6) }
             if valOps.dflt { str += "~" + dflt.digits(0...6) }
-            //... if valOps.lit  { str += next.digits(0...6) }
+            if valOps.lit, !valOps.next { str += now.digits(0...6) }
+        } else if allOps.onlyCurrent, valOps.lit, !valOps.next {
+            str += now.digits(0...6)
         }
-        if scriptOps.current {
 
-            if valOps.next || valOps.lit {
-                str += (valOps == .lit ||
-                        str.isEmpty && script.isEmpty ||
-                        script.hasSuffix(": "))
-                ? "" : ":"
-                str += next.digits(0...6)
-            } else if script.isEmpty {
+
+        if valOps.next, !redundantNext {
+            if allOps.onlyDef  {
+                str += str.isEmpty ? "" : ":"
+                str +=  next.digits(0...6)
+            } else if nowOps.current {
                 str += next.digits(0...6)
             }
         }
         return str
     }
+    
     override public func hasDelta() -> Bool {
         if valOps.next {
             if valOps.dflt {
@@ -247,6 +273,9 @@ public class FloValScalar: FloVal {
 
     public override func copy() -> FloValScalar {
         return FloValScalar(with: self)
+    }
+    public func copyEval() -> FloValScalar { //...
+        return FloValScalar(with: self, viaEval: true)
     }
 }
 extension FloValScalar {

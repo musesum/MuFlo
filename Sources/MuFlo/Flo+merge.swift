@@ -207,7 +207,9 @@ extension Flo {
 
         func mergeDuplicate(_ priorFlo: Flo, _ kid: Flo) {
             // override old value with new value if it exists
-            if let val = kid.val { priorFlo.val = val }
+            if let val = kid.val {
+                priorFlo.val = val
+            }
             // add new edge definitions
             priorFlo.edgeDefs.mergeEdgeDefs(kid.edgeDefs)
             // append children

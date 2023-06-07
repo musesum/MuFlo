@@ -14,17 +14,15 @@ extension FloValExprs {
     func addDeepScalar(_ scalar: FloValScalar) {
         let opAny = FloOpAny(scalar: scalar)
         opAnys.append(opAny)
-        nameAny[nameAny.keys.last ?? anonKey] = scalar
+        let key = nameAny.keys.last ?? anonKey
+        nameAny[key] = scalar
     }
     func addAnonScalar(_ scalar: FloValScalar) {
         let opAny = FloOpAny(scalar: scalar)
         opAnys.append(opAny)
         nameAny[anonKey] = scalar
     }
-    func addNameNum(_ name: String, _ num: Double) {
-        addName(name)
-        addDeepScalar(FloValScalar(flo, name, num))
-    }
+   
     func injectNameNum(_ name: String, _ num: Double) {
         if let val = nameAny[name] as? FloValScalar {
             val.now = num
@@ -49,7 +47,8 @@ extension FloValExprs {
         if let quote = quote?.without(trailing: " ")  {
             let opAny = FloOpAny(quote: quote)
             opAnys.append(opAny)
-            nameAny[nameAny.keys.last ?? anonKey] = quote
+            let key = nameAny.keys.last ?? anonKey
+            nameAny[key] = quote
         }
     }
     func addName(_ name: String?) {
@@ -57,6 +56,7 @@ extension FloValExprs {
         guard let name else { return }
         let opAny = FloOpAny(name: name)
         opAnys.append(opAny)
+
 
         if !nameAny.keys.contains(name) {
             nameAny[name] = ""

@@ -48,6 +48,25 @@ extension String {
             .lowercased()
     }
 
+    func roundColonSpace() -> String {
+        if self.hasSuffix(": ") { return ""  }
+        if self.hasSuffix(":")  { return " " }
+        else                    { return ": "}
+    }
+    func singleSuffix(_ suf: String) -> String {
+        var result = self
+        if hasSuffix(suf) { return result }
+        var dropCount = 0
+        for char in result.reversed() {
+            if suf.contains(char) {
+                dropCount += 1
+            } else {
+               break
+            }
+        }
+        return String(result.dropLast(dropCount)) + suf
+    }
+
     /// transform `" one  two   three  "` => `"one two three"`
     public func removeLines() -> String {
         var result = ""

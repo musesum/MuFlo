@@ -36,35 +36,62 @@ extension FloValExprs {
 
         var script = ""     // result
         var position = 0
-        var exprName: String?  // comma will reset
-        var exprAny: Any?
+        var assigned = false
+        var named = ""
 
         for opAny in opAnys {
             switch opAny.op {
-            case .comma                 : finishExpr()
-            case .name, .path           : exprName = exprName ?? opAny.any as? String
-            case .quote, .scalar, .num  : exprAny = exprAny ?? opAny.any
-            default                     : break
+            case .comma: finishExpr()
+            case .assign: assigned = true
+            case .name: if !assigned { named = opAny.any as? String ?? "??" }
+            default: break
             }
             if scriptOps.def {
-                script += opAny.scriptOps(scriptOps.onlyDef, script)
+                let str = opAny.scriptDefOps(scriptOps, script)
+                if str.first == "," || str.first == ":"  {
+                    script += str
+                } else {
+                    script.spacePlus(str)
+                }
+            } else if scriptOps.current, opAny.op == .comma {
+                script += ", "
             }
+
         }
         finishExpr()
-
         return script
 
         func finishExpr() {
             if scriptOps.current,
                position < nameAny.values.count {
-                if let val = nameAny.values[position] as? FloValScalar {
-                    
-                    let str = val.scriptScalar(scriptOps.onlyCurrent, script)
-                    script += str
+
+                let keyStr = nameAny.keys[position]
+                let nameStr = !scriptOps.def ? keyStr : ""
+                let scalar =  (named != ""
+                               ? nameAny[named] as? FloValScalar
+                               : nameAny.values[position] as? FloValScalar)
+                logFinish(scalar, keyStr)
+
+                let numStr = scalar?.scriptScalar(scriptOps, .current) ?? ""
+
+                if  nameStr.count > 0 && nameStr.first != "_" {
+                    script.spacePlus(nameStr + (numStr.isEmpty ? "" : ": " + numStr))
+                } else if numStr.count > 0 {
+                    if keyStr.first == "_", script.isEmpty {
+                        script += numStr
+                    } else {
+                        script += script.roundColonSpace() + numStr
+                    }
                 }
             }
-            exprName = nil
+            assigned = false
+            named = ""
             position += 1
+
+            func logFinish(_ scalar: FloValScalar?, _ keyStr: String) {
+                guard let scalar else { return }
+                print("script: \"\(script)\"  \(keyStr).\(scalar.id): [\(scalar.valOps.description ?? "")] now:\(scalar.now) next:\(scalar.next) dflt:\(scalar.dflt) named:\(named)")
+            }
         }
     }
 

@@ -7,7 +7,7 @@
 import Foundation
 
 public class FloOpAny {
-
+    
     var op = FloOp.none
     var any: Any?
     
@@ -18,9 +18,9 @@ public class FloOpAny {
     init(scalar : FloValScalar) { self.op = .scalar ; any = scalar }
     init(from   : FloOpAny)     { self.op = from.op ; any = from.any }
     func copy() -> FloOpAny     { return FloOpAny(from: self) }
-
-    func scriptOps(_ scriptOps: FloScriptOps,
-                   _ script: String) -> String {
+    
+    func scriptDefOps(_ fullOps: FloScriptOps,
+                      _ script: String) -> String {
         
         switch op {
         case .name   : return any as? String ?? ""
@@ -29,12 +29,12 @@ public class FloOpAny {
         case .comma  : return op.rawValue + " "
         case .EQ     : return op.rawValue
         case .assign : return op.rawValue + " "
-        default      : return scriptOps.def ? op.rawValue : ""
+        default      : return fullOps.def ? op.rawValue : ""
         }
-
+        
         func scriptScalar() -> String {
             if let scalar = any as? FloValScalar {
-                return scalar.scriptScalar(scriptOps, script)
+                return scalar.scriptScalar(fullOps, .def)
             }
             return ""
         }
@@ -45,6 +45,6 @@ public class FloOpAny {
             return ""
         }
     }
-
+    
 }
 

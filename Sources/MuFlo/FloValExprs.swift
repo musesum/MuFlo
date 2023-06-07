@@ -26,6 +26,7 @@ public class FloValExprs: FloVal {
 
     override init(_ flo: Flo, _ name: String) {
         super.init(flo, "_\(flo.name)")
+        
     }
     init(from: FloValExprs) {
         super.init(with: from)
@@ -58,7 +59,8 @@ public class FloValExprs: FloVal {
             if opAnys.count > 0 {
                 addOpStr(",")
             }
-            addNameNum(name, num)
+            addName(name)
+            addDeepScalar(FloValScalar(flo, name, num))
         }
     }
 
@@ -120,11 +122,11 @@ public class FloValExprs: FloVal {
     }
 
     @discardableResult
-    public override func setVal(_ any: Any?,
+    public override func setVal(_ fromVal: Any?,
                                 _ visit: Visitor,
                                 _ _: FloValOps) -> Bool {
 
-        guard let any else { return false }
+        guard let fromVal else { return false }
         if !visit.newVisit(self.id) { return false }
 
         if !visit.from.tween,
@@ -132,12 +134,12 @@ public class FloValExprs: FloVal {
            let plugin {
 
             visit.from += .tween
-            setAnyVisit(any, visit)
+            setFromVisit(fromVal, visit)
             logNextNows(visit.log)
             plugin.startPlugin(id)
             return true
 
-        } else if setAnyVisit(any, visit) {
+        } else if setFromVisit(fromVal, visit) {
 
             if !visit.from.tween {
                 setNow()
@@ -156,7 +158,7 @@ public class FloValExprs: FloVal {
     }
 
     @discardableResult
-    func setAnyVisit(_ any: Any,
+    func setFromVisit(_ any: Any,
                      _ visit: Visitor) -> Bool {
 
         switch any {
@@ -180,8 +182,7 @@ public class FloValExprs: FloVal {
     func setExprs(_ fromExprs: FloValExprs,
                   _ visit: Visitor) -> Bool {
 
-        // first evaluate source expression values
-        fromExprs.evalExprs(nil,visit)
+
         // next evalute destination expression result
         let result = evalExprs(fromExprs, visit)
         if result == false {

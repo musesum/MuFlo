@@ -32,6 +32,15 @@ extension FloValExprs { // + set
 
       - note: failed conditional will abort all setters and should abort activate edges
      */
+
+    func evalFromExprs(_ viaEdge: Bool,
+                       _ visit: Visitor) {
+
+            let edgeVal = viaEdge ? flo.val : nil
+            evalExprs(edgeVal, visit) //....
+        
+    }
+
     @discardableResult
     func evalExprs(_ frExprs: FloValExprs?,
                    _ visit: Visitor) -> Bool {
@@ -131,7 +140,7 @@ extension FloValExprs { // + set
                     toVal.setVal(val, visit, ops)
                 } else {
                     /// `x` in `a(x) << b`
-                    nameAny[name] = val.copy()
+                    nameAny[name] = val.copyEval()
                 }
             case let val as Double:
                 

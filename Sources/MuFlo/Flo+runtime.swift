@@ -82,6 +82,7 @@ extension Flo {
 
     @discardableResult
     func setEdgeVal(_ fromVal: FloValExprs?,
+                    _ viaEdge: Bool, 
                     _ visit: Visitor) -> Bool {
 
         if visit.wasHere(id) { return false }
@@ -91,49 +92,9 @@ extension Flo {
             val = fromVal       // spoof my val as fromVal
             return true
         }
+        // first evaluate source expression values
+        fromVal.evalFromExprs(viaEdge, visit)
         return val.setVal(fromVal, visit, [.next])
     }
-
-//...    @discardableResult
-//    func setEdgeValOLD(_ fromVal: FloVal?,
-//                    _ visit: Visitor) -> Bool {
-//
-//        if visit.wasHere(id) { return false }
-//        guard let fromVal else { return true }
-//        guard let val else {
-//            passthrough = true  // no defined value so pass though
-//            val = fromVal       // spoof my val as fromVal
-//            return true
-//        }
-//
-//        switch val {
-//
-//        case let v as FloValExprs:
-//
-//            if let fromExprs = fromVal as? FloValExprs {
-//                return v.setVal(fromExprs, visit, [.next])
-//            }
-//
-//        case let v as FloValScalar:
-//
-//            if let fromScalar = fromVal as? FloValScalar {
-//                return v.setVal(fromScalar, visit, [.now_, .next])
-//            }
-//            else if let fromExprs = fromVal as? FloValExprs {
-//                for val in fromExprs.nameAny.values {
-//                    if let fromScalar = val as? FloValScalar {
-//                        return v.setVal(fromScalar, visit, [.now_, .next])
-//                    }
-//                }
-//            }
-//        case let v as FloValData:
-//
-//            if let fr = fromVal as? FloValData {
-//                return v.setVal(fr, visit, [.now_, .next])
-//            }
-//        default: break
-//        }
-//        return true
-//    }
 
 }

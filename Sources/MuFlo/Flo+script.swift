@@ -234,7 +234,7 @@ extension Flo {
             for v in val.nameAny.values {
                 // does expression have a delta
                 if let vv = v as? FloValScalar,
-                   !vv.valOps.isTransient(),
+                   !vv.valOps.isTransient,
                    vv.hasDelta() {
                     hasDelta = true
                     break // only need to check for first occurence

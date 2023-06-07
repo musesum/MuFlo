@@ -49,13 +49,18 @@ extension FloScriptOps: CustomStringConvertible {
     var delta   : Bool { contains(.delta  ) }
     var noLF    : Bool { contains(.noLF   ) }
 
-    var onlyCurrent: FloScriptOps {
-        FloScriptOps(rawValue: rawValue & FloScriptOps.current.rawValue)
-    }
+    var onlyDef     : Bool {  def && !current }
+    var onlyCurrent : Bool { !def &&  current }
 
-    var onlyDef: FloScriptOps {
-        FloScriptOps(rawValue: rawValue & FloScriptOps.def.rawValue)
-    }
+
+//
+//    var onlyCurrent: FloScriptOps {
+//        FloScriptOps(rawValue: rawValue & FloScriptOps.current.rawValue)
+//    }
+//
+//    var onlyDef: FloScriptOps {
+//        FloScriptOps(rawValue: rawValue & FloScriptOps.def.rawValue)
+//    }
 
 }
 

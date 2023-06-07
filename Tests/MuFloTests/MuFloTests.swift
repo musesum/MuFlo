@@ -135,15 +135,18 @@ final class MuFloTests: XCTestCase {
 
     func testParseShort() { headline(#function)
         var err = 0
+        err += test("a(0…1~0:1)", nil, [.parens, .def, .current])
+        err += test("b(0…1~0.2:0.3)")
         err += test("a b << a(* 10)")
 
         err += test("a(1)")
-        err += test("b(0…1)")
+        err += test("b(0…1)", nil, [.parens, .def])
         err += test("a(x,y,z)<<(x,y,z) x(1) y(2) z(3)")
         err += test("b(x / 2) a << b(x / 2)")
         err += test("a(0…1~0:1)", nil, [.parens, .def, .current])
 
         err += test("cell.one(1).two(2).three(3)", nil, [.parens, .current, .compact])
+
 
         err += test("a(0…1~0:1)", nil, [.parens, .def, .current])
 
@@ -164,7 +167,7 @@ final class MuFloTests: XCTestCase {
                     "a { b { d } c { d } }")
 
         err += test("a { b c } a.* { d(0…1) >> a˚on(0) }",
-                    "a { b { d(0…1) >> a˚on(0) } c { d(0…1) >> a˚on(0) } }")
+                    "a { b { d(0…1) >> a˚on(0) } c { d(0…1) >> a˚on(0) } }",[.parens, .edge, .comment, .def, .noLF] )
 
         err += test("a { b c } a˚.{ d(0…1) >> a˚.on(0) }",
                     "a { b { d(0…1) >> a˚.on(0) } c { d(0…1) >> a˚.on(0) } }")
@@ -287,6 +290,9 @@ final class MuFloTests: XCTestCase {
 
     func testParseValues() { headline(#function)
         var err = 0
+        err += test("e (x -16…16, y -16…16)")
+
+
         err += test("a (1)")
         err += test("a (1…2)")
         err += test("a (1_2)") // integer range
@@ -332,6 +338,12 @@ final class MuFloTests: XCTestCase {
 
     func testParsePaths() { headline(#function)
         var err=0
+
+        err += test("a { b c } a˚.{ d(0…1) >> a˚.on(2) }",
+                    "a { b { d(0…1) >> a˚.on(2) } c { d(0…1) >> a˚.on(2) } }")
+
+        err += test("aa { a(1) } bb@aa { a(2) }") //....
+        
         err += test("a { b { c { c1 c2 } d } } a e",
                     "a { b { c { c1 c2 } d } } e")
 
@@ -603,7 +615,7 @@ final class MuFloTests: XCTestCase {
     func testCopyAt0() { headline(#function)
         var err = 0
         // selectively set tuples by name, ignore the reset
-        let script = "a { b(1) } c@a"
+        let script = "a { b(1) } c@a <@a"
         print("\n" + script)
 
         let root = Flo("√")
@@ -619,7 +631,10 @@ final class MuFloTests: XCTestCase {
                abv.id == acv.id {
                 err += 1
             }
-            err += ParStr.testCompare("a.b(1) c @a .b(1)", root.scriptAll)
+            err += ParStr.testCompare("a.b(1) c @a ←@ a.b(1) ←@ a.b", root.scriptAll)
+
+            ab.setAny(2, .activate)
+            err += ParStr.testCompare("a.b(2) c @a ←@ a.b(2) ←@ a.b", root.scriptAll)
         } else {
             err += 1
         }
@@ -754,7 +769,34 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
 
-    ///
+
+
+    func testFilter() { headline(#function)
+        Par.trace = true
+        var err = 0
+        // selectively set tuples by name, ignore the reset
+        let script = """
+        a(x==10, y)<<b b(x:0,y:0)
+        """
+        let root = Flo("√")
+
+        if floParse.parseScript(root, script),
+           let  b = root.findPath("b") {
+
+            err += ParStr.testCompare("a(x==10, y)<<b b(x:0,y:0)", root.scriptAll)
+
+            b.setAny(FloValExprs(Flo("_t_"), [("x", 0), ("y",0)]), .activate)
+            err += ParStr.testCompare("a(x==10, y)<<b b(x:0, y:0)", root.scriptAll)
+
+            b.setAny(FloValExprs(Flo("_t_"), [("x", 10), ("y",20)]), .activate)
+            err += ParStr.testCompare("a(x==10, y: 20)<<b b(x: 10, y: 20)", root.scriptAll)
+
+        } else {
+            err += 1
+        }
+        XCTAssertEqual(err, 0)
+    }
+
     func testFilter0() { headline(#function)
         Par.trace = true
         var err = 0
@@ -846,9 +888,9 @@ final class MuFloTests: XCTestCase {
             // 10, 21, 33 --------------------------------------------------
             w.setAny( FloValExprs(Flo("_t3_"), [("x", 10), ("y", 21), ("z", 33)]), .activate)
             err += ParStr.testCompare("""
-            a { b { d(x==10:10,y:21,z:33) e(x:10,y==21:21,z:33) }
-                c { d(x==10:10,y:21,z:33) e(x:10,y==21:21,z:33) } }
-                    w(x:10,    y:21,z:33)<>(a.b.d, a.b.e, a.c.d, a.c.e)
+            a { b { d(x==10, y:21,z:33) e(x:10,y==21,z:33) }
+                c { d(x==10, y:21,z:33) e(x:10,y==21,z:33) } }
+                    w(x:10,  y:21,z:33)<>(a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
         } else {
@@ -886,9 +928,9 @@ final class MuFloTests: XCTestCase {
 
             err += ParStr.testCompare("""
 
-            a { b { d(x==10:10,y:11,z:12) e(x,y==21,z) }
-                c { d(x==10:10,y:11,z:12) e(x,y==21,z) } }
-                    w(x:10,    y:11,z:12)<>(a.b.d, a.b.e, a.c.d, a.c.e)
+            a { b { d(x==10, y: 11, z: 12) e(x,y==21,z) }
+                c { d(x==10, y: 11, z: 12) e(x,y==21,z) } }
+                    w(x: 10, y: 11, z: 12) <> (a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
             // 20, 21, 22 --------------------------------------------------
@@ -897,9 +939,9 @@ final class MuFloTests: XCTestCase {
 
             err += ParStr.testCompare("""
 
-            a { b { d(x==10,y,z) e(x:20,y==21:21,z:22) }
-                c { d(x==10,y,z) e(x:20,y==21:21,z:22) } }
-                    w(x:20, y:21,z:22)<>(a.b.d, a.b.e, a.c.d, a.c.e)
+            a { b { d(x==10, y, z) e(x: 20, y==21, z: 22) }
+                c { d(x==10, y, z) e(x: 20, y==21, z: 22) } }
+                    w(x: 20, y: 21,z: 22) <> (a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
             // 10, 21, 33 --------------------------------------------------
@@ -907,9 +949,9 @@ final class MuFloTests: XCTestCase {
             w.setAny(FloValExprs(Flo("_t3_"), [("x", 10), ("y", 21), ("z", 33)]), .activate)
 
             err += ParStr.testCompare("""
-            a { b { d(x==10:10,y:21,z:33) e(x:10,y==21:21,z:33) }
-                c { d(x==10:10,y:21,z:33) e(x:10,y==21:21,z:33) } }
-                    w(x:10,    y:21,z:33)<>(a.b.d, a.b.e, a.c.d, a.c.e)
+            a { b { d(x==10, y: 21, z: 33) e(x: 10, y==21, z: 33) }
+                c { d(x==10, y: 21, z: 33) e(x: 10, y==21, z: 33) } }
+                    w(x: 10, y: 21, z: 33) <> (a.b.d, a.b.e, a.c.d, a.c.e)
 
             """, root.scriptAll)
 
@@ -926,7 +968,7 @@ final class MuFloTests: XCTestCase {
 
         var err = 0
         // selectively set tuples by name, ignore the reset
-        let script = "a(x, y) << b, b(x:0, y:0)"
+        let script = "a(x, y) << b, b(x 0, y 0)"
 
         let root = Flo("√")
 
@@ -935,11 +977,10 @@ final class MuFloTests: XCTestCase {
 
             err += ParStr.testCompare("a(x, y) << b, b(x:0, y:0)", root.scriptCurrent)
 
-            b.setAny(CGPoint(x: 1, y: 2), .activate)
-
+            b.setAny(CGPoint(x:1, y:2), .activate)
             err += ParStr.testCompare("a(x:1, y:2) << b, b(x:1, y:2)", root.scriptCurrent)
-
             err += ParStr.testCompare("a(x, y) << b, b(x, y)", root.scriptDef)
+
 
         } else {
             err += 1
@@ -960,9 +1001,7 @@ final class MuFloTests: XCTestCase {
            let c = root.findPath("c") {
 
             c.setAny(CGPoint(x: 1, y: 2), .activate)
-            let result = root.scriptRoot([.parens, .current, .edge, .comment, .noLF])
-            let expect = "a(x:1) << c, c(x:1, y:2)"
-            err = ParStr.testCompare(expect, result, echo: true)
+            err = ParStr.testCompare("a(x:1) << c, c(x:1, y:2)", root.scriptCurrent)
         } else {
             err += 1
         }
@@ -1034,12 +1073,14 @@ final class MuFloTests: XCTestCase {
 
             a.setAny(CGPoint(x:1, y:1), .activate)
 
-            err += ParStr.testCompare("a(x:1, y:1, z:99), b(x:1, y:1) << a", root.scriptCurrent)
-            err += ParStr.testCompare("a(x:0…2:1,y:0…2:1,z:99), b(x:0…2:1,y:0…2:1)<<a", root.scriptAll)
-
             err += ParStr.testCompare(
                 "a(x:0…2, y:0…2, z:99), b(x:0…2, y:0…2) << a", root.scriptDef)
             //⟹ a(x:0…2, y:0…2, z🚫), b(x:0…2, y:0…2)<<a
+
+            err += ParStr.testCompare("a(x:1, y:1, z:99), b(x:1, y:1) << a", root.scriptCurrent)
+            err += ParStr.testCompare("a(x:0…2:1,y:0…2:1,z:99), b(x:0…2:1,y:0…2:1)<<a", root.scriptAll)
+
+
         } else {
             err += 1
         }
@@ -1099,7 +1140,7 @@ final class MuFloTests: XCTestCase {
 
             a.setAny(FloValExprs(Flo("_t_"), [("x", 1), ("y", 2), ("z", 3)]), .activate)
 
-            err += ParStr.testCompare("a(x:1, y:2, z:3), b(sum:x+y+z=6) << a, c(x+y+z=6) << a", root.scriptAll)
+            err += ParStr.testCompare("a(x:1, y:2, z:3), b(sum:x+y+z:6) << a, c(x+y+z=6) << a", root.scriptAll)
         } else {
             err = 1
         }
@@ -1144,10 +1185,10 @@ final class MuFloTests: XCTestCase {
            let b = root.findPath("b"),
            let a = root.findPath("a") {
 
-            err += ParStr.testCompare("a(x, y) b(v) >> a(x:v)", root.scriptDef)
+            err += ParStr.testCompare("a(x, y) b(v:0) >> a(x:v)", root.scriptDef)
 
             b.setAny(FloValExprs(Flo("_t_"), [("v", 1)]), .activate)
-            err += ParStr.testCompare( "a(x=1, y) b(v=1) >> a(x:v)", root.scriptCurrent)
+            err += ParStr.testCompare( "a(x:1, y) b(v:1) >> a(x:v:1)", root.scriptAll)
 
         } else {
             err += 1
@@ -1160,19 +1201,19 @@ final class MuFloTests: XCTestCase {
 
         var err = 0
         // selectively set tuples by name, ignore the reset
-        let script = "a(x, y) b(v:0) >> a(x: v/2, y: v*2)"
+        let script = "a(x, y) b(v: 0) >> a(x: v/2, y: v*2)"
         print("\n" + script)
 
         let root = Flo("√")
 
         if floParse.parseScript(root, script),
-           let b = root.findPath("b") {
-
+            let a = root.findPath("a"),
+            let b = root.findPath("b") {
 
             err += ParStr.testCompare("a(x, y) b(v:0) >> a(x: v/2, y: v*2)", root.scriptAll)
 
             b.setAny(FloValExprs(Flo("_t_"), [("v", 1)]), .activate)
-            err += ParStr.testCompare("a(x=0.5,y=2) b(v=1)>>a(x:v/2,y:v*2)", root.scriptAll)
+            err += ParStr.testCompare("a(x: 0.5, y: 2) b(v: 1) >> a(x: v/2: 0.5, y: v*2: 2)", root.scriptAll)
 
         } else {
             err += 1
@@ -1187,17 +1228,18 @@ final class MuFloTests: XCTestCase {
     /// test `grid(x: num/12, y: num % 12) << note, note(num: 0…127 = 50)`
     func testMidiGrid() { headline(#function)
         var err = 0
-        let script = "grid(x:num/12, y:num%12) << note, note(num:0_127=50)"
+        let script = "grid(x: num / 12, y: num % 12) << note, note(num: 50)"
 
         let root = Flo("√")
         if floParse.parseScript(root, script, tracePar: false) {
 
-            err += ParStr.testCompare( "grid(x:num/12, y:num%12) << note, note(num:0_127=50)", root.scriptAll)
+            err += ParStr.testCompare( "grid(x:num/12, y:num%12) << note, note(num:50)", root.scriptAll)
 
-            if let note = root.findPath("note") {
+            if let note = root.findPath("note"),
+            let grid = root.findPath("note") {
 
                 note.setAny(FloValExprs(Flo("_t_"), [("num", 50)]), .activate)
-                err += ParStr.testCompare("grid(x=4.166667, y=2) << note, note(num=50)", root.scriptCurrent)
+                err += ParStr.testCompare("grid(x:4.166667, y:2) << note, note(num: 50)", root.scriptCurrent)
             } else {
                 err += 1
             }
@@ -1207,13 +1249,14 @@ final class MuFloTests: XCTestCase {
         }
         XCTAssertEqual(err, 0)
     }
+    
     /// test `grid(num>20, chan==1 x:num/12, y: num%12)<<note ...
     func testMidiFilter() { headline(#function)
         var err = 0
 
         let script = """
-        grid(num>20, chan==1, x:num/12, y:num%12) << note,
-        note(num:0_127=50, chan: 2)
+        grid(num > 20, chan==1, x: num / 12, y: num % 12) << note,
+        note(num:0_127:0, chan: 2)
         """
 
         let root = Flo("√")
@@ -1223,14 +1266,14 @@ final class MuFloTests: XCTestCase {
 
             note.setAny(FloValExprs(Flo("_t1_"),[("num",50), ("chan",0)]), .activate)
             err += ParStr.testCompare("""
-                grid(num>20, chan==1, x:num/12, y:num%12) << note,
-                note(num:0_127=50, chan=0)
+                grid(num > 20, chan==1, x: num / 12, y: num % 12) << note,
+                note(num: 0_127: 50, chan: 0)
                 """, root.scriptAll)
 
             note.setAny( FloValExprs(Flo("_t2_"),[("num",50), ("chan",1)]), .activate)
             err += ParStr.testCompare("""
-                grid(num>2=50, chan==1=1, x:num/12=4, y:num%12=2) << note,
-                note(num:0_127=50, chan=1)
+                grid(num > 20 :50, chan==1:1, x: num / 12 :4.166667, y: num % 12 :2) << note,
+                note(num:0_127 :50, chan:1)
                 """, root.scriptAll)
 
         } else {
@@ -1311,6 +1354,8 @@ final class MuFloTests: XCTestCase {
         err += testFile("test.body.input", out: "test.body.output")
         err += testFile("test.skeleton.input",  out: "test.skeleton.output")
         XCTAssertEqual(err, 0)
+
+
     }
 
     //    func testMidi() { headline(#function)

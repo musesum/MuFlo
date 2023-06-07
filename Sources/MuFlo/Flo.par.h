@@ -5,16 +5,16 @@ flo ≈ pathName (exprs | child | many | copyat | edges | embed | comment)* {
     many     ≈ "." "{" flo+ "}"
     copyat   ≈ "@" pathName ("," pathName)*
 
-    exprs ≈ "(" expr+ ("," expr+)* ")" {
-        expr   ≈ (exprOp | name | scalar | quote | comment)
+    exprs ≈ "(" expr+ ")" {
+        expr   ≈ (exprOp | name | scalar | quote | comment)+
         exprOp ≈ '^(<=|>=|==|≈|<|>|\*|\:|\/|\%|in|\,)|(\+)|(\-)[ ]'
 
-        scalar ≈ (thru | thri | modu | num) {
+        scalar ≈ (thru | thri | modu | now | num) {
             thru ≈ num ("..." | "…") num dflt? now?
             thri ≈ num ("_") num dflt? now?
             modu ≈ "%" num dflt? now?
             dflt ≈ "~" num
-            now  ≈ "=" num
+            now  ≈ ":" num
         }
     }
     edges ≈ edgeOp (edgePar | exprs | edgeVal) comment* {

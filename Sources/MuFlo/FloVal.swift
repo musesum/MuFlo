@@ -10,7 +10,7 @@ import MuPar
 
 open class FloVal: Comparable {
     
-    static var IdFloVal = [Int: FloVal]() //... debugging only
+    static var IdFloVal = [Int: FloVal]() //??? debugging only
     var id = -Visitor.nextId()
     var valOps = FloValOps(rawValue: 0) // which combination of the following?
     var name: String
@@ -30,6 +30,7 @@ open class FloVal: Comparable {
         self.name = name
         FloVal.IdFloVal[id] = self
     }
+    
     init(with: FloVal) {
         self.flo = with.flo
         self.name = with.name

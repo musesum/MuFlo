@@ -20,7 +20,7 @@ extension Flo {
     }
     
     func BoolVal() -> Bool {
-        if let val = val {
+        if let val {
             if let f = (val.nameAny["tog"] as? FloValScalar)?.now {
                 return f > 0
             } else if let f = (val.nameAny["tap"] as? FloValScalar)?.now {
@@ -80,7 +80,7 @@ extension Flo {
     
     func CGPointVal() -> CGPoint? {
         
-        if let val = val {
+        if let val {
             if let x = (val.nameAny["x"] as? FloValScalar)?.now,
                let y = (val.nameAny["y"] as? FloValScalar)?.now {
                 
