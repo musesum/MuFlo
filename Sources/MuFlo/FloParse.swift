@@ -121,36 +121,34 @@ public class FloParse {
     /// decorate current value with attributes
     ///
     func parseDeepVal(_ flo     : Flo     ,
-                      _ floVal  : FloVal? ,
+                      _ floVal  : FloValExprs? ,
                       _ parItem : ParItem ) {
 
-        let pattern = parItem.node?.pattern ?? ""
-
-        switch floVal {
-        case let val as FloValScalar: parseDeepScalar(val, parItem)
-        case let val as FloValExprs:  parseNextExpr(flo, val, parItem, pattern)
-        default: break
+        if let floVal,
+           let pattern = parItem.node?.pattern {
+            parseNextExpr(flo, floVal, parItem, pattern)
         }
     }
 
     /// decorate current scalar with min, …, max, num, = dflt
     ///
     func parseDeepScalar(_ scalar  : FloValScalar,
-                         _ parItem : ParItem)  {
+                         _ parItem : ParItem,
+                         _ parset  : FloParset)  {
 
         let pattern = parItem.node?.pattern ?? ""
 
         switch pattern {
-        case "thru" : scalar.valOps += .thru
-        case "thri" : scalar.valOps += .thri
-        case "modu" : scalar.valOps += .modu
-        case "num"  : scalar.parseNum(parItem.getFirstDouble())
+        case "thru" : scalar.valOps += .thru // double range
+        case "thri" : scalar.valOps += .thri // integer range
+        case "modu" : scalar.valOps += .modu // modulo
+        case "num"  : scalar.parseNum(parItem.getFirstDouble(),parset)
         case "dflt" : scalar.parseDflt(parItem.getFirstDouble())
         case "now"  : scalar.parseNow(parItem.getFirstDouble())
         default     : break
         }
         for nextPar in parItem.nextPars {
-            parseDeepScalar(scalar, nextPar)
+            parseDeepScalar(scalar, nextPar, parset)
         }
     }
 
@@ -165,19 +163,17 @@ public class FloParse {
                        _ parItem : ParItem     ,
                        _ prior   : String      ) {
 
-        var hasOp = false
-        var hasAssign = false
-        //... var hasIn = false
+        var parset = FloParset()
         var scalar: FloValScalar?
         var name: String?
 
         for nextPar in parItem.nextPars {
             let pattern = nextPar.node?.pattern
             switch pattern {
-            case ""       : addExprOp(nextPar)
+            case ""       : addOpExpr(nextPar)
             case "name"   : addOpName(nextPar)
-            case "quote"  : addQuote(nextPar)
-            case "scalar" : addDeepScalar(nextPar)
+            case "quote"  : addOpQuote(nextPar)
+            case "scalar" : addOpScalar(nextPar)
             default       : break
             }
         }
@@ -187,37 +183,47 @@ public class FloParse {
             scalar = nil
             name = nil
         }
-        func addDeepScalar(_ nextPar: ParItem) {
+        func addOpScalar(_ nextPar: ParItem) {
 
-            let key = name ?? exprs.anonKey
-            scalar = FloValScalar(flo, key)
-            guard let scalar else { return }
+            switch parset & [.name, .expr, .scalar] {
+            case [],                        // 1 in a(1) or a(:1)
+                [.scalar],                  // 2 in a(1 2)
+                [.expr],                     // 3 in b(/3) or b(:/3)
+                [.expr, .scalar],           // 4 in e(/2+5) or e(2+5)
+                [.name, .expr, .scalar]:    // 5 in f(g:h/2+5) or f(x/2+5)
 
-            if name == nil {
-                name = exprs.anonKey
+                scalar = FloValScalar(flo, exprs.anonKey)
                 exprs.addAnonScalar(scalar)
 
-            } else if hasOp {
-                /// `c` in `a(b < c)` so don't add nameAny["c"]
-                exprs.addScalar(scalar)
-            } else {
-                /// `b` in `a(b: c)` so add a nameAny["b"]
-                exprs.addDeepScalar(scalar)
-    
+            case [.name],                   // 6 in i(j:6) or i(j 6)
+                [.name, .expr]:             // t in k(m/7)
+
+                if let name {
+                    scalar = FloValScalar(flo, name)
+                    exprs.addDeepScalar(scalar)
+                }
+
+            default:
+
+                break
             }
-            for deepPar in nextPar.nextPars {
-                parseDeepScalar(scalar, deepPar)
+            if let scalar {
+                for deepPar in nextPar.nextPars {
+                    parseDeepScalar(scalar, deepPar, parset)
+                }
             }
         }
         func addOpName(_ nextPar: ParItem)  {
             name = nextNextVal(nextPar)
-            exprs.addOpName(name, hasOp)
+            exprs.addOpName(name, parset.expr)
+            parset += .name
         }
-        func addQuote(_ nextPar: ParItem)  {
+        func addOpQuote(_ nextPar: ParItem)  {
             exprs.addQuote(nextNextVal(nextPar))
+            parset += .quote
         }
 
-        func addExprOp(_ nextPar: ParItem)  {
+        func addOpExpr(_ nextPar: ParItem)  {
 
             if let val = nextPar.value {
                 let op = FloOp(val)
@@ -227,20 +233,20 @@ public class FloParse {
 
                 case .comma:
                     finishExpr()
-                    hasOp = false
-                    hasAssign = false
-   
-                //... case .In: hasOp = true //... hasIn = true
+                    parset.removeAll()
+
                 case .assign:
                     
-                    hasAssign = true
-                    hasOp = true
+                    parset += .assign
+
+                case .EQ, .IS:
+
+                    parset += [.match,.expr]
 
                 default:
-                    hasOp = true
+                    parset += .expr
                 }
             }
-
         }
         func nextNextVal(_ nextPar: ParItem) -> String? {
             if let str = nextPar.nextPars.first?.value {

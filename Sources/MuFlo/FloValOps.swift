@@ -14,16 +14,17 @@ import Foundation
  */
 public struct FloValOps: OptionSet {
 
-    public static let thru = FloValOps(rawValue: 1 <<  1) // double 0…1 range including 1
-    public static let thri = FloValOps(rawValue: 1 <<  2) // integer 0_n range including n
-    public static let modu = FloValOps(rawValue: 1 <<  3) // %2 modulo
-    public static let min  = FloValOps(rawValue: 1 <<  4) // 0 in 0…1, min of range
-    public static let max  = FloValOps(rawValue: 1 <<  5) // 1 in 0…1, max of range
-    public static let dflt = FloValOps(rawValue: 1 <<  6) // = n default value
-    public static let now_ = FloValOps(rawValue: 1 <<  7) // current value
-    public static let next = FloValOps(rawValue: 1 <<  8) // next value
-    public static let lit  = FloValOps(rawValue: 1 <<  9) // literal value
-    public static let anim = FloValOps(rawValue: 1 << 10) // animated
+    public static let thru  = FloValOps(rawValue: 1 <<  1) // double 0…1 range including 1
+    public static let thri  = FloValOps(rawValue: 1 <<  2) // integer 0_n range including n
+    public static let modu  = FloValOps(rawValue: 1 <<  3) // %2 modulo
+    public static let min   = FloValOps(rawValue: 1 <<  4) // 0 in 0…1, min of range
+    public static let max   = FloValOps(rawValue: 1 <<  5) // 1 in 0…1, max of range
+    public static let dflt  = FloValOps(rawValue: 1 <<  6) // = n default value
+    public static let now_  = FloValOps(rawValue: 1 <<  7) // current value
+    public static let next  = FloValOps(rawValue: 1 <<  8) // next value
+    public static let lit   = FloValOps(rawValue: 1 <<  9) // literal value
+    public static let match = FloValOps(rawValue: 1 << 10) // matching value
+    public static let anim  = FloValOps(rawValue: 1 << 11) // animated
 
     /// Some values like midi.note.on midi.note.off should not persist transient values.
     /// So, when saving FloScriptOps.delta, ignore a transient node.
@@ -37,31 +38,33 @@ public struct FloValOps: OptionSet {
     public var rawValue: Int
     public init(rawValue: Int) { self.rawValue = rawValue }
 
-    var thrui: Bool { contains(.thru) || contains(.thri) }
-    var thru : Bool { contains(.thru) }
-    var thri : Bool { contains(.thri) }
-    var modu : Bool { contains(.modu) }
-    var min  : Bool { contains(.min ) }
-    var max  : Bool { contains(.max ) }
-    var dflt : Bool { contains(.dflt) }
-    var now_ : Bool { contains(.now_) }
-    var next : Bool { contains(.next) }
-    var lit  : Bool { contains(.lit ) }
-    var anim : Bool { contains(.anim) }
+    var thrui : Bool { contains(.thru ) || contains(.thri) }
+    var thru  : Bool { contains(.thru ) }
+    var thri  : Bool { contains(.thri ) }
+    var modu  : Bool { contains(.modu ) }
+    var min   : Bool { contains(.min  ) }
+    var max   : Bool { contains(.max  ) }
+    var dflt  : Bool { contains(.dflt ) }
+    var now_  : Bool { contains(.now_ ) }
+    var next  : Bool { contains(.next ) }
+    var lit   : Bool { contains(.lit  ) }
+    var match : Bool { contains(.match) }
+    var anim  : Bool { contains(.anim ) }
 }
 extension FloValOps: CustomStringConvertible {
 
     static public var debugDescriptions: [(Self, String)] = [
-        (.thru, "thru"),
-        (.thri, "thri"),
-        (.modu, "modu"),
-        (.min , "min" ),
-        (.max , "max" ),
-        (.dflt, "dflt"),
-        (.now_, "now_"),
-        (.next ,"next"),
-        (.lit , "lit" ),
-        (.anim, "anim"),
+        (.thru  , "thru" ),
+        (.thri  , "thri" ),
+        (.modu  , "modu" ),
+        (.min   , "min"  ),
+        (.max   , "max"  ),
+        (.dflt  , "dflt" ),
+        (.now_  , "now_" ),
+        (.next  , "next" ),
+        (.lit   , "lit"  ),
+        (.match , "match"),
+        (.anim  , "anim" ),
     ]
 
    

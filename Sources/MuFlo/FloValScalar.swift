@@ -48,12 +48,12 @@ public class FloValScalar: FloVal {
     ///     
     var redundantNext: Bool {
 
-        if valOps.lit {
+        if valOps.lit || valOps.match {
             return next == dflt
         } else if valOps.dflt {
             return next == dflt
-        } else if (next == min) || (next == 0 && max >= 0) {
-            return true
+        } else if valOps.min  {
+            return next == min
         }
         return false
     }
@@ -173,9 +173,9 @@ public class FloValScalar: FloVal {
             if valOps.modu { str += "%" } /// modulo
             if valOps.max  { str += max.digits(0...6) }
             if valOps.dflt { str += "~" + dflt.digits(0...6) }
-            if valOps.lit, !valOps.next { str += now.digits(0...6) }
-        } else if allOps.onlyCurrent, valOps.lit, !valOps.next {
-            str += now.digits(0...6)
+            if (valOps.lit || valOps.match) { str += next.digits(0...6) }
+        } else if allOps.onlyCurrent, (valOps.lit||valOps.match) {
+            str += next.digits(0...6)
         }
 
 
@@ -227,7 +227,16 @@ public class FloValScalar: FloVal {
         case let v as Int          : setNextOpNow(Double(v))
         default: print("🚫 setVal unknown type for: from")
         }
+        if ops.next, valOps.lit {
+            valOps -= .lit
+        }
         valOps += ops
+        if let scalar = flo.val?.nameAny[name] as? FloValScalar {
+            scalar.valOps = valOps
+        } else {
+            flo.val?.nameAny[name] = self
+        }
+
 
         // testNextEqualNow()
         return true

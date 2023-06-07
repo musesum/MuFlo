@@ -44,8 +44,10 @@ public class Flo {
 
     public var scriptCurrent: String { scriptCompact([        .current, .edge, .comment]) }
     public var scriptDef    : String { scriptCompact([.def  ,           .edge, .comment]) }
-    public var scriptAll    : String { scriptCompact([.def  , .current, .edge, .comment]) }
+
     public var scriptDelta  : String { scriptCompact([.delta, .current          ]) } //...
+    public var scriptAll    : String { scriptCompact([.def  , .current, .edge, .comment]) }
+    public var scriptFull   : String { scriptRoot([.parens, .def, .current, .edge, .comment]) } //...
 
     private var time = TimeInterval(0)  // UTC time of last change time
     public func updateTime() {

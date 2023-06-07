@@ -88,23 +88,24 @@ final class MuFloTests: XCTestCase {
         }
     }
     func testParse(_ inScript: String,
-                   _ outScript: String) -> Int {
+                   _ outScript: String,
+                   full: Bool = false) -> Int {
 
         let root = Flo("√")
 
         if floParse.parseScript(root, inScript, whitespace: "\n\t ") {
             print (name +  " ✓")
-            let err = ParStr.testCompare(outScript, root.scriptAll)
+            let err = ParStr.testCompare(outScript, full ? root.scriptFull : root.scriptAll)
             return err
         } else {
             return 1 // error
         }
     }
-    func testFile(_ input: String, out: String) -> Int {
+    func testFile(_ input: String, out: String, full: Bool = false) -> Int {
 
         if let inScript = read(input) {
             let outScript = read(out) ?? inScript
-            return testParse(inScript, outScript)
+            return testParse(inScript, outScript, full: full)
         } else {
             return 1 // error
         }
@@ -135,6 +136,8 @@ final class MuFloTests: XCTestCase {
 
     func testParseShort() { headline(#function)
         var err = 0
+
+        err += test("a (x 1, y 2)")
         err += test("a(0…1~0:1)", nil, [.parens, .def, .current])
         err += test("b(0…1~0.2:0.3)")
         err += test("a b << a(* 10)")
@@ -454,17 +457,6 @@ final class MuFloTests: XCTestCase {
 
 
         XCTAssertEqual(err, 0)
-    }
-
-    // TODO: this is areally bad kludge
-    /// global result to tes callback
-    var TestResult = ""
-
-    /// add result of callback to result
-    func addCallResult(_ flo: Flo, _ val: FloVal?) {
-        var val = val?.printVal() ?? "nil"
-        if val.first == " " { val.removeFirst() }
-        TestResult += flo.name + "(" + val + ") "
     }
 
     /// test `b >> a(2)` for `b!`
@@ -881,17 +873,17 @@ final class MuFloTests: XCTestCase {
             // 20, 21, 22 --------------------------------------------------
             w.setAny(FloValExprs(Flo("_t2_"), [("x", 20), ("y", 21), ("z", 22)]), .activate)
             err += ParStr.testCompare("""
-            a { b { d(x==10, y: 11, z: 12) e(x: 20, y==21, z:22) }
-                c { d(x==10, y: 11, z: 12) e(x: 20, y==21, z:22) } }
+            a { b { d(x==10, y: 11, z: 12) e(x: 20, y==21, z: 22) }
+                c { d(x==10, y: 11, z: 12) e(x: 20, y==21, z: 22) } }
                     w(x: 20, y: 21, z: 22) <> (a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
             // 10, 21, 33 --------------------------------------------------
             w.setAny( FloValExprs(Flo("_t3_"), [("x", 10), ("y", 21), ("z", 33)]), .activate)
             err += ParStr.testCompare("""
-            a { b { d(x==10, y:21,z:33) e(x:10,y==21,z:33) }
-                c { d(x==10, y:21,z:33) e(x:10,y==21,z:33) } }
-                    w(x:10,  y:21,z:33)<>(a.b.d, a.b.e, a.c.d, a.c.e)
+            a { b { d(x==10, y: 21, z: 33) e(x: 10, y==21, z: 33) }
+                c { d(x==10, y: 21, z: 33) e(x: 10, y==21, z: 33) } }
+                    w(x: 10, y: 21, z: 33)<>(a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
         } else {
@@ -918,9 +910,9 @@ final class MuFloTests: XCTestCase {
 
             err += ParStr.testCompare("""
 
-            a { b { d(x==10,y,z) e(x,y==21,z) }
-                c { d(x==10,y,z) e(x,y==21,z) } }
-                    w(x:0,y:0,z:0)<>(a.b.d, a.b.e, a.c.d, a.c.e)
+            a { b { d(x==10, y, z) e(x,y==21, z) }
+                c { d(x==10, y, z) e(x,y==21, z) } }
+                    w(x: 0, y: 0, z: 0) <> (a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
             // 10, 11, 12 --------------------------------------------------
@@ -929,8 +921,8 @@ final class MuFloTests: XCTestCase {
 
             err += ParStr.testCompare("""
 
-            a { b { d(x==10, y: 11, z: 12) e(x,y==21,z) }
-                c { d(x==10, y: 11, z: 12) e(x,y==21,z) } }
+            a { b { d(x==10, y: 11, z: 12) e(x, y==21, z) }
+                c { d(x==10, y: 11, z: 12) e(x, y==21, z) } }
                     w(x: 10, y: 11, z: 12) <> (a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
@@ -979,7 +971,7 @@ final class MuFloTests: XCTestCase {
             err += ParStr.testCompare("a(x, y) << b, b(x:0, y:0)", root.scriptCurrent)
 
             b.setAny(CGPoint(x:1, y:2), .activate)
-            err += ParStr.testCompare("a(x:1, y:2) << b, b(x:1, y:2)", root.scriptCurrent)
+            err += ParStr.testCompare("a(x: 1, y: 2) << b, b(x: 1, y: 2)", root.scriptCurrent)
             err += ParStr.testCompare("a(x, y) << b, b(x, y)", root.scriptDef)
 
 
@@ -1214,7 +1206,7 @@ final class MuFloTests: XCTestCase {
             err += ParStr.testCompare("a(x, y) b(v:0) >> a(x: v/2, y: v*2)", root.scriptAll)
 
             b.setAny(FloValExprs(Flo("_t_"), [("v", 1)]), .activate)
-            err += ParStr.testCompare("a(x: 0.5, y: 2) b(v: 1) >> a(x: v/2=0.5, y: v*2=2)", root.scriptAll)
+            err += ParStr.testCompare("a(x: 0.5, y: 2) b(v: 1) >> a(x: v/2:0.5, y: v*2:2)", root.scriptAll)
 
         } else {
             err += 1
@@ -1285,23 +1277,6 @@ final class MuFloTests: XCTestCase {
 
     // MARK: - pasthrough
 
-    /// setup new result string, call the action, print the appended result
-    func testAct(_ before: String, _ after: String, callTest: @escaping CallVoid) -> Int {
-        var err = 0
-        TestResult = ""
-
-        callTest() // side effect changed TestResult
-        let result = TestResult.removeLines()
-        if let (expected, actual) = ParStr.compare(after, result) {
-            print (TestResult + "🚫 mismatch")
-            print("expected ⟹ \(expected)")
-            print("actual   ⟹ \(actual.removeLines())")
-            err += 1
-        } else {
-            print ("🧪\n" + TestResult + " ✓")
-        }
-        return err
-    }
     /// test `a(0…1)<<b, b<<c, c(0…10)<<a`
     func testPassthrough() { headline(#function)
         var err = 0
@@ -1314,14 +1289,14 @@ final class MuFloTests: XCTestCase {
            let b = root.findPath("b"),
            let c = root.findPath("c") {
 
-            a.addClosure { flo, _ in self.addCallResult(a, flo.val!) }
-            b.addClosure { flo, _ in self.addCallResult(b, flo.val!) }
-            c.addClosure { flo, _ in self.addCallResult(c, flo.val!) }
+            c.setAny(5.0, .activate)
+            err += ParStr.testCompare("a(0.5) b(5) c(5)",root.scriptCompact([.current, .comment]))
 
-            err += testAct("c(5.0)", "c(5.0) b(5.0) a(0.5)") { c.setAny(5.0, .activate) }
-            err += testAct("a(0.1)", "a(0.1) c(1.0) b(1.0) ") { a.setAny(0.1, .activate) }
-            err += testAct("b(0.2)", "b(0.2) a(0.020000000000000004) c(0.20000000000000004)") {
-                b.setAny(0.2, .activate) }
+            a.setAny(0.1, .activate)
+            err += ParStr.testCompare("a(0.1) b(1) c(1)",root.scriptCompact([.current, .comment]))
+
+            b.setAny(0.2, .activate)
+            err += ParStr.testCompare("a(0.02) b(0.2) c(0.2)",root.scriptCompact([.current, .comment]))
         } else {
             err += 1
         }
@@ -1353,7 +1328,7 @@ final class MuFloTests: XCTestCase {
 
         var err = 0
         err += testFile("test.body.input", out: "test.body.output")
-        err += testFile("test.skeleton.input",  out: "test.skeleton.output")
+        err += testFile("test.skeleton.input",  out: "test.skeleton.output", full: true)
         XCTAssertEqual(err, 0)
 
 

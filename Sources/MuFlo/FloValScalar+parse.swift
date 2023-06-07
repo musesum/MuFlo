@@ -4,32 +4,33 @@ import Foundation
 
 extension FloValScalar { // + Parse
     
-    func parseNum(_ n: Double) {
+    func parseNum(_ num: Double,
+                  _ parset: FloParset) {
 
         if valOps.thrui {
             if valOps.max {
-                next = n
-                now = n
+                next = num
+                now = num
             } else if valOps.min {
                 valOps += .max
-                max = n
+                max = num
             } else {
                 valOps += .min
-                min = n
+                min = num
             }
         } else if valOps.modu {
             if valOps.max {
-                next = n
-                now = n
+                next = num
+                now = num
             } else {
                 valOps += .max
-                max = n
+                max = num
             }
         } else {
-            valOps += .lit
-            dflt = n
-            next = n
-            now = n
+            valOps += parset.match ? [.match,.lit] : .lit
+            dflt = num
+            next = num
+            now = num
         }
     }
     func parseDflt(_ n: Double) {
