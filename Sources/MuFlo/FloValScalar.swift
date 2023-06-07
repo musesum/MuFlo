@@ -181,7 +181,7 @@ public class FloValScalar: FloVal {
 
         if valOps.next, !redundantNext {
             if allOps.onlyDef  {
-                str += str.isEmpty ? "" : ":"
+                str += str.isEmpty ? "" : "="
                 str +=  next.digits(0...6)
             } else if nowOps.current {
                 str += next.digits(0...6)

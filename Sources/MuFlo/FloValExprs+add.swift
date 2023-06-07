@@ -51,14 +51,14 @@ extension FloValExprs {
             nameAny[key] = quote
         }
     }
-    func addName(_ name: String?) {
+    func addOpName(_ name: String?,
+                 _ hasOp: Bool) {
 
         guard let name else { return }
         let opAny = FloOpAny(name: name)
         opAnys.append(opAny)
 
-
-        if !nameAny.keys.contains(name) {
+        if !hasOp, !nameAny.keys.contains(name) {
             nameAny[name] = ""
         }
     }

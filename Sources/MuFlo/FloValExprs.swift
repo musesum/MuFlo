@@ -59,7 +59,7 @@ public class FloValExprs: FloVal {
             if opAnys.count > 0 {
                 addOpStr(",")
             }
-            addName(name)
+            addOpName(name, false)
             addDeepScalar(FloValScalar(flo, name, num))
         }
     }

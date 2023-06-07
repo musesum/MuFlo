@@ -142,6 +142,7 @@ final class MuFloTests: XCTestCase {
         err += test("a(1)")
         err += test("b(0…1)", nil, [.parens, .def])
         err += test("a(x,y,z)<<(x,y,z) x(1) y(2) z(3)")
+        err += test("a(x,y,z)<<b, b(x:1, y:2, z:3)")
         err += test("b(x / 2) a << b(x / 2)")
         err += test("a(0…1~0:1)", nil, [.parens, .def, .current])
 
@@ -1213,7 +1214,7 @@ final class MuFloTests: XCTestCase {
             err += ParStr.testCompare("a(x, y) b(v:0) >> a(x: v/2, y: v*2)", root.scriptAll)
 
             b.setAny(FloValExprs(Flo("_t_"), [("v", 1)]), .activate)
-            err += ParStr.testCompare("a(x: 0.5, y: 2) b(v: 1) >> a(x: v/2: 0.5, y: v*2: 2)", root.scriptAll)
+            err += ParStr.testCompare("a(x: 0.5, y: 2) b(v: 1) >> a(x: v/2=0.5, y: v*2=2)", root.scriptAll)
 
         } else {
             err += 1

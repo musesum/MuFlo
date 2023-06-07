@@ -90,7 +90,7 @@ extension FloValExprs {
 
             func logFinish(_ scalar: FloValScalar?, _ keyStr: String) {
                 guard let scalar else { return }
-                print("script: \"\(script)\"  \(keyStr).\(scalar.id): [\(scalar.valOps.description ?? "")] now:\(scalar.now) next:\(scalar.next) dflt:\(scalar.dflt) named:\(named)")
+                print("🧪 \"\(script)\"  \(keyStr).\(scalar.id): [\(scalar.valOps.description ?? "")] now:\(scalar.now) next:\(scalar.next) dflt:\(scalar.dflt) named:\(named)")
             }
         }
     }

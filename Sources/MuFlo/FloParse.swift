@@ -166,6 +166,7 @@ public class FloParse {
                        _ prior   : String      ) {
 
         var hasOp = false
+        var hasAssign = false
         //... var hasIn = false
         var scalar: FloValScalar?
         var name: String?
@@ -174,7 +175,7 @@ public class FloParse {
             let pattern = nextPar.node?.pattern
             switch pattern {
             case ""       : addExprOp(nextPar)
-            case "name"   : addName(nextPar)
+            case "name"   : addOpName(nextPar)
             case "quote"  : addQuote(nextPar)
             case "scalar" : addDeepScalar(nextPar)
             default       : break
@@ -202,14 +203,15 @@ public class FloParse {
             } else {
                 /// `b` in `a(b: c)` so add a nameAny["b"]
                 exprs.addDeepScalar(scalar)
+    
             }
             for deepPar in nextPar.nextPars {
                 parseDeepScalar(scalar, deepPar)
             }
         }
-        func addName(_ nextPar: ParItem)  {
+        func addOpName(_ nextPar: ParItem)  {
             name = nextNextVal(nextPar)
-            exprs.addName(name)
+            exprs.addOpName(name, hasOp)
         }
         func addQuote(_ nextPar: ParItem)  {
             exprs.addQuote(nextNextVal(nextPar))
@@ -226,9 +228,13 @@ public class FloParse {
                 case .comma:
                     finishExpr()
                     hasOp = false
+                    hasAssign = false
    
                 //... case .In: hasOp = true //... hasIn = true
-                //... case .assign:  hasOp = true } //???
+                case .assign:
+                    
+                    hasAssign = true
+                    hasOp = true
 
                 default:
                     hasOp = true
