@@ -161,12 +161,10 @@ public class FloValScalar: FloVal {
             if valOps.modu   { str += "%" } /// modulo
             if valOps.max    { str += max.digits(0...6) }
             if valOps.dflt   { str += "~" + dflt.digits(0...6) }
-            if valOps.hasLit { str += next.digits(0...6) }
-        } else if litNow   { str += next.digits(0...6)
-        } else if soloNow  { str += next.digits(0...6)
-        } else {
-            return str }
 
+            if valOps.hasLit { str += next.digits(0...6) }
+        } else if litNow     { str += next.digits(0...6)
+        } else if soloNow    { str += next.digits(0...6)}
         return str
     }
 
@@ -207,20 +205,8 @@ public class FloValScalar: FloVal {
         case let v as Int          : setNextOpNow(Double(v))
         default: print("🚫 setVal unknown type for: from")
         }
-        if !valOps.equal {
-            /// `1` in `a(1)` was a placeholder, now switch to .next
-            if !valOps.match, valOps.lit {
-                // valOps -= .lit //.... testCopyAt1()
-            }
-            //.... valOps += ops
-        }
-        valOps += ops //....
 
-        if let scalar = flo.val?.nameAny[name] as? FloValScalar {
-            scalar.valOps = valOps
-        } else {
-            flo.val?.nameAny[name] = self //...
-        }
+        valOps += ops
 
         // testNextEqualNow()
         return true

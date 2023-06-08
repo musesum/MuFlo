@@ -200,10 +200,10 @@ public class FloValExprs: FloVal {
     func clearCurrentVals() {
         for key in nameAny.keys {
             if let val = nameAny[key] as? FloVal {
-                val.valOps -= [.now_,.next] //.....
+                val.valOps -= [.now_,.next] //..
                 if let scalar = val as? FloValScalar {
                     if val.valOps.lit || val.valOps.dflt {
-                        scalar.next = scalar.dflt //...
+                        scalar.next = scalar.dflt //..
                     }
                 }
             }

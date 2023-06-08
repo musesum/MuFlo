@@ -185,7 +185,7 @@ public class FloParse {
         }
         func addOpScalar(_ nextPar: ParItem) {
 
-            if parset.isIn || parset.equal, let name { //...
+            if parset.isIn || parset.equal, let name {
 
                 scalar = FloValScalar(flo, name)
                 exprs.addDeepScalar(scalar)
@@ -247,21 +247,17 @@ public class FloParse {
                     finishExpr()
                     parset.removeAll()
 
-                case .assign:
-                    
-                    parset += .assign //...
-
                 case .In:
 
-                    parset += [.isIn, .match, .expr]
+                    parset += [.isIn]
 
                 case .IS,.EQ:
 
-                    parset += [.equal, .match, .expr]
+                    parset += [.equal]
                     
                 case .LE,.GE,.LT,.GT:
 
-                    parset += [.match,.expr]
+                    parset += [.match]
 
                 default:
                     parset += .expr
