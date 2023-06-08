@@ -222,10 +222,12 @@ public class FloValScalar: FloVal {
         if !valOps.equal {
             /// `1` in `a(1)` was a placeholder, now switch to .next
             if !valOps.match, valOps.lit {
-                valOps -= .lit //.... testCopyAt1()
+                // valOps -= .lit //.... testCopyAt1()
             }
-            valOps += ops
+            //.... valOps += ops
         }
+        valOps += ops //....
+
         if let scalar = flo.val?.nameAny[name] as? FloValScalar {
             scalar.valOps = valOps
         } else {
@@ -276,6 +278,11 @@ public class FloValScalar: FloVal {
 
     public override func copy() -> FloValScalar {
         return FloValScalar(with: self)
+    }
+    public func deepCopy(_ exprs: FloValExprs) -> FloValScalar {
+        let scalar = FloValScalar(with: self)
+        scalar.flo = exprs.flo
+        return scalar
     }
     public func copyEval() -> FloValScalar { //...
         return FloValScalar(with: self, viaEval: true)

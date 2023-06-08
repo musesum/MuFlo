@@ -54,9 +54,9 @@ public struct FloEdgeOps: OptionSet {
 
         switch self {
             case [.input,.output]: return " <> "
-            case [.input]: return " << "
-            case [.output]: return " >> "
-            case [.plugin]: return " ^ "
+            case [.input]: return " <<"
+            case [.output]: return " >>"
+            case [.plugin]: return " ^"
             default: print( "⚠️ unexpected scriptEdgeOps")
         }
         return ""

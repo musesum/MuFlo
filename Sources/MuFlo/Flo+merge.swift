@@ -350,7 +350,7 @@ extension Flo {
 
         if type != .copyat,
             expandDotPath(),
-            let parent = parent {
+            let parent {
 
             for sibling in parent.children {
                 if  sibling.name == name,
@@ -436,6 +436,21 @@ extension Flo {
             }
         }
     }
+
+    /// fixup dangling `_:_` scafolding from makeMany
+    public func bindParentChild() {
+        print(path(99)+":\(id)")
+        if parent?.name == "_:_" {
+            return
+        }
+        for child in children {
+            if child.parent != self {
+                child.parent = self
+            }
+            child.bindParentChild()
+        }
+    }
+
     /// bind root of tree and its subtree graph
     public func bindRoot() {
 
@@ -448,6 +463,7 @@ extension Flo {
         bindCopyatTypes()  ; log(3)
         bindEdges()        ; log(4)
         bindDispatch()     ; log(5)
+        bindParentChild()  ; log(6)
         bindNexts()
     }
 }

@@ -42,12 +42,11 @@ public class Flo {
     public var bool    : Bool     { get { BoolVal()             }}
     public var names   : [String] { get { NamesVal()   ?? []    }}
 
-    public var scriptNow: String { scriptCompact([        .now, .edge, .comment]) }
-    public var scriptDef    : String { scriptCompact([.def  ,           .edge, .comment]) }
-
-    public var scriptDelta  : String { scriptCompact([.delta, .now          ]) }
-    public var scriptAll    : String { scriptCompact([.def  , .now, .edge, .comment]) }
-    public var scriptFull   : String { scriptRoot([.parens, .def, .now, .edge, .comment]) }
+    public var scriptDelta : String { scriptCompact([.delta, .now                 ]) }
+    public var scriptNow   : String { scriptCompact([        .now, .edge, .comment]) }
+    public var scriptDef   : String { scriptCompact([.def,         .edge, .comment]) }
+    public var scriptAll   : String { scriptCompact([.def,   .now, .edge, .comment]) }
+    public var scriptFull  : String { scriptParens ([.def,   .now, .edge, .comment]) }
 
     private var time = TimeInterval(0)  // UTC time of last change time
     public func updateTime() {

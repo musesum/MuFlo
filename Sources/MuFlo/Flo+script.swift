@@ -250,13 +250,19 @@ extension Flo {
         return hasDelta
     }
 
-    @discardableResult
+
     public func scriptCompact(_ scriptOps: FloScriptOps = []) -> String {
         var ops: FloScriptOps = [.parens, .compact, .noLF]
         ops.insert(scriptOps)
         return scriptRoot(ops)
     }
-    @discardableResult
+
+    public func scriptParens(_ scriptOps: FloScriptOps = []) -> String {
+        var ops: FloScriptOps = [.parens]
+        ops.insert(scriptOps)
+        return scriptRoot(ops)
+    }
+
     public func scriptRoot(_ ops: FloScriptOps) -> String {
 
         var script = ""

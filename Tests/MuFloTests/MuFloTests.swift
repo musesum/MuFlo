@@ -844,6 +844,11 @@ final class MuFloTests: XCTestCase {
         let root = Flo("√")
 
         if floParse.parseScript(root, script),
+           let a = root.findPath("a"),
+           let ab = root.findPath("a.b"),
+           let abd = root.findPath("a.b.d"),
+           let ac = root.findPath("a.c"),
+           let acd = root.findPath("a.c.d"),
            let w = root.findPath("w") {
 
             err += ParStr.testCompare("""
@@ -871,6 +876,7 @@ final class MuFloTests: XCTestCase {
             """, root.scriptAll)
 
 
+            // 20, 21, 22 --------------------------------------------------
             // when match fails, the values revert back to original declaration
             w.setAny(FloValExprs(Flo("_t2_"), [("x", 20), ("y", 21), ("z", 22)]), .activate)
             err += ParStr.testCompare("""
@@ -1136,7 +1142,7 @@ final class MuFloTests: XCTestCase {
 
             a.setAny(FloValExprs(Flo("_t_"), [("x", 1), ("y", 2), ("z", 3)]), .activate)
 
-            err += ParStr.testCompare("a(x:1, y:2, z:3), b(sum:x+y+z:6) << a, c(x+y+z=6) << a", root.scriptAll)
+            err += ParStr.testCompare("a(x: 1, y: 2, z: 3), b(sum: x + y + z: 6) << a, c(x + y + z) << a", root.scriptAll)
         } else {
             err = 1
         }
@@ -1235,7 +1241,7 @@ final class MuFloTests: XCTestCase {
             let grid = root.findPath("note") {
 
                 note.setAny(FloValExprs(Flo("_t_"), [("num", 50)]), .activate)
-                err += ParStr.testCompare("grid(x:4.166667, y:2) << note, note(num: 50)", root.scriptNow)
+                err += ParStr.testCompare("grid(x: 4.166667, y: 2) << note, note(num: 50)", root.scriptNow)
             } else {
                 err += 1
             }

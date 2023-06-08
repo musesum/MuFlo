@@ -34,14 +34,24 @@ public class FloValExprs: FloVal {
         valOps = from.valOps
         for (name, val) in from.nameAny {
             switch val {
-            case let v as FloValScalar  : nameAny[name] = v.copy()
-            case let v as FloValExprs   : nameAny[name] = v.copy()
-            case let v as FloVal        : nameAny[name] = v.copy()
-            default                     : nameAny[name] = val
+            case let v as FloValScalar : nameAny[name] = v.deepCopy(self)
+            default                    : nameAny[name] = val
             }
         }
-        for opVal in from.opAnys {
-            opAnys.append(FloOpAny(from: opVal))
+        for fromOpAny in from.opAnys {
+            if fromOpAny.op == .scalar,
+                let opScalar = fromOpAny.any as? FloValScalar {
+                if let nameScalar = nameAny[opScalar.name] as? FloValScalar {
+                    let opAny = FloOpAny(scalar: nameScalar)
+                    opAnys.append(opAny)
+                } else {
+                    let opAny = FloOpAny(scalar: opScalar.deepCopy(self))
+                    opAnys.append(opAny)
+                }
+            } else {
+                let opAny = FloOpAny(from: fromOpAny)
+                opAnys.append(opAny)
+            }
         }
     }
     init(_ flo: Flo, point: CGPoint) {
@@ -190,7 +200,7 @@ public class FloValExprs: FloVal {
     func clearCurrentVals() {
         for key in nameAny.keys {
             if let val = nameAny[key] as? FloVal {
-                //.... val.valOps -= [.now_,.next]
+                val.valOps -= [.now_,.next] //.....
                 if let scalar = val as? FloValScalar {
                     if val.valOps.lit || val.valOps.dflt {
                         scalar.next = scalar.dflt //...

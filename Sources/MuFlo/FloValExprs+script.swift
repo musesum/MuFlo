@@ -90,7 +90,12 @@ extension FloValExprs {
 
             func logFinish(_ scalar: FloValScalar?, _ keyStr: String) {
                 guard let scalar else { return }
-                print("🧪 \"\(script)\"  \(keyStr).\(scalar.id): [\(scalar.valOps.description)] now:\(scalar.now) next:\(scalar.next) dflt:\(scalar.dflt) named:\(named)")
+                var shortOps = scalar.valOps ; shortOps -= .now_
+                let padOps = "[\(shortOps.description)]".pad(27)
+                let padScript = "\(script)".pad(24)
+                let padPath = "\(scalar.flo.path(5))(\(keyStr))".pad(20)
+
+                print("🧪 \(padScript) \(padPath) \(scalar.id) \(padOps) next: \(scalar.next.digits(0...2))  dflt: \(scalar.dflt.digits(0...2))")
             }
         }
     }

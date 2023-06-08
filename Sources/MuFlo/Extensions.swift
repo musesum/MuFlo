@@ -54,17 +54,16 @@ extension String {
         else                    { return ": "}
     }
     func singleSuffix(_ suf: String) -> String {
-        var result = self
-        if hasSuffix(suf) { return result }
+        if hasSuffix(suf) { return self }
         var dropCount = 0
-        for char in result.reversed() {
+        for char in self.reversed() {
             if suf.contains(char) {
                 dropCount += 1
             } else {
                break
             }
         }
-        return String(result.dropLast(dropCount)) + suf
+        return String(dropLast(dropCount)) + suf
     }
 
     /// transform `" one  two   three  "` => `"one two three"`

@@ -41,7 +41,7 @@ public struct FloParset: OptionSet {
 
     public var description: String {
         let result: [String] = Self.debugDescriptions.filter { contains($0.0) }.map { $0.1 }
-        let joined = result.joined(separator: ", ")
+        let joined = result.joined(separator: ",")
         return "\(joined)"
     }
     static public func += (lhs: inout FloParset, rhs: FloParset) {
