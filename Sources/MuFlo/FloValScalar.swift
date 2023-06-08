@@ -42,19 +42,6 @@ public class FloValScalar: FloVal {
         now    = scalar.now
         next   = scalar.next
     }
-    /// `next` matches either `dflt` or `min`
-    ///
-    ///     - note: minimal script that will parse the same
-    ///     
-    var ignoreNext: Bool {
-
-        if      !valOps.next  { return true }
-        else if valOps.hasLit { return next == dflt }
-        else if valOps.dflt   { return next == dflt }
-        else if valOps.min    { return next == min }
-        else                  { return false }
-
-    }
 
     public func normalized() -> Double {
         if valOps.contains([.min,.max]) {
@@ -164,8 +151,9 @@ public class FloValScalar: FloVal {
         var str = ""
         if valOps.rawValue == 0   { return "" }
 
-        var litNow: Bool { valOps.hasLit && ignoreNext && allOps.onlyNow }
-        var soloNow: Bool { !ignoreNext && (!valOps.hasLit || valOps.hasLit && allOps.onlyNow) }
+        var litNow: Bool { valOps.hasLit && allOps.onlyNow }
+        var soloNow: Bool { valOps.next && (!valOps.hasLit || allOps.onlyNow) }
+
         if nowOps.def {
             if valOps.min    { str += min.digits(0...6) }
             if valOps.thru   { str += "…" } /// `…` is `⌥⃣;` on mac

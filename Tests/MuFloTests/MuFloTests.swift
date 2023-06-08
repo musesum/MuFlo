@@ -979,9 +979,7 @@ final class MuFloTests: XCTestCase {
 
             b.setAny(CGPoint(x: 1, y: 2), .activate)
             err += ParStr.testCompare("a(x: 1, y: 2) << b, b(x: 1, y: 2)", root.scriptNow)
-            err += ParStr.testCompare("a(x, y) << b, b(x, y)", root.scriptDef)
-            //actual ⟹ a(x, y) <<  b, b(x 🚫1, y 2)
-
+            err += ParStr.testCompare("a(x, y) << b, b(x 1, y 2)", root.scriptDef)
 
         } else {
             err += 1
