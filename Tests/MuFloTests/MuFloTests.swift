@@ -15,7 +15,7 @@ final class MuFloTests: XCTestCase {
      */
     func test(_ script: String,
               _ expected: String? = nil,
-              _ scriptOps: FloScriptOps = [.parens, .edge, .comment, .def, .now, .noLF]) -> Int {
+              _ scriptOps: FloScriptOps = FloScriptOps.Full) -> Int {
 
         var err = 0
 
@@ -115,9 +115,8 @@ final class MuFloTests: XCTestCase {
         let root = Flo("√")
         let script = "a ( b ( // oy\n c // yo\n d ) e )"
         if floParse.parseScript(root, script, whitespace: "\n\t ") {
-            let result = root.script(.compact)
+            let result = root.script(.cmpct)
             print(result)
-
         }
     }
 
@@ -137,23 +136,17 @@ final class MuFloTests: XCTestCase {
     func testParseShort() { headline(#function)
         var err = 0
 
-        err += test("b(x / 2) a << b(x / 2)")
-        err += test("a b << a(* 10)")
+        err += test("a(1)")
         err += test("a (x 1, y 2)")
-        err += test("a(0…1~0:1)", nil, [.parens, .def, .now])
+        err += test("b(0…1)", nil, [.parens, .def])
         err += test("b(0…1~0.2:0.3)")
 
-
-        err += test("a(1)")
-        err += test("b(0…1)", nil, [.parens, .def])
         err += test("a(x,y,z)<<(x,y,z) x(1) y(2) z(3)")
         err += test("a(x,y,z)<<b, b(x:1, y:2, z:3)")
         err += test("b(x / 2) a << b(x / 2)")
         err += test("a(0…1~0:1)", nil, [.parens, .def, .now])
 
-        err += test("cell.one(1).two(2).three(3)", nil, [.parens, .now, .compact])
-
-
+        err += test("cell.one(1).two(2).three(3)", nil, [.parens, .now, .cmpct])
         err += test("a(0…1~0:1)", nil, [.parens, .def, .now])
 
         err += test("c(0…1:1)", nil, [.parens, .def, .now ])
@@ -161,7 +154,7 @@ final class MuFloTests: XCTestCase {
 
         err += test("a(\"b\")")
         err += test("a { b c } d@a", "a { b c } d@a { b c }")
-        err += test("a.b c@a", "a.b c @a .b", [.parens, .def, .now, .compact])
+        err += test("a.b c@a", "a.b c @a .b", [.parens, .def, .now, .cmpct])
         err += test("a.b c @a .b",  "a { b } c @a { b }")
 
         err += test("b(x / 2) a << b(x / 2)")
@@ -172,7 +165,7 @@ final class MuFloTests: XCTestCase {
                     "a { b { d } c { d } }")
 
         err += test("a { b c } a.* { d(0…1) >> a˚on(0) }",
-                    "a { b { d(0…1) >> a˚on(0) } c { d(0…1) >> a˚on(0) } }",[.parens, .edge, .comment, .def, .noLF] )
+                    "a { b { d(0…1) >> a˚on(0) } c { d(0…1) >> a˚on(0) } }",[.parens, .edge, .comnt, .def, .noLF] )
 
         err += test("a { b c } a˚.{ d(0…1) >> a˚.on(0) }",
                     "a { b { d(0…1) >> a˚.on(0) } c { d(0…1) >> a˚.on(0) } }")
@@ -295,9 +288,6 @@ final class MuFloTests: XCTestCase {
 
     func testParseValues() { headline(#function)
         var err = 0
-        err += test("e (x -16…16, y -16…16)")
-
-
         err += test("a (1)")
         err += test("a (1…2)")
         err += test("a (1_2)") // integer range
@@ -470,7 +460,6 @@ final class MuFloTests: XCTestCase {
         let root = Flo("√")
 
         if floParse.parseScript(root, script),
-           //let a =  root.findPath("a"),
            let b = root.findPath("b") {
 
             b.activate(Visitor(.model))
@@ -492,7 +481,6 @@ final class MuFloTests: XCTestCase {
         let root = Flo("√")
 
         if floParse.parseScript(root, script),
-           //let a = root.findPath("a"),
            let b = root.findPath("b") {
 
             b.activate(Visitor(.model))
@@ -555,7 +543,6 @@ final class MuFloTests: XCTestCase {
         let root = Flo("√")
 
         if floParse.parseScript(root, script),
-           //let a =  root.findPath("a"),
            let z =  root.findPath("z") {
 
             z.activate(Visitor(.model))
@@ -580,7 +567,6 @@ final class MuFloTests: XCTestCase {
         let root = Flo("√")
 
         if floParse.parseScript(root, script),
-           //let a =  root.findPath("a"),
            let z =  root.findPath("z") {
 
             z.activate(Visitor(.model))
@@ -763,15 +749,12 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
 
-
-
     func testFilter() { headline(#function)
         Par.trace = true
         var err = 0
-        // selectively set tuples by name, ignore the reset
-        let script = """
-        a(x==10, y)<<b b(x:0,y:0)
-        """
+
+        let script = "a(x==10, y)<<b b(x:0,y:0)"
+
         let root = Flo("√")
 
         if floParse.parseScript(root, script),
@@ -832,10 +815,11 @@ final class MuFloTests: XCTestCase {
                     """)
         XCTAssertEqual(err, 0)
     }
+
     func testFilter1() { headline(#function)
         Par.trace = true
         var err = 0
-        // selectively set tuples by name, ignore the reset
+
         let script = """
         a {b c}.{ d(x == 10, y: 0, z: 0)
                   e(x: 0, y == 21, z: 0) }
@@ -949,10 +933,10 @@ final class MuFloTests: XCTestCase {
             w.setAny(FloValExprs(Flo("_t3_"), [("x", 10), ("y", 21), ("z", 33)]), .activate)
 
             err += ParStr.testCompare("""
+            
             a { b { d(x==10, y: 21, z: 33) e(x: 10, y==21, z: 33) }
                 c { d(x==10, y: 21, z: 33) e(x: 10, y==21, z: 33) } }
                     w(x: 10, y: 21, z: 33) <> (a.b.d, a.b.e, a.c.d, a.c.e)
-
             """, root.scriptAll)
 
         } else {
@@ -967,7 +951,7 @@ final class MuFloTests: XCTestCase {
     func testExpr0() { headline(#function)
 
         var err = 0
-        // selectively set tuples by name, ignore the reset
+
         let script = "a(x, y) << b, b(x 0, y 0)"
 
         let root = Flo("√")
@@ -1298,13 +1282,13 @@ final class MuFloTests: XCTestCase {
            let c = root.findPath("c") {
 
             c.setAny(5.0, .activate)
-            err += ParStr.testCompare("a(0.5) b(5) c(5)",root.scriptCompact([.now, .comment]))
+            err += ParStr.testCompare("a(0.5) b(5) c(5)",root.scriptCompact([.now, .comnt]))
 
             a.setAny(0.1, .activate)
-            err += ParStr.testCompare("a(0.1) b(1) c(1)",root.scriptCompact([.now, .comment]))
+            err += ParStr.testCompare("a(0.1) b(1) c(1)",root.scriptCompact([.now, .comnt]))
 
             b.setAny(0.2, .activate)
-            err += ParStr.testCompare("a(0.02) b(0.2) c(0.2)",root.scriptCompact([.now, .comment]))
+            err += ParStr.testCompare("a(0.02) b(0.2) c(0.2)",root.scriptCompact([.now, .comnt]))
         } else {
             err += 1
         }

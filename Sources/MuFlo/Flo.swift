@@ -42,16 +42,14 @@ public class Flo {
     public var bool    : Bool     { get { BoolVal()             }}
     public var names   : [String] { get { NamesVal()   ?? []    }}
 
-    public var scriptDelta : String { scriptCompact([.delta, .now                 ]) }
-    public var scriptNow   : String { scriptCompact([        .now, .edge, .comment]) }
-    public var scriptDef   : String { scriptCompact([.def,         .edge, .comment]) }
-    public var scriptAll   : String { scriptCompact([.def,   .now, .edge, .comment]) }
-    public var scriptFull  : String { scriptParens ([.def,   .now, .edge, .comment]) }
+    public var scriptDelta : String { scriptRoot(FloScriptOps.Delta) }
+    public var scriptNow   : String { scriptRoot(FloScriptOps.Now  ) }
+    public var scriptDef   : String { scriptRoot(FloScriptOps.Def  ) }
+    public var scriptAll   : String { scriptRoot(FloScriptOps.All  ) }
+    public var scriptFull  : String { scriptRoot(FloScriptOps.Full ) }
 
     private var time = TimeInterval(0)  // UTC time of last change time
-    public func updateTime() {
-        time = Date().timeIntervalSince1970
-    }
+    public func updateTime() { time = Date().timeIntervalSince1970 }
 
     var hasDelta = false            // any changes to descendants?
     var pathRefs: [Flo]?            // b in `a.b <> c` for `a{b{c}} a.b <> c
