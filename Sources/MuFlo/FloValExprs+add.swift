@@ -7,11 +7,6 @@ import MuPar
 
 extension FloValExprs {
 
-    func addScalar(_ scalar: FloValScalar?) {
-        guard let scalar else { return }
-        let opAny = FloOpAny(scalar: scalar)
-        opAnys.append(opAny)
-    }
     func addDeepScalar(_ scalar: FloValScalar?) {
         guard let scalar else { return }
         let opAny = FloOpAny(scalar: scalar)

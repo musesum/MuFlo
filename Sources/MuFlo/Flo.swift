@@ -42,7 +42,7 @@ public class Flo {
     public var bool    : Bool     { get { BoolVal()             }}
     public var names   : [String] { get { NamesVal()   ?? []    }}
 
-    public var scriptCurrent: String { scriptCompact([        .now, .edge, .comment]) }
+    public var scriptNow: String { scriptCompact([        .now, .edge, .comment]) }
     public var scriptDef    : String { scriptCompact([.def  ,           .edge, .comment]) }
 
     public var scriptDelta  : String { scriptCompact([.delta, .now          ]) }

@@ -165,7 +165,7 @@ public class FloValScalar: FloVal {
         if valOps.rawValue == 0   { return "" }
 
         var litNow: Bool { valOps.hasLit && ignoreNext && allOps.onlyNow }
-        var soloNow: Bool { !valOps.hasLit && !ignoreNext }
+        var soloNow: Bool { !ignoreNext && (!valOps.hasLit || valOps.hasLit && allOps.onlyNow) }
         if nowOps.def {
             if valOps.min    { str += min.digits(0...6) }
             if valOps.thru   { str += "…" } /// `…` is `⌥⃣;` on mac
@@ -175,11 +175,13 @@ public class FloValScalar: FloVal {
             if valOps.dflt   { str += "~" + dflt.digits(0...6) }
             if valOps.hasLit { str += next.digits(0...6) }
         } else if litNow   { str += next.digits(0...6)
-        } else if soloNow  { str += next.digits(0...6) }
+        } else if soloNow  { str += next.digits(0...6)
+        } else {
+            return str }
 
         return str
     }
-    
+
     override public func hasDelta() -> Bool {
         if valOps.next {
             if valOps.dflt {
@@ -220,7 +222,7 @@ public class FloValScalar: FloVal {
         if !valOps.equal {
             /// `1` in `a(1)` was a placeholder, now switch to .next
             if !valOps.match, valOps.lit {
-                valOps -= .lit
+                valOps -= .lit //.... testCopyAt1()
             }
             valOps += ops
         }

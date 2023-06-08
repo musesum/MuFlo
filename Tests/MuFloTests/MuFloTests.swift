@@ -474,7 +474,7 @@ final class MuFloTests: XCTestCase {
            let b = root.findPath("b") {
 
             b.activate(Visitor(.model))
-            err = ParStr.testCompare("a(2) b >> a(2)", root.scriptCurrent)
+            err = ParStr.testCompare("a(2) b >> a(2)", root.scriptNow)
         } else {
             err = 1
         }
@@ -865,18 +865,18 @@ final class MuFloTests: XCTestCase {
             // 10, 11, 12 --------------------------------------------------
             w.setAny(FloValExprs(Flo("_t1_"), [("x", 10), ("y", 11), ("z", 12)]), .activate)
             err += ParStr.testCompare("""
-            a { b { d(x==10, y: 11, z: 12) e(x:0, y==21, z: 0) }
-                c { d(x==10, y: 11, z: 12) e(x:0, y==21, z: 0) } }
+            a { b { d(x==10, y: 11, z: 12) e(x: 0, y==21, z: 0) }
+                c { d(x==10, y: 11, z: 12) e(x: 0, y==21, z: 0) } }
                     w(x: 10, y: 11, z: 12) <> (a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
 
-            // 20, 21, 22 --------------------------------------------------
+            // when match fails, the values revert back to original declaration
             w.setAny(FloValExprs(Flo("_t2_"), [("x", 20), ("y", 21), ("z", 22)]), .activate)
             err += ParStr.testCompare("""
-            a { b { d(x==10, y: 11, z: 12) e(x: 20, y==21, z: 22) }
-                c { d(x==10, y: 11, z: 12) e(x: 20, y==21, z: 22) } }
-                    w(x: 20, y: 21, z: 22) <> (a.b.d, a.b.e, a.c.d, a.c.e)
+            a { b { d(x == 10, y: 0, z: 0) e(x: 20, y == 21, z: 22) }
+                c { d(x == 10, y: 0, z: 0) e(x: 20, y == 21, z: 22) } }
+                    w(x: 20, y: 21, z: 22) <> ( a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
             // 10, 21, 33 --------------------------------------------------
@@ -884,7 +884,7 @@ final class MuFloTests: XCTestCase {
             err += ParStr.testCompare("""
             a { b { d(x==10, y: 21, z: 33) e(x: 10, y==21, z: 33) }
                 c { d(x==10, y: 21, z: 33) e(x: 10, y==21, z: 33) } }
-                    w(x: 10, y: 21, z: 33)<>(a.b.d, a.b.e, a.c.d, a.c.e)
+                    w(x: 10, y: 21, z: 33) <> (a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
         } else {
@@ -969,10 +969,10 @@ final class MuFloTests: XCTestCase {
         if floParse.parseScript(root, script),
            let b = root.findPath("b") {
 
-            err += ParStr.testCompare("a(x, y) << b, b(x:0, y:0)", root.scriptCurrent)
+            err += ParStr.testCompare("a(x, y) << b, b(x:0, y:0)", root.scriptNow)
 
             b.setAny(CGPoint(x: 1, y: 2), .activate)
-            err += ParStr.testCompare("a(x: 1, y: 2) << b, b(x: 1, y: 2)", root.scriptCurrent)
+            err += ParStr.testCompare("a(x: 1, y: 2) << b, b(x: 1, y: 2)", root.scriptNow)
             err += ParStr.testCompare("a(x, y) << b, b(x, y)", root.scriptDef)
             //actual ⟹ a(x, y) <<  b, b(x 🚫1, y 2)
 
@@ -996,7 +996,7 @@ final class MuFloTests: XCTestCase {
            let c = root.findPath("c") {
 
             c.setAny(CGPoint(x: 1, y: 2), .activate)
-            err = ParStr.testCompare("a(x:1) << c, c(x:1, y:2)", root.scriptCurrent)
+            err = ParStr.testCompare("a(x:1) << c, c(x:1, y:2)", root.scriptNow)
         } else {
             err += 1
         }
@@ -1019,7 +1019,7 @@ final class MuFloTests: XCTestCase {
             let p = CGPoint(x: 1, y: 2)
             c.setAny(p, .activate)
 
-            err += ParStr.testCompare("a(x:1) << c, b(y:2) << c, c(x:1, y:2)", root.scriptCurrent)
+            err += ParStr.testCompare("a(x:1) << c, b(y:2) << c, c(x:1, y:2)", root.scriptNow)
 
         } else {
             err += 1
@@ -1072,7 +1072,7 @@ final class MuFloTests: XCTestCase {
                 "a(x:0…2, y:0…2, z:99), b(x:0…2, y:0…2) << a", root.scriptDef)
             //⟹ a(x:0…2, y:0…2, z🚫), b(x:0…2, y:0…2)<<a
 
-            err += ParStr.testCompare("a(x:1, y:1, z:99), b(x:1, y:1) << a", root.scriptCurrent)
+            err += ParStr.testCompare("a(x:1, y:1, z:99), b(x:1, y:1) << a", root.scriptNow)
             err += ParStr.testCompare("a(x:0…2:1,y:0…2:1,z:99), b(x:0…2:1,y:0…2:1)<<a", root.scriptAll)
 
         } else {
@@ -1096,7 +1096,7 @@ final class MuFloTests: XCTestCase {
            let a = root.findPath("a") {
 
             err += ParStr.testCompare("a(x in 2…4, y in 3…5)>>b  b(x:1…2,y:2…3)", root.scriptAll)
-            err += ParStr.testCompare("a(x, y) >>  b b(x, y)", root.scriptCurrent)
+            err += ParStr.testCompare("a(x, y) >>  b b(x, y)", root.scriptNow)
 
             // will fail expression, so no current values
             a.setAny(CGPoint(x: 1, y: 4), .activate)
@@ -1106,11 +1106,11 @@ final class MuFloTests: XCTestCase {
             a.setAny(CGPoint(x: 3, y: 4), .activate)
             err += ParStr.testCompare("a(x in 2…4: 3, y in 3…5: 4) >> b b(x: 1…2: 1.5, y: 2…3: 2.5)", root.scriptAll)
 
-            err += ParStr.testCompare("a(x: 3, y: 4) >> b b(x: 1.5, y: 2.5)", root.scriptCurrent)
+            err += ParStr.testCompare("a(x: 3, y: 4) >> b b(x: 1.5, y: 2.5)", root.scriptNow)
 
             // will fail, so clear out current values for a
             a.setAny(CGPoint(x:1, y:4), .activate)
-            err += ParStr.testCompare("a(x, y)>>b b(x:1.5, y:2.5)", root.scriptCurrent)
+            err += ParStr.testCompare("a(x, y)>>b b(x:1.5, y:2.5)", root.scriptNow)
 
 
         } else {
@@ -1235,7 +1235,7 @@ final class MuFloTests: XCTestCase {
             let grid = root.findPath("note") {
 
                 note.setAny(FloValExprs(Flo("_t_"), [("num", 50)]), .activate)
-                err += ParStr.testCompare("grid(x:4.166667, y:2) << note, note(num: 50)", root.scriptCurrent)
+                err += ParStr.testCompare("grid(x:4.166667, y:2) << note, note(num: 50)", root.scriptNow)
             } else {
                 err += 1
             }
@@ -1317,7 +1317,7 @@ final class MuFloTests: XCTestCase {
 
         if floParse.parseScript(root, script) {
 
-            err += ParStr.testCompare("a.b.c(1) d.e(2) <> a.b.c f.e(2) <> a.b.c", root.scriptCurrent)
+            err += ParStr.testCompare("a.b.c(1) d.e(2) <> a.b.c f.e(2) <> a.b.c", root.scriptNow)
 
             let d3Script = root.makeD3Script()
             print(d3Script)

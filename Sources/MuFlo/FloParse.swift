@@ -185,7 +185,7 @@ public class FloParse {
         }
         func addOpScalar(_ nextPar: ParItem) {
 
-            if parset.isIn || parset.equal, let name {
+            if parset.isIn || parset.equal, let name { //...
 
                 scalar = FloValScalar(flo, name)
                 exprs.addDeepScalar(scalar)
@@ -214,7 +214,7 @@ public class FloParse {
                     }
                     
                 default:
-                    
+                    print("⁉️ addOpScalar: uncaught parset: \(parset.description)")
                     break
                 }
             }
