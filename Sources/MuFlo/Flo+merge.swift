@@ -314,12 +314,12 @@ extension Flo {
                 name = String(prefix)   // change name to only prefix
                 type = .name            // change my type to .name
                 child.expandDotPath()   // continue with `b.c`
+
             } else { // special case with `a.`
 
                 name = String(prefix)   // trim trailing .
                 type = .name            // change my type to .name
             }
-
         }
     }
     /// Expand pure path `a.b.c` into `a { b { c } }` --
@@ -437,20 +437,6 @@ extension Flo {
         }
     }
 
-    /// fixup dangling `_:_` scafolding from makeMany
-    public func bindParentChild() {
-        print(path(99)+":\(id)")
-        if parent?.name == "_:_" {
-            return
-        }
-        for child in children {
-            if child.parent != self {
-                child.parent = self
-            }
-            child.bindParentChild()
-        }
-    }
-
     /// bind root of tree and its subtree graph
     public func bindRoot() {
 
@@ -463,7 +449,6 @@ extension Flo {
         bindCopyatTypes()  ; log(3)
         bindEdges()        ; log(4)
         bindDispatch()     ; log(5)
-        bindParentChild()  ; log(6)
         bindNexts()
     }
 }

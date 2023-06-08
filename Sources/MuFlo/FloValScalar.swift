@@ -250,15 +250,12 @@ public class FloValScalar: FloVal {
         return now
     }
 
-    public override func copy() -> FloValScalar {
-        return FloValScalar(with: self)
-    }
     public func deepCopy(_ exprs: FloValExprs) -> FloValScalar {
         let scalar = FloValScalar(with: self)
         scalar.flo = exprs.flo
         return scalar
     }
-    public func copyEval() -> FloValScalar { //...
+    public func copyEval() -> FloValScalar {
         return FloValScalar(with: self, viaEval: true)
     }
 }

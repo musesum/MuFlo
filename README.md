@@ -1,27 +1,29 @@
 
 # MuFlo /micro flow/
 
-Flo is a data flow graph with the following features:
+Flo is a *DSL* that generates a runtime flow graph with the following elements:
 
-- **Node** with names, values, edges, and closures
+- **Nodes** with names, values, edges, and closures
 - **Edges** with inputs, outputs, and switches
 - **Values** which transform, as it flows through a graph
+- **Closures** auto call native Swift or Metal shaders 
 
 ## Goals
+- Author collaborative media performances
+- Co-pilot local and remote devices and content
+- Human readable and machine learnable script
+- Support most gesture input, including MIDI & handpose
 
-- Realtime coordination between devices 
-- Human readable declarative data flow 
-- Play nice with syntax highlighting and code folding
-- Minimal use of parsing cruft, like semicommas, and commas
+### nice to have
+- Compatible with C syntax highlighting and code folding
+- Minimal use of parsing cruft, like semicommas
 - Synchronize state while managing circular references
 - Explore live patching without crashing or infinite loops 
-- Concise expression of hand pose for menu navigation 
-- Concise expression of body pose for avatars and robots
-- Synchronize amorphous content and devices 
+- Concise description of hand pose and body pose
 
-## Nodes
+## Nodes 
 
-Each node has two kinds of edges: tree and graph. The tree allows each node to be addressed by name and its relationship within a group. The graph allows each node to activate each other based on inputs and outputs. 
+Each node has two kinds of edges: *tree* and *graph*. The *tree* allows each node to be addressed by name and its relationship within a group. The *graph* allows each node to activate each other based on inputs and outputs. 
 
 ### Tree
 
@@ -44,6 +46,7 @@ A tree can copy the contents of another tree with a `: name`
 a {b c}.{d e} // produces `a { b { d e } c { d e } }`
 z: a          // produces `z { b { d e } c { d e } }`
 ```
+
 ### Graph
 
 Each node may have any number of input and output edges, which attach to other nodes. A node can activate 
@@ -231,42 +234,6 @@ Because the visit pattern breaks loops, the `˚˚<>..`  maps well to devices tha
 - the joints on an Human body capture skeleton
 - future hash trees (like Merkle trees) and graphs
 
-#### Bidirectional flow
-
-Ternaries may aggregate multiple ihputs or broadcast to multiple outputs
-```c
-a {b c}.{d e}.{f g} // produces `a{b {d {f g} e {f g}} c {d {f g} e {f g}}}`
-p >> (a.b ? b˚. | a.c ? c˚.) // broadcast p to all leaf nodes of either b or c
-q << (a.b ? b˚. | a.c ? c˚.) // aggregate to q from all leaves of either b or c
-```
-### Embedded  Script
-
-Flo may include external script inside of double curly brackets `{{ whatever }}`. Whatever is inside the double bracks is ignored by the script, but is available calling swift code. This is intended for the app  `DeepMuse`  to embed shader code, which can be safely recompiled at runtime. 
-
-```c
-example {
-   
-   metal {{
-        // Metal code goes here
-        …
-    }}
-    gl {{
-        // OpenGL code goes here
-        …
-    }}
-    js {{
-        // javascript
-        …
-    }}
-    whatever {{
-        // you want
-        …
-    }}
-}
-```
-When activating `example.*!`  the Flo nodes named `metal`, `gl`, `js`, and `whatever` are activated. 
-Any closure, attached to those nodes, can get the contents between the brakets `{{ … }}`
-The contents are whatever you want, they are interpreted by the closure at run time.
 
 ## Tests
 Basic example of syntax may be found in the test cases here:  
@@ -293,9 +260,9 @@ MuFloD3 (future)
 
 ## Use cases
 
-### DeepMuse iOS App
+### DeepMuse App
 
-Toy Visual Music Synth for iPad and iPhone called "DeepMuse"
+Visual music synth for iPad, iPhone, TV, and Vision Pro
 - See test script in Sources/Flo/Resources/*.flo.h
 - See test output in  Sources/Flo/Resources/test.output.flo.h
 - Code folding and syntax highlighting works in Xcode

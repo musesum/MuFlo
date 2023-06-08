@@ -182,6 +182,7 @@ public class FloParse {
         func finishExpr() {
             scalar = nil
             name = nil
+            parset.removeAll()
         }
         func addOpScalar(_ nextPar: ParItem) {
 
@@ -237,31 +238,16 @@ public class FloParse {
 
         func addOpExpr(_ nextPar: ParItem)  {
 
-            if let val = nextPar.value {
-                let op = FloOp(val)
-                exprs.addOpStr(val)
+            guard let val = nextPar.value else { return }
+            let op = FloOp(val)
+            exprs.addOpStr(val)
 
-                switch op {
-
-                case .comma:
-                    finishExpr()
-                    parset.removeAll()
-
-                case .In:
-
-                    parset += [.isIn]
-
-                case .IS,.EQ:
-
-                    parset += [.equal]
-                    
-                case .LE,.GE,.LT,.GT:
-
-                    parset += [.match]
-
-                default:
-                    parset += .expr
-                }
+            switch op {
+            case .comma:            finishExpr()
+            case .In:               parset += [.isIn]
+            case .IS,.EQ:           parset += [.equal]
+            case .LE,.GE,.LT,.GT:   parset += [.match]
+            default:                parset += .expr
             }
         }
         func nextNextVal(_ nextPar: ParItem) -> String? {
@@ -314,6 +300,7 @@ public class FloParse {
             return parseEdgeDef(flo, edgeDef, parItem, level)
 
         } else if flo.val == nil {
+
             flo.val = FloValExprs(flo, pattern)
 
         } else {
