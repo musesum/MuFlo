@@ -36,9 +36,8 @@ extension FloValExprs { // + set
     func evalFromExprs(_ viaEdge: Bool,
                        _ visit: Visitor) {
 
-            let edgeVal = viaEdge ? flo.val : nil
-            evalExprs(edgeVal, visit) //....
-        
+        let edgeVal = viaEdge ? flo.val : nil
+        evalExprs(edgeVal, visit) //...
     }
 
     @discardableResult

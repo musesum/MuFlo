@@ -8,7 +8,7 @@ public struct FloScriptOps: OptionSet {
     public let rawValue: Int
 
     public static let def     = FloScriptOps(rawValue: 1 <<  0) ///   1 defined values `0…3=1` in  `a(x 0…3=1)`
-    public static let current = FloScriptOps(rawValue: 1 <<  1) ///   2 current value `2` in `a(x 2)` or `a(x 0…3=1:2)`
+    public static let now     = FloScriptOps(rawValue: 1 <<  1) ///   2 current value `2` in `a(x 2)` or `a(x 0…3=1:2)`
     public static let edge    = FloScriptOps(rawValue: 1 <<  2) ///   4 `>> (b c d)` in `a >> (b c d)`
     public static let compact = FloScriptOps(rawValue: 1 <<  3) ///   8 `a.b` instead of `a { b }`
     public static let parens  = FloScriptOps(rawValue: 1 <<  4) ///   16 `(1)` in `a(1)` but not `2` in `b(x 2)`
@@ -23,14 +23,14 @@ extension FloScriptOps: CustomStringConvertible {
 
     static public var debugDescriptions: [(Self, String)] = [
         (.def     , "def"     ),
-        (.current , "current" ),
+        (.now     , "now"     ),
         (.edge    , "edge"    ),
         (.compact , "compact" ),
         (.parens  , "parens"  ),
         (.expand  , "expand"  ),
         (.comment , "comment" ),
         (.delta   , "delta"   ),
-        (.noLF    , "noLF"  ),
+        (.noLF    , "noLF"    ),
     ]
 
     public var description: String {
@@ -40,7 +40,7 @@ extension FloScriptOps: CustomStringConvertible {
     }
 
     var def     : Bool { contains(.def    ) }
-    var current : Bool { contains(.current) }
+    var now     : Bool { contains(.now    ) }
     var edge    : Bool { contains(.edge   ) }
     var compact : Bool { contains(.compact) }
     var parens  : Bool { contains(.parens ) }
@@ -49,18 +49,7 @@ extension FloScriptOps: CustomStringConvertible {
     var delta   : Bool { contains(.delta  ) }
     var noLF    : Bool { contains(.noLF   ) }
 
-    var onlyDef     : Bool {  def && !current }
-    var onlyCurrent : Bool { !def &&  current }
-
-
-//
-//    var onlyCurrent: FloScriptOps {
-//        FloScriptOps(rawValue: rawValue & FloScriptOps.current.rawValue)
-//    }
-//
-//    var onlyDef: FloScriptOps {
-//        FloScriptOps(rawValue: rawValue & FloScriptOps.def.rawValue)
-//    }
-
+    var onlyDef : Bool {  def && !now }
+    var onlyNow : Bool { !def &&  now }
 }
 

@@ -31,22 +31,18 @@ public class FloValExprs: FloVal {
     init(from: FloValExprs) {
         super.init(with: from)
 
-        //... if let fromExprs = from as? FloValExprs {
-            
-            valOps = from.valOps
-            for (name, val) in from.nameAny {
-                switch val {
-                case let v as FloValScalar  : nameAny[name] = v.copy()
-                case let v as FloValExprs   : nameAny[name] = v.copy()
-                case let v as FloVal        : nameAny[name] = v.copy()
-                default                     : nameAny[name] = val
-                }
-                //.... nameAny[name] = (val as? FloVal)?.copy() ?? val
+        valOps = from.valOps
+        for (name, val) in from.nameAny {
+            switch val {
+            case let v as FloValScalar  : nameAny[name] = v.copy()
+            case let v as FloValExprs   : nameAny[name] = v.copy()
+            case let v as FloVal        : nameAny[name] = v.copy()
+            default                     : nameAny[name] = val
             }
-            for opVal in from.opAnys {
-                opAnys.append(FloOpAny(from: opVal))
-            }
-       //... }
+        }
+        for opVal in from.opAnys {
+            opAnys.append(FloOpAny(from: opVal))
+        }
     }
     init(_ flo: Flo, point: CGPoint) {
         super.init(flo, "point")
@@ -246,7 +242,7 @@ public class FloValExprs: FloVal {
 
         } else {
             
-            nameAny["val"] = FloValScalar(flo, "val", v) //...TODO: remove this kludge for DeepMenu
+            nameAny["val"] = FloValScalar(flo, "val", v) //??? TODO: remove this kludge for DeepMenu
         }
         return true
     }

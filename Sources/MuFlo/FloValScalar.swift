@@ -46,16 +46,14 @@ public class FloValScalar: FloVal {
     ///
     ///     - note: minimal script that will parse the same
     ///     
-    var redundantNext: Bool {
+    var ignoreNext: Bool {
 
-        if valOps.lit || valOps.match {
-            return next == dflt
-        } else if valOps.dflt {
-            return next == dflt
-        } else if valOps.min  {
-            return next == min
-        }
-        return false
+        if      !valOps.next  { return true }
+        else if valOps.hasLit { return next == dflt }
+        else if valOps.dflt   { return next == dflt }
+        else if valOps.min    { return next == min }
+        else                  { return false }
+
     }
 
     public func normalized() -> Double {
@@ -166,27 +164,19 @@ public class FloValScalar: FloVal {
         var str = ""
         if valOps.rawValue == 0   { return "" }
 
+        var litNow: Bool { valOps.hasLit && ignoreNext && allOps.onlyNow }
+        var soloNow: Bool { !valOps.hasLit && !ignoreNext }
         if nowOps.def {
-            if valOps.min  { str += min.digits(0...6) }
-            if valOps.thru { str += "…" } /// `…` is `⌥⃣;` on mac
-            if valOps.thri { str += "_" } /// integer range for midi
-            if valOps.modu { str += "%" } /// modulo
-            if valOps.max  { str += max.digits(0...6) }
-            if valOps.dflt { str += "~" + dflt.digits(0...6) }
-            if (valOps.lit || valOps.match) { str += next.digits(0...6) }
-        } else if allOps.onlyCurrent, (valOps.lit||valOps.match) {
-            str += next.digits(0...6)
-        }
+            if valOps.min    { str += min.digits(0...6) }
+            if valOps.thru   { str += "…" } /// `…` is `⌥⃣;` on mac
+            if valOps.thri   { str += "_" } /// integer range for midi
+            if valOps.modu   { str += "%" } /// modulo
+            if valOps.max    { str += max.digits(0...6) }
+            if valOps.dflt   { str += "~" + dflt.digits(0...6) }
+            if valOps.hasLit { str += next.digits(0...6) }
+        } else if litNow   { str += next.digits(0...6)
+        } else if soloNow  { str += next.digits(0...6) }
 
-
-        if valOps.next, !redundantNext {
-            if allOps.onlyDef  {
-                str += str.isEmpty ? "" : "="
-                str +=  next.digits(0...6)
-            } else if nowOps.current {
-                str += next.digits(0...6)
-            }
-        }
         return str
     }
     
@@ -227,16 +217,18 @@ public class FloValScalar: FloVal {
         case let v as Int          : setNextOpNow(Double(v))
         default: print("🚫 setVal unknown type for: from")
         }
-        if ops.next, valOps.lit {
-            valOps -= .lit
+        if !valOps.equal {
+            /// `1` in `a(1)` was a placeholder, now switch to .next
+            if !valOps.match, valOps.lit {
+                valOps -= .lit
+            }
+            valOps += ops
         }
-        valOps += ops
         if let scalar = flo.val?.nameAny[name] as? FloValScalar {
             scalar.valOps = valOps
         } else {
-            flo.val?.nameAny[name] = self
+            flo.val?.nameAny[name] = self //...
         }
-
 
         // testNextEqualNow()
         return true

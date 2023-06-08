@@ -53,31 +53,31 @@ extension FloValExprs {
                 } else {
                     script.spacePlus(str)
                 }
-            } else if scriptOps.current, opAny.op == .comma {
+            } else if scriptOps.now, opAny.op == .comma {
                 script += ", "
             }
-
         }
         finishExpr()
         return script
 
         func finishExpr() {
-            if scriptOps.current,
+            if scriptOps.now,
                position < nameAny.values.count {
 
                 let keyStr = nameAny.keys[position]
-                let nameStr = !scriptOps.def ? keyStr : ""
+                var nameStr = !scriptOps.def ? keyStr : ""
                 let scalar =  (named != ""
                                ? nameAny[named] as? FloValScalar
                                : nameAny.values[position] as? FloValScalar)
                 logFinish(scalar, keyStr)
 
-                let numStr = scalar?.scriptScalar(scriptOps, .current) ?? ""
+                let numStr = scalar?.scriptScalar(scriptOps, .now) ?? ""
+                if numStr == "", scriptOps.onlyNow { nameStr = named }
 
                 if  nameStr.count > 0 && nameStr.first != "_" {
                     script.spacePlus(nameStr + (numStr.isEmpty ? "" : ": " + numStr))
                 } else if numStr.count > 0 {
-                    if keyStr.first == "_", script.isEmpty {
+                    if keyStr.first == "_", (script.isEmpty || scalar?.valOps.lit ?? false) {
                         script += numStr
                     } else {
                         script += script.roundColonSpace() + numStr
@@ -90,7 +90,7 @@ extension FloValExprs {
 
             func logFinish(_ scalar: FloValScalar?, _ keyStr: String) {
                 guard let scalar else { return }
-                print("🧪 \"\(script)\"  \(keyStr).\(scalar.id): [\(scalar.valOps.description ?? "")] now:\(scalar.now) next:\(scalar.next) dflt:\(scalar.dflt) named:\(named)")
+                print("🧪 \"\(script)\"  \(keyStr).\(scalar.id): [\(scalar.valOps.description)] now:\(scalar.now) next:\(scalar.next) dflt:\(scalar.dflt) named:\(named)")
             }
         }
     }

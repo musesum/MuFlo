@@ -24,13 +24,7 @@ public class FloEdgeDef {
         edgeOps = fromDef.edgeOps
         for (path,val) in fromDef.pathVals.edgeVals { // pathVals = with.pathVal
 
-                pathVals.addPathVal(path, val?.copy()) //...
-        
-//            switch val {
-//                case let val as FloValScalar: pathVals.add(path: path, val: val.copy())
-//                case let val as FloValExprs:  pathVals.add(path: path, val: val.copy())
-//                default:                      pathVals.add(path: path, val: val)
-//            }
+                pathVals.addPathVal(path, val?.copy()) 
         }
     }
     
@@ -57,7 +51,7 @@ public class FloEdgeDef {
     }
 
     public func printVal() -> String {
-        return scriptVal([.parens, .current, .expand])
+        return scriptVal([.parens, .now, .expand])
     }
     
     public func scriptVal(_ scriptOps: FloScriptOps,

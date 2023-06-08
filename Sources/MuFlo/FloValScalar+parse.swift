@@ -27,7 +27,9 @@ extension FloValScalar { // + Parse
                 max = num
             }
         } else {
-            valOps += parset.match ? [.match,.lit] : .lit
+            valOps += .lit
+            if parset.match { valOps += .match }
+            if parset.equal { valOps += .equal }
             dflt = num
             next = num
             now = num

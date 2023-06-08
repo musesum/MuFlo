@@ -42,12 +42,12 @@ public class Flo {
     public var bool    : Bool     { get { BoolVal()             }}
     public var names   : [String] { get { NamesVal()   ?? []    }}
 
-    public var scriptCurrent: String { scriptCompact([        .current, .edge, .comment]) }
+    public var scriptCurrent: String { scriptCompact([        .now, .edge, .comment]) }
     public var scriptDef    : String { scriptCompact([.def  ,           .edge, .comment]) }
 
-    public var scriptDelta  : String { scriptCompact([.delta, .current          ]) } //...
-    public var scriptAll    : String { scriptCompact([.def  , .current, .edge, .comment]) }
-    public var scriptFull   : String { scriptRoot([.parens, .def, .current, .edge, .comment]) } //...
+    public var scriptDelta  : String { scriptCompact([.delta, .now          ]) }
+    public var scriptAll    : String { scriptCompact([.def  , .now, .edge, .comment]) }
+    public var scriptFull   : String { scriptRoot([.parens, .def, .now, .edge, .comment]) }
 
     private var time = TimeInterval(0)  // UTC time of last change time
     public func updateTime() {
@@ -184,7 +184,7 @@ public class Flo {
     ///    1) app saves .delta and restores .now values
     ///    2) another devices wants to synchronize state
     ///
-    ///... still used in DeepMuse?
+    ///??? still used in DeepMuse?
     ///
     public func bindDispatch(_ prior: Flo? = nil) {
 

@@ -15,7 +15,7 @@ final class MuFloTests: XCTestCase {
      */
     func test(_ script: String,
               _ expected: String? = nil,
-              _ scriptOps: FloScriptOps = [.parens, .edge, .comment, .def, .current, .noLF]) -> Int {
+              _ scriptOps: FloScriptOps = [.parens, .edge, .comment, .def, .now, .noLF]) -> Int {
 
         var err = 0
 
@@ -124,47 +124,48 @@ final class MuFloTests: XCTestCase {
     func testSession() { headline(#function)
         var err = 0
         err += test("a(1)")
-        err += test("a(1)", nil, [.parens, .def, .current])
+        err += test("a(1)", nil, [.parens, .def, .now])
         XCTAssertEqual(err, 0)
     }
 
     func testEdgeSession() { headline(#function)
         var err = 0
-        err += test("a(1) b >> a(2)", nil, [.parens, .current, .edge])
+        err += test("a(1) b >> a(2)", nil, [.parens, .now, .edge])
         XCTAssertEqual(err, 0)
     }
 
     func testParseShort() { headline(#function)
         var err = 0
 
-        err += test("a (x 1, y 2)")
-        err += test("a(0…1~0:1)", nil, [.parens, .def, .current])
-        err += test("b(0…1~0.2:0.3)")
+        err += test("b(x / 2) a << b(x / 2)")
         err += test("a b << a(* 10)")
+        err += test("a (x 1, y 2)")
+        err += test("a(0…1~0:1)", nil, [.parens, .def, .now])
+        err += test("b(0…1~0.2:0.3)")
+
 
         err += test("a(1)")
         err += test("b(0…1)", nil, [.parens, .def])
         err += test("a(x,y,z)<<(x,y,z) x(1) y(2) z(3)")
         err += test("a(x,y,z)<<b, b(x:1, y:2, z:3)")
         err += test("b(x / 2) a << b(x / 2)")
-        err += test("a(0…1~0:1)", nil, [.parens, .def, .current])
+        err += test("a(0…1~0:1)", nil, [.parens, .def, .now])
 
-        err += test("cell.one(1).two(2).three(3)", nil, [.parens, .current, .compact])
+        err += test("cell.one(1).two(2).three(3)", nil, [.parens, .now, .compact])
 
 
-        err += test("a(0…1~0:1)", nil, [.parens, .def, .current])
+        err += test("a(0…1~0:1)", nil, [.parens, .def, .now])
 
-        err += test("c(0…1:1)", nil, [.parens, .def, .current ])
+        err += test("c(0…1:1)", nil, [.parens, .def, .now ])
         err += test("a(1) b >> a(2)")
 
         err += test("a(\"b\")")
         err += test("a { b c } d@a", "a { b c } d@a { b c }")
-        err += test("a.b c@a", "a.b c @a .b", [.parens, .def, .current, .compact])
+        err += test("a.b c@a", "a.b c @a .b", [.parens, .def, .now, .compact])
         err += test("a.b c @a .b",  "a { b } c @a { b }")
 
         err += test("b(x / 2) a << b(x / 2)")
         err += test("a b << a(* 10)")
-        err += test("a (x 1, y 2)")
         err += test("m (1, 2, 3), n >> m(4, 5, 6)")
 
         err += test("a { b c } a.*{ d }",
@@ -346,7 +347,7 @@ final class MuFloTests: XCTestCase {
         err += test("a { b c } a˚.{ d(0…1) >> a˚.on(2) }",
                     "a { b { d(0…1) >> a˚.on(2) } c { d(0…1) >> a˚.on(2) } }")
 
-        err += test("aa { a(1) } bb@aa { a(2) }") //....
+        err += test("aa { a(1) } bb@aa { a(2) }")
         
         err += test("a { b { c { c1 c2 } d } } a e",
                     "a { b { c { c1 c2 } d } } e")
@@ -495,7 +496,7 @@ final class MuFloTests: XCTestCase {
            let b = root.findPath("b") {
 
             b.activate(Visitor(.model))
-            let result = root.scriptRoot([.parens, .current, .edge])
+            let result = root.scriptRoot([.parens, .now, .edge])
             err = ParStr.testCompare("a { a1(2) a2(2) } b >> (a.a1(2), a.a2(2))", result)
         } else {
             err = 1
@@ -514,7 +515,7 @@ final class MuFloTests: XCTestCase {
         let root = Flo("√")
 
         if floParse.parseScript(root, script) {
-            let result = root.scriptRoot([.parens, .current])
+            let result = root.scriptRoot([.parens, .now])
             err += ParStr.testCompare("a { b { f g } c { f g } }", result)
         } else {
             err += 1
@@ -536,7 +537,7 @@ final class MuFloTests: XCTestCase {
            //let a =  root.findPath("a"),
            let z =  root.findPath("z") {
             z.activate(Visitor(.model))
-            let result = root.scriptRoot([.parens, .current, .edge])
+            let result = root.scriptRoot([.parens, .now, .edge])
             err += ParStr.testCompare("a { b { f g(2) } c { f g(2) } } z >> (a.b.g(2), a.c.g(2))", result)
         } else {
             err += 1
@@ -910,8 +911,8 @@ final class MuFloTests: XCTestCase {
 
             err += ParStr.testCompare("""
 
-            a { b { d(x==10, y, z) e(x,y==21, z) }
-                c { d(x==10, y, z) e(x,y==21, z) } }
+            a { b { d(x == 10, y, z) e(x, y == 21, z) }
+                c { d(x == 10, y, z) e(x, y == 21, z) } }
                     w(x: 0, y: 0, z: 0) <> (a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
@@ -970,9 +971,10 @@ final class MuFloTests: XCTestCase {
 
             err += ParStr.testCompare("a(x, y) << b, b(x:0, y:0)", root.scriptCurrent)
 
-            b.setAny(CGPoint(x:1, y:2), .activate)
+            b.setAny(CGPoint(x: 1, y: 2), .activate)
             err += ParStr.testCompare("a(x: 1, y: 2) << b, b(x: 1, y: 2)", root.scriptCurrent)
             err += ParStr.testCompare("a(x, y) << b, b(x, y)", root.scriptDef)
+            //actual ⟹ a(x, y) <<  b, b(x 🚫1, y 2)
 
 
         } else {
@@ -1064,7 +1066,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseScript(root, script),
            let a = root.findPath("a") {
 
-            a.setAny(CGPoint(x:1, y:1), .activate)
+            a.setAny(CGPoint(x: 1, y: 1), .activate)
 
             err += ParStr.testCompare(
                 "a(x:0…2, y:0…2, z:99), b(x:0…2, y:0…2) << a", root.scriptDef)
@@ -1072,7 +1074,6 @@ final class MuFloTests: XCTestCase {
 
             err += ParStr.testCompare("a(x:1, y:1, z:99), b(x:1, y:1) << a", root.scriptCurrent)
             err += ParStr.testCompare("a(x:0…2:1,y:0…2:1,z:99), b(x:0…2:1,y:0…2:1)<<a", root.scriptAll)
-
 
         } else {
             err += 1
@@ -1095,20 +1096,22 @@ final class MuFloTests: XCTestCase {
            let a = root.findPath("a") {
 
             err += ParStr.testCompare("a(x in 2…4, y in 3…5)>>b  b(x:1…2,y:2…3)", root.scriptAll)
+            err += ParStr.testCompare("a(x, y) >>  b b(x, y)", root.scriptCurrent)
 
             // will fail expression, so no current values
-            a.setAny(CGPoint(x:1, y:4), .activate)
-            err += ParStr.testCompare("a(x in 2…4, y in 3…5)>>b b(x:1…2, y:2…3)", root.scriptAll)
+            a.setAny(CGPoint(x: 1, y: 4), .activate)
+            err += ParStr.testCompare("a(x in 2…4, y in 3…5) >> b b(x: 1…2, y: 2…3)", root.scriptAll)
 
             // will pass express, so include current value
-            a.setAny(CGPoint(x:3, y:4), .activate)
-            err += ParStr.testCompare("a(x in 2…4:3,y in 3…5:4)>>b b(x:1…2:1.5,y:2…3:2.5)", root.scriptAll)
-            err += ParStr.testCompare(
-                "a(x:3, y:4)>>b b(x:1.5, y:2.5)", root.scriptCurrent)
+            a.setAny(CGPoint(x: 3, y: 4), .activate)
+            err += ParStr.testCompare("a(x in 2…4: 3, y in 3…5: 4) >> b b(x: 1…2: 1.5, y: 2…3: 2.5)", root.scriptAll)
 
-            // will fail, so clear out current values
+            err += ParStr.testCompare("a(x: 3, y: 4) >> b b(x: 1.5, y: 2.5)", root.scriptCurrent)
+
+            // will fail, so clear out current values for a
             a.setAny(CGPoint(x:1, y:4), .activate)
             err += ParStr.testCompare("a(x, y)>>b b(x:1.5, y:2.5)", root.scriptCurrent)
+
 
         } else {
             err += 1
@@ -1255,6 +1258,7 @@ final class MuFloTests: XCTestCase {
         let root = Flo("√")
 
         if floParse.parseScript(root, script),
+           let grid = root.findPath("grid"),
            let note = root.findPath("note") {
 
             note.setAny(FloValExprs(Flo("_t1_"),[("num",50), ("chan",0)]), .activate)
@@ -1265,7 +1269,7 @@ final class MuFloTests: XCTestCase {
 
             note.setAny( FloValExprs(Flo("_t2_"),[("num",50), ("chan",1)]), .activate)
             err += ParStr.testCompare("""
-                grid(num > 20 :50, chan==1:1, x: num / 12 :4.166667, y: num % 12 :2) << note,
+                grid(num > 20 :50, chan==1, x: num / 12 :4.166667, y: num % 12 :2) << note,
                 note(num:0_127 :50, chan:1)
                 """, root.scriptAll)
 
@@ -1290,13 +1294,13 @@ final class MuFloTests: XCTestCase {
            let c = root.findPath("c") {
 
             c.setAny(5.0, .activate)
-            err += ParStr.testCompare("a(0.5) b(5) c(5)",root.scriptCompact([.current, .comment]))
+            err += ParStr.testCompare("a(0.5) b(5) c(5)",root.scriptCompact([.now, .comment]))
 
             a.setAny(0.1, .activate)
-            err += ParStr.testCompare("a(0.1) b(1) c(1)",root.scriptCompact([.current, .comment]))
+            err += ParStr.testCompare("a(0.1) b(1) c(1)",root.scriptCompact([.now, .comment]))
 
             b.setAny(0.2, .activate)
-            err += ParStr.testCompare("a(0.02) b(0.2) c(0.2)",root.scriptCompact([.current, .comment]))
+            err += ParStr.testCompare("a(0.02) b(0.2) c(0.2)",root.scriptCompact([.now, .comment]))
         } else {
             err += 1
         }

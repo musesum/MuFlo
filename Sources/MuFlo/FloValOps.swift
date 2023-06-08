@@ -23,8 +23,9 @@ public struct FloValOps: OptionSet {
     public static let now_  = FloValOps(rawValue: 1 <<  7) // current value
     public static let next  = FloValOps(rawValue: 1 <<  8) // next value
     public static let lit   = FloValOps(rawValue: 1 <<  9) // literal value
-    public static let match = FloValOps(rawValue: 1 << 10) // matching value
-    public static let anim  = FloValOps(rawValue: 1 << 11) // animated
+    public static let match = FloValOps(rawValue: 1 << 10) //  < <= >= > In condition
+    public static let equal = FloValOps(rawValue: 1 << 11) // == condition
+    public static let anim  = FloValOps(rawValue: 1 << 12) // animated
 
     /// Some values like midi.note.on midi.note.off should not persist transient values.
     /// So, when saving FloScriptOps.delta, ignore a transient node.
@@ -49,6 +50,7 @@ public struct FloValOps: OptionSet {
     var next  : Bool { contains(.next ) }
     var lit   : Bool { contains(.lit  ) }
     var match : Bool { contains(.match) }
+    var equal : Bool { contains(.equal) }
     var anim  : Bool { contains(.anim ) }
 }
 extension FloValOps: CustomStringConvertible {
@@ -64,13 +66,17 @@ extension FloValOps: CustomStringConvertible {
         (.next  , "next" ),
         (.lit   , "lit"  ),
         (.match , "match"),
+        (.equal , "equal"),
         (.anim  , "anim" ),
     ]
-
    
     var hasDef: Bool {
-        let defOps: FloValOps = [.min, .thru, .thri, .modu, .max, .dflt]
-        return self.intersection(defOps).rawValue > 0
+        let ops: FloValOps = [.min, .thru, .thri, .modu, .max, .dflt]
+        return self.intersection(ops).rawValue > 0
+    }
+    var hasLit: Bool {
+        let ops: FloValOps =  [.lit, .equal, .match]
+        return self.intersection(ops).rawValue > 0
     }
 
     public var description: String {

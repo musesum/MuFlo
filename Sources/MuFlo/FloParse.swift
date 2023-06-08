@@ -185,29 +185,41 @@ public class FloParse {
         }
         func addOpScalar(_ nextPar: ParItem) {
 
-            switch parset & [.name, .expr, .scalar] {
-            case [],                        // 1 in a(1) or a(:1)
-                [.scalar],                  // 2 in a(1 2)
-                [.expr],                     // 3 in b(/3) or b(:/3)
-                [.expr, .scalar],           // 4 in e(/2+5) or e(2+5)
-                [.name, .expr, .scalar]:    // 5 in f(g:h/2+5) or f(x/2+5)
+            if parset.isIn || parset.equal, let name {
 
+                scalar = FloValScalar(flo, name)
+                exprs.addDeepScalar(scalar)
+            }
+            else if parset.match {
                 scalar = FloValScalar(flo, exprs.anonKey)
                 exprs.addAnonScalar(scalar)
 
-            case [.name],                   // 6 in i(j:6) or i(j 6)
-                [.name, .expr]:             // t in k(m/7)
-
-                if let name {
-                    scalar = FloValScalar(flo, name)
-                    exprs.addDeepScalar(scalar)
+            } else {
+                switch parset & [.name, .expr, .scalar] {
+                case [],                        // 1 in a(1) or a(:1)
+                    [.scalar],                  // 2 in a(1 2)
+                    [.expr],                     // 3 in b(/3) or b(:/3)
+                    [.expr, .scalar],           // 4 in e(/2+5) or e(2+5)
+                    [.name, .expr, .scalar]:    // 5 in f(g:h/2+5) or f(x/2+5)
+                    
+                    scalar = FloValScalar(flo, exprs.anonKey)
+                    exprs.addAnonScalar(scalar)
+                    
+                case [.name],                   // 6 in i(j:6) or i(j 6)
+                    [.name, .expr]:             // t in k(m/7)
+                    
+                    if let name {
+                        scalar = FloValScalar(flo, name)
+                        exprs.addDeepScalar(scalar)
+                    }
+                    
+                default:
+                    
+                    break
                 }
-
-            default:
-
-                break
             }
             if let scalar {
+                parset += .scalar
                 for deepPar in nextPar.nextPars {
                     parseDeepScalar(scalar, deepPar, parset)
                 }
@@ -237,9 +249,17 @@ public class FloParse {
 
                 case .assign:
                     
-                    parset += .assign
+                    parset += .assign //...
 
-                case .EQ, .IS:
+                case .In:
+
+                    parset += [.isIn, .match, .expr]
+
+                case .IS,.EQ:
+
+                    parset += [.equal, .match, .expr]
+                    
+                case .LE,.GE,.LT,.GT:
 
                     parset += [.match,.expr]
 
@@ -324,14 +344,8 @@ public class FloParse {
                 return flo
 
             } else  {
-                func addVal(_ val: FloValExprs) {
-                    edgeDef.pathVals.addPathVal(path, val)
-                }
-                switch pattern {
-                case "scalar" : addVal(FloValExprs(flo, pattern)) //.... Scalar
-                case "exprs"  : addVal(FloValExprs(flo, pattern))
-                default       : break
-                }
+                let val = FloValExprs(flo, pattern)
+                edgeDef.pathVals.addPathVal(path, val)
             }
         } 
         return parseNext(flo, pattern, parItem, level+1)

@@ -440,7 +440,7 @@ extension Flo {
     public func bindRoot() {
 
         func log(_ num: Int) {
-            Flo.LogBindScript ? print(scriptFlo(.current) + " // \(num)")  :
+            Flo.LogBindScript ? print(scriptFlo(.now) + " // \(num)")  :
             Flo.LogMakeScript ? print(script(.def) + " // \(num)")  : nil
         }
         bindTopDown()      ; log(1)
