@@ -6,7 +6,7 @@ Flo is a *DSL* that generates a runtime flow graph with the following elements:
 - **Nodes** with names, values, edges, and closures
 - **Edges** with inputs, outputs, and switches
 - **Values** which transform, as it flows through a graph
-- **Closures** auto call native Swift or Metal shaders 
+
 
 ## Goals
 - Author collaborative media performances

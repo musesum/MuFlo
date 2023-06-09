@@ -2,13 +2,12 @@
 
 import Foundation
 
-
 public struct FloScriptOps: OptionSet {
 
     public let rawValue: Int
 
     public static let def     = FloScriptOps(rawValue: 1 << 0) ///  1 defined values `0…3=1` in  `a(x 0…3=1)`
-    public static let now     = FloScriptOps(rawValue: 1 << 1) ///  2 current value `2` in `a(x 2)` or `a(x 0…3=1:2)`
+    public static let now     = FloScriptOps(rawValue: 1 << 1) ///  2 current`2` in `a(x 2)` or `a(x 0…3=1:2)`
     public static let edge    = FloScriptOps(rawValue: 1 << 2) ///  4 `>> (b c d)` in `a >> (b c d)`
     public static let compact = FloScriptOps(rawValue: 1 << 3) ///  8 `a.b` instead of `a { b }`
     public static let parens  = FloScriptOps(rawValue: 1 << 4) ///  16 `(1)` in `a(1)` but not `2` in `b(x 2)`
@@ -54,8 +53,6 @@ extension FloScriptOps: CustomStringConvertible {
     var delta   : Bool { contains(.delta  ) }
     var noLF    : Bool { contains(.noLF   ) }
 
-    var onlyDef : Bool {  def && !now }
     var onlyNow : Bool { !def &&  now }
-
 }
 
