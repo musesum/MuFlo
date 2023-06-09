@@ -185,8 +185,8 @@ public class FloValScalar: FloVal {
     ///
     /// - parameters:
     ///     - val: scalar with range or number
-    ///     - visit: ignored, see FloValExprs
-    ///     - ops: set .now andor .next
+    ///     - visit: ignored, see FloExprs
+    ///     - ops: set .now andor .val
     ///
     ///  - note: plugins set .now in a callback loop from plugin
     ///

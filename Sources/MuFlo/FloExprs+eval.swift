@@ -1,4 +1,4 @@
-// FloValExprs+set
+// FloExprs+set
 //
 //  Created by warren on 8/21/22.
 //
@@ -37,7 +37,7 @@ extension FloExprs { // + set
                        _ visit: Visitor) {
 
         let edgeVal = viaEdge ? flo.exprs : nil
-        evalExprs(edgeVal, visit) //...
+        evalExprs(edgeVal, visit) 
     }
 
     @discardableResult

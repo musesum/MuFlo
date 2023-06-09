@@ -1,5 +1,5 @@
 
-//  FloValExprs.swift
+//  FloExprs.swift
 //
 //  Created by warren on 4/4/19.
 //  Copyright © 2019 DeepMuse
@@ -102,6 +102,9 @@ public class FloExprs: FloVal {
         }
         return nums
     }
+
+  
+
     // MARK: - Set
 
     func logNextNows(_ suffix: String = "") {
@@ -128,13 +131,13 @@ public class FloExprs: FloVal {
     }
 
     @discardableResult
-    public override func setVal(_ fromExprs: Any?,
-                                _ visit: Visitor,
-                                _ _: FloValOps) -> Bool {
-
+    public func setExprs(_ fromExprs: Any?,
+                         _ visit: Visitor,
+                         _ ops: FloValOps) -> Bool { //...
+        
         guard let fromExprs else { return false }
         if !visit.newVisit(self.id) { return false }
-
+        
         if !visit.from.tween,
            !visit.from.remote,
            let plugin {

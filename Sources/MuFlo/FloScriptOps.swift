@@ -17,11 +17,11 @@ public struct FloScriptOps: OptionSet {
     public static let noLF    = FloScriptOps(rawValue: 1 << 8) /// 256 `no line feed
     public init(rawValue: Int = 0) { self.rawValue = rawValue }
 
-    static var Delta : FloScriptOps { [.delta, .val                 , .parens, .compact, .noLF] }
-    static var Now   : FloScriptOps { [        .val, .edge, .comment, .parens, .compact, .noLF] }
-    static var Def   : FloScriptOps { [.def,         .edge, .comment, .parens, .compact, .noLF] }
-    static var All   : FloScriptOps { [.def,   .val, .edge, .comment, .parens, .compact, .noLF] }
-    static var Full  : FloScriptOps { [.def,   .val, .edge, .comment, .parens                 ] }
+    public static var Delta : FloScriptOps { [.delta, .val                 , .parens, .compact, .noLF] }
+    public static var Now   : FloScriptOps { [        .val, .edge, .comment, .parens, .compact, .noLF] }
+    public static var Def   : FloScriptOps { [.def,         .edge, .comment, .parens, .compact, .noLF] }
+    public static var All   : FloScriptOps { [.def,   .val, .edge, .comment, .parens, .compact, .noLF] }
+    public static var Full  : FloScriptOps { [.def,   .val, .edge, .comment, .parens                 ] }
 }
 
 extension FloScriptOps: CustomStringConvertible {

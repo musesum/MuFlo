@@ -170,7 +170,7 @@ extension Flo {
         return exprs?.nameAny[named] ?? nil
     }
     
-    /// convert FloValExprs contiguous array to dictionary
+    /// convert FloExprs contiguous array to dictionary
     public func components(named: [String]) -> [(String,Any?)] {
         var result = [(String, Any?)] ()
         for name in named {
@@ -180,8 +180,34 @@ extension Flo {
         return result
     }
     
-    /// convert FloValExprs contiguous array to dictionary
+    /// convert FloExprs contiguous array to dictionary
     public func components() ->  OrderedDictionary<String,Any>? {
         return exprs?.nameAny ?? nil
+    }
+
+    public func getRanges(named: [String]) -> [(String,ClosedRange<Double>)] {
+        var ranges = [(String,ClosedRange<Double>)]()
+        for name in named {
+            let range = getRange(named: name)
+            ranges.append((name,range))
+        }
+        return ranges
+    }
+    public func getRange(named: String) ->  ClosedRange<Double> {
+        if let comp = component(named: named),
+           let scalar = comp as? FloValScalar {
+            return scalar.range()
+        }
+        return getFirstRange()
+    }
+    public func getFirstRange() -> ClosedRange<Double> {
+        if let exprs {
+            for value in exprs.nameAny.values {
+                if let scalar = value as? FloValScalar {
+                    return scalar.range()
+                }
+            }
+        }
+        return 0...1
     }
 }
