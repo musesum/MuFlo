@@ -13,6 +13,8 @@ Flo is essentially a toy data flow graph for naive performers.
 - **Values** which transform, as it flows through a graph
 - **Plugins** to animate, record, and playback dataflow
 
+See Flo.par.h for a full lanugage definition. 
+
 ## Goals
 
 - Author collaborative media performances
@@ -29,8 +31,8 @@ Flo is essentially a toy data flow graph for naive performers.
 ## Nodes 
 
 Each node has two kinds of edges: *tree* and *graph*.
-The *tree* allows each node to be addressed by path name. 
-The *graph* allows a node to activate other via inputs and outputs. 
+The *tree* allows each node to be addressed by a path name. 
+The *graph* allows a node to activate others via inputs and outputs. 
 
 ### Tree
 
