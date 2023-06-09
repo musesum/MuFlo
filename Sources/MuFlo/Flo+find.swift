@@ -242,7 +242,7 @@ extension Flo {
             if suffix.isEmpty, let head = head {
 
                 child.children = head.children
-                child.val = head.val
+                child.exprs = head.exprs
 
             } else {
                 // don't return tail of path chain

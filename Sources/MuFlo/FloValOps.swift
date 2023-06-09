@@ -21,7 +21,7 @@ public struct FloValOps: OptionSet {
     public static let max   = FloValOps(rawValue: 1 <<  5) // 1 in 0…1, max of range
     public static let dflt  = FloValOps(rawValue: 1 <<  6) // = n default value
     public static let now_  = FloValOps(rawValue: 1 <<  7) // current value
-    public static let next  = FloValOps(rawValue: 1 <<  8) // next value
+    public static let val   = FloValOps(rawValue: 1 <<  8) // next value
     public static let lit   = FloValOps(rawValue: 1 <<  9) // literal value
     public static let match = FloValOps(rawValue: 1 << 10) //  < <= >= > In condition
     public static let equal = FloValOps(rawValue: 1 << 11) // == condition
@@ -32,7 +32,7 @@ public struct FloValOps: OptionSet {
     /// Otherwise, restoring from a .delta could activate stale values,
     /// such as a stale midi.note.on
     var isTransient: Bool {
-        let defset: FloValOps = [.now_, .next, .lit]
+        let defset: FloValOps = [.now_, .val, .lit]
         return (self.rawValue & defset.rawValue) == 0
     }
 
@@ -47,7 +47,7 @@ public struct FloValOps: OptionSet {
     var max   : Bool { contains(.max  ) }
     var dflt  : Bool { contains(.dflt ) }
     var now_  : Bool { contains(.now_ ) }
-    var next  : Bool { contains(.next ) }
+    var val   : Bool { contains(.val ) }
     var lit   : Bool { contains(.lit  ) }
     var match : Bool { contains(.match) }
     var equal : Bool { contains(.equal) }
@@ -63,7 +63,7 @@ extension FloValOps: CustomStringConvertible {
         (.max   , "max"  ),
         (.dflt  , "dflt" ),
         (.now_  , "now_" ),
-        (.next  , "next" ),
+        (.val   , "val"  ),
         (.lit   , "lit"  ),
         (.match , "match"),
         (.equal , "equal"),

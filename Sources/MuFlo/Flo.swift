@@ -26,7 +26,7 @@ public class Flo {
     public var dispatch: FloDispatch? // Global dispatch for each root
 
     public var name = ""
-    public var val: FloValExprs?
+    public var exprs: FloValExprs?
     public var parent: Flo?         // parent flo
     public var children = [Flo]()   // expanded flo from  wheres˚flo
     public var comments = FloComments()
@@ -84,7 +84,7 @@ public class Flo {
             children.append(newChild)
         }
         passthrough = from.passthrough
-        val = from.val?.copy() ?? nil
+        exprs = from.exprs?.copy() ?? nil
         edgeDefs = from.edgeDefs.copy()
         comments = from.comments
     }

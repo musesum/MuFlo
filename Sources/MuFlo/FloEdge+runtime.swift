@@ -17,8 +17,8 @@ extension FloEdge {
         let destFlo = leftToRight ? rightFlo : leftFlo
 
         if edgeOps.plugin,
-           let leftExprs = leftFlo.val,
-           let rightExprs = rightFlo.val {
+           let leftExprs = leftFlo.exprs,
+           let rightExprs = rightFlo.exprs {
             if leftExprs.plugin == nil {
                 leftExprs.plugin = FloPlugin(leftExprs,rightExprs)
             }
@@ -44,7 +44,7 @@ extension FloEdge {
 
                 if let edgeVal {
 
-                    if let frExprs = fromFlo.val {
+                    if let frExprs = fromFlo.exprs {
 
                         for (name,val) in edgeVal.nameAny {
                             if (val as? String) == "" {
@@ -56,7 +56,7 @@ extension FloEdge {
                     }
                     return edgeVal
                 }
-                return fromFlo.val
+                return fromFlo.exprs
             }
         }
     }

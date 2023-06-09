@@ -158,7 +158,7 @@ public class FloValExprs: FloVal {
 
         for val in nameAny.values {
             if let v = val as? FloValScalar {
-                v.now = v.next
+                v.now = v.val
             }
         }
     }
@@ -201,10 +201,10 @@ public class FloValExprs: FloVal {
     func clearCurrentVals() {
         for key in nameAny.keys {
             if let val = nameAny[key] as? FloVal {
-                val.valOps -= [.now_,.next]
+                val.valOps -= [.now_,.val]
                 if let scalar = val as? FloValScalar {
                     if val.valOps.lit || val.valOps.dflt {
-                        scalar.next = scalar.dflt
+                        scalar.val = scalar.dflt
                     }
                 }
             }
@@ -216,14 +216,14 @@ public class FloValExprs: FloVal {
                     _ val: Double,
                     _ visit: Visitor) -> Bool {
 
-        let ops: FloValOps = (plugin == nil ? [.now_, .next] : [.next])
+        let ops: FloValOps = (plugin == nil ? [.now_, .val] : [.val])
 
         if let scalar = nameAny[name] as? FloValScalar {
             scalar.setVal(val, visit, ops)
         } else {
             nameAny[name] = FloValScalar(flo, name, val)
         }
-        valOps += .next //??? 
+        valOps += .val //??? 
         return true
     }
     // set [(name,any)]
@@ -246,7 +246,7 @@ public class FloValExprs: FloVal {
     func setNum(_ v: Double,
                 _ visit: Visitor) -> Bool {
 
-        let ops: FloValOps = (plugin == nil ? [.now_, .next] : [.next])
+        let ops: FloValOps = (plugin == nil ? [.now_, .val] : [.val])
 
         if let n = nameAny["_0"] as? FloValScalar {
 
@@ -282,11 +282,11 @@ public class FloValExprs: FloVal {
         return result
     }
     // now = dflt, next = dflt
-    func bindNexts() {
+    func bindVals() {
         if nameAny.count > 0 {
             for value in nameAny.values {
                 if let scalar = value as? FloValScalar {
-                    scalar.bindNext()
+                    scalar.bindVal()
                 }
             }
         }

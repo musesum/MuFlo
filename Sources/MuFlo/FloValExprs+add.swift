@@ -24,7 +24,7 @@ extension FloValExprs {
     func injectNameNum(_ name: String, _ num: Double) {
         if let val = nameAny[name] as? FloValScalar {
             val.now = num
-            val.next = num
+            val.val = num
         } else {
             nameAny[name] = FloValScalar(flo, name, num)
         }

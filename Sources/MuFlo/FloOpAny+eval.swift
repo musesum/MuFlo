@@ -16,8 +16,8 @@ extension FloOpAny {
             return frVal
         }
         
-        if let toNow = ((toVal as? FloValScalar)?.next ?? (toVal as? Double)),
-           let frNow = ((frVal as? FloValScalar)?.next ?? (frVal as? Double)) {
+        if let toNow = ((toVal as? FloValScalar)?.val ?? (toVal as? Double)),
+           let frNow = ((frVal as? FloValScalar)?.val ?? (frVal as? Double)) {
             
             if opNow.condition {
                 switch opNow {

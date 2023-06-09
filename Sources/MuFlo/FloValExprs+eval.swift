@@ -36,7 +36,7 @@ extension FloValExprs { // + set
     func evalFromExprs(_ viaEdge: Bool,
                        _ visit: Visitor) {
 
-        let edgeVal = viaEdge ? flo.val : nil
+        let edgeVal = viaEdge ? flo.exprs : nil
         evalExprs(edgeVal, visit) //...
     }
 
@@ -129,7 +129,7 @@ extension FloValExprs { // + set
     func setSetters(_ mySetters: ExprSetters,
                     _ visit: Visitor) {
 
-        let ops: FloValOps = (plugin == nil ? [.now_, .next] : [.next])
+        let ops: FloValOps = (plugin == nil ? [.now_, .val] : [.val])
         for (name,val) in mySetters {
             
             switch val {

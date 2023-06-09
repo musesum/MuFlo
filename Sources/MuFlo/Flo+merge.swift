@@ -60,8 +60,8 @@ extension Flo {
 
     func mergeSibling(_ merge: Flo) {
         merge.type = .remove
-        if let mergeVal = merge.val {
-            val = mergeVal
+        if let mergeVal = merge.exprs {
+            exprs = mergeVal
         }
         edgeDefs.mergeEdgeDefs(merge.edgeDefs)
         comments.mergeComments(self, merge)
@@ -207,8 +207,8 @@ extension Flo {
 
         func mergeDuplicate(_ priorFlo: Flo, _ kid: Flo) {
             // override old value with new value if it exists
-            if let val = kid.val {
-                priorFlo.val = val
+            if let val = kid.exprs {
+                priorFlo.exprs = val
             }
             // add new edge definitions
             priorFlo.edgeDefs.mergeEdgeDefs(kid.edgeDefs)
@@ -290,7 +290,7 @@ extension Flo {
         floEdges = [String: FloEdge]()
 
         children = [newFlo]             // make newFlo my only child
-        newFlo.val = val ; val = nil    // transfer my value to newFlo
+        newFlo.exprs = exprs ; exprs = nil    // transfer my value to newFlo
         return newFlo
     }
     /// recursively split path into solo child, grand, etc
@@ -401,7 +401,7 @@ extension Flo {
     }
 
     public func bindDefaults(_ visit: Visitor) {
-        bindVal(val)
+        bindVal(exprs)
         for edge in floEdges {
             bindVal(edge.value.edgeVal)
         }
@@ -419,7 +419,7 @@ extension Flo {
         }
     }
     public func bindNexts() {
-        bindVal(val)
+        bindVal(exprs)
         for edge in floEdges {
             bindVal(edge.value.edgeVal)
         }
@@ -429,8 +429,8 @@ extension Flo {
         func bindVal(_ val: FloVal?) {
             if let val {
                 switch val {
-                    case let t as FloValExprs:  t.bindNexts()
-                    case let s as FloValScalar: s.bindNext()
+                    case let t as FloValExprs:  t.bindVals()
+                    case let s as FloValScalar: s.bindVal()
                     default: break
                 }
             }

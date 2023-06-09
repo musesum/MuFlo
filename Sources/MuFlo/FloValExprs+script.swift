@@ -95,7 +95,7 @@ extension FloValExprs {
                 let padScript = "\(script)".pad(24)
                 let padPath = "\(scalar.flo.path(5))(\(keyStr))".pad(20)
 
-                print("🧪 \(padScript) \(padPath) \(scalar.id) \(padOps) next: \(scalar.next.digits(0...2))  dflt: \(scalar.dflt.digits(0...2))")
+                print("🧪 \(padScript) \(padPath) \(scalar.id) \(padOps) next: \(scalar.val.digits(0...2))  dflt: \(scalar.dflt.digits(0...2))")
             }
         }
     }

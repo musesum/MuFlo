@@ -10,8 +10,8 @@ import MuPar
 extension Flo {
     
     func StringVal() -> String? {
-        if let val,
-           let str = val.opAnys.first?.any as? String {
+        if let exprs,
+           let str = exprs.opAnys.first?.any as? String {
             // anonymous String inside expression
             // example `color ("compute.color.metal")`
             return str
@@ -20,12 +20,12 @@ extension Flo {
     }
     
     func BoolVal() -> Bool {
-        if let val {
-            if let f = (val.nameAny["tog"] as? FloValScalar)?.now {
+        if let exprs {
+            if let f = (exprs.nameAny["tog"] as? FloValScalar)?.now {
                 return f > 0
-            } else if let f = (val.nameAny["tap"] as? FloValScalar)?.now {
+            } else if let f = (exprs.nameAny["tap"] as? FloValScalar)?.now {
                 return f > 0
-            } else if let scalar = val.nameAny.values.last as? FloValScalar  {
+            } else if let scalar = exprs.nameAny.values.last as? FloValScalar  {
                 return scalar.now > 0
             }
         }
@@ -33,10 +33,10 @@ extension Flo {
     }
     
     func DoubleVal() -> Double? {
-       if let val {
-            if let f = (val.nameAny["v"] as? FloValScalar)?.now {
+       if let exprs {
+            if let f = (exprs.nameAny["v"] as? FloValScalar)?.now {
                 return f
-            } else if let scalar = val.nameAny.values.last as? FloValScalar  {
+            } else if let scalar = exprs.nameAny.values.last as? FloValScalar  {
                 return scalar.now
             }
         }
@@ -44,12 +44,12 @@ extension Flo {
     }
     
     func Normals() -> [Double] {
-        if let val {
-            if let v = val.nameAny["v"] as? FloValScalar {
+        if let exprs {
+            if let v = exprs.nameAny["v"] as? FloValScalar {
                 return [v.normalized()]
             } else  {
                 var ret = [Double()]
-                for value in val.nameAny.values {
+                for value in exprs.nameAny.values {
                     if let v = value as? Double {
                         ret.append(v)
                     }
@@ -80,9 +80,9 @@ extension Flo {
     
     func CGPointVal() -> CGPoint? {
         
-        if let val {
-            if let x = (val.nameAny["x"] as? FloValScalar)?.now,
-               let y = (val.nameAny["y"] as? FloValScalar)?.now {
+        if let exprs {
+            if let x = (exprs.nameAny["x"] as? FloValScalar)?.now,
+               let y = (exprs.nameAny["y"] as? FloValScalar)?.now {
                 
                 return CGPoint(x: CGFloat(x), y: CGFloat(y))
             }
@@ -91,9 +91,9 @@ extension Flo {
     }
     
     func CGSizeVal() -> CGSize? {
-        if let val {
-            if let w = (val.nameAny["w"] as? FloValScalar)?.now,
-               let h = (val.nameAny["h"] as? FloValScalar)?.now {
+        if let exprs {
+            if let w = (exprs.nameAny["w"] as? FloValScalar)?.now,
+               let h = (exprs.nameAny["h"] as? FloValScalar)?.now {
                 
                 return CGSize(width: CGFloat(w), height: CGFloat(h))
             }
@@ -102,8 +102,8 @@ extension Flo {
     }
     
     func CGRectVal() -> CGRect? {
-        if let val {
-            let ns = val.nameAny
+        if let exprs {
+            let ns = exprs.nameAny
             if ns.count >= 4,
                let x = (ns["x"] as? FloValScalar)?.now,
                let y = (ns["y"] as? FloValScalar)?.now,
@@ -120,16 +120,16 @@ extension Flo {
     }
     
     func NamesVal() -> [String]? {
-        if let val,
-           val.nameAny.count > 0 {
-            return Array<String>(val.nameAny.keys)
+        if let exprs,
+           exprs.nameAny.count > 0 {
+            return Array<String>(exprs.nameAny.keys)
         }
         return nil
     }
     /// get first occurence name in Set of types (there should only be one)
     public func getName(in types: Set<String>) -> String? {
-        if let val {
-            for opAny in val.opAnys {
+        if let exprs {
+            for opAny in exprs.opAnys {
                 if opAny.op.pathName,
                    let name = opAny.any as? String,
                    types.contains(name) {
@@ -149,9 +149,9 @@ extension Flo {
             }
             return false
         }
-        if let val {
+        if let exprs {
             var matchCount = 0
-            for opAny in val.opAnys {
+            for opAny in exprs.opAnys {
                 if opAny.op.pathName,
                    let name = opAny.any as? String,
                    inNames(name) {
@@ -167,14 +167,14 @@ extension Flo {
     
     /// get nameed value
     public func component(named: String) -> Any? {
-        return val?.nameAny[named] ?? nil
+        return exprs?.nameAny[named] ?? nil
     }
     
     /// convert FloValExprs contiguous array to dictionary
     public func components(named: [String]) -> [(String,Any?)] {
         var result = [(String, Any?)] ()
         for name in named {
-            let val = val?.nameAny[name] ?? nil
+            let val = exprs?.nameAny[name] ?? nil
             result.append((name,val))
         }
         return result
@@ -182,6 +182,6 @@ extension Flo {
     
     /// convert FloValExprs contiguous array to dictionary
     public func components() ->  OrderedDictionary<String,Any>? {
-        return val?.nameAny ?? nil
+        return exprs?.nameAny ?? nil
     }
 }

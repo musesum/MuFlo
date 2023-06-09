@@ -9,7 +9,7 @@ extension FloValScalar { // + Parse
 
         if valOps.thrui {
             if valOps.max {
-                next = num
+                val = num
                 now = num
             } else if valOps.min {
                 valOps += .max
@@ -20,7 +20,7 @@ extension FloValScalar { // + Parse
             }
         } else if valOps.modu {
             if valOps.max {
-                next = num
+                val = num
                 now = num
             } else {
                 valOps += .max
@@ -31,7 +31,7 @@ extension FloValScalar { // + Parse
             if parset.match { valOps += .match }
             if parset.equal { valOps += .equal }
             dflt = num
-            next = num
+            val = num
             now = num
         }
     }
@@ -44,9 +44,9 @@ extension FloValScalar { // + Parse
     }
     func parseNow(_ n: Double) {
         if !n.isNaN {
-            valOps += [.now_,.next]
+            valOps += [.now_,.val]
             now = n
-            next = n
+            val = n
         }
     }
 }

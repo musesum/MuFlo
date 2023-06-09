@@ -83,7 +83,7 @@ public class FloParse {
 
                 parseNextExpr(flo, edgeVal, parItem, prior)
             }
-            else if let val = flo.val {
+            else if let val = flo.exprs {
 
                 parseNextExpr(flo, val, parItem, prior)
             }
@@ -270,7 +270,7 @@ public class FloParse {
         case "many",
             "child":
 
-            flo.val = FloValExprs(flo, prior)
+            flo.exprs = FloValExprs(flo, prior)
 
         case "edges":
 
@@ -299,13 +299,13 @@ public class FloParse {
 
             return parseEdgeDef(flo, edgeDef, parItem, level)
 
-        } else if flo.val == nil {
+        } else if flo.exprs == nil {
 
-            flo.val = FloValExprs(flo, pattern)
+            flo.exprs = FloValExprs(flo, pattern)
 
         } else {
             // x y in `a(x y)`
-            parseDeepVal(flo, flo.val, parItem)
+            parseDeepVal(flo, flo.exprs, parItem)
             // keep prior while decorating Flo.val
             return flo
         }
@@ -487,10 +487,10 @@ public class FloParse {
         let nowHash = now.hash
         if let dispatch = root.dispatch?.dispatch,
            let (flo,_) = dispatch[nowHash],
-           let nowVal = now.val,
-           let floVal = flo.val {
+           let nowVal = now.exprs,
+           let floVal = flo.exprs {
 
-            floVal.setVal(nowVal, Visitor(0), .next)
+            floVal.setVal(nowVal, Visitor(0), .val)
         }
         for child in now.children {
             mergeNow(child, with: root)

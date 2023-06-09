@@ -42,7 +42,7 @@ extension FloPlugin: NextFrameDelegate {
 
         for val in myExprs.nameAny.values {
             if let val = val as? FloValScalar {
-                let delta = val.next - val.now
+                let delta = val.val - val.now
 
                 myExprs.logNextNows("* interval: \(interval.digits(2))")
                 if delta == 0 {

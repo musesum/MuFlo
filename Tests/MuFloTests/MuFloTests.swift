@@ -115,7 +115,7 @@ final class MuFloTests: XCTestCase {
         let root = Flo("√")
         let script = "a ( b ( // oy\n c // yo\n d ) e )"
         if floParse.parseScript(root, script, whitespace: "\n\t ") {
-            let result = root.script(.cmpct)
+            let result = root.script(.compact)
             print(result)
         }
     }
@@ -146,7 +146,7 @@ final class MuFloTests: XCTestCase {
         err += test("b(x / 2) a << b(x / 2)")
         err += test("a(0…1~0:1)", nil, [.parens, .def, .now])
 
-        err += test("cell.one(1).two(2).three(3)", nil, [.parens, .now, .cmpct])
+        err += test("cell.one(1).two(2).three(3)", nil, [.parens, .now, .compact])
         err += test("a(0…1~0:1)", nil, [.parens, .def, .now])
 
         err += test("c(0…1:1)", nil, [.parens, .def, .now ])
@@ -154,7 +154,7 @@ final class MuFloTests: XCTestCase {
 
         err += test("a(\"b\")")
         err += test("a { b c } d@a", "a { b c } d@a { b c }")
-        err += test("a.b c@a", "a.b c @a .b", [.parens, .def, .now, .cmpct])
+        err += test("a.b c@a", "a.b c @a .b", [.parens, .def, .now, .compact])
         err += test("a.b c @a .b",  "a { b } c @a { b }")
 
         err += test("b(x / 2) a << b(x / 2)")
@@ -165,7 +165,7 @@ final class MuFloTests: XCTestCase {
                     "a { b { d } c { d } }")
 
         err += test("a { b c } a.* { d(0…1) >> a˚on(0) }",
-                    "a { b { d(0…1) >> a˚on(0) } c { d(0…1) >> a˚on(0) } }",[.parens, .edge, .comnt, .def, .noLF] )
+                    "a { b { d(0…1) >> a˚on(0) } c { d(0…1) >> a˚on(0) } }",[.parens, .edge, .comment, .def, .noLF] )
 
         err += test("a { b c } a˚.{ d(0…1) >> a˚.on(0) }",
                     "a { b { d(0…1) >> a˚.on(0) } c { d(0…1) >> a˚.on(0) } }")
@@ -446,7 +446,6 @@ final class MuFloTests: XCTestCase {
         err += test("d {a1 a2}.{b1 b2} e << d˚˚",
                     "d { a1 { b1 b2 } a2 { b1 b2 } } e << (d, d.a1, d.a1.b1, d.a1.b2, d.a2, d.a2.b1, d.a2.b2)")
 
-
         XCTAssertEqual(err, 0)
     }
 
@@ -606,8 +605,8 @@ final class MuFloTests: XCTestCase {
            let ab = a.findPath("b"),
            let cb = c.findPath("b") {
 
-            if let abv = ab.val?.nameAny.values.first as? FloValScalar,
-               let acv = cb.val?.nameAny.values.first as? FloValScalar,
+            if let abv = ab.exprs?.nameAny.values.first as? FloValScalar,
+               let acv = cb.exprs?.nameAny.values.first as? FloValScalar,
                abv.id == acv.id {
                 err += 1
             }
@@ -1246,7 +1245,6 @@ final class MuFloTests: XCTestCase {
         let root = Flo("√")
 
         if floParse.parseScript(root, script),
-           let grid = root.findPath("grid"),
            let note = root.findPath("note") {
 
             note.setAny(FloValExprs(Flo("_t1_"),[("num",50), ("chan",0)]), .activate)
@@ -1282,13 +1280,13 @@ final class MuFloTests: XCTestCase {
            let c = root.findPath("c") {
 
             c.setAny(5.0, .activate)
-            err += ParStr.testCompare("a(0.5) b(5) c(5)",root.scriptCompact([.now, .comnt]))
+            err += ParStr.testCompare("a(0.5) b(5) c(5)",root.scriptDelta)
 
             a.setAny(0.1, .activate)
-            err += ParStr.testCompare("a(0.1) b(1) c(1)",root.scriptCompact([.now, .comnt]))
+            err += ParStr.testCompare("a(0.1) b(1) c(1)",root.scriptDelta)
 
             b.setAny(0.2, .activate)
-            err += ParStr.testCompare("a(0.02) b(0.2) c(0.2)",root.scriptCompact([.now, .comnt]))
+            err += ParStr.testCompare("a(0.02) b(0.2) c(0.2)",root.scriptDelta)
         } else {
             err += 1
         }

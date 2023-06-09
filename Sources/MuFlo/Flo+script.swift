@@ -15,7 +15,7 @@ extension Flo {
      and not `a<<b { z }` to a<<b.z,
      */
     private func canShortenWithDot() -> Bool {
-        if val != nil, edgeDefs.edgeDefs.count > 0 {
+        if exprs != nil, edgeDefs.edgeDefs.count > 0 {
             return true
         }
         return false
@@ -24,7 +24,7 @@ extension Flo {
     public func script(_ scriptOpts: FloScriptOps) -> String {
         
         var script = name
-        script.spacePlus(val?.scriptVal(scriptOpts))
+        script.spacePlus(exprs?.scriptVal(scriptOpts))
         
         if scriptOpts.compact {
             switch children.count {
@@ -230,8 +230,8 @@ extension Flo {
     /// When using FloScriptFlag .delta, no changes to subtree are printed out
     func hasDeltas() -> Bool {
         hasDelta = false
-        if let val {
-            for v in val.nameAny.values {
+        if let exprs {
+            for v in exprs.nameAny.values {
                 // does expression have a delta
                 if let vv = v as? FloValScalar,
                    !vv.valOps.isTransient,
@@ -249,20 +249,7 @@ extension Flo {
         }
         return hasDelta
     }
-
-
-//...    public func scriptCompact(_ scriptOps: FloScriptOps = []) -> String {
-//        var ops: FloScriptOps = [.parens, .compact, .noLF]
-//        ops.insert(scriptOps)
-//        return scriptRoot(ops)
-//    }
-//
-//    public func scriptParens(_ scriptOps: FloScriptOps = []) -> String {
-//        var ops: FloScriptOps = [.parens]
-//        ops.insert(scriptOps)
-//        return scriptRoot(ops)
-//    }
-
+    
     public func scriptRoot(_ ops: FloScriptOps) -> String {
 
         var script = ""
@@ -295,7 +282,7 @@ extension Flo {
         if scriptOpts.def {
             script.spacePlus(getCopiedFrom())
         }
-        let scriptVal = val?.scriptVal(scriptOpts) ?? ""
+        let scriptVal = exprs?.scriptVal(scriptOpts) ?? ""
         script += scriptVal
         if scriptOpts.edge {
             script += scriptEdgeDefs(scriptOpts)
