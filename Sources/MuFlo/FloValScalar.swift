@@ -250,7 +250,7 @@ public class FloValScalar: FloVal {
         return now
     }
 
-    public func deepCopy(_ exprs: FloValExprs) -> FloValScalar {
+    public func deepCopy(_ exprs: FloExprs) -> FloValScalar {
         let scalar = FloValScalar(with: self)
         scalar.flo = exprs.flo
         return scalar

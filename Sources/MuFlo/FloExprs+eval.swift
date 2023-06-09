@@ -6,7 +6,7 @@
 import Foundation
 import MuPar
 
-extension FloValExprs { // + set
+extension FloExprs { // + set
 
     typealias ExprSetters = ContiguousArray<(String,Any?)>
 
@@ -41,7 +41,7 @@ extension FloValExprs { // + set
     }
 
     @discardableResult
-    func evalExprs(_ frExprs: FloValExprs?,
+    func evalExprs(_ frExprs: FloExprs?,
                    _ visit: Visitor) -> Bool {
 
         var mySetters = ExprSetters()

@@ -7,7 +7,7 @@ import Foundation
 
 extension FloEdgeDef {
 
-    func connectNewEdge(_ leftFlo: Flo, _ rightFlo: Flo, _ val: FloValExprs?) {
+    func connectNewEdge(_ leftFlo: Flo, _ rightFlo: Flo, _ val: FloExprs?) {
 
         let newEdge = FloEdge(self, leftFlo, rightFlo, val)
         let newKey = newEdge.edgeKey
@@ -35,7 +35,7 @@ extension FloEdgeDef {
             }
         }
     }
-    func connectCopyr(_ leftFlo: Flo, _ rightFlo: Flo, _ floVal: FloValExprs?)  {
+    func connectCopyr(_ leftFlo: Flo, _ rightFlo: Flo, _ floVal: FloExprs?)  {
         var rights = [String: Flo]()
         for rightChild in rightFlo.children {
             rights[rightChild.name] = rightChild

@@ -282,8 +282,8 @@ extension Flo {
         if scriptOpts.def {
             script.spacePlus(getCopiedFrom())
         }
-        let scriptVal = exprs?.scriptVal(scriptOpts) ?? ""
-        script += scriptVal
+        let scriptExprs = exprs?.scriptVal(scriptOpts) ?? ""
+        script += scriptExprs
         if scriptOpts.edge {
             script += scriptEdgeDefs(scriptOpts)
         }
@@ -293,7 +293,7 @@ extension Flo {
             script.spacePlus(comments)
             // optional line feed
             if !scriptOpts.noLF,
-               scriptVal.count > 0,
+               scriptExprs.count > 0,
                comments.count == 0 {
                 script += "\n"
             }

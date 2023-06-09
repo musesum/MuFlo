@@ -51,7 +51,7 @@ public class FloEdgeDef {
     }
 
     public func printVal() -> String {
-        return scriptVal([.parens, .now, .expand])
+        return scriptVal([.parens, .val, .expand])
     }
     
     public func scriptVal(_ scriptOps: FloScriptOps,

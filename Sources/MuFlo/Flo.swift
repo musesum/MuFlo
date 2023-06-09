@@ -26,7 +26,7 @@ public class Flo {
     public var dispatch: FloDispatch? // Global dispatch for each root
 
     public var name = ""
-    public var exprs: FloValExprs?
+    public var exprs: FloExprs?
     public var parent: Flo?         // parent flo
     public var children = [Flo]()   // expanded flo from  wheres˚flo
     public var comments = FloComments()

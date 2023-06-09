@@ -121,7 +121,7 @@ public class FloParse {
     /// decorate current value with attributes
     ///
     func parseDeepVal(_ flo     : Flo     ,
-                      _ floVal  : FloValExprs? ,
+                      _ floVal  : FloExprs? ,
                       _ parItem : ParItem ) {
 
         if let floVal,
@@ -159,7 +159,7 @@ public class FloParse {
     ///     exprOp ≈ '^(<=|>=|==|≈|<|>|\*|\/|\%|\:|=|in|\,)|(\+)|(\-)[ ]'
     ///
     func parseNextExpr(_ flo     : Flo         ,
-                       _ exprs   : FloValExprs ,
+                       _ exprs   : FloExprs ,
                        _ parItem : ParItem     ,
                        _ prior   : String      ) {
 
@@ -270,7 +270,7 @@ public class FloParse {
         case "many",
             "child":
 
-            flo.exprs = FloValExprs(flo, prior)
+            flo.exprs = FloExprs(flo, prior)
 
         case "edges":
 
@@ -301,7 +301,7 @@ public class FloParse {
 
         } else if flo.exprs == nil {
 
-            flo.exprs = FloValExprs(flo, pattern)
+            flo.exprs = FloExprs(flo, pattern)
 
         } else {
             // x y in `a(x y)`
@@ -327,7 +327,7 @@ public class FloParse {
                 return flo
 
             } else  {
-                let val = FloValExprs(flo, pattern)
+                let val = FloExprs(flo, pattern)
                 edgeDef.pathVals.addPathVal(path, val)
             }
         } 

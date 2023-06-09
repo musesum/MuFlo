@@ -1,29 +1,36 @@
 
 # MuFlo /micro flow/
 
-Flo is a *DSL* that generates a runtime flow graph with the following elements:
+Flo is a scripting language for connecting sensors to renderers.
+Sensors can be touch, camera, microphone, and body capture.
+Renderers can be shaders, speakers, screens, or actuators.
+Flo is essentially a toy data flow graph for naive performers.
+
+## Elements 
 
 - **Nodes** with names, values, edges, and closures
 - **Edges** with inputs, outputs, and switches
 - **Values** which transform, as it flows through a graph
-
+- **Plugins** to animate, record, and playback dataflow
 
 ## Goals
+
 - Author collaborative media performances
-- Co-pilot local and remote devices and content
+- Co-pilot local and remote devices streaming content
 - Human readable and machine learnable script
-- Support most gesture input, including MIDI & handpose
+- Deploy on VisionOS, iPadOS, iOS, TVOS, MIDI
 
 ### nice to have
 - Compatible with C syntax highlighting and code folding
-- Minimal use of parsing cruft, like semicommas
-- Synchronize state while managing circular references
-- Explore live patching without crashing or infinite loops 
+- Synchronize state via circular references
+- Live patching without crashing or infinite loops 
 - Concise description of hand pose and body pose
 
 ## Nodes 
 
-Each node has two kinds of edges: *tree* and *graph*. The *tree* allows each node to be addressed by name and its relationship within a group. The *graph* allows each node to activate each other based on inputs and outputs. 
+Each node has two kinds of edges: *tree* and *graph*.
+The *tree* allows each node to be addressed by path name. 
+The *graph* allows a node to activate other via inputs and outputs. 
 
 ### Tree
 
@@ -98,7 +105,7 @@ In the above example, attach a closure to `sky.draw.brush.size`, which then upda
 
 ## Values
 
-Each node may have a value of: scalar, expression, string, or embedded script
+Each node may have a value of: scalar, expression, or string
 ```c
 a (1)              // scalar with an initial value of 1
 b (0…1)            // scalar that ranges between 0 and 1

@@ -6,9 +6,9 @@ import Collections
 
 class FloPathVals {
 
-    var edgeVals: OrderedDictionary<String,FloValExprs?> = [:] // eliminate duplicates
+    var edgeVals: OrderedDictionary<String,FloExprs?> = [:] // eliminate duplicates
 
-    func addPathVal(_ path: String = "",_ val: FloValExprs?) {
+    func addPathVal(_ path: String = "",_ val: FloExprs?) {
         if path.isEmpty,
            let lastKey = edgeVals.keys.last {
                 edgeVals[lastKey] = val

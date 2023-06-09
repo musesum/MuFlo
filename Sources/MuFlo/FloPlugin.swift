@@ -17,11 +17,11 @@ public class FloPlugin {
     var duration = TimeInterval(2)
     var timeStart = TimeInterval(0)
     var steps = 0
-    var myExprs: FloValExprs
-    var piExprs: FloValExprs // plug-in
+    var myExprs: FloExprs
+    var piExprs: FloExprs // plug-in
 
-    init(_ myExprs: FloValExprs,
-         _ piExprs: FloValExprs) {
+    init(_ myExprs: FloExprs,
+         _ piExprs: FloExprs) {
 
         self.myExprs = myExprs
         self.piExprs = piExprs

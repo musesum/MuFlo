@@ -5,7 +5,7 @@
 import Foundation
 import MuPar
 
-extension FloValExprs {
+extension FloExprs {
 
     func addDeepScalar(_ scalar: FloValScalar?) {
         guard let scalar else { return }

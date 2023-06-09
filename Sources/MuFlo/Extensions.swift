@@ -17,7 +17,6 @@ public extension FloatingPoint {
     }
 }
 
-
 extension String {
 
     func pad(_ len: Int) -> String {

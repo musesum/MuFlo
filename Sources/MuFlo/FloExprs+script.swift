@@ -3,33 +3,7 @@
 
 import MuPar
 
-extension FloValExprs {
-    
-    private func scriptNames(_ scriptOps: FloScriptOps) -> String {
-
-        var script = ""
-        var delim = ""
-        for (name,val) in nameAny {
-            
-            script.spacePlus(delim) ; delim = ", "
-            if name.first != "_" {
-                script.spacePlus(name)
-            }
-            
-            switch val {
-            case let v as FloValScalar:
-                
-                script.spacePlus(v.scriptVal(scriptOps))
-                
-            case let v as String:
-                
-                script.spacePlus(v)
-                
-            default: break
-            }
-        }
-        return script
-    }
+extension FloExprs {
     
     public func scriptExprs(_ scriptOps: FloScriptOps,
                             viaEdge: Bool) -> String {
@@ -69,9 +43,9 @@ extension FloValExprs {
                 let scalar =  (named != ""
                                ? nameAny[named] as? FloValScalar
                                : nameAny.values[position] as? FloValScalar)
-                logFinish(scalar, keyStr)
+                // logFinish(scalar, keyStr)
 
-                let numStr = scalar?.scriptScalar(scriptOps, .now) ?? ""
+                let numStr = scalar?.scriptScalar(scriptOps, .val) ?? ""
                 if numStr == "", scriptOps.onlyNow { nameStr = named }
 
                 if  nameStr.count > 0 && nameStr.first != "_" {

@@ -40,7 +40,7 @@ extension FloEdge {
             /// apply fromFlo values to edge expressions
             /// such as applyihg `b(v 1)` to `a(x:v),`
             /// for `a(x,y), b(v 0) >> a(x:v)`
-            func assignNameVals() -> FloValExprs? {
+            func assignNameVals() -> FloExprs? {
 
                 if let edgeVal {
 

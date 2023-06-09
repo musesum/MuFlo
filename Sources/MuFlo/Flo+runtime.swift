@@ -28,14 +28,14 @@ extension Flo {
                        _ visit: Visitor = Visitor(0)) {
 
         // any is a FloVal
-        if let fromVal = any as? FloValExprs {
+        if let fromExprs = any as? FloExprs {
 
             if passthrough {
                 // no defined value, so activate will pass fromVal onto edge successors
-                exprs = fromVal
+                exprs = fromExprs
             } else if let exprs {
                 // set my val to fromVal, with rescaling
-                if exprs.setVal(fromVal, visit, [.now_, .val]) == false {
+                if exprs.setVal(fromExprs, visit, [.now_, .val]) == false {
                     // condition failed, so avoid activatating edges, below
                     return
                 }
@@ -51,11 +51,11 @@ extension Flo {
             passthrough = false
 
             switch any {
-            case let v as Int:     exprs = FloValExprs(self, [(name, Double(v))])
-            case let v as Double:  exprs = FloValExprs(self, [(name, v)])
-            case let v as CGFloat: exprs = FloValExprs(self, [(name, Double(v))])
-            case let v as CGPoint: exprs = FloValExprs(self, point: v)
-            case let v as [(String, Double)]: exprs = FloValExprs(self, v)
+            case let v as Int:     exprs = FloExprs(self, [(name, Double(v))])
+            case let v as Double:  exprs = FloExprs(self, [(name, v)])
+            case let v as CGFloat: exprs = FloExprs(self, [(name, Double(v))])
+            case let v as CGPoint: exprs = FloExprs(self, point: v)
+            case let v as [(String, Double)]: exprs = FloExprs(self, v)
             default: print("🚫 unknown val(\(any))")
             }
         }
@@ -81,20 +81,20 @@ extension Flo {
     }
 
     @discardableResult
-    func setEdgeVal(_ fromVal: FloValExprs?,
+    func setEdgeVal(_ fromExprs: FloExprs?,
                     _ viaEdge: Bool, 
                     _ visit: Visitor) -> Bool {
 
         if visit.wasHere(id) { return false }
-        guard let fromVal else { return true }
+        guard let fromExprs else { return true }
         guard let exprs else {
             passthrough = true  // no defined value so pass though
-            exprs = fromVal       // spoof my val as fromVal
+            exprs = fromExprs       // spoof my val as fromVal
             return true
         }
         // first evaluate source expression values
-        fromVal.evalFromExprs(viaEdge, visit)
-        return exprs.setVal(fromVal, visit, [.val])
+        fromExprs.evalFromExprs(viaEdge, visit)
+        return exprs.setVal(fromExprs, visit, [.val])
     }
 
 }

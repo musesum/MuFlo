@@ -50,7 +50,7 @@ public class FloEdgeDefs {
      */
     public func parseEdgeExprs(_ flo: Flo) {
         if let pathVals = edgeDefs.last?.pathVals {
-            pathVals.addPathVal("", FloValExprs(flo, "edge"))
+            pathVals.addPathVal("", FloExprs(flo, "edge"))
         } else {
             print("🚫 \(#function) no edgeDefs to add edge")
         }

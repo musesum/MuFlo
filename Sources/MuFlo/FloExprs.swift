@@ -11,7 +11,7 @@ import Foundation
 import MuPar
 import MuTime
 
-public class FloValExprs: FloVal {
+public class FloExprs: FloVal {
 
     /// `t(x 1, y 2)` ⟹ `["x": 1, "y": 2]`
     public var nameAny: OrderedDictionary<String,Any> = [:]
@@ -26,9 +26,9 @@ public class FloValExprs: FloVal {
 
     override init(_ flo: Flo, _ name: String) {
         super.init(flo, "_\(flo.name)")
-        
     }
-    init(from: FloValExprs) {
+
+    init(from: FloExprs) {
         super.init(with: from)
 
         valOps = from.valOps
@@ -40,7 +40,7 @@ public class FloValExprs: FloVal {
         }
         for fromOpAny in from.opAnys {
             if fromOpAny.op == .scalar,
-                let opScalar = fromOpAny.any as? FloValScalar {
+               let opScalar = fromOpAny.any as? FloValScalar {
                 if let nameScalar = nameAny[opScalar.name] as? FloValScalar {
                     let opAny = FloOpAny(scalar: nameScalar)
                     opAnys.append(opAny)
@@ -70,8 +70,8 @@ public class FloValExprs: FloVal {
         }
     }
 
-    override func copy() -> FloValExprs {
-        return FloValExprs(from: self)
+    override func copy() -> FloExprs {
+        return FloExprs(from: self)
     }
 
     // MARK: - Get
@@ -128,11 +128,11 @@ public class FloValExprs: FloVal {
     }
 
     @discardableResult
-    public override func setVal(_ fromVal: Any?,
+    public override func setVal(_ fromExprs: Any?,
                                 _ visit: Visitor,
                                 _ _: FloValOps) -> Bool {
 
-        guard let fromVal else { return false }
+        guard let fromExprs else { return false }
         if !visit.newVisit(self.id) { return false }
 
         if !visit.from.tween,
@@ -140,12 +140,12 @@ public class FloValExprs: FloVal {
            let plugin {
 
             visit.from += .tween
-            setFromVisit(fromVal, visit)
+            setFromVisit(fromExprs, visit)
             logNextNows(visit.log)
             plugin.startPlugin(id)
             return true
 
-        } else if setFromVisit(fromVal, visit) {
+        } else if setFromVisit(fromExprs, visit) {
 
             if !visit.from.tween {
                 setNow()
@@ -165,8 +165,7 @@ public class FloValExprs: FloVal {
 
     @discardableResult
     func setFromVisit(_ any: Any,
-                     _ visit: Visitor) -> Bool {
-
+                      _ visit: Visitor) -> Bool {
         switch any {
         case let v     as Float            : return setNum(Double(v),visit)
         case let v     as CGFloat          : return setNum(Double(v),visit)
@@ -174,7 +173,7 @@ public class FloValExprs: FloVal {
         case let v     as Int              : return setNum(Double(v),visit)
 
         case let v     as CGPoint          : return setPoint(v,visit)
-        case let v     as FloValExprs      : return setExprs(v,visit)
+        case let v     as FloExprs         : return setExprs(v,visit)
         case let n     as [(String,Any)]   : return setNameNums(n,visit)
 
         case let (n,v) as (String,Double)  : return setNameNum(n,Double(v),visit)
@@ -185,7 +184,7 @@ public class FloValExprs: FloVal {
     }
 
     // set expression
-    func setExprs(_ fromExprs: FloValExprs,
+    func setExprs(_ fromExprs: FloExprs,
                   _ visit: Visitor) -> Bool {
 
 
@@ -213,22 +212,22 @@ public class FloValExprs: FloVal {
     // set name double
     @discardableResult
     func setNameNum(_ name: String,
-                    _ val: Double,
+                    _ num: Double,
                     _ visit: Visitor) -> Bool {
 
         let ops: FloValOps = (plugin == nil ? [.now_, .val] : [.val])
 
         if let scalar = nameAny[name] as? FloValScalar {
-            scalar.setVal(val, visit, ops)
+            scalar.setVal(num, visit, ops)
         } else {
-            nameAny[name] = FloValScalar(flo, name, val)
+            nameAny[name] = FloValScalar(flo, name, num)
         }
-        valOps += .val //??? 
+        valOps += .val //???
         return true
     }
     // set [(name,any)]
     func setNameNums(_ nameVals: [(String,Any)],
-                  _ visit: Visitor) -> Bool {
+                     _ visit: Visitor) -> Bool {
 
         for (name,any) in nameVals {
             switch any {

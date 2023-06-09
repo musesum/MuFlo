@@ -60,8 +60,8 @@ extension Flo {
 
     func mergeSibling(_ merge: Flo) {
         merge.type = .remove
-        if let mergeVal = merge.exprs {
-            exprs = mergeVal
+        if let mergeExprs = merge.exprs {
+            exprs = mergeExprs
         }
         edgeDefs.mergeEdgeDefs(merge.edgeDefs)
         comments.mergeComments(self, merge)
@@ -411,7 +411,7 @@ extension Flo {
         func bindVal(_ val: FloVal?) {
             if let val {
                 switch val {
-                    case let t as FloValExprs:  t.setDefaults(visit)
+                    case let t as FloExprs:  t.setDefaults(visit)
                     case let s as FloValScalar: s.setDefault(visit)
                     default: break
                 }
@@ -429,7 +429,7 @@ extension Flo {
         func bindVal(_ val: FloVal?) {
             if let val {
                 switch val {
-                    case let t as FloValExprs:  t.bindVals()
+                    case let t as FloExprs:  t.bindVals()
                     case let s as FloValScalar: s.bindVal()
                     default: break
                 }
@@ -441,7 +441,7 @@ extension Flo {
     public func bindRoot() {
 
         func log(_ num: Int) {
-            Flo.LogBindScript ? print(scriptFlo(.now) + " // \(num)")  :
+            Flo.LogBindScript ? print(scriptFlo(.val) + " // \(num)")  :
             Flo.LogMakeScript ? print(script(.def) + " // \(num)")  : nil
         }
         bindTopDown()      ; log(1)
