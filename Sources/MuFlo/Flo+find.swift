@@ -273,7 +273,7 @@ extension Flo {
 
         if let flo = findPath(path) {
             if let closure {
-                flo.addClosure(closure) //??? not called in Flo tests
+                flo.addClosure(closure) 
             }
             return flo
 

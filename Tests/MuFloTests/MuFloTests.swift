@@ -441,6 +441,27 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
 
+
+    /// test `b >> a(2)` for `b!`
+    func testEdgeVal0() { headline(#function)
+        var err = 0
+        // selectively set tuples by name, ignore the reset
+        let script = "a(1), b(2) >> a(3)"
+        print("\n" + script)
+
+        let root = Flo("√")
+
+        if floParse.parseScript(root, script),
+           let b = root.findPath("b") {
+
+            b.activate(Visitor(0))
+            err = ParStr.testCompare("a(3), b(2) >> a(3)", root.scriptNow)
+        } else {
+            err = 1
+        }
+        XCTAssertEqual(err, 0)
+    }
+
     /// test `b >> a(2)` for `b!`
     func testEdgeVal1() { headline(#function)
         var err = 0
@@ -475,8 +496,7 @@ final class MuFloTests: XCTestCase {
            let b = root.findPath("b") {
 
             b.activate(Visitor(.model))
-            let result = root.scriptRoot([.parens, .val, .edge])
-            err = ParStr.testCompare("a { a1(2) a2(2) } b >> (a.a1(2), a.a2(2))", result)
+            err += ParStr.testCompare("a { a1(2) a2(2) } b >> (a.a1(2), a.a2(2))", root.scriptRoot([.parens, .val, .edge]))
         } else {
             err = 1
         }

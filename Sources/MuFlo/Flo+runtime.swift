@@ -80,21 +80,57 @@ extension Flo {
         }
     }
 
+
+    /// three examples:
+    /// 1. `a(1), b(2) >> a(3)`     // b has an edge value (3)
+    /// 2. `a(1), b(2) >> a`        // b has no edge value
+    /// 3. `a(1) >> b, b >> c, c(4)`// b is a passthrough node
+    /// activating `b!` for each example
+    /// 1. `a(3), b(2) >> a(3)`     // `a(3)` is set from `b`'s `>> a(3)`
+    /// 2. `a(2), b(2) >> a(3)`     // `a(2)` is set directly from
+    /// 3. `a(1) >> b, b >> c(4)`   // nothing happens
+    /// for example 3, activating a
+    /// 3. `a(1) >> b, b >> c(1)`   // `a` passes through `b` to set `a`
     @discardableResult
-    func setEdgeVal(_ fromExprs: FloExprs?,
-                    _ viaEdge: Bool, 
+    func setEdgeVal(_ edgeExprs: FloExprs?,     /// `(2)` in `b(0…1) >> a(2)`
+                    _ fromExprs: FloExprs?,     /// `(0…1)` in `b(0…1) >> a`
                     _ visit: Visitor) -> Bool {
 
         if visit.wasHere(id) { return false }
-        guard let fromExprs else { return true }
-        guard let exprs else {
-            passthrough = true  // no defined value so pass though
-            exprs = fromExprs       // spoof my val as fromVal
-            return true
+
+        // example 3. passthrough
+        if exprs == nil {
+            // runtime setup as passthrough
+            passthrough = true
         }
-        // first evaluate source expression values
-        fromExprs.evalFromExprs(viaEdge, visit)
-        return exprs.setVal(fromExprs, visit, [.val])
+        if passthrough {
+            if let edgeExprs {
+                /// for `a >> b(1), b >> c
+                /// `b` forwards`>>`'s `(1)` to `c`
+                edgeExprs.evalExprs(fromExprs, true, visit)
+                exprs = edgeExprs
+
+            } else if let fromExprs {
+                /// for `a(2) >> b, b >> c
+                /// `b` forwards `a`'s `(2)` to `c`
+                exprs = fromExprs
+            }
+            return true
+        } else {
+            guard let exprs else { return true }
+
+            if let edgeExprs {
+                /// example 1. first eval edge via from value
+                edgeExprs.evalExprs(fromExprs, true, visit)
+                /// and then pass the result as a new from value
+                return exprs.setVal(edgeExprs, visit, [.val])
+
+            } else if let fromExprs {
+                // example 2. pass the from value directly
+                return exprs.setVal(fromExprs, visit, [.val])
+            }
+        }
+        return true
     }
 
 }

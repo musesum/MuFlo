@@ -4,9 +4,8 @@
 import MuPar
 
 extension FloExprs {
-    
-    public func scriptExprs(_ scriptOps: FloScriptOps,
-                            viaEdge: Bool) -> String {
+  
+    public func scriptExprs(_ scriptOps: FloScriptOps  = .All) -> String {
 
         var script = ""     // result
         var position = 0

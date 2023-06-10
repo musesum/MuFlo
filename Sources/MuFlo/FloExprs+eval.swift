@@ -33,15 +33,9 @@ extension FloExprs { // + set
       - note: failed conditional will abort all setters and should abort activate edges
      */
 
-    func evalFromExprs(_ viaEdge: Bool,
-                       _ visit: Visitor) {
-
-        let edgeVal = viaEdge ? flo.exprs : nil
-        evalExprs(edgeVal, visit) 
-    }
-
     @discardableResult
     func evalExprs(_ frExprs: FloExprs?,
+                   _ viaEdge: Bool,  // evaluating an edge value
                    _ visit: Visitor) -> Bool {
 
         var mySetters = ExprSetters()
@@ -55,7 +49,7 @@ extension FloExprs { // + set
 
             if i==opAnys.count {
                 exprFinish()
-                setSetters(mySetters, visit)
+                setSetters(mySetters, viaEdge, visit)
                 return true
             }
             let opAny = opAnys[i]
@@ -127,6 +121,7 @@ extension FloExprs { // + set
 
     /// execute all deferrred setters
     func setSetters(_ mySetters: ExprSetters,
+                    _ viaEdge: Bool,
                     _ visit: Visitor) {
 
         let ops: FloValOps = (plugin == nil ? [.now_, .val] : [.val])
@@ -136,7 +131,11 @@ extension FloExprs { // + set
             case let val as FloValScalar:
                 if let toVal = nameAny[name] as? FloVal {
                     /// `x` in `a(x 1) << b`
-                    toVal.setVal(val, visit, ops)
+                    if name.first == "_" , viaEdge, toVal.valOps.lit {
+                        // dont set a(2) in  a(1), b(0…1) >> a(2)
+                    } else {
+                        toVal.setVal(val, visit, ops)
+                    }
                 } else {
                     /// `x` in `a(x) << b`
                     nameAny[name] = val.copyEval()

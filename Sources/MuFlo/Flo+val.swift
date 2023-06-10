@@ -21,12 +21,12 @@ extension Flo {
     
     func BoolVal() -> Bool {
         if let exprs {
-            if let f = (exprs.nameAny["tog"] as? FloValScalar)?.now {
+            if let f = (exprs.nameAny["tog"] as? FloValScalar)?.val {
                 return f > 0
-            } else if let f = (exprs.nameAny["tap"] as? FloValScalar)?.now {
+            } else if let f = (exprs.nameAny["tap"] as? FloValScalar)?.val {
                 return f > 0
             } else if let scalar = exprs.nameAny.values.last as? FloValScalar  {
-                return scalar.now > 0
+                return scalar.val > 0
             }
         }
         return false
@@ -37,7 +37,7 @@ extension Flo {
             if let f = (exprs.nameAny["v"] as? FloValScalar)?.now {
                 return f
             } else if let scalar = exprs.nameAny.values.last as? FloValScalar  {
-                return scalar.now
+                return scalar.now //??? or .val
             }
         }
         return nil

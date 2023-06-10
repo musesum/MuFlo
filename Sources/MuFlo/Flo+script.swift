@@ -21,7 +21,7 @@ extension Flo {
         return false
     }
 
-    public func script(_ scriptOpts: FloScriptOps) -> String {
+    public func script(_ scriptOpts: FloScriptOps = .All) -> String {
         
         var script = name
         script.spacePlus(exprs?.scriptVal(scriptOpts))
@@ -308,18 +308,7 @@ extension Flo {
         return script
     }
     
-    
-    static func scriptFlos(_ flos: [Flo]) -> String {
-        
-        if flos.isEmpty { return "" }
-        var script = flos.count > 1 ? "(" : ""
-        for flo in flos {
-            script.spacePlus(flo.scriptLineage(2))
-        }
-        script += flos.count > 1 ? ")" : ""
-        return script
-    }
-    
+
     /// create "a.b.c" from c in `a{b{c}}`, but not √.b.c from b
     public func scriptLineage(_ level: Int = 999) -> String {
         if let parent = parent, parent.name != "√", level > 0  {

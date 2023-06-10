@@ -131,9 +131,9 @@ public class FloExprs: FloVal {
     }
 
     @discardableResult
-    public func setExprs(_ fromExprs: Any?,
-                         _ visit: Visitor,
-                         _ ops: FloValOps) -> Bool { //...
+    public override func setVal(_ fromExprs: Any?,
+                                _ visit: Visitor,
+                                _ _: FloValOps) -> Bool {
         
         guard let fromExprs else { return false }
         if !visit.newVisit(self.id) { return false }
@@ -190,9 +190,8 @@ public class FloExprs: FloVal {
     func setExprs(_ fromExprs: FloExprs,
                   _ visit: Visitor) -> Bool {
 
-
         // next evalute destination expression result
-        let result = evalExprs(fromExprs, visit)
+        let result = evalExprs(fromExprs, false, visit)
         if result == false {
             clearCurrentVals()
         }
@@ -277,7 +276,7 @@ public class FloExprs: FloVal {
         let copy = copy()
         copy.injectNameNum("x", Double(p.x))
         copy.injectNameNum("y", Double(p.y))
-        let result = evalExprs(copy, visit)
+        let result = evalExprs(copy,false, visit)
         if result == false {
             clearCurrentVals()
         }
@@ -302,11 +301,13 @@ public class FloExprs: FloVal {
         }
         return script.with(trailing: ")")
     }
+    public func script(_ scriptOps: FloScriptOps = .All) -> String {
+        return scriptVal(scriptOps)
+    }
     public override func scriptVal(_ scriptOps: FloScriptOps,
-                                   noParens: Bool = false,
-                                   viaEdge: Bool = false) -> String {
+                                   noParens: Bool = false) -> String {
 
-        let script = scriptExprs(scriptOps, viaEdge: viaEdge)
+        let script = scriptExprs(scriptOps)
 
         return (noParens ? script
                 : script.isEmpty ? script

@@ -403,7 +403,7 @@ extension Flo {
     public func bindDefaults(_ visit: Visitor) {
         bindVal(exprs)
         for edge in floEdges {
-            bindVal(edge.value.edgeVal)
+            bindVal(edge.value.edgeExprs)
         }
         for child in children {
             child.bindDefaults(visit)
@@ -421,7 +421,7 @@ extension Flo {
     public func bindNexts() {
         bindVal(exprs)
         for edge in floEdges {
-            bindVal(edge.value.edgeVal)
+            bindVal(edge.value.edgeExprs)
         }
         for child in children {
             child.bindNexts()

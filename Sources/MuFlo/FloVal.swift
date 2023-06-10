@@ -49,8 +49,7 @@ open class FloVal: Comparable {
     }
    // print internal connections "a╌>w", "b╌>w", "c╌>w" in  `w<-(a ? 1 : b ? 2 : c ? 3)`
   public func scriptVal(_ scriptOps: FloScriptOps = [.parens],
-                        noParens: Bool = false,
-                        viaEdge: Bool = false) -> String {
+                        noParens: Bool = false) -> String {
        return " "
    }
 

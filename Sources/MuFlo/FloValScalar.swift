@@ -36,11 +36,11 @@ public class FloValScalar: FloVal {
         super.init(scalar.flo, scalar.name)
         valOps = scalar.valOps // use default values
         if viaEval { valOps -= .lit }
-        min    = scalar.min
-        max    = scalar.max
-        dflt   = scalar.dflt
-        now    = scalar.now
-        val   = scalar.val
+        min  = scalar.min
+        max  = scalar.max
+        dflt = scalar.dflt
+        now  = scalar.now
+        val  = scalar.val
     }
 
     public func normalized() -> Double {
@@ -121,8 +121,7 @@ public class FloValScalar: FloVal {
     }
 
     public override func scriptVal(_ scriptOps: FloScriptOps,
-                                   noParens: Bool = false,
-                                   viaEdge: Bool = false) -> String {
+                                   noParens: Bool = false) -> String {
         if scriptOps.delta {
             if !hasDelta() {
                 return ""
