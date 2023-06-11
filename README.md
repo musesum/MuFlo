@@ -23,7 +23,8 @@ See Flo.par.h for a full lanugage definition.
 - Deploy on VisionOS, iPadOS, iOS, TVOS, MIDI
 
 ### nice to have
-- Compatible with C syntax highlighting and code folding
+- C compatible syntax highlighting and code folding
+- minimalist script with less syntactic cruft
 - Synchronize state via circular references
 - Live patching without crashing or infinite loops 
 - Concise description of hand pose and body pose
@@ -50,10 +51,10 @@ A tree can be decorated with sub trees
 ```c
 a {b c}.{d e} // produces `a { b { d e } c { d e } }`
 ```
-A tree can copy the contents of another tree with a `: name`
+A tree can copy the contents of another tree with a `@ name`
 ```c
 a {b c}.{d e} // produces `a { b { d e } c { d e } }`
-z: a          // produces `z { b { d e } c { d e } }`
+z @ a         // produces `z { b { d e } c { d e } }`
 ```
 
 ### Graph
@@ -100,10 +101,10 @@ sky { draw { brush { size << midi.modulationWheel } } }
 ```
 write a closure in Swift to capture a changed value
 ```swift
-brush.findPath("sky.draw.brush.size")?.addClosure { flo, _ in 
-        self.brushRadius = flo.cgFloat ?? 1 } 
+root.findPath("draw.brush.size")?.addClosure { flo, _ in 
+        self.brushRadius = flo.float } 
 ```
-In the above example, attach a closure to `sky.draw.brush.size`, which then updates its internal value `brushRadius`.
+In the above example, attach a closure to `draw.brush.size`, which then updates its internal value `brushRadius`.
 
 ## Values
 
@@ -124,7 +125,7 @@ b <> c         // synchronize b and c and auto-remap values
 When the value of `b` is changed to `0.5` it activates `c` and remaps its value to `63`;
 When the value of `c` is changed to `31`, it activates  `b` and remapts its value to `0.25`
 
-A common case are sensors, which have a fixed range of values. For example,  a 3G (gravity) accelerometer  may have a range from `-3.0` to `3.0` 
+A common case are sensors, which have a fixed range of values. For example, a 3G (gravity) accelerometer may have a range from `-3.0` to `3.0` 
 ```c 
 accelerometer (x -3.0…3.0, y -3.0…3.0, z -3.0…3.0) >> model
 model (x -1…1, y -1…1, z -1…1) // auto rescale
@@ -171,7 +172,7 @@ y >> a { b >> a.b { d >> a.b.d, e >> a.b.e }
 z <> a { b <> a.b { d <> a.b.d, e <> a.b.e } 
          c <> a.c { d <> a.c.e, e <> a.c.e } }
 ```
-Thus, it is possible to mirror a model in realtime. Use cases include: co-pilot in cockpit, "digital twin" for building information modeling, overriding input contollers, dancing with robots 
+Thus, it is possible to mirror a model in realtime. Use cases include: co-pilot in cockpit, "digital twin" for building information modeling, overriding input contollers, dancing with robots. 
 
 ## Expressions
 
@@ -190,9 +191,9 @@ f (x 0, y 0, t 0) << z  // z! is ignored, no z.t
 ```
 But, the sending event must have all of the values captured by the receiver, or it will be ignored
 ```c
-g (x==0, y 0) << z       // z! is ignored as z.x != 0 
-h (x==1, y 0) << z       // z! activates h(x 1, y 2) 
-i (x<10, y<10) << z      // z! activates i(x 1, y 2) 
+g (x == 0, y 0) << z     // z! is ignored as z.x != 0 
+h (x == 1, y 0) << z     // z! activates h(x 1, y 2) 
+i (x < 10, y < 10) << z  // z! activates i(x 1, y 2) 
 j (x in -1…3, y 0) << z  // z! activates j(x 1, y 2) 
 k (x 0, y 0, z 0, t 0)   // z! ignored due to missing t
 ```
@@ -208,16 +209,16 @@ a.b.d (2)        // changes to  `a { b { d(2) e } c { d (1) e } }`
 Send/receive values to an effect, akin to an insert on a mixing board
 
 ```c
-a (x 0…1, 0…1) << (b,c)
-b (x 0…1, 0…1)
-c (x 0…1, 0…1)
+a (x 0…1, y 0…1) << (b,c)
+b (x 0…1, y 0…1)
+c (x 0…1, y 0…1)
 cubic(0.25) // cubic curve for last 0.25 seconds
 a ^ cubic // animate inputs from b,c
 ```
 Plugins may be declared inline and sync
 
 ```c
-a (x 0…1, 0…1) <> (b,c) ^ cubic
+a (x 0…1, y 0…1) <> (b,c) ^ cubic
 ```
 In the above example, activating b will animate both a and c. 
 
@@ -241,7 +242,6 @@ Because the visit pattern breaks loops, the `˚˚<>..`  maps well to devices tha
 - a flying fader on a mix board, 
 - a co-pilot's steering wheel 
 - the joints on an Human body capture skeleton
-- future hash trees (like Merkle trees) and graphs
 
 
 ## Tests
@@ -293,7 +293,7 @@ In 2004, a conference at NASA called [Virtual Iron Bird](https://www.nasa.gov/vi
 Use a camera to record body pose  
 - Record total state of  `graph << body˚˚`
 - Playback total state of  `graph >> body˚˚`
-- Create a functional mirror `twin: body ←@→ body`
+- Create a functional mirror `twin: body <@> body`
 - Proof of concept using Kinect/OpenNI, shown [here](https://www.youtube.com/watch?v=aFO6j6tvdk8)
 
 Check out `test.robot.input.flo.h`, which defines a Humanoid robot just a few lines of code:
@@ -309,14 +309,165 @@ body {left right}
     mm(0…3000)})
 ```
 
-### Hand Pose for an AR/VR Heads up Display 
+# Flo Language Design
 
-DeepMuse uses a new menuing system with a focus on heads up displays. 
+## History 
 
-The original problem was translating a tablet inteface to a touch screen menu. 
+*1970*'s Flo got its start with patch cords. Hundreds of patch cords. This was due to patching analog modular Synthesizers like the Moog System III and ARP 2600. It would take hours to wire up two electronic music studios, leaving litle time to perform. So, I started to develop a script for patchbays.
 
-The original DeepMuse synthesizer had 2800 parameters mapped to a static template. That template was then overlayed on a Wacom tablet. There were tradeoffs. Pro: The interface was static. So, the performer could develop some muscle memory. Con: you still had to shift your gaze, thus losing awareness of your surroundings.
+*1980*'s Xerox OPSD contracted us to design a project management system. This was the first combination of tree (work breakdown) and graph (activities). Also wrote a hypertext system base this tree + graph approach. 
+ 
+*1990*'s As a Technical Director (TD) at one of the first interactive ad agencies. Wrote a dataflow based media script, called Flow. Support two person teams, where graphic artist would script interactions, and the TD would add animations in C++.
 
-Mixed reality presents a new problem: there are no devices to touch. Instead, you wave your hands with an imaginary baton. You become the conductor of a generative tree which anticipates your next move. Over time, gestures and generated controls converge and congeal; fostering a new kind of muscle memory.  
+*2000*'s Was performing as a VJ with a visual Music synthesizer written in C++ and OpenGL. The script was created to patch graphic tablets, MIDI controllers, and a Virtual Puppeteering device, called a Vuppet.
 
-This is where Flo comes in: even though the flow graph is dynamic, the namespace remains fixed. Muscle memory emerges. Transformers learn to anticipate your next move. Gestures become a shorthand to confirm a kind of menu autocomplete. You begin perform without thinking. 
+*2010*'s the Visual music synth was ported to iOS and iPadOS and rated 5 stars in the AppStore. Later deprecated by Apple in its switch to 64bit apps. The ObjectiveC/C++ app was ported to pure Swift in 2019. 
+
+*2020*'s Maybe Spatial Computing is the answer? 
+
+## Design Principles
+
+### Syntax
+
+The syntax borrows principles from Xerox Parc, Swift and Python
+
+Xerox studied different text editors and, through detailed analytics, determined the gesture cost of transactions, like cut & paste. Thus, a data driven approach towards more efficient text editing.
+
+Swift eliminated semicolons, resulting in less text to edit, with somewhat more Human readable source.
+
+Python uses indentation instead of `{ }` brackets for the most readable alternative.
+
+A very early version of Flo (around 1990) also used whitespace. That approach was abandoned when mobile devices became popular. Whitespace on tiny screen became untenable.
+
+During each iteration, the Xerox Parc mindset was applied: what is the gesture cost? In particular, what is the gesture cost in real world environments? Today, there are three environments, from oldest to newest: 
+ 
+   1. Desktop style source code editors, 
+   2. Mobile texting, and 
+   3. Spatial hands free dialogs  
+
+#### Source code editors
+
+The editor I use is Xcode. As with many editors, Xcode offers syntax highlighting and code folding for C syntax compatible source. So, for each iteration of Flo's syntax, I would test a few hundred lines of code from a working app and see how it works. 
+
+A couple syntax approaches that failed:
+
+    using open colons `:` in  `name: value` would ruin code folding
+    eliminating `{ }` and use only `( )` brackets would crash Xcode
+
+#### Mobile texting
+
+What is the gesture cost of authoring on an iPhone or iPad? So, how many gestures to construct a viable statement. One of the reasons for attempting to eliminate `{ }` brackets was that it requires three taps on a keypad: `123, #+=, {`, whereas a `(` would requires only two: `123, (`
+
+So, I spent a few weeks playing with replacing the { } with ( ). The syntax seemed so much cleaner, but Xcode would crash. Instead of filing a bug report, I assumed that the problem may extend to other editors. So, reverted back to `{ }`.
+
+There are two special characters, which seems to violate interoperability, but pass: `…` and `˚` 
+    `…` is `option ;` on a Mac and `123, long-press .` on an iPhone
+    `˚` is `option k` on a Mac and `123, long-press 0` on an iPhone/iPad
+    
+    BTW, you can still use `...` instead of `…`, but the output will result in the latter. 
+ 
+ #### Spatial Hands free
+ 
+ Mixed mode editing has been studied for decades, where you speak and type at the same time. Other modes have been explored for Accessibility, where the user may have low vision or low mobility. 
+ 
+ Recently there have been two disruptions: large language models or LLMs, and Apple's Vision Pro, which uses hand pose to for a hands free navigation. Both combine in a kind of synergy.
+ 
+ Hands free navigation eliminates the need to shift the hands between creation and navigation. In terms of gesture cost, this a much easier workflow. 
+ 
+ LLMs accelerates recognition and creation. For recognizing speech to text, LLMs have improved precision. For creation, LLMs can autocomplete intent. Source code editors are starting to use LLMs to drop in large chunks of code. At least one well funded startup is using LLMs to write apps. 
+ 
+ The synergy between hand pose, LLMs and speech enables something new: a completely hands free authoring environment. Instead of a keyboard and mouse, you say what you want and orchestrate the code with your hands. Instead of hand coding text, you become a conductor of APIs.
+ 
+ In a totally hands free context, Flo aims to be the manuscript. A Human readable score of APIs and services running in real-time. 
+ 
+## Partnering HI with AI
+
+This is such a long term design goal, that it may seem to be of a non-sequitur. Feel free skip. 
+
+How to bridge Human Intent with AI. Issues include: Understandability, Privacy, Scaling, Security, and Expressiveness. 
+
+### Understandability 
+
+Chat GPT-4 has 170 Trillion parameters for its LLM. Understanding its results is problematic. This is an old problem. In the 1970's, it was hard to understand an artificial theorem provers, which may generate hundreds of lemmas.
+
+So how to understand what is generated from a partner AI? This is still a research question.
+
+One approach is to take baby steps. The first application of Flo is a toy: a visual music synthesizer. It has several thousand parameters. Applying the same transformers as a LLM serves as a safe means of exploring understandability. Maybe call is a small language model or SML. The advantage to a toy SML is that, when it fails, nobody is harmed as a result. Aside from maybe some weird sounds or visuals. That maybe even a plus. 
+
+### Privacy and Value
+
+Value is often an arbitrage of entropy: where you pay for the disclosure of protected content. Music copyright was protected through the control of the transport mechanism. In the 1980's the transport was vinyl LPs. In the 90's the medium shifted to CD's. With the internet, physical arbitrage shifted to a kind of gestural arbitrage, where gesture cost of iTunes became cheaper than ThePirateBay. Convenience justified that price.
+
+For LLMs, the value proposition is in dispute. Scrapping copyrighted content is in dispute. That may drive research towards provenance. If you know that the source material consists of a percent of artist A and percentage of artist B, you could, in theory prorate royalties. This is an old concept, dating back Ted Nelson, who not only coined the term Hypertext, but also theorized about distributing royalties. 
+
+What's intriguing is that determining provenance leads to understandability. Instead of a graph with 170 trillion parameters, you're mixing a percent of artist A with a percent of artist B. What is needed is a middleware graph that sits above the 170 Trillion parameters and provides a means manage what came from whom.
+
+This is where the toy visual music synth may play a part. By segmenting and remixing music and visuals, the toy provides a manageable corpus to determine provenance. In fact, the visual music app could be experimenting with economic models that distributes subscription revenue prorated on the relative mix. 
+
+### Scaling
+
+This is more of a problem for the publishers of LLMs as they begin to license APIs. There are also security issues, mentioned later.
+
+Around 1989, software publishers began to experiment with protecting content. The term of art was called Digital Rights Management or DRM. DRM had two approaches: recompile code for each app, or support a secure enclave at the OS level. The recompile approach was prohibitively expensive. It was deployed and tested ad hoc. It didn't scale. The solution was to create a secure enclave. Deploy the binary in a sandbox, where all changes was contained an reversible. Today, most app are installed into a secure enclave. (BTW, this author invented and patented the process in 1990.)
+
+Why mention DRM? Because LLMs are on the other side of a scaling issue. By one estimate [here](https://devops.com/api-sprawl-a-looming-threat-to-digital-economy/) there may be 45 million developers accessing over a billion APIs, by 2030. How many APIs will embed a LLM? This is akin to the old model of recompiling and app for DRM. Managing the sprawl does not scale. What is needed is a secure enclave for APIs.
+
+Two text examples to embody API dataflow are Swagger and Postman, structuring JSON and/or YAML. Flo could be thought of a somewhat higher level version of these two approachs. Here is an example of getting time in Postman
+
+```c
+{
+  "info": {
+    "_postman_id": "abc123",
+    "name": "Sample Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Time",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.example.com/time",
+          "protocol": "https",
+          "host": [
+            "api",
+            "example",
+            "com"
+          ],
+          "path": [
+            "time"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
+
+```
+And here is the same example in Flo
+
+```c
+url("api.example.com/time") <> time
+time(hms) 
+```
+Obviously, there is a lot of policy here, where the fictitious example.com agrees to sync `<>` with a client. It is possible that the Flo example generates the Postman example.  
+
+There are several Graphical versions of visualizing data flow. An experiment with an earlier version of Flo (called Tr3), can be found [here](https://www.youtube.com/watch?v=a703TTbxghc&t=5s&ab_channel=Ikoino) 
+
+There have been extensive experiments of outputting a D3.JS force directed graph. With the advent of Spatial Computing, it at maybe worth creating a force directed graph directly in Swift/C++. 
+
+### Security
+
+Prompt engineering is already a thing. LLMs are spouting misinformation with complete confidence. Fixes are often ad hoc after a attack was found in the field. What if you were able to explore and proactively defend attack? Let's say you have a 100 Trillion parameter LLM and you want to explore Election Misinformation attacks. So you shadow the LLM with a statement like `˚˚election<(1000)>˚˚attack` to yield a graph election attacks limited to 1000 nodes. 
+
+Does Flo support this now? Nope. 
+
+### Expressiveness
+
+One technique is to cluster words with similar meanings, such as Word2Vec [here](https://cnkndmr.gitlab.io/others/en/neural-network-word2vec.html). Now imagine collapsing clusters into a single node, somewhat akin to taking the above example [here](https://youtu.be/a703TTbxghc?t=287) and collapsing the convex hulls into --say-- a dozen nodes. This has been for decades with Project Management software, where a complex project is broken into sub-projects. The main difference is, while Project management works top-down, the custering works bottom up.
+
+Returning to the `˚˚election<(1000)>˚˚attack` example. The `˚˚election` and `˚˚attack` paths can represent clusters of similar meanings around the keywords `election` and `attack` -- as a kind of theasarus. Meanwhile, the edge `<1000>` could reduce millions of result to a 1000 nodes with the strongest connections. 
+
+That in turn could be reduced to <100> or even <10> most relevan connections as a navigational starting point. Perhaps as a spatial flythrough venn set -- a kind of 3D version of [this](https://github.com/christophe-g/d3-venn)
