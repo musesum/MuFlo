@@ -113,7 +113,7 @@ Each node may have a value of: scalar, expression, or string
 a (1)              // scalar with an initial value of 1
 b (0…1)            // scalar that ranges between 0 and 1
 c (0…127 = 1)      // scalar between 0 and 127, defaulting to 1
-d "yo"             // a string value "yo"
+d ("yo")             // a string value "yo"
 e (x 0…1, y 0…1)   // an expression (see below)
 ```
 Flo automatically remaps scalar ranges, given the nodes `b` & `c`
@@ -180,7 +180,7 @@ An epression is a series of named values and conditionals; they are expessed tog
 ```c
 a (x 1, y 2)  // x and y are sent together as a tuple
 b (x 0…1, y 0…1)  // can contain ranges
-c (x 0…1 = 1, y 0…1 = 1)  // and default values
+c (x 0…1~1, y 0…1~1)  // and default values
 ```
 A receiver may capture a subset of a send event
 ```c
@@ -238,11 +238,10 @@ Wildcard searches can occur on both left and rights sides to support fully conne
 ˚˚>>.*  // flow from each node to its children, top down
 ˚˚<>..  // flow in both directions, middle out?
 ```
-Because the visit pattern breaks loops, the `˚˚<>..`  maps well to devices that combine sensors and actuators, such as:
+Because the visitor pattern breaks loops, the `˚˚<>..`  maps well to devices that combine sensors and actuators, such as:
 - a flying fader on a mix board, 
 - a co-pilot's steering wheel 
 - the joints on an Human body capture skeleton
-
 
 ## Tests
 Basic example of syntax may be found in the test cases here:  
@@ -293,7 +292,7 @@ In 2004, a conference at NASA called [Virtual Iron Bird](https://www.nasa.gov/vi
 Use a camera to record body pose  
 - Record total state of  `graph << body˚˚`
 - Playback total state of  `graph >> body˚˚`
-- Create a functional mirror `twin: body <@> body`
+- Create a functional mirror `graph <@> body`
 - Proof of concept using Kinect/OpenNI, shown [here](https://www.youtube.com/watch?v=aFO6j6tvdk8)
 
 Check out `test.robot.input.flo.h`, which defines a Humanoid robot just a few lines of code:
@@ -317,7 +316,7 @@ body {left right}
 
 *1980*'s Xerox OPSD contracted us to design a project management system. This was the first combination of tree (work breakdown) and graph (activities). Also wrote a hypertext system base this tree + graph approach. 
  
-*1990*'s As a Technical Director (TD) at one of the first interactive ad agencies. Wrote a dataflow based media script, called Flow. Support two person teams, where graphic artist would script interactions, and the TD would add animations in C++.
+*1990*'s As a Technical Director (TD) at one of the first interactive ad agencies, wrote a dataflow based media script, called Flow. Flow supporting teams artist and animators, where the artist would script media flow, and the animator would add animation effects in C++.
 
 *2000*'s Was performing as a VJ with a visual Music synthesizer written in C++ and OpenGL. The script was created to patch graphic tablets, MIDI controllers, and a Virtual Puppeteering device, called a Vuppet.
 
@@ -343,7 +342,7 @@ During each iteration, the Xerox Parc mindset was applied: what is the gesture c
  
    1. Desktop style source code editors, 
    2. Mobile texting, and 
-   3. Spatial hands free dialogs  
+   3. Spatial hands free dialog  
 
 #### Source code editors
 
@@ -356,7 +355,7 @@ A couple syntax approaches that failed:
 
 #### Mobile texting
 
-What is the gesture cost of authoring on an iPhone or iPad? So, how many gestures to construct a viable statement. One of the reasons for attempting to eliminate `{ }` brackets was that it requires three taps on a keypad: `123, #+=, {`, whereas a `(` would requires only two: `123, (`
+What is the gesture cost of authoring on an iPhone or iPad? In other words, how many taps to construct a viable statement? One of the reasons for attempting to eliminate `{ }` brackets was that it requires three taps on a keypad: `123, #+=, {`, whereas a `(` would requires only two: `123, (`
 
 So, I spent a few weeks playing with replacing the { } with ( ). The syntax seemed so much cleaner, but Xcode would crash. Instead of filing a bug report, I assumed that the problem may extend to other editors. So, reverted back to `{ }`.
 
@@ -388,19 +387,19 @@ How to bridge Human Intent with AI. Issues include: Understandability, Privacy, 
 
 ### Understandability 
 
-Chat GPT-4 has 170 Trillion parameters for its LLM. Understanding its results is problematic. This is an old problem. In the 1970's, it was hard to understand an artificial theorem provers, which may generate hundreds of lemmas.
+Chat GPT-4 has 170 Trillion parameters for its LLM. Understanding its results is problematic. This is an old problem. In the 1970's, it was hard to understand an artificial theorem prover, which may generate hundreds of lemmas.
 
 So how to understand what is generated from a partner AI? This is still a research question.
 
-One approach is to take baby steps. The first application of Flo is a toy: a visual music synthesizer. It has several thousand parameters. Applying the same transformers as a LLM serves as a safe means of exploring understandability. Maybe call is a small language model or SML. The advantage to a toy SML is that, when it fails, nobody is harmed as a result. Aside from maybe some weird sounds or visuals. That maybe even a plus. 
+One approach is to take baby steps. The first application of Flo is a toy: a visual music synthesizer. It has several thousand parameters. Applying the same transformers as a LLM serves as a safe means of exploring understandability. The advantage to a toy language model is that, when it fails, nobody is harmed. Aside from maybe hearing some weird sounds or visuals. That may even be even a plus. 
 
 ### Privacy and Value
 
 Value is often an arbitrage of entropy: where you pay for the disclosure of protected content. Music copyright was protected through the control of the transport mechanism. In the 1980's the transport was vinyl LPs. In the 90's the medium shifted to CD's. With the internet, physical arbitrage shifted to a kind of gestural arbitrage, where gesture cost of iTunes became cheaper than ThePirateBay. Convenience justified that price.
 
-For LLMs, the value proposition is in dispute. Scrapping copyrighted content is in dispute. That may drive research towards provenance. If you know that the source material consists of a percent of artist A and percentage of artist B, you could, in theory prorate royalties. This is an old concept, dating back Ted Nelson, who not only coined the term Hypertext, but also theorized about distributing royalties. 
+For LLMs, the value proposition is in dispute. Scrapping copyrighted content is in dispute. That may drive research towards provenance. If you know that the source material consists of a mix of artist A and artist B, you could, in theory prorate royalties. This is an old concept, dating back Ted Nelson, who not only coined the term Hypertext, but also theorized about distributing royalties. 
 
-What's intriguing is that determining provenance leads to understandability. Instead of a graph with 170 trillion parameters, you're mixing a percent of artist A with a percent of artist B. What is needed is a middleware graph that sits above the 170 Trillion parameters and provides a means manage what came from whom.
+Determining provenance may also lead to understandability. Instead of a graph with 170 trillion parameters, you're mixing a percentages of artistic corpora. What is needed is a middleware graph that sits above the Trillions of parameters and provide a means to understand what came from whom.
 
 This is where the toy visual music synth may play a part. By segmenting and remixing music and visuals, the toy provides a manageable corpus to determine provenance. In fact, the visual music app could be experimenting with economic models that distributes subscription revenue prorated on the relative mix. 
 
