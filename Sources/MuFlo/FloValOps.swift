@@ -39,19 +39,19 @@ public struct FloValOps: OptionSet {
     public var rawValue: Int
     public init(rawValue: Int) { self.rawValue = rawValue }
 
-    var thrui : Bool { contains(.thru ) || contains(.thri) }
-    var thru  : Bool { contains(.thru ) }
-    var thri  : Bool { contains(.thri ) }
-    var modu  : Bool { contains(.modu ) }
-    var min   : Bool { contains(.min  ) }
-    var max   : Bool { contains(.max  ) }
-    var dflt  : Bool { contains(.dflt ) }
-    var now_  : Bool { contains(.now_ ) }
-    var val   : Bool { contains(.val ) }
-    var lit   : Bool { contains(.lit  ) }
-    var match : Bool { contains(.match) }
-    var equal : Bool { contains(.equal) }
-    var anim  : Bool { contains(.anim ) }
+    public var thrui : Bool { contains(.thru ) || contains(.thri) }
+    public var thru  : Bool { contains(.thru ) }
+    public var thri  : Bool { contains(.thri ) }
+    public var modu  : Bool { contains(.modu ) }
+    public var min   : Bool { contains(.min  ) }
+    public var max   : Bool { contains(.max  ) }
+    public var dflt  : Bool { contains(.dflt ) }
+    public var now_  : Bool { contains(.now_ ) }
+    public var val   : Bool { contains(.val ) }
+    public var lit   : Bool { contains(.lit  ) }
+    public var match : Bool { contains(.match) }
+    public var equal : Bool { contains(.equal) }
+    public var anim  : Bool { contains(.anim ) }
 }
 extension FloValOps: CustomStringConvertible {
 

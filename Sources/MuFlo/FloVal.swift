@@ -12,9 +12,9 @@ open class FloVal: Comparable {
     
     static var IdFloVal = [Int: FloVal]() //??? debugging only
     var id = -Visitor.nextId()
-    var valOps = FloValOps(rawValue: 0) // which combination of the following?
-    var name: String
 
+    public var valOps = FloValOps(rawValue: 0) // which combination of the following?
+    public var name: String
     public var flo: Flo  // flo that declared and contains this value
 	
     public static func == (lhs: FloVal, rhs: FloVal) -> Bool {

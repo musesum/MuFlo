@@ -13,10 +13,10 @@ public class FloValScalar: FloVal {
 
     // default scalar value is (0…1 = 1)
     public var now = Double(0) // current value; 2 in 0…3~1:2
-    var val  = Double(0) // target value
-    var min  = Double(0) // minimum value; 0 in 0…3
-    var max  = Double(1) // maximum value; 3 in 0…3
-    var dflt = Double(0) // default value; 1 in 0…3~1
+    public var val  = Double(0) // target value
+    public var min  = Double(0) // minimum value; 0 in 0…3
+    public var max  = Double(1) // maximum value; 3 in 0…3
+    public var dflt = Double(0) // default value; 1 in 0…3~1
 
     override init(_ flo: Flo, _ name: String) {
         super.init(flo, name)
@@ -25,6 +25,9 @@ public class FloValScalar: FloVal {
 
     init(_ flo: Flo,_ name: String,_ num: Double) {
         super.init(flo, name)
+        if name == "seg" {
+            print("?",terminator: "")
+        }
         valOps = [.now_, .val] //?? .now
         self.min = fmin(num, 0.0)
         self.max = fmax(num, 1.0)

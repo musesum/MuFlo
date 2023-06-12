@@ -181,8 +181,6 @@ public class Flo {
     ///    1) app saves .delta and restores .now values
     ///    2) another devices wants to synchronize state
     ///
-    ///??? still used in DeepMuse?
-    ///
     public func bindDispatch(_ prior: Flo? = nil) {
 
         if let prior {

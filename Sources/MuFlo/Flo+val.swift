@@ -169,6 +169,31 @@ extension Flo {
     public func component(named: String) -> Any? {
         return exprs?.nameAny[named] ?? nil
     }
+
+    /// convert FloExprs contiguous array to dictionary
+    public func nameScalars() -> [(String, FloValScalar)] {
+        var result = [(String, FloValScalar)] ()
+        if let exprs {
+            for (name,any) in exprs.nameAny {
+                if let scalar = any as? FloValScalar {
+                    result.append((name,scalar))
+                }
+            }
+        }
+        return result
+    }
+    /// convert FloExprs contiguous array to dictionary
+    public func scalars() -> [FloValScalar] {
+        var result = [FloValScalar] ()
+        if let exprs {
+            for any in exprs.nameAny.values {
+                if let scalar = any as? FloValScalar {
+                    result.append(scalar)
+                }
+            }
+        }
+        return result
+    }
     
     /// convert FloExprs contiguous array to dictionary
     public func components(named: [String]) -> [(String,Any?)] {
