@@ -124,7 +124,7 @@ extension FloExprs { // + set
                     _ viaEdge: Bool,
                     _ visit: Visitor) {
 
-        let ops: FloValOps = (plugin == nil ? [.now_, .val] : [.val])
+        let ops: FloValOps = (plugin == nil ? [.twe, .val] : [.val])
         for (name,val) in mySetters {
             
             switch val {

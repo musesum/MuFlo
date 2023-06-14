@@ -90,7 +90,7 @@ public class FloExprs: FloVal {
         var nums = [Double]()
         for value in nameAny.values {
             switch value {
-            case let v as FloValScalar : nums.append(Double(v.now))
+            case let v as FloValScalar : nums.append(Double(v.twe))
             case let v as CGFloat      : nums.append(Double(v))
             case let v as Float        : nums.append(Double(v))
             case let v as Double       : nums.append(v)
@@ -104,13 +104,13 @@ public class FloExprs: FloVal {
     }
 
   
-
     // MARK: - Set
 
-    func logNextNows(_ suffix: String = "") {
-        for val in nameAny.values {
-            if let val = val as? FloValScalar {
-                val.logNextNows("􁒖 ", suffix)
+    func logValNows(_ suffix: String = "") {
+        print()
+        for (name,any) in nameAny {
+            if let scalar = any as? FloValScalar {
+                scalar.logValNows("􁒖 \(name)".pad(8), suffix)
             }
         }
     }
@@ -144,24 +144,26 @@ public class FloExprs: FloVal {
 
             visit.from += .tween
             setFromVisit(fromExprs, visit)
-            logNextNows(visit.log)
+            logValNows(visit.log)
             plugin.startPlugin(id)
             return true
 
-        } else if setFromVisit(fromExprs, visit) {
-
-            if !visit.from.tween {
-                setNow()
+        } else {
+            if setFromVisit(fromExprs, visit) {
+                if !visit.from.tween {
+                    setTween()
+                }
+                return true
             }
-            return true
         }
         return false
     }
-    func setNow() {
+    /// Not animated, so set tween value twe
+    func setTween() {
 
         for val in nameAny.values {
             if let v = val as? FloValScalar {
-                v.now = v.val
+                v.twe = v.val
             }
         }
     }
@@ -202,7 +204,7 @@ public class FloExprs: FloVal {
     func clearCurrentVals() {
         for key in nameAny.keys {
             if let val = nameAny[key] as? FloVal {
-                val.valOps -= [.now_,.val]
+                val.valOps -= [.twe,.val]
                 if let scalar = val as? FloValScalar {
                     if val.valOps.lit || val.valOps.dflt {
                         scalar.val = scalar.dflt
@@ -217,14 +219,14 @@ public class FloExprs: FloVal {
                     _ num: Double,
                     _ visit: Visitor) -> Bool {
 
-        let ops: FloValOps = (plugin == nil ? [.now_, .val] : [.val])
+        let ops: FloValOps = (plugin == nil ? [.twe, .val] : [.val])
 
         if let scalar = nameAny[name] as? FloValScalar {
             scalar.setVal(num, visit, ops)
         } else {
             nameAny[name] = FloValScalar(flo, name, num)
         }
-        valOps += .val //???
+        valOps += .val //??? op?
         return true
     }
     // set [(name,any)]
@@ -244,22 +246,29 @@ public class FloExprs: FloVal {
     }
 
     // set anonymous ("val", double)
-    func setNum(_ v: Double,
+    func setNum(_ val: Double,
                 _ visit: Visitor) -> Bool {
 
-        let ops: FloValOps = (plugin == nil ? [.now_, .val] : [.val])
+        let ops: FloValOps = (plugin == nil ? [.twe, .val] : [.val])
 
-        if let n = nameAny["_0"] as? FloValScalar {
+        if let scalar = nameAny["_0"] as? FloValScalar {
 
-            n.setVal(v, visit, ops)
-
-        } else if let n = nameAny["val"] as? FloValScalar {
-
-            n.setVal(v, visit, ops)
+            scalar.setVal(val, visit, ops)
+            return true
 
         } else {
-            
-            nameAny["val"] = FloValScalar(flo, "val", v) //??? TODO: remove this kludge for DeepMenu
+
+            for any in nameAny.values {
+                if let scalar = any as? FloValScalar {
+                    scalar.setVal(val, visit, ops)
+                    return true
+                }
+            }
+
+        }
+        if nameAny.isEmpty {
+            let name = "_" + flo.name
+            nameAny["_0"] = FloValScalar(flo, name, val)
         }
         return true
     }

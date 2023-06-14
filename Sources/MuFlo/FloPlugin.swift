@@ -40,21 +40,21 @@ extension FloPlugin: NextFrameDelegate {
     }
     private func setTween(_ interval: Double) {
 
-        for val in myExprs.nameAny.values {
-            if let val = val as? FloValScalar {
-                let delta = val.val - val.now
+        for any in myExprs.nameAny.values {
+            if let scalar = any as? FloValScalar {
+                let delta = scalar.val - scalar.twe
 
-                myExprs.logNextNows("* interval: \(interval.digits(2))")
+                myExprs.logValNows("* interval: \(interval.digits(2))")
                 if delta == 0 {
                     cancel()
                 }
-                val.now += delta * interval
+                scalar.twe += delta * interval
             }
         }
         myExprs.flo.activate(Visitor(myExprs.id, from:.tween))
     }
 }
-
+var fakeClock: TimeInterval = 0 //...
 extension FloPlugin: FloPluginProtocal {
 
     func startPlugin(_ key: Int) {
@@ -67,6 +67,7 @@ extension FloPlugin: FloPluginProtocal {
 
                 NextFrame.shared.addFrameDelegate(key, self)
                 timeStart = timeNow
+                fakeClock = 0
 
             } else {
 
@@ -88,7 +89,8 @@ extension FloPlugin: FloPluginProtocal {
 
     func getInterval() -> Double {
         let timeNow = Date().timeIntervalSince1970
-        let timeDelta = timeNow - timeStart
+        let timeDelta = fakeClock //... timeNow - timeStart
+        fakeClock += 0.03 //...
         let interval = timeDelta / duration
         let easing = easeInOut(interval/duration) * duration
         return max(0.0, min(easing, duration))

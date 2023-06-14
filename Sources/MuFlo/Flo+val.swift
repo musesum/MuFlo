@@ -21,44 +21,26 @@ extension Flo {
     
     func BoolVal() -> Bool {
         if let exprs {
-            if let f = (exprs.nameAny["tog"] as? FloValScalar)?.val {
-                return f > 0
-            } else if let f = (exprs.nameAny["tap"] as? FloValScalar)?.val {
-                return f > 0
-            } else if let scalar = exprs.nameAny.values.last as? FloValScalar  {
-                return scalar.val > 0
+            for any in exprs.nameAny.values {
+                if let scalar  = any as? FloValScalar {
+                    return scalar.val > 0
+                }
             }
         }
         return false
     }
     
     func DoubleVal() -> Double? {
-       if let exprs {
-            if let f = (exprs.nameAny["v"] as? FloValScalar)?.now {
-                return f
-            } else if let scalar = exprs.nameAny.values.last as? FloValScalar  {
-                return scalar.now //??? or .val
+        if let exprs {
+            for any in exprs.nameAny.values {
+                if let scalar  = any as? FloValScalar {
+                    return scalar.twe  //??? or .val
+                }
             }
         }
         return nil
     }
-    
-    func Normals() -> [Double] {
-        if let exprs {
-            if let v = exprs.nameAny["v"] as? FloValScalar {
-                return [v.normalized()]
-            } else  {
-                var ret = [Double()]
-                for value in exprs.nameAny.values {
-                    if let v = value as? Double {
-                        ret.append(v)
-                    }
-                }
-                return ret
-            }
-        }
-        return []
-    }
+
     
     func IntVal() -> Int? {
         if let v = DoubleVal() { return Int(v) }
@@ -81,8 +63,8 @@ extension Flo {
     func CGPointVal() -> CGPoint? {
         
         if let exprs {
-            if let x = (exprs.nameAny["x"] as? FloValScalar)?.now,
-               let y = (exprs.nameAny["y"] as? FloValScalar)?.now {
+            if let x = (exprs.nameAny["x"] as? FloValScalar)?.twe,
+               let y = (exprs.nameAny["y"] as? FloValScalar)?.twe {
                 
                 return CGPoint(x: CGFloat(x), y: CGFloat(y))
             }
@@ -92,8 +74,8 @@ extension Flo {
     
     func CGSizeVal() -> CGSize? {
         if let exprs {
-            if let w = (exprs.nameAny["w"] as? FloValScalar)?.now,
-               let h = (exprs.nameAny["h"] as? FloValScalar)?.now {
+            if let w = (exprs.nameAny["w"] as? FloValScalar)?.twe,
+               let h = (exprs.nameAny["h"] as? FloValScalar)?.twe {
                 
                 return CGSize(width: CGFloat(w), height: CGFloat(h))
             }
@@ -105,10 +87,10 @@ extension Flo {
         if let exprs {
             let ns = exprs.nameAny
             if ns.count >= 4,
-               let x = (ns["x"] as? FloValScalar)?.now,
-               let y = (ns["y"] as? FloValScalar)?.now,
-               let w = (ns["w"] as? FloValScalar)?.now,
-               let h = (ns["h"] as? FloValScalar)?.now {
+               let x = (ns["x"] as? FloValScalar)?.twe,
+               let y = (ns["y"] as? FloValScalar)?.twe,
+               let w = (ns["w"] as? FloValScalar)?.twe,
+               let h = (ns["h"] as? FloValScalar)?.twe {
                 let rect = CGRect(x: CGFloat(x),
                                   y: CGFloat(y),
                                   width: CGFloat(w),

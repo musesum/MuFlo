@@ -12,7 +12,7 @@ import MuTime // NextFrame
 public class FloValScalar: FloVal {
 
     // default scalar value is (0…1 = 1)
-    public var now = Double(0) // current value; 2 in 0…3~1:2
+    public var twe  = Double(0) // current value; 2 in 0…3~1:2
     public var val  = Double(0) // target value
     public var min  = Double(0) // minimum value; 0 in 0…3
     public var max  = Double(1) // maximum value; 3 in 0…3
@@ -25,13 +25,10 @@ public class FloValScalar: FloVal {
 
     init(_ flo: Flo,_ name: String,_ num: Double) {
         super.init(flo, name)
-        if name == "seg" {
-            print("?",terminator: "")
-        }
-        valOps = [.now_, .val] //?? .now
+        valOps = [.val] //??? [.now_, .val] //?? .now
         self.min = fmin(num, 0.0)
         self.max = fmax(num, 1.0)
-        self.now = num
+       //???  self.twe = num
         self.val = num
     }
 
@@ -42,18 +39,18 @@ public class FloValScalar: FloVal {
         min  = scalar.min
         max  = scalar.max
         dflt = scalar.dflt
-        now  = scalar.now
+        twe  = scalar.twe
         val  = scalar.val
     }
 
     public func normalized() -> Double {
         if valOps.contains([.min,.max]) {
             let range = max - min
-            let ret = (now - min) / range
+            let ret = (twe - min) / range
             return ret
         } else {
-            print("🚫 \(flo.name): cannot normalize \(now)")
-            return now
+            print("🚫 \(flo.name): cannot normalize \(twe)")
+            return twe
         }
     }
     public func range() -> ClosedRange<Double> {
@@ -76,7 +73,7 @@ public class FloValScalar: FloVal {
 
         if !valOps.val {
             setDefault(Visitor(.bind))
-            now = val
+            twe = val
         }
     }
 
@@ -87,7 +84,7 @@ public class FloValScalar: FloVal {
         else if valOps.max, val > max { val = max  }
         else if valOps.modu           { val = 0    }
 
-        now = val
+        twe = val
     }
     static func |= (lhs: FloValScalar, rhs: FloValScalar) {
         
@@ -99,17 +96,17 @@ public class FloValScalar: FloVal {
     }
 
     public static func == (lhs: FloValScalar,
-                           rhs: FloValScalar) -> Bool { return lhs.now == rhs.now }
+                           rhs: FloValScalar) -> Bool { return lhs.twe == rhs.twe }
     public static func >= (lhs: FloValScalar,
-                           rhs: FloValScalar) -> Bool { return lhs.now >= rhs.now }
+                           rhs: FloValScalar) -> Bool { return lhs.twe >= rhs.twe }
     public static func >  (lhs: FloValScalar,
-                           rhs: FloValScalar) -> Bool { return lhs.now >  rhs.now }
+                           rhs: FloValScalar) -> Bool { return lhs.twe >  rhs.twe }
     public static func <= (lhs: FloValScalar,
-                           rhs: FloValScalar) -> Bool { return lhs.now <= rhs.now }
+                           rhs: FloValScalar) -> Bool { return lhs.twe <= rhs.twe }
     public static func <  (lhs: FloValScalar,
-                           rhs: FloValScalar) -> Bool { return lhs.now <  rhs.now }
+                           rhs: FloValScalar) -> Bool { return lhs.twe <  rhs.twe }
     public static func != (lhs: FloValScalar,
-                           rhs: FloValScalar) -> Bool { return lhs.now != rhs.now }
+                           rhs: FloValScalar) -> Bool { return lhs.twe != rhs.twe }
 
     public func inRange(from: Double) -> Bool {
 
@@ -120,7 +117,7 @@ public class FloValScalar: FloVal {
     }
 
     public override func printVal() -> String {
-        return String(now)
+        return String(twe)
     }
 
     public override func scriptVal(_ scriptOps: FloScriptOps,
@@ -220,14 +217,14 @@ public class FloValScalar: FloVal {
 
                 let toRange = (  max -   min) + (   valOps.thri ? 1.0 : 0.0)
                 let frRange = (v.max - v.min) + ( v.valOps.thri ? 1.0 : 0.0)
-                if ops.now_ { now  = (v.now - v.min) * (toRange / frRange) + min }
+                if ops.twe { twe  = (v.twe - v.min) * (toRange / frRange) + min }
                 if ops.val { val = (v.val - v.min) * (toRange / frRange) + min }
 
             } else if valOps.modu {
 
                 min = 0
                 max = Double.maximum(1, max)
-                if ops.now_ { now = fmod(v.now, max) }
+                if ops.twe { twe = fmod(v.twe, max) }
                 if ops.val { val = fmod(v.val, max) }
             } else {
                 
@@ -236,7 +233,7 @@ public class FloValScalar: FloVal {
         }
 
         func setNextOpNow(_ n: Double) {
-            if ops.now_ { now = n }
+            if ops.twe { twe = n }
             if ops.val { val = n }
             setInRange()
         }
@@ -249,7 +246,7 @@ public class FloValScalar: FloVal {
     }
 
     public override func getVal() -> Any {
-        return now
+        return twe
     }
 
     public func deepCopy(_ exprs: FloExprs) -> FloValScalar {
@@ -266,23 +263,23 @@ extension FloValScalar {
     func animateNowToNext(_ visit: Visitor) {
         if visit.from.tween {
             // already animating
-            logNextNows("􀋽⁰")
+            logValNows("􀋽⁰")
         } else {
-            logNextNows("􀋽⁼")
-            now = val
+            logValNows("􀋽⁼")
+            twe = val
         }
     }
     func testNextEqualNow() {
-        if val == now {
-            logNextNows("== ")
+        if val == twe {
+            logValNows("== ")
         }
     }
-    func logNextNows(_ prefix: String,
+    func logValNows(_ prefix: String,
                      _ suffix: String = "") {
 
         let id = "\(id)".pad(6)
         let path = flo.path(9).pad(-18)
-        let valNow = " (next: \(val.digits(2)) - now: \(now.digits(2))) "
+        let valNow = " (val: \(val.digits(2)) - now: \(twe.digits(2))) "
         print(prefix + id + path + valNow + suffix)
     }
 }

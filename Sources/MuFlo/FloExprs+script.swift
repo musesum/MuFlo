@@ -63,7 +63,7 @@ extension FloExprs {
 
             func logFinish(_ scalar: FloValScalar?, _ keyStr: String) {
                 guard let scalar else { return }
-                var shortOps = scalar.valOps ; shortOps -= .now_
+                var shortOps = scalar.valOps ; shortOps -= .twe
                 let padOps = "[\(shortOps.description)]".pad(27)
                 let padScript = "\(script)".pad(24)
                 let padPath = "\(scalar.flo.path(5))(\(keyStr))".pad(20)

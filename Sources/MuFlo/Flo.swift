@@ -178,7 +178,7 @@ public class Flo {
 
     /// all Flos from root share the same dispatch.
     /// There are two main usescases:
-    ///    1) app saves .delta and restores .now values
+    ///    1) app saves .delta and restores .val values
     ///    2) another devices wants to synchronize state
     ///
     public func bindDispatch(_ prior: Flo? = nil) {
