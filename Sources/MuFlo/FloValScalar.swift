@@ -207,17 +207,17 @@ public class FloValScalar: FloVal {
 
         valOps += ops
 
-        // testNextEqualNow()
         return true
 
         func setFrom(_ v: FloValScalar) {
 
+            /// both have a range
             if valOps.thrui,
                v.valOps.thrui {
 
                 let toRange = (  max -   min) + (   valOps.thri ? 1.0 : 0.0)
                 let frRange = (v.max - v.min) + ( v.valOps.thri ? 1.0 : 0.0)
-                if ops.twe { twe  = (v.twe - v.min) * (toRange / frRange) + min }
+                if ops.twe { twe = (v.twe - v.min) * (toRange / frRange) + min }
                 if ops.val { val = (v.val - v.min) * (toRange / frRange) + min }
 
             } else if valOps.modu {
@@ -232,9 +232,9 @@ public class FloValScalar: FloVal {
             }
         }
 
-        func setNextOpNow(_ n: Double) {
-            if ops.twe { twe = n }
-            if ops.val { val = n }
+        func setNextOpNow(_ num: Double) {
+            if ops.twe { twe = num }
+            if ops.val { val = num }
             setInRange()
         }
         
@@ -260,26 +260,12 @@ public class FloValScalar: FloVal {
 }
 extension FloValScalar {
 
-    func animateNowToNext(_ visit: Visitor) {
-        if visit.from.tween {
-            // already animating
-            logValNows("􀋽⁰")
-        } else {
-            logValNows("􀋽⁼")
-            twe = val
-        }
-    }
-    func testNextEqualNow() {
-        if val == twe {
-            logValNows("== ")
-        }
-    }
-    func logValNows(_ prefix: String,
-                     _ suffix: String = "") {
+    func logValTweens(_ prefix: String,
+                      _ suffix: String = "") {
 
         let id = "\(id)".pad(6)
         let path = flo.path(9).pad(-18)
-        let valNow = " (val: \(val.digits(2)) - now: \(twe.digits(2))) "
+        let valNow = " (val-twe: \(val.digits(2)) - \(twe.digits(2))) "
         print(prefix + id + path + valNow + suffix)
     }
 }

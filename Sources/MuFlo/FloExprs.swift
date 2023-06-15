@@ -13,6 +13,8 @@ import MuTime
 
 public class FloExprs: FloVal {
 
+    static var IdExprs = [Int:FloExprs]()
+
     /// `t(x 1, y 2)` ⟹ `["x": 1, "y": 2]`
     public var nameAny: OrderedDictionary<String,Any> = [:]
 
@@ -30,6 +32,7 @@ public class FloExprs: FloVal {
 
     init(from: FloExprs) {
         super.init(with: from)
+        FloExprs.IdExprs[id] = self
 
         valOps = from.valOps
         for (name, val) in from.nameAny {
@@ -56,11 +59,12 @@ public class FloExprs: FloVal {
     }
     init(_ flo: Flo, point: CGPoint) {
         super.init(flo, "point")
+        FloExprs.IdExprs[id] = self
         addPoint(point)
     }
     public init(_ flo: Flo,_ nameNums: [(String, Double)]) {
         super.init(flo, "nameNums")
-
+        FloExprs.IdExprs[id] = self
         for (name, num) in nameNums {
             if opAnys.count > 0 {
                 addOpStr(",")
@@ -110,7 +114,7 @@ public class FloExprs: FloVal {
         print()
         for (name,any) in nameAny {
             if let scalar = any as? FloValScalar {
-                scalar.logValNows("􁒖 \(name)".pad(8), suffix)
+                scalar.logValTweens("􁒖 \(name)".pad(8), suffix)
             }
         }
     }
@@ -144,22 +148,46 @@ public class FloExprs: FloVal {
 
             visit.from += .tween
             setFromVisit(fromExprs, visit)
-            logValNows(visit.log)
+
+            logValNows(visitedPaths(visit)) //??? (visit.log)
             plugin.startPlugin(id)
             return true
 
         } else {
             if setFromVisit(fromExprs, visit) {
                 if !visit.from.tween {
-                    setTween()
+                    syncTween()
                 }
                 return true
             }
         }
         return false
     }
+
+    func visitedPaths(_ visit: Visitor) -> String {
+
+        var str = "("
+        var del = ""
+        for vid in visit.visited {
+            if let flo = Flo.IdFlo[vid] {
+
+                let path = flo.path(99)
+                str += del + path + ":\(vid)"
+                del = ", "
+            } else if let exprs = FloExprs.IdExprs[vid] {
+
+                let path = exprs.flo.path(99)
+                str += del + path + "(\(exprs.name):\(vid))"
+                del = ", "
+            }
+
+        }
+        str += ")"
+        return str
+    }
+
     /// Not animated, so set tween value twe
-    func setTween() {
+    func syncTween() {
 
         for val in nameAny.values {
             if let v = val as? FloValScalar {

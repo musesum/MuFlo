@@ -101,7 +101,7 @@ sky { draw { brush { size << midi.modulationWheel } } }
 ```
 write a closure in Swift to capture a changed value
 ```swift
-root.findPath("draw.brush.size")?.addClosure { flo, _ in 
+root.bind("draw.brush.size") { flo, _ in 
         self.brushRadius = flo.float } 
 ```
 In the above example, attach a closure to `draw.brush.size`, which then updates its internal value `brushRadius`.

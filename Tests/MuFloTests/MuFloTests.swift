@@ -1036,7 +1036,9 @@ final class MuFloTests: XCTestCase {
             let p0 = CGPoint(x:1, y:1)
             var p1 = CGPoint.zero
 
-            a.addClosure { flo, _ in p1 = flo.cgPoint }
+            a.addClosure { flo, _ in
+                p1 = flo.cgPoint
+            }
             a.setAny(p0, .activate)
             print("p0:\(p0) => p1:\(p1)")
             err += (p0 == p1) ? 0 : 1

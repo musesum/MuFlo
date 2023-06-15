@@ -17,7 +17,7 @@ public class FloDispatch {
 }
 
 public class Flo {
-    static var IdFlo = [Int:Flo]()
+    static var IdFlo = [Int:Flo]() // debugging
     public static var root˚ = Flo("√")
     public static var LogBindScript = false // debug while binding
     public static var LogMakeScript = false // debug while binding
