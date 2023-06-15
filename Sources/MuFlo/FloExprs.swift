@@ -162,6 +162,16 @@ public class FloExprs: FloVal {
             }
         }
         return false
+
+        /// Not animated, so set tween value twe
+        func syncTween() {
+            print("🔸", terminator: "")
+            for val in nameAny.values {
+                if let v = val as? FloValScalar {
+                    v.twe = v.val
+                }
+            }
+        }
     }
 
     func visitedPaths(_ visit: Visitor) -> String {
@@ -186,15 +196,7 @@ public class FloExprs: FloVal {
         return str
     }
 
-    /// Not animated, so set tween value twe
-    func syncTween() {
 
-        for val in nameAny.values {
-            if let v = val as? FloValScalar {
-                v.twe = v.val
-            }
-        }
-    }
 
     @discardableResult
     func setFromVisit(_ any: Any,
