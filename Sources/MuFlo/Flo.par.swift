@@ -8,7 +8,7 @@ flo ≈ pathName (exprs | child | many | copyat | edges | embed | comment)* {
     copyat   ≈ "@" pathName ("," pathName)*
 
     exprs ≈ "(" expr+ ")" {
-        expr   ≈ (name | scalar | exprOp | quote | comment)+
+        expr   ≈ (exprOp | name | scalar | quote | comment)+
         exprOp ≈ '^(<=|>=|==|≈|<|>|\*|\:|\/|\%|in|\,)|(\+)|(\-)[ ]'
 
         scalar ≈ (thru | thri | modu | now | num) {
@@ -16,7 +16,7 @@ flo ≈ pathName (exprs | child | many | copyat | edges | embed | comment)* {
             thri ≈ num ("_") num dflt? now?
             modu ≈ "%" num dflt? now?
             dflt ≈ "~" num
-            now  ≈ ":" num
+            now  ≈ "=" num
         }
     }
     edges ≈ edgeOp (edgePar | exprs | edgeVal) comment* {

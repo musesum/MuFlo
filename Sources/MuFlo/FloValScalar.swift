@@ -28,7 +28,6 @@ public class FloValScalar: FloVal {
         valOps = [.val] //??? [.now_, .val] //?? .now
         self.min = fmin(num, 0.0)
         self.max = fmax(num, 1.0)
-       //???  self.twe = num
         self.val = num
     }
 
@@ -83,7 +82,6 @@ public class FloValScalar: FloVal {
         else if valOps.min, val < min { val = min  }
         else if valOps.max, val > max { val = max  }
         else if valOps.modu           { val = 0    }
-
         twe = val
     }
     static func |= (lhs: FloValScalar, rhs: FloValScalar) {
@@ -217,8 +215,17 @@ public class FloValScalar: FloVal {
 
                 let toRange = (  max -   min) + (   valOps.thri ? 1.0 : 0.0)
                 let frRange = (v.max - v.min) + ( v.valOps.thri ? 1.0 : 0.0)
+
+
+               // print("(twe: \(v.twe.digits(0...2)), val: \(v.val.digits(0...2))) ::", terminator: " ")
+                //print("(twe: \(twe.digits(0...2)), val: \(val.digits(0...2))", terminator: " ")
+
+
                 if ops.twe { twe = (v.twe - v.min) * (toRange / frRange) + min }
                 if ops.val { val = (v.val - v.min) * (toRange / frRange) + min }
+                //print("==> (twe: \(twe.digits(0...2)), val: \(val.digits(0...2)))")
+                
+
 
             } else if valOps.modu {
 

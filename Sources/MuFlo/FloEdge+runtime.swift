@@ -19,7 +19,9 @@ extension FloEdge {
         if edgeOps.plugin,
            let leftExprs = leftFlo.exprs,
            let rightExprs = rightFlo.exprs {
+
             if leftExprs.plugin == nil {
+
                 leftExprs.plugin = FloPlugin(leftExprs,rightExprs)
             }
         } else if leftToRight && edgeOps.output ||

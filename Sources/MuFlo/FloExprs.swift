@@ -154,23 +154,7 @@ public class FloExprs: FloVal {
             return true
 
         } else {
-            if setFromVisit(fromExprs, visit) {
-                if !visit.from.tween {
-                    syncTween()
-                }
-                return true
-            }
-        }
-        return false
-
-        /// Not animated, so set tween value twe
-        func syncTween() {
-            print("🔸", terminator: "")
-            for val in nameAny.values {
-                if let v = val as? FloValScalar {
-                    v.twe = v.val
-                }
-            }
+            return setFromVisit(fromExprs, visit)
         }
     }
 
@@ -315,7 +299,7 @@ public class FloExprs: FloVal {
         let copy = copy()
         copy.injectNameNum("x", Double(p.x))
         copy.injectNameNum("y", Double(p.y))
-        let result = evalExprs(copy,false, visit)
+        let result = evalExprs(copy, false, visit)
         if result == false {
             clearCurrentVals()
         }

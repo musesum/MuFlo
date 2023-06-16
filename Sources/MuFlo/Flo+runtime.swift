@@ -35,14 +35,14 @@ extension Flo {
                 exprs = fromExprs
             } else if let exprs {
                 // set my val to fromVal, with rescaling
-                if exprs.setVal(fromExprs, visit, [.twe, .val]) == false {
+                if exprs.setVal(fromExprs, visit, [.val]) == false { ///... .twe,
                     // condition failed, so avoid activatating edges, below
                     return
                 }
             }
         } else if let exprs {
             // any is not a FloVal, so pass onto my FloVal if it exists
-            if exprs.setVal(any, visit, [.twe, .val]) == false {
+            if exprs.setVal(any, visit, [.val]) == false {
                 // condition failed, so avoid activatating edges, below
                 return
             }

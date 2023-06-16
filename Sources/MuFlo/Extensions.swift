@@ -48,9 +48,9 @@ extension String {
     }
 
     func roundColonSpace() -> String {
-        if self.hasSuffix(": ") { return ""  }
-        if self.hasSuffix(":")  { return " " }
-        else                    { return ": "}
+        if self.hasSuffix("= ") { return ""  }
+        if self.hasSuffix("=")  { return " " }
+        else                    { return " = "}
     }
     func singleSuffix(_ suf: String) -> String {
         if hasSuffix(suf) { return self }

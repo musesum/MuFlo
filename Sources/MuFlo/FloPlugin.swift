@@ -41,11 +41,12 @@ extension FloPlugin: NextFrameDelegate {
     private func setTween(_ interval: Double) {
 
         var hasDelta = false
+        print(interval.digits(0...2), terminator: " ")
         for any in myExprs.nameAny.values {
             if let scalar = any as? FloValScalar {
                 let delta = scalar.val - scalar.twe
 
-                myExprs.logValNows("* interval: \(interval.digits(2))")
+                // myExprs.logValNows("* interval: \(interval.digits(2))")
                 if delta != 0 {
                     hasDelta = true
                     scalar.twe += delta * interval

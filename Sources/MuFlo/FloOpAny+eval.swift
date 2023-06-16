@@ -44,7 +44,7 @@ extension FloOpAny {
                 case .muy   : return frNow * toNow
                 case .div   : return frNow / (toNow == 0 ? 1 : toNow)
                 case .mod   : return fmod(frNow, toNow == 0 ? 1 : toNow)
-                case .assign: return frVal //TODO: never here
+               case .assign: return frVal //TODO: never here
                 default     : break
                 }
             } else {

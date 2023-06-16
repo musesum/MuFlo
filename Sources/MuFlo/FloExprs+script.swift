@@ -15,13 +15,13 @@ extension FloExprs {
         for opAny in opAnys {
             switch opAny.op {
             case .comma: finishExpr()
-            case .assign: assigned = true
-            case .name: if !assigned { named = opAny.any as? String ?? "??" }
+            case .assign, .In: assigned = true
+            case .name: if !assigned, named == "" { named = opAny.any as? String ?? "??" }
             default: break
             }
             if scriptOps.def {
                 let str = opAny.scriptDefOps(scriptOps, script)
-                if str.first == "," || str.first == ":"  {
+                if str.first == "," || str.first == "="  {
                     script += str
                 } else {
                     script.spacePlus(str)
@@ -48,7 +48,7 @@ extension FloExprs {
                 if numStr == "", scriptOps.onlyNow { nameStr = named }
 
                 if  nameStr.count > 0 && nameStr.first != "_" {
-                    script.spacePlus(nameStr + (numStr.isEmpty ? "" : ": " + numStr))
+                    script.spacePlus(nameStr + (numStr.isEmpty ? "" : " = " + numStr))
                 } else if numStr.count > 0 {
                     if keyStr.first == "_", (script.isEmpty || scalar?.valOps.lit ?? false) {
                         script += numStr

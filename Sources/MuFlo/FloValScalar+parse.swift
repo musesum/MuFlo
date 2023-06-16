@@ -44,7 +44,7 @@ extension FloValScalar { // + Parse
     }
     func parseNow(_ n: Double) {
         if !n.isNaN {
-            valOps += [.twe,.val]
+            valOps += [.val]
             twe = n
             val = n
         }
