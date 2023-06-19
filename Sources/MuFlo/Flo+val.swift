@@ -23,7 +23,7 @@ extension Flo {
         if let exprs {
             for any in exprs.nameAny.values {
                 if let scalar  = any as? FloValScalar {
-                    return scalar.val > 0
+                    return scalar.twe > 0
                 }
             }
         }
@@ -34,7 +34,7 @@ extension Flo {
         if let exprs {
             for any in exprs.nameAny.values {
                 if let scalar  = any as? FloValScalar {
-                    return scalar.twe  //??? or .val
+                    return scalar.twe
                 }
             }
         }
@@ -188,7 +188,7 @@ extension Flo {
     }
     
     /// convert FloExprs contiguous array to dictionary
-    public func components() ->  OrderedDictionary<String,Any>? {
+    public func components() ->  OrderedDictionaryClass<String,Any>? {
         return exprs?.nameAny ?? nil
     }
 

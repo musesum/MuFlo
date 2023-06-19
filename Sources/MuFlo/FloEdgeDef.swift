@@ -23,8 +23,7 @@ public class FloEdgeDef {
         
         edgeOps = fromDef.edgeOps
         for (path,val) in fromDef.pathVals.edgeVals { // pathVals = with.pathVal
-
-                pathVals.addPathVal(path, val?.copy()) 
+            pathVals.addPathVal(path, val?.copy())
         }
     }
     

@@ -189,7 +189,7 @@ public class FloValScalar: FloVal {
     ///
     @discardableResult
     public override func setVal(_ any: Any?,
-                                _ visit: Visitor,
+                                _ _: Visitor,
                                 _ ops: FloValOps) -> Bool {
         
         guard let any else { return true }
@@ -217,7 +217,7 @@ public class FloValScalar: FloVal {
                 let frRange = (v.max - v.min) + ( v.valOps.thri ? 1.0 : 0.0)
 
 
-               // print("(twe: \(v.twe.digits(0...2)), val: \(v.val.digits(0...2))) ::", terminator: " ")
+               //... print("(twe: \(v.twe.digits(0...2)), val: \(v.val.digits(0...2))) ::", terminator: " ")
                 //print("(twe: \(twe.digits(0...2)), val: \(val.digits(0...2))", terminator: " ")
 
 
@@ -272,7 +272,7 @@ extension FloValScalar {
 
         let id = "\(id)".pad(6)
         let path = flo.path(9).pad(-18)
-        let valNow = " (val-twe: \(val.digits(2)) - \(twe.digits(2))) "
+        let valNow = " (val/twe: \(val.digits(2))/\(twe.digits(2)))"
         print(prefix + id + path + valNow + suffix)
     }
 }

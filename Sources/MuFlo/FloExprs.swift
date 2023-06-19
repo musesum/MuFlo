@@ -11,12 +11,13 @@ import Foundation
 import MuPar
 import MuTime
 
+public typealias NameAny = OrderedDictionaryClass<String,Any>
 public class FloExprs: FloVal {
 
     static var IdExprs = [Int:FloExprs]()
 
     /// `t(x 1, y 2)` ⟹ `["x": 1, "y": 2]`
-    public var nameAny: OrderedDictionary<String,Any> = [:]
+    public var nameAny = NameAny()
 
     /// `t(x/2, y/2) << u(x 1, y 2)` ⟹ `t(x 0.5, y 1.0)` // after u fires
     public var opAnys = ContiguousArray<FloOpAny>()
@@ -110,11 +111,11 @@ public class FloExprs: FloVal {
   
     // MARK: - Set
 
-    func logValNows(_ suffix: String = "") {
+    func logValTwees(_ suffix: String = "") {
         print()
         for (name,any) in nameAny {
             if let scalar = any as? FloValScalar {
-                scalar.logValTweens("􁒖 \(name)".pad(8), suffix)
+                scalar.logValTweens("􁒖 \(name)".pad(8), suffix+"[\(scalar.valOps.description)]")
             }
         }
     }
@@ -149,7 +150,7 @@ public class FloExprs: FloVal {
             visit.from += .tween
             setFromVisit(fromExprs, visit)
 
-            logValNows(visitedPaths(visit)) //??? (visit.log)
+            logValTwees(visitedPaths(visit)) //??? (visit.log)
             plugin.startPlugin(id)
             return true
 

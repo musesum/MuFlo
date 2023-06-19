@@ -6,7 +6,7 @@ flo ≈ pathName (exprs | child | many | copyat | edges | embed | comment)* {
     copyat   ≈ "@" pathName ("," pathName)*
 
     exprs ≈ "(" expr+ ")" {
-        expr   ≈ (exprOp | name | scalar | quote | comment)+
+        expr   ≈ (scalar | exprOp | name | quote | comment)+
         exprOp ≈ '^(<=|>=|==|≈|<|>|\*|\:|\/|\%|in|\,)|(\+)|(\-)[ ]'
 
         scalar ≈ (thru | thri | modu | now | num) {

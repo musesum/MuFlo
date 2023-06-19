@@ -117,7 +117,6 @@ public class FloParse {
 
     // MARK: - values
 
-    ///
     /// decorate current value with attributes
     ///
     func parseDeepVal(_ flo     : Flo     ,

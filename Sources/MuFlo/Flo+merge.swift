@@ -418,13 +418,13 @@ extension Flo {
             }
         }
     }
-    public func bindNexts() {
+    public func bindVals() {
         bindVal(exprs)
         for edge in floEdges {
             bindVal(edge.value.edgeExprs)
         }
         for child in children {
-            child.bindNexts()
+            child.bindVals()
         }
         func bindVal(_ val: FloVal?) {
             if let val {
@@ -449,6 +449,6 @@ extension Flo {
         bindCopyatTypes()  ; log(3)
         bindEdges()        ; log(4)
         bindDispatch()     ; log(5)
-        bindNexts()
+        bindVals()
     }
 }

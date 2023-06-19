@@ -74,7 +74,7 @@ extension Flo {
             for floEdge in floEdges.values {
                 
                 if floEdge.active {
-                    floEdge.followEdge(self, visit.via(.model))
+                    floEdge.followEdge(self, visit.via(.model)) //... add via(.edge
                 }
             }
         }

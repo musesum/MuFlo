@@ -18,6 +18,7 @@ public class FloEdge: Hashable {
     var leftFlo: Flo
     var rightFlo: Flo
     var edgeExprs: FloExprs?
+    var plugDefs: EdgeDefs?
 
     public static var LineageDepth = 99 
 
@@ -31,7 +32,7 @@ public class FloEdge: Hashable {
 
     convenience init(with: FloEdge) { // was operator = in c++ version
 
-        self.init(with.leftFlo, with.rightFlo, with.edgeOps)
+        self.init(with.leftFlo, with.rightFlo, with.edgeOps, with.plugDefs)
         self.active = with.active
         self.edgeExprs = with.edgeExprs
         makeKey()
@@ -39,19 +40,23 @@ public class FloEdge: Hashable {
 
    init(_ leftFlo: Flo,
         _ rightFlo: Flo,
-        _ edgeOps: FloEdgeOps) {
+        _ edgeOps: FloEdgeOps,
+        _ plugDefs: EdgeDefs?) {
 
         self.edgeOps = edgeOps
         self.leftFlo = leftFlo
         self.rightFlo = rightFlo
+        self.plugDefs = plugDefs
         makeKey()
     }
     convenience init(_ def: FloEdgeDef,
                      _ leftFlo: Flo,
                      _ rightFlo: Flo,
-                     _ edgeVal: FloExprs?) {
+                     _ edgeVal: FloExprs?,
+                     _ plugDefs: EdgeDefs?
+        ) {
 
-        self.init(leftFlo, rightFlo, def.edgeOps)
+        self.init(leftFlo, rightFlo, def.edgeOps, plugDefs)
         self.edgeExprs = edgeVal
         makeKey()
     }

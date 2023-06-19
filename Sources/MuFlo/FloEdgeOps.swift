@@ -36,19 +36,17 @@ public struct FloEdgeOps: OptionSet {
     public init(flipIO: FloEdgeOps) {
         self.init(rawValue: flipIO.rawValue)
 
-        let hasInput  = self.input
-        let hasOutput = self.output
         // flip inputs and outputs, if have both, then remains the same
-        if hasInput  { insert(.output) } else { remove(.output) }
-        if hasOutput { insert(.input)  } else { remove(.input)  }
+        if self.hasInput  { insert(.output) } else { remove(.output) }
+        if self.hasOutput { insert(.input)  } else { remove(.input)  }
     }
 
-    var input   : Bool { contains(.input  )}
-    var output  : Bool { contains(.output )}
-    var solo    : Bool { contains(.solo   )}
-    var exclude : Bool { contains(.exclude)}
-    var copyat  : Bool { contains(.copyat )}
-    var plugin  : Bool { contains(.plugin )}
+    var hasInput   : Bool { contains(.input  )}
+    var hasOutput  : Bool { contains(.output )}
+    var hasSolo    : Bool { contains(.solo   )}
+    var hasExclude : Bool { contains(.exclude)}
+    var hasCopyat  : Bool { contains(.copyat )}
+    var hasPlugin  : Bool { contains(.plugin )}
 
     public func scriptExpicitOps() -> String {
 
@@ -63,14 +61,14 @@ public struct FloEdgeOps: OptionSet {
     }
     public func scriptImplicitOps(_ active: Bool) -> String {
 
-        var script = self.input ? " ←" : ""
+        var script = self.hasInput ? " ←" : ""
 
-        if !active          { script += "◇" }
-        else if self.solo   { script += "⟡" }
-        else if self.copyat { script += "@" }
-        else if self.plugin { script += "^" }
+        if      !active        { script += "◇" }
+        else if self.hasSolo   { script += "⟡" }
+        else if self.hasCopyat { script += "@" }
+        else if self.hasPlugin { script += "^" }
 
-        script += self.output ? "→" : ""
+        script += self.hasOutput ? "→" : ""
 
         return script
     }

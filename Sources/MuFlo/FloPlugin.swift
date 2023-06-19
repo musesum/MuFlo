@@ -14,7 +14,7 @@ public class FloPlugin {
 
     var type = FloAnimType.linear
     var delay = TimeInterval(0.25)
-    var duration = TimeInterval(2)
+    var duration = TimeInterval(0.5)
     var timeStart = TimeInterval(0)
     var steps = 0
     var myExprs: FloExprs
@@ -46,7 +46,7 @@ extension FloPlugin: NextFrameDelegate {
             if let scalar = any as? FloValScalar {
                 let delta = scalar.val - scalar.twe
 
-                // myExprs.logValNows("* interval: \(interval.digits(2))")
+                // myExprs.logValTwees("* interval: \(interval.digits(2))")
                 if delta != 0 {
                     hasDelta = true
                     scalar.twe += delta * interval

@@ -6,9 +6,14 @@
 
 import Foundation
 
+
+typealias EdgeDefs = ArrayClass<FloEdgeDef>
+
+/// define one or more edges
 public class FloEdgeDefs {
 
-    var edgeDefs = [FloEdgeDef]()
+    var edgeDefs = EdgeDefs()  /// `a <> ˚˚`
+    var plugDefs = EdgeDefs()  /// a `<< ˚˚ ^ recorder`
 
     convenience init(with: FloEdgeDefs) {
         self.init()
@@ -25,10 +30,10 @@ public class FloEdgeDefs {
 
         for mergeDef in merge.edgeDefs {
             if isUnique(mergeDef) {
-                if mergeDef.edgeOps.solo {
+                if mergeDef.edgeOps.hasSolo {
                     edgeDefs = merge.edgeDefs
                 }
-                else if edgeDefs.first?.edgeOps.solo ?? false {
+                else if edgeDefs.first?.edgeOps.hasSolo ?? false {
                     // keep solo from previous definition
                 }
                 else {
@@ -77,8 +82,17 @@ public class FloEdgeDefs {
 
     /// connect direct edges
     func bindEdges(_ flo: Flo) {
+        let bindDefs = ArrayClass<FloEdgeDef>()
         for edgeDef in edgeDefs {
-            edgeDef.connectEdges(flo)
+            if edgeDef.edgeOps.hasPlugin {
+                plugDefs.append(edgeDef)
+            } else {
+                bindDefs.append(edgeDef)
+            }
+        }
+        edgeDefs = bindDefs
+        for edgeDef in edgeDefs {
+            edgeDef.connectEdges(flo, plugDefs)
         }
     }
 }
