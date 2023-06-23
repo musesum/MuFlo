@@ -31,9 +31,7 @@ public class FloEdgeDef {
         let newEdgeDef = FloEdgeDef(with: self)
         return newEdgeDef
     }
-    func addLastPath(_ lastPath: String, val: FloVal) {
-        
-    }
+    
     func addPath(_ parItem: ParItem) {
 
         if let path = parItem.nextPars.first?.value {

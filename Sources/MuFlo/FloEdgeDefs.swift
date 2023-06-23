@@ -94,5 +94,8 @@ public class FloEdgeDefs {
         for edgeDef in edgeDefs {
             edgeDef.connectEdges(flo, plugDefs)
         }
+        for plugDef in plugDefs {
+            plugDef.connectEdges(flo, plugDefs)
+        }
     }
 }

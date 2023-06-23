@@ -90,7 +90,7 @@ public class FloValScalar: FloVal {
         lhs.valOps = FloValOps(rawValue: mergeOps)
         if rhs.valOps.min  { lhs.min = rhs.min }
         if rhs.valOps.max  { lhs.max = rhs.max }
-        if rhs.valOps.val { lhs.val = rhs.val } //??
+        if rhs.valOps.val { lhs.val = rhs.val } 
     }
 
     public static func == (lhs: FloValScalar,
@@ -188,18 +188,17 @@ public class FloValScalar: FloVal {
     ///  - note: plugins set .now in a callback loop from plugin
     ///
     @discardableResult
-    public override func setVal(_ any: Any?,
-                                _ _: Visitor,
-                                _ ops: FloValOps) -> Bool {
-        
+    public func setScalarVal(_ any: Any?,
+                             _ ops: FloValOps) -> Bool {
+
         guard let any else { return true }
 
         switch any {
         case let v as FloValScalar : setFrom(v)
-        case let v as Double       : setNextOpNow(v)
-        case let v as Float        : setNextOpNow(Double(v))
-        case let v as CGFloat      : setNextOpNow(Double(v))
-        case let v as Int          : setNextOpNow(Double(v))
+        case let v as Double       : setValOpTwe(v)
+        case let v as Float        : setValOpTwe(Double(v))
+        case let v as CGFloat      : setValOpTwe(Double(v))
+        case let v as Int          : setValOpTwe(Double(v))
         default: print("🚫 setVal unknown type for: from")
         }
 
@@ -235,11 +234,11 @@ public class FloValScalar: FloVal {
                 if ops.val { val = fmod(v.val, max) }
             } else {
                 
-                setNextOpNow(v.val)
+                setValOpTwe(v.val)
             }
         }
 
-        func setNextOpNow(_ num: Double) {
+        func setValOpTwe(_ num: Double) {
             if ops.twe { twe = num }
             if ops.val { val = num }
             setInRange()

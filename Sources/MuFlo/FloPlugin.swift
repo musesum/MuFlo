@@ -49,7 +49,11 @@ extension FloPlugin: NextFrameDelegate {
                 // myExprs.logValTwees("* interval: \(interval.digits(2))")
                 if delta != 0 {
                     hasDelta = true
-                    scalar.twe += delta * interval
+                    if abs(delta) < 1E-9 {
+                        scalar.twe = scalar.val
+                    } else {
+                        scalar.twe += delta * interval
+                    }
                 }
             }
         }

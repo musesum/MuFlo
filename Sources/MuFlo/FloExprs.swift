@@ -25,13 +25,15 @@ public class FloExprs: FloVal {
     /// return _0, _1, ... for anonymous values
     var anonKey: String { String(format: "_%i", nameAny.keys.count) }
 
-    var plugin: FloPlugin?
+    var plugDefs: EdgeDefs?
+    var plugins = [FloPlugin]()
 
     override init(_ flo: Flo, _ name: String) {
         super.init(flo, "_\(flo.name)")
     }
 
     init(from: FloExprs) {
+        
         super.init(with: from)
         FloExprs.IdExprs[id] = self
 
@@ -108,7 +110,7 @@ public class FloExprs: FloVal {
         return nums
     }
 
-  
+
     // MARK: - Set
 
     func logValTwees(_ suffix: String = "") {
@@ -130,35 +132,63 @@ public class FloExprs: FloVal {
                 }
             }
             if nameVals.count > 0 {
-                setVal(nameVals, visit, [])
+                setExprsVal(nameVals, visit)
             }
         }
     }
-
+    
     @discardableResult
-    public override func setVal(_ fromExprs: Any?,
-                                _ visit: Visitor,
-                                _ _: FloValOps) -> Bool {
-        
+    public func setExprsVal(_ fromExprs: Any?,
+                            _ visit: Visitor) -> Bool {
+
         guard let fromExprs else { return false }
         if !visit.newVisit(self.id) { return false }
-        
-        if !visit.from.tween,
-           !visit.from.remote,
-           let plugin {
 
-            visit.from += .tween
-            setFromVisit(fromExprs, visit)
-
-            logValTwees(visitedPaths(visit)) //??? (visit.log)
-            plugin.startPlugin(id)
+        if visitPlugins(visit) {
             return true
-
         } else {
             return setFromVisit(fromExprs, visit)
         }
-    }
 
+
+        func visitPlugins(_ visit: Visitor) -> Bool {
+
+            guard let plugDefs else { return false }
+            if plugDefs.isEmpty { return false }
+
+            if plugins.isEmpty {
+                setupPlugins()
+            }
+
+            if !visit.from.tween,
+               !visit.from.remote,
+               plugins.count > 0 {
+
+                visit.from += .tween
+                setFromVisit(fromExprs, visit)
+
+                logValTwees(visitedPaths(visit)) //??? (visit.log)
+                for plugin in plugins {
+                    plugin.startPlugin(id)
+                }
+                return true
+            }
+            return false
+
+            func setupPlugins() {
+
+                for plugDef in plugDefs {
+                    for edge in plugDef.edges.values {
+                        if let leftExprs = edge.leftFlo.exprs,
+                           let rightExprs = edge.rightFlo.exprs {
+                            let plugin = FloPlugin(leftExprs,rightExprs)
+                            plugins.append(plugin)
+                        }
+                    }
+                }
+            }
+        }
+    }
     func visitedPaths(_ visit: Visitor) -> String {
 
         var str = "("
@@ -234,10 +264,10 @@ public class FloExprs: FloVal {
                     _ num: Double,
                     _ visit: Visitor) -> Bool {
 
-        let ops: FloValOps = (plugin == nil ? [.twe, .val] : [.val])
+        let ops: FloValOps = (plugins.isEmpty ? [.twe, .val] : [.val])
 
         if let scalar = nameAny[name] as? FloValScalar {
-            scalar.setVal(num, visit, ops)
+            scalar.setScalarVal(num, ops)
         } else {
             nameAny[name] = FloValScalar(flo, name, num)
         }
@@ -264,18 +294,25 @@ public class FloExprs: FloVal {
     func setNum(_ val: Double,
                 _ visit: Visitor) -> Bool {
 
-        let ops: FloValOps = (plugin == nil ? [.twe, .val] : [.val])
+        let ops: FloValOps
+        if plugins.isEmpty {
+            print("¬⃣", terminator: "")
+            ops = [.twe, .val]
+        } else {
+            print("+⃣", terminator: "")
+            ops = [.val]
+        }
 
         if let scalar = nameAny["_0"] as? FloValScalar {
 
-            scalar.setVal(val, visit, ops)
+            scalar.setScalarVal(val, ops)
             return true
 
         } else {
 
             for any in nameAny.values {
                 if let scalar = any as? FloValScalar {
-                    scalar.setVal(val, visit, ops)
+                    scalar.setScalarVal(val, ops)
                     return true
                 }
             }

@@ -35,14 +35,14 @@ extension Flo {
                 exprs = fromExprs
             } else if let exprs {
                 // set my val to fromVal, with rescaling
-                if exprs.setVal(fromExprs, visit, [.val]) == false { ///... .twe,
+                if exprs.setExprsVal(fromExprs, visit) == false {
                     // condition failed, so avoid activatating edges, below
                     return
                 }
             }
         } else if let exprs {
             // any is not a FloVal, so pass onto my FloVal if it exists
-            if exprs.setVal(any, visit, [.val]) == false {
+            if exprs.setExprsVal(any, visit) == false {
                 // condition failed, so avoid activatating edges, below
                 return
             }
@@ -123,11 +123,11 @@ extension Flo {
                 /// example 1. first eval edge via from value
                 edgeExprs.evalExprs(fromExprs, true, visit)
                 /// and then pass the result as a new from value
-                return exprs.setVal(edgeExprs, visit, [.val])
+                return exprs.setExprsVal(edgeExprs, visit)
 
             } else if let fromExprs {
                 // example 2. pass the from value directly
-                return exprs.setVal(fromExprs, visit, [.val])
+                return exprs.setExprsVal(fromExprs, visit)
             }
         }
         return true

@@ -62,7 +62,7 @@ extension FloValOps: CustomStringConvertible {
         (.min   , "min"  ),
         (.max   , "max"  ),
         (.dflt  , "dflt" ),
-        (.twe   , "twe" ),
+        (.twe   , "twe"  ),
         (.val   , "val"  ),
         (.lit   , "lit"  ),
         (.match , "match"),

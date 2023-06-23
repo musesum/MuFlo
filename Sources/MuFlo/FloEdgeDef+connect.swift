@@ -27,6 +27,7 @@ extension FloEdgeDef {
         func addEdge() {
             leftFlo.floEdges[newKey] = newEdge
             rightFlo.floEdges[newKey] = newEdge
+            leftFlo.exprs?.plugDefs = plugDefs
             edges[newKey] = newEdge
         }
         func excludeEdge() {
