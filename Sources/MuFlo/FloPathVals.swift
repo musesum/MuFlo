@@ -6,20 +6,29 @@ import Collections
 
 class FloPathVals {
 
-    var edgeVals: OrderedDictionary<String,FloExprs?> = [:] // eliminate duplicates
+    var edgeExprs: OrderedDictionary<String,FloExprs?> = [:] // eliminate duplicates
 
+    var exprs: FloExprs?  {
+        for exprs in edgeExprs.values.reversed() {
+            if let exprs {
+                return exprs
+            }
+        }
+        return nil
+    }
     func addPathVal(_ path: String = "",_ val: FloExprs?) {
         if path.isEmpty,
-           let lastKey = edgeVals.keys.last {
-                edgeVals[lastKey] = val
+           let lastKey = edgeExprs.keys.last {
+                edgeExprs[lastKey] = val
         } else {
-            edgeVals[path] = val
+            edgeExprs[path] = val
         }
     }
+
     static func == (lhs: FloPathVals, rhs: FloPathVals) -> Bool {
 
-        for (key,val) in lhs.edgeVals {
-            if val == rhs.edgeVals[key]  { continue }
+        for (key,val) in lhs.edgeExprs {
+            if val == rhs.edgeExprs[key]  { continue }
             return false
         }
         return true

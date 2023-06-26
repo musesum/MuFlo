@@ -202,7 +202,7 @@ public class FloValScalar: FloVal {
         default: print("🚫 setVal unknown type for: from")
         }
 
-        valOps += ops
+        ///?? valOps += ops
 
         return true
 
@@ -215,16 +215,8 @@ public class FloValScalar: FloVal {
                 let toRange = (  max -   min) + (   valOps.thri ? 1.0 : 0.0)
                 let frRange = (v.max - v.min) + ( v.valOps.thri ? 1.0 : 0.0)
 
-
-               //... print("(twe: \(v.twe.digits(0...2)), val: \(v.val.digits(0...2))) ::", terminator: " ")
-                //print("(twe: \(twe.digits(0...2)), val: \(val.digits(0...2))", terminator: " ")
-
-
                 if ops.twe { twe = (v.twe - v.min) * (toRange / frRange) + min }
                 if ops.val { val = (v.val - v.min) * (toRange / frRange) + min }
-                //print("==> (twe: \(twe.digits(0...2)), val: \(val.digits(0...2)))")
-                
-
 
             } else if valOps.modu {
 
@@ -232,6 +224,7 @@ public class FloValScalar: FloVal {
                 max = Double.maximum(1, max)
                 if ops.twe { twe = fmod(v.twe, max) }
                 if ops.val { val = fmod(v.val, max) }
+                
             } else {
                 
                 setValOpTwe(v.val)

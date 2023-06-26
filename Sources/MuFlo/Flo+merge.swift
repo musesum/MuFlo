@@ -447,8 +447,8 @@ extension Flo {
         bindTopDown()      ; log(1)
         bindBottomUp()     ; log(2)
         bindCopyatTypes()  ; log(3)
-        bindEdges()        ; log(4)
-        bindDispatch()     ; log(5)
-        bindVals()
+        bindDispatch()     ; log(4)
+        bindVals()         ; log(5)
+        bindEdges()        ; log(6)
     }
 }

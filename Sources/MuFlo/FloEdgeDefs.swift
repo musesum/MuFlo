@@ -92,7 +92,7 @@ public class FloEdgeDefs {
         }
         edgeDefs = bindDefs
         for edgeDef in edgeDefs {
-            edgeDef.connectEdges(flo, plugDefs)
+            edgeDef.connectEdges(flo)
         }
         for plugDef in plugDefs {
             plugDef.connectEdges(flo, plugDefs)

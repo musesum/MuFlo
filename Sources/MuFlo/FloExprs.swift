@@ -25,9 +25,6 @@ public class FloExprs: FloVal {
     /// return _0, _1, ... for anonymous values
     var anonKey: String { String(format: "_%i", nameAny.keys.count) }
 
-    var plugDefs: EdgeDefs?
-    var plugins = [FloPlugin]()
-
     override init(_ flo: Flo, _ name: String) {
         super.init(flo, "_\(flo.name)")
     }
@@ -150,43 +147,26 @@ public class FloExprs: FloVal {
             return setFromVisit(fromExprs, visit)
         }
 
-
         func visitPlugins(_ visit: Visitor) -> Bool {
 
-            guard let plugDefs else { return false }
+            guard let plugDefs = flo.plugDefs else { return false }
             if plugDefs.isEmpty { return false }
 
-            if plugins.isEmpty {
-                setupPlugins()
-            }
 
             if !visit.from.tween,
                !visit.from.remote,
-               plugins.count > 0 {
+               flo.plugins.count > 0 {
 
                 visit.from += .tween
                 setFromVisit(fromExprs, visit)
 
-                logValTwees(visitedPaths(visit)) //??? (visit.log)
-                for plugin in plugins {
-                    plugin.startPlugin(id)
+                //logValTwees(visitedPaths(visit)) //??? (visit.log)
+                for plugin in flo.plugins {
+                    plugin.startPlugin(flo.id)
                 }
                 return true
             }
             return false
-
-            func setupPlugins() {
-
-                for plugDef in plugDefs {
-                    for edge in plugDef.edges.values {
-                        if let leftExprs = edge.leftFlo.exprs,
-                           let rightExprs = edge.rightFlo.exprs {
-                            let plugin = FloPlugin(leftExprs,rightExprs)
-                            plugins.append(plugin)
-                        }
-                    }
-                }
-            }
         }
     }
     func visitedPaths(_ visit: Visitor) -> String {
@@ -264,10 +244,8 @@ public class FloExprs: FloVal {
                     _ num: Double,
                     _ visit: Visitor) -> Bool {
 
-        let ops: FloValOps = (plugins.isEmpty ? [.twe, .val] : [.val])
-
         if let scalar = nameAny[name] as? FloValScalar {
-            scalar.setScalarVal(num, ops)
+            scalar.setScalarVal(num, flo.setOps)
         } else {
             nameAny[name] = FloValScalar(flo, name, num)
         }
@@ -294,25 +272,16 @@ public class FloExprs: FloVal {
     func setNum(_ val: Double,
                 _ visit: Visitor) -> Bool {
 
-        let ops: FloValOps
-        if plugins.isEmpty {
-            print("¬⃣", terminator: "")
-            ops = [.twe, .val]
-        } else {
-            print("+⃣", terminator: "")
-            ops = [.val]
-        }
-
         if let scalar = nameAny["_0"] as? FloValScalar {
 
-            scalar.setScalarVal(val, ops)
+            scalar.setScalarVal(val, flo.setOps)
             return true
 
         } else {
 
             for any in nameAny.values {
                 if let scalar = any as? FloValScalar {
-                    scalar.setScalarVal(val, ops)
+                    scalar.setScalarVal(val, flo.setOps)
                     return true
                 }
             }

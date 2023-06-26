@@ -77,8 +77,8 @@ public class FloParse {
 
         case "expr":
             if let edgeDef = flo.edgeDefs.edgeDefs.last,
-               let edgePath = edgeDef.pathVals.edgeVals.keys.last,
-               let edgeVal = edgeDef.pathVals.edgeVals[edgePath],
+               let edgePath = edgeDef.pathVals.edgeExprs.keys.last,
+               let edgeVal = edgeDef.pathVals.edgeExprs[edgePath],
                let edgeVal {
 
                 parseNextExpr(flo, edgeVal, parItem, prior)
@@ -318,9 +318,9 @@ public class FloParse {
 
         let pattern = parItem.node?.pattern ?? ""
         /// `9` in `a(8) << b(9)`
-        if let path = edgeDef.pathVals.edgeVals.keys.last {
+        if let path = edgeDef.pathVals.edgeExprs.keys.last {
 
-            if let lastVal = edgeDef.pathVals.edgeVals[path], lastVal != nil {
+            if let lastVal = edgeDef.pathVals.edgeExprs[path], lastVal != nil {
                 print("flo:\(flo.name) id:\(flo.id) lastVal:\(lastVal!.name) id:\(lastVal!.id)")
                 parseDeepVal(flo, lastVal, parItem)
                 return flo
@@ -489,7 +489,7 @@ public class FloParse {
            let nowVal = now.exprs,
            let floVal = flo.exprs {
 
-            floVal.setVal(nowVal, Visitor(0), .val)
+            floVal.setExprsVal(nowVal, Visitor(0))
         }
         for child in now.children {
             mergeNow(child, with: root)

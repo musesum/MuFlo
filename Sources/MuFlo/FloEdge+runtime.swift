@@ -25,14 +25,6 @@ extension FloEdge {
 
             if  destFlo.setEdgeVal(edgeExprs, fromExprs, visit) {
 
-                if visit.from.tween,
-                    (leftFlo.name.hasPrefix("repeat") ||
-                     rightFlo.name.hasPrefix("repeat")) {
-                    
-                    logEdge() //...
-                }
-
-                print ("⥵", terminator: "")
                 destFlo.activate(visit)
 
             } else {
@@ -40,7 +32,6 @@ extension FloEdge {
                 /// for example, when cc != 13 for
                 /// `repeatX(cc == 13, val 0…127, chan, time)`
 
-                // print ("￢", terminator: "")
             }
             /// assign b(v) to a(x) in `a(x,y) b(v 0) >> a(x:v)`
             func assignNameExprs() {
@@ -69,7 +60,7 @@ extension FloEdge {
 
             func script(_ flo: Flo) -> String {
                 if let exprs = flo.exprs {
-                    let plugged = !exprs.plugins.isEmpty ? "⚡️" : ""
+                    let plugged = !flo.plugins.isEmpty ? "⚡️" : ""
                     if let scalar = exprs.nameAny["val"] as? FloValScalar {
                         return plugged + "\(flo.path(9)).\(flo.id)\(plugged)[val: \(scalar.val.digits(0...2))/\(scalar.val.digits(0...2))]"
                     } else {

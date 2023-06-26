@@ -22,7 +22,7 @@ public class FloEdgeDef {
     init(with fromDef: FloEdgeDef) {
         
         edgeOps = fromDef.edgeOps
-        for (path,val) in fromDef.pathVals.edgeVals { // pathVals = with.pathVal
+        for (path,val) in fromDef.pathVals.edgeExprs { // pathVals = with.pathVal
             pathVals.addPathVal(path, val?.copy())
         }
     }
@@ -56,12 +56,12 @@ public class FloEdgeDef {
         
         var script = edgeOps.script()
         
-        if pathVals.edgeVals.count > 1 { script += "(" }
-        for (path,val) in pathVals.edgeVals {
+        if pathVals.edgeExprs.count > 1 { script += "(" }
+        for (path,val) in pathVals.edgeExprs {
             script += path
             script += val?.scriptVal(scriptOps) ?? ""
         }
-        if pathVals.edgeVals.count > 1 { script += ")" }
+        if pathVals.edgeExprs.count > 1 { script += ")" }
         return script
     }
     

@@ -25,8 +25,7 @@ public class FloValEmbed: FloVal {
 
     @discardableResult
     public override func setVal(_ any: Any?,
-                                _ visit: Visitor,
-                                _ setOps: FloValOps = []) -> Bool {
+                                _ visit: Visitor) -> Bool {
         
         if let v = any as? FloValEmbed {
             embed = v.embed

@@ -43,7 +43,7 @@ open class FloVal: Comparable {
         return true
     }
 
-    // print current state "2" in `a:(0…9=2)`
+    // "2" in `a:(0…9=2)`
     public func printVal() -> String {
         return ""
     }
@@ -63,8 +63,7 @@ open class FloVal: Comparable {
 
     @discardableResult
     public func setVal(_ from: Any?,
-                       _ visit: Visitor,
-                       _ setOp: FloValOps) -> Bool {
+                       _ visit: Visitor) -> Bool {
 
         assertionFailure("🚫 setVal needs override")
         return false

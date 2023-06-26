@@ -124,17 +124,16 @@ extension FloExprs { // + set
                     _ viaEdge: Bool,
                     _ visit: Visitor) {
 
-        let ops: FloValOps = (plugins.isEmpty ? [.twe, .val] : [.val])
         for (name,val) in mySetters {
             
             switch val {
             case let val as FloValScalar:
-                if let toVal = nameAny[name] as? FloValScalar { //....
+                if let toVal = nameAny[name] as? FloValScalar {
                     /// `x` in `a(x 1) << b`
                     if name.first == "_" , viaEdge, toVal.valOps.lit {
                         // dont set a(2) in  a(1), b(0…1) >> a(2)
                     } else {
-                        toVal.setScalarVal(val, ops)
+                        toVal.setScalarVal(val, flo.setOps)
                     }
                 } else {
                     /// `x` in `a(x) << b`
@@ -148,7 +147,7 @@ extension FloExprs { // + set
                 if let toVal = nameAny[name] as? FloVal {
                     if !val.isEmpty {
                         /// `x` in `a(x in 2…4) << b, b(x 3)`
-                        toVal.setVal(val, visit, ops)
+                        toVal.setVal(val, visit)
                     }
                 }
             default : break

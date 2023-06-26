@@ -17,17 +17,18 @@ public class FloPlugin {
     var duration = TimeInterval(0.5)
     var timeStart = TimeInterval(0)
     var steps = 0
-    var myExprs: FloExprs
-    var piExprs: FloExprs // plug-in
+    var flo: Flo
+    var plugExprs: FloExprs // plug-in
 
-    init(_ myExprs: FloExprs,
-         _ piExprs: FloExprs) {
+    init(_ flo: Flo,
+         _ plugExprs: FloExprs) {
 
-        self.myExprs = myExprs
-        self.piExprs = piExprs
+        self.flo = flo
+        self.plugExprs = plugExprs
+        //.. print("\(flo.path(9))(\(plugExprs.name)) +⃣ \(plugExprs.flo.path(9))")
     }
     func cancel() {
-        NextFrame.shared.removeDelegate(myExprs.id)
+        NextFrame.shared.removeDelegate(flo.id)
         timeStart = 0
     }
 }
@@ -40,16 +41,18 @@ extension FloPlugin: NextFrameDelegate {
     }
     private func setTween(_ interval: Double) {
 
+        guard let exprs = flo.exprs else { return cancel() }
+
         var hasDelta = false
-        print(interval.digits(0...2), terminator: " ")
-        for any in myExprs.nameAny.values {
+        for any in exprs.nameAny.values {
             if let scalar = any as? FloValScalar {
                 let delta = scalar.val - scalar.twe
 
-                // myExprs.logValTwees("* interval: \(interval.digits(2))")
+                // plugExprs.logValTwees("* interval: \(interval.digits(2))")
                 if delta != 0 {
                     hasDelta = true
                     if abs(delta) < 1E-9 {
+                        // precision fix
                         scalar.twe = scalar.val
                     } else {
                         scalar.twe += delta * interval
@@ -58,7 +61,7 @@ extension FloPlugin: NextFrameDelegate {
             }
         }
         if hasDelta {
-            myExprs.flo.activate(Visitor(myExprs.id, from: .tween))
+            flo.activate(Visitor(plugExprs.id, from: .tween))
         } else {
             cancel()
         }

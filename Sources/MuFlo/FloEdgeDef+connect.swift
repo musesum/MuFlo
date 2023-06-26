@@ -9,17 +9,17 @@ extension FloEdgeDef {
 
     func connectNewEdge(_ leftFlo: Flo,
                         _ rightFlo: Flo,
-                        _ val: FloExprs?,
+                        _ floExprs: FloExprs?,
                         _ plugDefs: EdgeDefs?) {
 
-        let newEdge = FloEdge(self, leftFlo, rightFlo, val, plugDefs)
+        let newEdge = FloEdge(self, leftFlo, rightFlo, floExprs, plugDefs)
         let newKey = newEdge.edgeKey
 
         if edgeOps.hasExclude {
             excludeEdge()
         } else if edgeOps.hasCopyat {
             addEdge()
-            connectCopyr(leftFlo, rightFlo, val, plugDefs)
+            connectCopyr(leftFlo, rightFlo, floExprs, plugDefs)
         } else {
             addEdge()
         }
@@ -27,8 +27,19 @@ extension FloEdgeDef {
         func addEdge() {
             leftFlo.floEdges[newKey] = newEdge
             rightFlo.floEdges[newKey] = newEdge
-            leftFlo.exprs?.plugDefs = plugDefs
+            leftFlo.plugDefs = plugDefs
             edges[newKey] = newEdge
+            if let plugDefs {
+                for plugDef in plugDefs {
+                    for edge in plugDef.edges.values {
+                        if edge.edgeOps.hasPlugin,
+                           let plugExprs = edge.rightFlo.exprs {
+                            let plugin = FloPlugin(edge.leftFlo, plugExprs)
+                            leftFlo.plugins.append(plugin)
+                        }
+                    }
+                }
+            }
         }
         func excludeEdge() {
             if let oldEdge = edges[newKey] {
@@ -39,9 +50,10 @@ extension FloEdgeDef {
             }
         }
     }
+    
     func connectCopyr(_ leftFlo: Flo,
                       _ rightFlo: Flo,
-                      _ floVal: FloExprs?,
+                      _ floExprs: FloExprs?,
                       _ plugDefs: EdgeDefs?)  {
 
         var rights = [String: Flo]()
@@ -51,7 +63,7 @@ extension FloEdgeDef {
         for leftChild in leftFlo.children {
             if let rightChild = rights[leftChild.name] {
                 FloEdgeDef(edgeOps)
-                .connectNewEdge(leftChild, rightChild, floVal, plugDefs)
+                .connectNewEdge(leftChild, rightChild, floExprs, plugDefs)
             }
         }
     }
@@ -59,11 +71,11 @@ extension FloEdgeDef {
     
     /// batch connect edges - convert from FloEdgeDef to FloEdges
     func connectEdges(_ flo: Flo,
-                      _ plugDefs: EdgeDefs?)  {
+                      _ plugDefs: EdgeDefs? = nil)  {
         
-        if pathVals.edgeVals.count > 0 {
+        if pathVals.edgeExprs.count > 0 {
             
-            for (path,val) in pathVals.edgeVals {
+            for (path,val) in pathVals.edgeExprs {
                 if let pathRefs = flo.pathRefs {
                     for pathRef in pathRefs {
                         let rightFlos = pathRef.findPathFlos(path, [.parents, .children])

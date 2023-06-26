@@ -57,10 +57,24 @@ public class Flo {
     var cacheVal: Any? = nil        // cached value is drained
     var edgeDefs = FloEdgeDefs()    // for a<-(b.*++), this saves "++" and "b.*)
     var floEdges = [String: FloEdge]() // some edges are defined by another Flo
-
-    var closures = [FloVisitor]()  // during activate call a list of closures and return with FloVal ((FloVal?)->(FloVal?))
+    var closures = [FloVisitor]()  // during activate call a list of closures
     var type = FloType.unknown
     var copied = [Flo]()
+
+    var plugDefs: EdgeDefs?
+    var plugins = [FloPlugin]()
+    var setOps: FloValOps {
+        let ops: FloValOps
+        if plugins.isEmpty {
+            //print("-⃣\(id)", terminator: " ") //..
+            ops = [.twe, .val]
+        } else {
+            //print("+⃣\(id)")
+            ops = [.val]
+        }
+        return ops
+    }
+
 
     public lazy var hash: Int = {
         let hashed = path(9999).strHash()
