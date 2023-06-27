@@ -10,8 +10,8 @@ import MuPar
 
 open class FloVal: Comparable {
     
-    static var IdFloVal = [Int: FloVal]() //??? debugging only
-    var id = -Visitor.nextId()
+    public static var IdFloVal = [Int: FloVal]() //??? debugging only
+    public var id = -Visitor.nextId()
 
     public var valOps = FloValOps(rawValue: 0) // which combination of the following?
     public var name: String

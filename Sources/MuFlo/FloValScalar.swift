@@ -42,15 +42,19 @@ public class FloValScalar: FloVal {
         val  = scalar.val
     }
 
-    public func normalized() -> Double {
+    public func normalized(_ normOp: FloValOps) -> Double {
         if valOps.contains([.min,.max]) {
             let range = max - min
-            let ret = (twe - min) / range
-            return ret
-        } else {
-            print("🚫 \(flo.name): cannot normalize \(twe)")
-            return twe
+            if normOp.twe {
+                let ret = (twe - min) / range
+                return ret
+            } else if normOp.val {
+                let ret = (val - min) / range
+                return ret
+            }
         }
+        print("🚫 \(flo.name): cannot normalize \(twe)")
+        return twe
     }
     public func range() -> ClosedRange<Double> {
         if min <= max {

@@ -17,12 +17,13 @@ public class FloDispatch {
 }
 
 public class Flo {
-    static var IdFlo = [Int:Flo]() // debugging
+    public static var IdFlo = [Int:Flo]() // debugging
+    
     public static var root˚ = Flo("√")
     public static var LogBindScript = false // debug while binding
     public static var LogMakeScript = false // debug while binding
 
-    var id = Visitor.nextId()
+    public var id = Visitor.nextId()
     public var dispatch: FloDispatch? // Global dispatch for each root
 
     public var name = ""
@@ -63,17 +64,8 @@ public class Flo {
 
     var plugDefs: EdgeDefs?
     var plugins = [FloPlugin]()
-    var setOps: FloValOps {
-        let ops: FloValOps
-        if plugins.isEmpty {
-            //print("-⃣\(id)", terminator: " ") //..
-            ops = [.twe, .val]
-        } else {
-            //print("+⃣\(id)")
-            ops = [.val]
-        }
-        return ops
-    }
+    public var hasPlugins: Bool { plugins.count > 0 }
+    var setOps: FloValOps { hasPlugins ? [.val] : [.twe, .val] }
 
 
     public lazy var hash: Int = {

@@ -14,7 +14,7 @@ import MuTime
 public typealias NameAny = OrderedDictionaryClass<String,Any>
 public class FloExprs: FloVal {
 
-    static var IdExprs = [Int:FloExprs]()
+    public static var IdExprs = [Int:FloExprs]()
 
     /// `t(x 1, y 2)` ⟹ `["x": 1, "y": 2]`
     public var nameAny = NameAny()
@@ -154,7 +154,7 @@ public class FloExprs: FloVal {
 
 
             if !visit.from.tween,
-               !visit.from.remote,
+               //??? !visit.from.remote,
                flo.plugins.count > 0 {
 
                 visit.from += .tween
