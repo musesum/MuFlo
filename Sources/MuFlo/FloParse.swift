@@ -129,7 +129,7 @@ public class FloParse {
         }
     }
 
-    /// decorate current scalar with min, …, max, num, = dflt
+    /// decorate current scalar with min, …, max, num, dflt
     ///
     func parseDeepScalar(_ scalar  : FloValScalar,
                          _ parItem : ParItem,

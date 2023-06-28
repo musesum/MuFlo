@@ -312,7 +312,7 @@ public class FloExprs: FloVal {
         }
         return result
     }
-    // now = dflt, next = dflt
+    // val = dflt, twe = dflt
     func bindVals() {
         if nameAny.count > 0 {
             for value in nameAny.values {

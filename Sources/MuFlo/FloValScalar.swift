@@ -54,20 +54,13 @@ public class FloValScalar: FloVal {
             }
         }
         print("🚫 \(flo.name): cannot normalize \(twe)")
-        return twe
+        return val
     }
     public func range() -> ClosedRange<Double> {
         if min <= max {
             return min...max
         } else {
             return min...(min+1)
-        }
-    }
-
-    // user may double tap to kickoff defaults with optional animation
-    func setNextDefault(_ visit: Visitor) {
-        if !valOps.val { //??
-            setDefault(visit)
         }
     }
 
@@ -92,8 +85,8 @@ public class FloValScalar: FloVal {
         
         let mergeOps = lhs.valOps.rawValue |  rhs.valOps.rawValue
         lhs.valOps = FloValOps(rawValue: mergeOps)
-        if rhs.valOps.min  { lhs.min = rhs.min }
-        if rhs.valOps.max  { lhs.max = rhs.max }
+        if rhs.valOps.min { lhs.min = rhs.min }
+        if rhs.valOps.max { lhs.max = rhs.max }
         if rhs.valOps.val { lhs.val = rhs.val } 
     }
 
