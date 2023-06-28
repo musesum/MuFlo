@@ -72,7 +72,7 @@ public class FloValScalar: FloVal {
     }
 
     // startup set values without animation
-    func bindVal() { //??
+    func bindVal() {
 
         if !valOps.val {
             setDefault(Visitor(.bind))
