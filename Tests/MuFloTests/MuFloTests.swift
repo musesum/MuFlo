@@ -764,13 +764,12 @@ final class MuFloTests: XCTestCase {
         Par.trace = true
         var err = 0
 
-        let script = "a(x==10, y)<<b b(x:0,y:0)"
+        let script = "a(x==10, y)<<b b(x: 0, y: 0)"
 
         let root = Flo("√")
 
         if floParse.parseScript(root, script),
-           let aa = root.findPath("a"),
-           let ab = root.findPath("b") {
+           let b = root.findPath("b") {
 
             err += ParStr.testCompare("a(x==10, y)<<b b(x: 0, y: 0)", root.scriptAll)
 

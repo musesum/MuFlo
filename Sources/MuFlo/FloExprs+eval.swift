@@ -134,6 +134,7 @@ extension FloExprs { // + set
                         // dont set a(2) in  a(1), b(0…1) >> a(2)
                     } else {
                         toVal.setScalarVal(val, flo.setOps)
+                        toVal.valOps += .val
                     }
                 } else {
                     /// `x` in `a(x) << b`
@@ -148,6 +149,7 @@ extension FloExprs { // + set
                     if !val.isEmpty {
                         /// `x` in `a(x in 2…4) << b, b(x 3)`
                         toVal.setVal(val, visit)
+                        toVal.valOps += .val
                     }
                 }
             default : break

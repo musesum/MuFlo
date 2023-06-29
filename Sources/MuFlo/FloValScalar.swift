@@ -29,6 +29,7 @@ public class FloValScalar: FloVal {
         self.min = fmin(num, 0.0)
         self.max = fmax(num, 1.0)
         self.val = num
+        self.twe = num 
     }
 
     init (with scalar: FloValScalar, viaEval: Bool = false) {
@@ -199,7 +200,7 @@ public class FloValScalar: FloVal {
         default: print("🚫 setVal unknown type for: from")
         }
 
-        ///?? valOps += ops
+        valOps += ops
 
         return true
 

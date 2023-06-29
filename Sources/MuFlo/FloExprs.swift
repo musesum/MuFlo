@@ -154,13 +154,12 @@ public class FloExprs: FloVal {
 
 
             if !visit.from.tween,
-               //??? !visit.from.remote,
                flo.plugins.count > 0 {
 
                 visit.from += .tween
                 setFromVisit(fromExprs, visit)
 
-                //logValTwees(visitedPaths(visit)) //??? (visit.log)
+                //logValTwees(visitedPaths(visit))
                 for plugin in flo.plugins {
                     plugin.startPlugin(flo.id)
                 }
@@ -249,7 +248,6 @@ public class FloExprs: FloVal {
         } else {
             nameAny[name] = FloValScalar(flo, name, num)
         }
-        valOps += .val //??? op?
         return true
     }
     // set [(name,any)]
