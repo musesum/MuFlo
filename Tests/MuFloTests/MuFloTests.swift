@@ -771,7 +771,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseScript(root, script),
            let b = root.findPath("b") {
 
-            err += ParStr.testCompare("a(x==10, y)<<b b(x: 0, y: 0)", root.scriptAll)
+            err += ParStr.testCompare("a(x==10, y)<<b b(x = 0, y = 0)", root.scriptNow)
 
             b.setAny(FloExprs(Flo("_t_"), [("x", 0), ("y",0)]), .activate)
             err += ParStr.testCompare("a(x==10, y)<<b b(x: 0, y: 0)", root.scriptAll)
@@ -1107,7 +1107,6 @@ final class MuFloTests: XCTestCase {
             // will fail, so clear out current values for a
             a.setAny(CGPoint(x:1, y:4), .activate)
             err += ParStr.testCompare("a(x, y)>>b b(x = 1.5, y = 2.5)", root.scriptNow)
-
 
         } else {
             err += 1

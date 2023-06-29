@@ -10,6 +10,7 @@ extension FloExprs {
         var script = ""     // result
         var position = 0
         var assigned = false
+        var condition = ""
         var named = ""
 
         for opAny in opAnys {
@@ -17,6 +18,7 @@ extension FloExprs {
             case .comma: finishExpr()
             case .assign, .In: assigned = true
             case .name: if !assigned, named == "" { named = opAny.any as? String ?? "??" }
+            case .IS,.EQ,.LE,.GE,.LT,.GT: condition = opAny.op.rawValue
             default: break
             }
             if scriptOps.def {
@@ -48,7 +50,11 @@ extension FloExprs {
                 if numStr == "", scriptOps.onlyNow { nameStr = named }
 
                 if  nameStr.count > 0 && nameStr.first != "_" {
-                    script.spacePlus(nameStr + (numStr.isEmpty ? "" : " = " + numStr))
+                    let opStr = (numStr.isEmpty ? ""
+                                 : condition.isEmpty ? " = "
+                                 : condition)
+                    script.spacePlus(nameStr + opStr + numStr)
+
                 } else if numStr.count > 0 {
                     if keyStr.first == "_", (script.isEmpty || scalar?.valOps.lit ?? false) {
                         script += numStr
@@ -59,6 +65,7 @@ extension FloExprs {
             }
             assigned = false
             named = ""
+            condition = ""
             position += 1
 
             func logFinish(_ scalar: FloValScalar?, _ keyStr: String) {
