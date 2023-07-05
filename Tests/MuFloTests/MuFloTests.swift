@@ -15,7 +15,7 @@ final class MuFloTests: XCTestCase {
      */
     func test(_ script: String,
               _ expected: String? = nil,
-              _ scriptOps: FloScriptOps = FloScriptOps.Full) -> Int {
+              _ scriptOps: FloScriptOps = FloScriptOps.Full1) -> Int {
 
         var err = 0
 
@@ -186,15 +186,22 @@ final class MuFloTests: XCTestCase {
 
         err += test("a.b.c(0…1) z@a { b.c(0…1~1) }",
                     "a { b { c(0…1) } } z@a { b { c(0…1~1) } }")
+                    // a { b { c(0…1) } } z@a { 🚫a b { c(0…1~1) } }
+
 
         err += test("a {b c}.{d e}.{f g}.{h i} z >> a.b˚g.h",
                     "a { b { d { f { h i } g { h i } } e { f { h i } g { h i } } } " +
                     "    c { d { f { h i } g { h i } } e { f { h i } g { h i } } } } " +
                     " z >> (a.b.d.g.h, a.b.e.g.h)")
 
-        err += test("a {b c}.{d e f>>b(1) } z@a z.b.f⟡→c(1) ",
-                    "a    { b { d e f>>a.b(1) } c { d e f>>a.b(1) } }" +
-                    "z@a { b { d e f⟡→z.c(1) } c { d e f>>z.b(1) } }")
+
+        err += test("a {b c}.{d e f >> b(1) } z @a z.b.f⟡→c(1) ",
+                    "a { b { d e f >> a.b(1) } c { d e f >> a.b(1) } }" +
+                    "z @a { b { d e f⟡→z.c(1) } c { d e f } }")
+
+        err += test("a {b c}.{d e f >> b(1) } z©a z.b.f⟡→c(1) ",
+                    "a { b { d e f >> a.b(1) } c { d e f >> a.b(1) } } " +
+                    "z ©a { b { d e f⟡→z.c(1) } c { d e f >> z.b(1) } }")
 
         err += test("a._c   { d { e { f (\"ff\") } } } a.c.z @ _c { d { e.f   (\"ZZ\") } }",
                     "a { _c { d { e { f (\"ff\") } } } c { z @ _c { d { e { f (\"ZZ\") } } } } }")
@@ -868,11 +875,11 @@ final class MuFloTests: XCTestCase {
 
 
             // 20, 21, 22 --------------------------------------------------
-            // when match fails, the values revert back to original declaration
+            // when match fails, so no change
             w.setAny(FloExprs(Flo("_t2_"), [("x", 20), ("y", 21), ("z", 22)]), .activate)
             err += ParStr.testCompare("""
-            a { b { d(x == 10, y 0, z 0) e(x 20, y == 21, z 22) }
-                c { d(x == 10, y 0, z 0) e(x 20, y == 21, z 22) } }
+            a { b { d(x == 10, y 11, z 12) e(x 20, y == 21, z 22) }
+                c { d(x == 10, y 11, z 12) e(x 20, y == 21, z 22) } }
                     w(x 20, y 21, z 22) <> ( a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
@@ -930,8 +937,8 @@ final class MuFloTests: XCTestCase {
 
             err += ParStr.testCompare("""
 
-            a { b { d(x==10, y, z) e(x = 20, y==21, z = 22) }
-                c { d(x==10, y, z) e(x = 20, y==21, z = 22) } }
+            a { b { d(x==10, y = 11, z = 12) e(x = 20, y==21, z = 22) }
+                c { d(x==10, y = 11, z = 12) e(x = 20, y==21, z = 22) } }
             w(x = 20, y = 21, z = 22) <> (a.b.d, a.b.e, a.c.d, a.c.e)
             """, root.scriptAll)
 
@@ -1104,9 +1111,9 @@ final class MuFloTests: XCTestCase {
 
             err += ParStr.testCompare("a(x = 3, y = 4) >> b b(x = 1.5, y = 2.5)", root.scriptNow)
 
-            // will fail, so clear out current values for a
+            // fail, will keep last value
             a.setAny(CGPoint(x:1, y:4), .activate)
-            err += ParStr.testCompare("a(x, y)>>b b(x = 1.5, y = 2.5)", root.scriptNow)
+            err += ParStr.testCompare("a(x = 3, y = 4)>>b b(x = 1.5, y = 2.5)", root.scriptNow)
 
         } else {
             err += 1
@@ -1307,7 +1314,7 @@ final class MuFloTests: XCTestCase {
 
         if floParse.parseScript(root, script) {
 
-            err += ParStr.testCompare("a.b.c(1) d.e(2) <> a.b.c f.e(2) <> a.b.c", root.scriptNow)
+            err += ParStr.testCompare("a.b.c(1) d.e(2) <> a.b.c f.e(2)", root.scriptNow)
 
             let d3Script = root.makeD3Script()
             print(d3Script)
@@ -1316,6 +1323,7 @@ final class MuFloTests: XCTestCase {
         }
         XCTAssertEqual(err, 0)
     }
+
 
     /// test Avatar and Robot definitions
     func testBodySkeleton() { headline(#function)
