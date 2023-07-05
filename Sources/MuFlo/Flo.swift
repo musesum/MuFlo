@@ -77,21 +77,32 @@ public class Flo {
     init() {
         Flo.IdFlo[id] = self
     }
-    public convenience init(deepcopy from: Flo, parent: Flo) {
+    public convenience init(deepcopy from: Flo,
+                            parent: Flo,
+                            via: FloType) {
 
         self.init()
         self.parent = parent
 
-        name = from.name
-        type = from.type
+        self.name = from.name
+        self.type = from.type
 
         for fromChild in from.children {
-            let newChild = Flo(deepcopy: fromChild, parent: self)
+            let newChild = Flo(deepcopy: fromChild, parent: self, via: via)
             children.append(newChild)
         }
         passthrough = from.passthrough
         exprs = from.exprs?.copy() ?? nil
-        edgeDefs = from.edgeDefs.copy()
+
+        if from.edgeDefs.edgeDefs.count > 0,
+           let parent = from.parent {
+
+            if (parent.type == .many) ||
+                (via == .copyall) {
+
+                edgeDefs = from.edgeDefs.copy()
+            }
+        }
         comments = from.comments
     }
     public func makeFloFrom(parItem: ParItem) -> Flo {
@@ -113,14 +124,14 @@ public class Flo {
         - visit: the same "_:_" clone may be attached to multiple parent before consolication.
      */
     func attachDeep(_ flo: Flo, _ visit: Visitor) {
-        if visit.newVisit(id) {
-            if children.count == 0 {
-                flo.parent = self 
-                children.append(flo)
-            } else {
-                for child in children {
-                    child.attachDeep(flo, visit)
-                }
+        guard visit.newVisit(id)  else { return }
+        
+        if children.count == 0 {
+            flo.parent = self
+            children.append(flo)
+        } else {
+            for child in children {
+                child.attachDeep(flo, visit)
             }
         }
     }

@@ -73,8 +73,13 @@ extension Flo {
     
     func getCopiedFrom() -> String {
         var result = ""
-        var delim = "@"
+        var delim = ""
+        var lastType = FloType.unknown
         for copyFlo in copied {
+            if lastType != copyFlo.type {
+                lastType = copyFlo.type
+                delim = lastType == .copyall ? "©" : "@"
+            }
             result += delim + copyFlo.name
             delim = ", "
         }

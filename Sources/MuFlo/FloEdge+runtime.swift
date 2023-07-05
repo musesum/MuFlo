@@ -1,4 +1,3 @@
-//
 //  FloEdge+runtime.swift
 //
 //  Created by warren on 5/10/19.
@@ -12,16 +11,23 @@ extension FloEdge {
     func followEdge(_ fromFlo: Flo,
                     _ visit: Visitor) {
 
-        let leftToRight = fromFlo == leftFlo // a >> b
-        let rightToLeft = !leftToRight       // a << b
-        let destFlo = leftToRight ? rightFlo : leftFlo
+        let fromLeft = fromFlo == leftFlo // a >> b
+        let fromRight = !fromLeft       // a << b
+        let destFlo = fromLeft ? rightFlo : leftFlo
+        let visitedLeft = visit.wasHere(leftFlo.id)
+        let visitedRight = visit.wasHere(rightFlo.id)
 
-
-        if leftToRight && edgeOps.hasOutput ||
-            rightToLeft && edgeOps.hasInput {
+        if edgeOps.hasSync {
+            let leftScript = leftFlo.exprs?.scriptExprs(.Now) ?? ""
+            let rightScript = rightFlo.exprs?.scriptExprs(.Now) ?? ""
+            let leftPathScript = leftFlo.path(2) + "(\(leftScript))"
+            let rightPathScript = rightFlo.path(2) + "(\(rightScript))"
+            //??? print ("sync: \(edgeKey)  \(leftPathScript) <> \(rightPathScript)")
+        }
+        if ((fromLeft && edgeOps.hasOutput && !visitedRight) ||
+            (fromRight && edgeOps.hasInput && !visitedLeft )) {
 
             let fromExprs = fromFlo.exprs
-            assignNameExprs() // setup exExprs
 
             if  destFlo.setEdgeVal(edgeExprs, fromExprs, visit) {
 
@@ -31,53 +37,34 @@ extension FloEdge {
                 /// Did not meet conditionals, so stop.
                 /// for example, when cc != 13 for
                 /// `repeatX(cc == 13, val 0…127, chan, time)`
-
-            }
-            /// assign b(v) to a(x) in `a(x,y) b(v 0) >> a(x:v)`
-            func assignNameExprs() {
-
-                if let edgeExprs,
-                   let fromExprs {
-
-                    for (name,val) in edgeExprs.nameAny {
-                        if (val as? String) == "",
-                           let fromVal = fromExprs.nameAny[name] {
-                            edgeExprs.nameAny[name] = fromVal
-                        }
-                    }
-                }
             }
         }
         func logEdge() {
 
-            var arrow = leftToRight ? " ⫸" : "⫷ "
+            var arrow = fromLeft ? " ⫸" : "⫷ "
             arrow += edgeOps.hasPlugin ? "⚡️ " : " "
 
             print ("\n(" +
                    "\(script(leftFlo))" + arrow +
-                   " \(script(rightFlo))))"
+                   " \(script(rightFlo))"
                    , terminator: ") ")
 
             func script(_ flo: Flo) -> String {
-                if let exprs = flo.exprs {
-                    let plugged = !flo.plugins.isEmpty ? "⚡️" : ""
-                    if let scalar = exprs.nameAny["val"] as? FloValScalar {
-                        return plugged + "\(flo.path(9)).\(flo.id)\(plugged)[val: \(scalar.val.digits(0...2))/\(scalar.val.digits(0...2))]"
-                    } else {
+                guard let exprs = flo.exprs else { return "[]" }
+                let plugged = !flo.plugins.isEmpty ? "⚡️" : ""
 
-                        var str = "\(flo.path(9)).\(flo.id)\(plugged)["
-                        var del = ""
-                        for (name,any) in exprs.nameAny {
-                            if let scalar = any as? FloValScalar {
-                                str += del + name + ": \(scalar.val.digits(0...2))/\(scalar.twe.digits(0...2))"
-                                del = ", "
-                            }
-                        }
-                        str += "]"
-                        return str
+                var str = "\(flo.path(9)).\(flo.id)\(plugged)["
+                var del = ""
+                for (name,any) in exprs.nameAny {
+                    if let scalar = any as? FloValScalar {
+                        let valStr = scalar.val.digits(0...2)
+                        let tweStr = scalar.twe.digits(0...2)
+                        str += del + "\(name): \(valStr)/\(tweStr)"
+                        del = ", "
                     }
+                    str += "]"
                 }
-                return "[]"
+                return str
             }
         }
     }

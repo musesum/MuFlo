@@ -15,7 +15,8 @@ public struct FloEdgeOps: OptionSet {
     public static let solo    = FloEdgeOps(rawValue: 1 << 2) //  4 `=` in  `a <= b   a => b   a <=> b`
     public static let exclude = FloEdgeOps(rawValue: 1 << 3) //  8 `!` in  `a <! b   a !> b   a <!> b`
     public static let copyat  = FloEdgeOps(rawValue: 1 << 4) // 16 a @ b
-    public static let plugin  = FloEdgeOps(rawValue: 1 << 5) // 32 a ^ b
+    public static let copyall = FloEdgeOps(rawValue: 1 << 5) // 32 a © b
+    public static let plugin  = FloEdgeOps(rawValue: 1 << 6) // 64 a ^ b
 
     public init(rawValue: Int = 0) { self.rawValue = rawValue }
 
@@ -24,11 +25,12 @@ public struct FloEdgeOps: OptionSet {
         for char in str {
             switch char {
             case "<","←": insert(.input)   // callback
-            case ">","→": insert(.output)  // call out
-            case "⟡"    : insert(.solo)    // overwrite
-            case "!"    : insert(.exclude) // remove edge(s) //TODO: test
-            case "@"    : insert(.copyat)  // copy from another subtree
-            case "^"    : insert(.plugin)  // plug-in redirects expression vals
+            case ">","→": insert(.output)   // call out
+            case "⟡"    : insert(.solo)     // overwrite
+            case "!"    : insert(.exclude)  // remove edge(s) //TODO: test
+            case "@"    : insert(.copyat)   // copy from another subtree
+            case "©"    : insert(.copyall)  // copy all subtree names and edges
+            case "^"    : insert(.plugin)   // plug-in redirects expression vals
             default     : continue
             }
         }
@@ -41,12 +43,14 @@ public struct FloEdgeOps: OptionSet {
         if self.hasOutput { insert(.input)  } else { remove(.input)  }
     }
 
-    var hasInput   : Bool { contains(.input  )}
-    var hasOutput  : Bool { contains(.output )}
-    var hasSolo    : Bool { contains(.solo   )}
-    var hasExclude : Bool { contains(.exclude)}
-    var hasCopyat  : Bool { contains(.copyat )}
-    var hasPlugin  : Bool { contains(.plugin )}
+    var hasInput   : Bool { contains(.input   )}
+    var hasOutput  : Bool { contains(.output  )}
+    var hasSolo    : Bool { contains(.solo    )}
+    var hasExclude : Bool { contains(.exclude )}
+    var hasCopyat  : Bool { contains(.copyat  )}
+    var hasCopyall : Bool { contains(.copyall )}
+    var hasPlugin  : Bool { contains(.plugin  )}
+    var hasSync    : Bool { contains([.input, .output])}
 
     public func scriptExpicitOps() -> String {
 
@@ -63,10 +67,11 @@ public struct FloEdgeOps: OptionSet {
 
         var script = self.hasInput ? " ←" : ""
 
-        if      !active        { script += "◇" }
-        else if self.hasSolo   { script += "⟡" }
-        else if self.hasCopyat { script += "@" }
-        else if self.hasPlugin { script += "^" }
+        if      !active         { script += "◇" }
+        else if self.hasSolo    { script += "⟡" }
+        else if self.hasCopyat  { script += "@" }
+        else if self.hasCopyall { script += "©" }
+        else if self.hasPlugin  { script += "^" }
 
         script += self.hasOutput ? "→" : ""
 
@@ -74,7 +79,7 @@ public struct FloEdgeOps: OptionSet {
     }
 
     var isImplicit: Bool {
-        self.intersection([.solo, .copyat]) != []
+        self.intersection([.solo, .copyall, .copyat]) != []
     }
 
     public func script(active: Bool = true) -> String {

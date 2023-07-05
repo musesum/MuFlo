@@ -104,7 +104,7 @@ extension Flo {
 
         if name == prefix, type == .name {
             return findPathFlos(wildcard + suffix, [.children])
-        } else if name == prefix, wildcard == "", type == .copyat, let parent = parent {
+        } else if name == prefix, wildcard == "", type == .copyat || type == .copyall, let parent = parent {
             return parent.findPathFlos(path, findOps)
         } else if prefix == "", let parent = parent {
             return parent.findPathFlos(wildcard + suffix, deeperOps)
@@ -127,16 +127,14 @@ extension Flo {
     }
 
     func findPrefixFlo(_ prefix: String, _ findOps: FloFindOps) -> Flo? {
-        if prefix == ""   {
-            return self }
-        if name == prefix {
-            return self }
+        if prefix == ""   { return self }
+        if name == prefix { return self }
         if findOps.children {
             for child in children {
-                if child.type == .remove { continue }
-                if child.type == .copyat { continue }
-                if child.name == prefix {
-                    return child }
+                if child.type == .remove  { continue }
+                if child.type == .copyall { continue }
+                if child.type == .copyat  { continue }
+                if child.name == prefix   { return child }
             }
         }
         // still no match, so maybe search parents

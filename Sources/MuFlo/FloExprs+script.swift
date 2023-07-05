@@ -74,8 +74,9 @@ extension FloExprs {
                 let padOps = "[\(shortOps.description)]".pad(27)
                 let padScript = "\(script)".pad(24)
                 let padPath = "\(scalar.flo.path(5))(\(keyStr))".pad(20)
-
-                print("🧪\n \(padScript) \(padPath) \(scalar.id) \(padOps) next: \(scalar.val.digits(0...2))  dflt: \(scalar.dflt.digits(0...2))")
+                let valStr = scalar.val.digits(0...2)
+                let dfltStr = scalar.dflt.digits(0...2)
+                print("🧪\n \(padScript) \(padPath) \(scalar.id) \(padOps) next: \(valStr)  dflt: \(dfltStr)")
             }
         }
     }

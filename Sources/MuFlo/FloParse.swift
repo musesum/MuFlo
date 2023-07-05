@@ -33,7 +33,7 @@ public class FloParse {
 
             dispatchFunc(parseComment, from: ["comment"])
 
-            dispatchFunc(parseTree, from: ["child", "many", "copyat"])
+            dispatchFunc(parseTree, from: ["child", "many", "copyall", "copyat"])
 
             dispatchFunc(parseValue, from: ["scalar", "thru", "thri",
                                             "modu", "dflt", "now", "num",
@@ -70,6 +70,10 @@ public class FloParse {
         case "edges":
 
             flo.edgeDefs.lastEdgeDef().addPath(parItem)
+
+        case "copyall":
+
+            flo.addChild(parItem, .copyall)
 
         case "copyat":
 

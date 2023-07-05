@@ -29,6 +29,20 @@ public class FloExprs: FloVal {
         super.init(flo, "_\(flo.name)")
     }
 
+    public subscript(_ subName: String, _ op: FloValOps) -> Double? {
+        if let scalar = nameAny[subName] as? FloValScalar {
+            switch op {
+            case .val: return scalar.val
+            case .twe: return scalar.twe
+            default: return err("\(#function) unknown return")
+            }
+        }
+        return err("name: \(name)(\(subName)) not found")
+        func err(_ msg: String) -> Double? {
+            print("⁉️ \(msg) op: [\(op.description)]");
+            return nil
+        }
+    }
     init(from: FloExprs) {
         
         super.init(with: from)
@@ -114,7 +128,7 @@ public class FloExprs: FloVal {
         print()
         for (name,any) in nameAny {
             if let scalar = any as? FloValScalar {
-                scalar.logValTweens("􁒖 \(name)".pad(8), suffix+"[\(scalar.valOps.description)]")
+                scalar.logValTweens("􁒖 \(name):", suffix + "\n[\(scalar.valOps.description)]")
             }
         }
     }
@@ -139,7 +153,7 @@ public class FloExprs: FloVal {
                             _ visit: Visitor) -> Bool {
 
         guard let fromExprs else { return false }
-        if !visit.newVisit(self.id) { return false }
+        guard visit.newVisit(id) else { return false }
 
         if visitPlugins(visit) {
             return true
@@ -159,7 +173,7 @@ public class FloExprs: FloVal {
                 visit.from += .tween
                 setFromVisit(fromExprs, visit)
 
-                //logValTwees(visitedPaths(visit))
+                logValTwees(visitedPaths(visit))
                 for plugin in flo.plugins {
                     plugin.startPlugin(flo.id)
                 }
@@ -168,23 +182,20 @@ public class FloExprs: FloVal {
             return false
         }
     }
-    func visitedPaths(_ visit: Visitor) -> String {
+    public func visitedPaths(_ visit: Visitor) -> String {
 
         var str = "("
         var del = ""
         for vid in visit.visited {
             if let flo = Flo.IdFlo[vid] {
-
-                let path = flo.path(99)
-                str += del + path + ":\(vid)"
-                del = ", "
-            } else if let exprs = FloExprs.IdExprs[vid] {
-
-                let path = exprs.flo.path(99)
-                str += del + path + "(\(exprs.name):\(vid))"
-                del = ", "
+                let path = flo.path(2)
+                str += del + path + ":\(vid)" ; del = "\n"
+//            } else if let exprs = FloExprs.IdExprs[vid] {
+//                str += del + "\(exprs.name):\(vid)"
+//            } else if let val = FloVal.IdFloVal[vid] {
+//                let path = val.flo.path(2)
+//                str += del + path + ":\(vid)"
             }
-
         }
         str += ")"
         return str
@@ -219,13 +230,15 @@ public class FloExprs: FloVal {
         // next evalute destination expression result
         let result = evalExprs(fromExprs, false, visit)
         if result == false {
-            clearCurrentVals()
+            clearCurrentVals(visit)
         }
         return result
     }
 
     /// when match fails, clear out current values set next to default
-    func clearCurrentVals() {
+    func clearCurrentVals(_ visit: Visitor) {
+        visit.remove(id)
+        return //???
         for key in nameAny.keys {
             if let val = nameAny[key] as? FloVal {
                 val.valOps -= [.twe,.val]
@@ -306,7 +319,7 @@ public class FloExprs: FloVal {
         copy.injectNameNum("y", Double(p.y))
         let result = evalExprs(copy, false, visit)
         if result == false {
-            clearCurrentVals()
+            clearCurrentVals(visit)
         }
         return result
     }

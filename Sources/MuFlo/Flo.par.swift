@@ -1,10 +1,11 @@
 public let FloPar =
 #"""
-flo ≈ pathName (exprs | child | many | copyat | edges | embed | comment)* {
+flo ≈ pathName (exprs | child | many | copyall | copyat | edges | embed | comment)* {
 
     pathName ≈ (path | name)
     child    ≈ "{" comment* flo+ "}" | "." flo
     many     ≈ "." "{" flo+ "}"
+    copyall  ≈ "©" pathName ("," pathName)*
     copyat   ≈ "@" pathName ("," pathName)*
 
     exprs ≈ "(" expr+ ")" {
@@ -20,7 +21,7 @@ flo ≈ pathName (exprs | child | many | copyat | edges | embed | comment)* {
         }
     }
     edges ≈ edgeOp (edgePar | exprs | edgeVal) comment* {
-        edgeOp  ≈ '^([\^]|[<←][<!@⟐⟡◇→>]+|[!@⟐⟡◇→>]+[>→])'
+        edgeOp  ≈ '^([\^]|[<←][<!@\©⟐⟡◇→>]+|[!@⟐⟡◇→>]+[>→])'
         edgePar ≈ "(" edgeItem+ ")" edges?
         edgeItem ≈ edgeVal comment*
         edgeVal ≈ pathName (edges+ | exprs)?

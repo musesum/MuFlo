@@ -22,6 +22,7 @@ public struct FloScriptOps: OptionSet {
     public static var Def   : FloScriptOps { [.def,         .edge, .comment, .parens, .compact, .noLF] }
     public static var All   : FloScriptOps { [.def,   .val, .edge, .comment, .parens, .compact, .noLF] }
     public static var Full  : FloScriptOps { [.def,   .val, .edge, .comment, .parens                 ] }
+    public static var Full1 : FloScriptOps { [.def,   .val, .edge, .comment, .parens,           .noLF] }
 }
 
 extension FloScriptOps: CustomStringConvertible {

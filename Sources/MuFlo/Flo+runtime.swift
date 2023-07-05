@@ -66,16 +66,19 @@ extension Flo {
     }
 
     public func activate(_ visit: Visitor) {
-
-        if visit.newVisit(id) {
-            for closure in closures {
-                closure(self, visit)
-            }
-            for floEdge in floEdges.values {
-                
-                if floEdge.active {
-                    floEdge.followEdge(self, visit.via(.model)) //.. add via(.edge
-                }
+        
+        guard visit.newVisit(id) else {
+            print("🏁:\(id)", terminator: " ")
+            return
+        }
+        
+        for closure in closures {
+            closure(self, visit)
+        }
+        for floEdge in floEdges.values {
+            
+            if floEdge.active {
+                floEdge.followEdge(self, visit.via(.model)) //.. add via(via(.edge
             }
         }
     }

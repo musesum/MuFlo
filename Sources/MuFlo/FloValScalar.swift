@@ -25,7 +25,7 @@ public class FloValScalar: FloVal {
 
     init(_ flo: Flo,_ name: String,_ num: Double) {
         super.init(flo, name)
-        valOps = [.val] //??? [.now_, .val] //?? .now
+        valOps = [.val] //?? [.now_, .val] 
         self.min = fmin(num, 0.0)
         self.max = fmax(num, 1.0)
         self.val = num
@@ -262,7 +262,7 @@ extension FloValScalar {
 
         let id = "\(id)".pad(6)
         let path = flo.path(9).pad(-18)
-        let valNow = " (val/twe: \(val.digits(2))/\(twe.digits(2)))"
-        print(prefix + id + path + valNow + suffix)
+        let valTwe = "(val/twe: \(val.digits(2))/\(twe.digits(2)))"
+        print(prefix + id + path + valTwe + suffix)
     }
 }

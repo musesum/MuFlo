@@ -75,13 +75,13 @@ extension Flo {
         var result = [Flo]()
         for child in children {
             // add copy of copy's child
-            let copy = Flo(deepcopy: child, parent: self)
+            let copy = Flo(deepcopy: child, parent: self, via: type)
             result.append(copy)
         }
         return result
     }
 
-    func bindCopyat() -> [Flo] {
+    func bindCopyAtAll() -> [Flo] {
 
         if let found = bindFindPath(),
            let parent {
@@ -101,7 +101,7 @@ extension Flo {
                 var newChildren = [Flo]()
                 for foundi in found {
                     for foundChild in foundi.children {
-                        let copy = Flo(deepcopy: foundChild, parent: parent)
+                        let copy = Flo(deepcopy: foundChild, parent: parent, via: type)
                         newChildren.append(copy)
                     }
                 }
@@ -126,7 +126,7 @@ extension Flo {
                 }
             } else {
                 // b.d in `a { b { c {c1 c2} d {d1 d2} } b.c @ b.d  }`
-                let copy = Flo(deepcopy: foundi, parent: self)
+                let copy = Flo(deepcopy: foundi, parent: self, via: type)
                 results.append(copy)
             }
         }
@@ -246,11 +246,12 @@ extension Flo {
         for child in children {
 
             switch child.type {
-            case .path:   newKids.append(contentsOf: child.bindPath())
-            case .many:   newKids.append(contentsOf: child.bindMany())
-            case .copyat: newKids.append(contentsOf: child.bindCopyat())
-            case .name:   newKids.append(contentsOf: child.bindName(newKids))
-            case .remove: break
+            case .path:    newKids.append(contentsOf: child.bindPath())
+            case .name:    newKids.append(contentsOf: child.bindName(newKids))
+            case .many:    newKids.append(contentsOf: child.bindMany())
+            case .copyall: newKids.append(contentsOf: child.bindCopyAtAll())
+            case .copyat:  newKids.append(contentsOf: child.bindCopyAtAll())
+            case .remove:  break
             default:      newKids.append(child)
             }
         }
@@ -370,13 +371,13 @@ extension Flo {
             child.bindEdges()
         }
     }
-    /** bind 2nd a.b in `a.b { c d } a.e: a.b { f g }`
+    /** bind 2nd a.b in `a.b { c d } a.e @ a.b { f g }`
 
     - note: Needs forward pass for prototypes that refer to unexpanded paths.
 
      Since expansion is bottom up, the first a.b in:
 
-        a.b { c d } a.e: a.b { f g }
+        a.b { c d } a.e @ a.b { f g }
 
     has not been been expanded, when encountering the second a.b.
     So, the deeper a.b was deferred until this forward pass,
@@ -391,7 +392,7 @@ extension Flo {
             if child.children.count > 0 {
                 child.bindCopyatTypes()
             }
-            if child.type == .copyat {
+            if child.type == .copyall || child.type == .copyat {
                 hasProtoChild = true
             }
         }
