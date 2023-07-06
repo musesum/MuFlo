@@ -5,7 +5,8 @@ import MuPar
 
 extension FloExprs {
   
-    public func scriptExprs(_ scriptOps: FloScriptOps  = .All) -> String {
+    public func scriptExprs(_ scriptOps: FloScriptOps,
+                            _ viaEdge: Bool) -> String {
 
         var script = ""     // result
         var position = 0
@@ -14,6 +15,7 @@ extension FloExprs {
         var named = ""
 
         for opAny in opAnys {
+
             switch opAny.op {
             case .comma: finishExpr()
             case .assign, .In: assigned = true
@@ -21,6 +23,7 @@ extension FloExprs {
             case .IS,.EQ,.LE,.GE,.LT,.GT: condition = opAny.op.rawValue
             default: break
             }
+
             if scriptOps.def {
                 let str = opAny.scriptDefOps(scriptOps, script)
                 if str.first == "," || str.first == "="  {
@@ -36,7 +39,8 @@ extension FloExprs {
         return script
 
         func finishExpr() {
-            if scriptOps.now,
+            if !viaEdge,
+                scriptOps.now,
                position < nameAny.values.count {
 
                 let keyStr = nameAny.keys[position]
@@ -47,13 +51,15 @@ extension FloExprs {
                 // logFinish(scalar, keyStr)
 
                 let numStr = scalar?.scriptScalar(scriptOps, .val) ?? ""
-                if numStr == "", scriptOps.onlyNow { nameStr = named }
+                if numStr == "", scriptOps.notDefNow { nameStr = named }
 
                 if  nameStr.count > 0 && nameStr.first != "_" {
                     let opStr = (numStr.isEmpty ? ""
-                                 : condition.isEmpty ? " = "
+                                 : condition.isEmpty ? "="
                                  : condition)
-                    script.spacePlus(nameStr + opStr + numStr)
+                    script.spacePlus(nameStr)
+                    script.spacePlus(opStr)
+                    script.spacePlus(numStr)
 
                 } else if numStr.count > 0 {
                     if keyStr.first == "_", (script.isEmpty || scalar?.valOps.lit ?? false) {

@@ -8,16 +8,18 @@ import Foundation
 
 extension FloEdge {
     
-    func scriptEdgeVal(_ flo: Flo, _ scriptOpts: FloScriptOps) -> String {
+    func scriptEdgeVal(_ flo: Flo,
+                       _ scriptOpts: FloScriptOps) -> String {
 
-        var script = ""
+        let depth = FloEdge.LineageDepth
+        var script = (leftFlo == flo
+                      ? rightFlo.scriptLineage(depth)
+                      : leftFlo.scriptLineage(depth))
 
-        if leftFlo == flo {
-            script += rightFlo.scriptLineage(FloEdge.LineageDepth)
-        } else if rightFlo == flo {
-            script += leftFlo.scriptLineage(FloEdge.LineageDepth)
+        if let edgeExprs {
+            let viaEdge = true
+            script.spacePlus(edgeExprs.scriptVal(scriptOpts, viaEdge))
         }
-        script += edgeExprs?.scriptVal(scriptOpts) ?? ""
         return script
     }
 

@@ -68,9 +68,7 @@ public class FloComments {
         return haveType.contains(type)
     }
 
-    public func getEdgesDelim() -> String {
-        return ", "
-    }
+    
 
     public func getComments(_ getType: FloCommentType,
                             _ scriptOpts: FloScriptOps) -> String {

@@ -117,6 +117,7 @@ public class FloValScalar: FloVal {
     }
 
     public override func scriptVal(_ scriptOps: FloScriptOps,
+                                   _ viaEdge: Bool,
                                    noParens: Bool = false) -> String {
         if scriptOps.delta {
             if !hasDelta() {
@@ -146,8 +147,8 @@ public class FloValScalar: FloVal {
         var str = ""
         if valOps.rawValue == 0   { return "" }
 
-        var litNow: Bool { valOps.hasLit && allOps.onlyNow }
-        var soloNow: Bool { valOps.val && (!valOps.hasLit || allOps.onlyNow) }
+        var litNow: Bool { valOps.hasLit && allOps.notDefNow }
+        var soloNow: Bool { valOps.val && (!valOps.hasLit || allOps.notDefNow) }
 
         if nowOps.def {
             if valOps.min    { str += min.digits(0...6) }

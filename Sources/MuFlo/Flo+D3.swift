@@ -10,7 +10,7 @@ import Foundation
 extension FloEdge {
 
     func makeD3Edge(_ separator: String) -> String {
-        let arrow = edgeOps.script()
+        let arrow = edgeOps.script(active: true)
         return separator + "'\(leftFlo.id)\(arrow)\(rightFlo.id)'"
     }
 }

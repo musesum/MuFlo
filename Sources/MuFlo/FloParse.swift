@@ -325,7 +325,7 @@ public class FloParse {
         if let path = edgeDef.pathVals.edgeExprs.keys.last {
 
             if let lastVal = edgeDef.pathVals.edgeExprs[path], lastVal != nil {
-                print("flo:\(flo.name) id:\(flo.id) lastVal:\(lastVal!.name) id:\(lastVal!.id)")
+                //print("flo:\(flo.name) id:\(flo.id) lastVal:\(lastVal!.name) id:\(lastVal!.id)")
                 parseDeepVal(flo, lastVal, parItem)
                 return flo
 

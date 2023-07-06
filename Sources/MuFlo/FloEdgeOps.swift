@@ -52,41 +52,38 @@ public struct FloEdgeOps: OptionSet {
     var hasPlugin  : Bool { contains(.plugin  )}
     var hasSync    : Bool { contains([.input, .output])}
 
-    public func scriptExpicitOps() -> String {
-
-        switch self {
-            case [.input,.output]: return " <> "
-            case [.input]: return " <<"
-            case [.output]: return " >>"
-            case [.plugin]: return " ^"
-            default: print( "⚠️ unexpected scriptEdgeOps")
-        }
-        return ""
-    }
-    public func scriptImplicitOps(_ active: Bool) -> String {
-
-        var script = self.hasInput ? " ←" : ""
-
-        if      !active         { script += "◇" }
-        else if self.hasSolo    { script += "⟡" }
-        else if self.hasCopyat  { script += "@" }
-        else if self.hasCopyall { script += "©" }
-        else if self.hasPlugin  { script += "^" }
-
-        script += self.hasOutput ? "→" : ""
-
-        return script
-    }
-
-    var isImplicit: Bool {
-        self.intersection([.solo, .copyall, .copyat]) != []
-    }
-
-    public func script(active: Bool = true) -> String {
-        if isImplicit {
+    public func script(active: Bool) -> String {
+        // is implicit
+        if intersection([.solo, .copyall, .copyat]) != [] {
             return scriptImplicitOps(active)
         } else {
             return scriptExpicitOps()
+        }
+
+        func scriptExpicitOps() -> String {
+
+            switch self {
+                case [.input,.output]: return " <>"
+                case [.input]: return "<<"
+                case [.output]: return ">>"
+                case [.plugin]: return "^"
+                default: print( "⚠️ unexpected scriptEdgeOps")
+            }
+            return ""
+        }
+        func scriptImplicitOps(_ active: Bool) -> String {
+
+            var script = self.hasInput ? " ←" : ""
+
+            if      !active         { script += "◇" }
+            else if self.hasSolo    { script += "⟡" }
+            else if self.hasCopyat  { script += "@" }
+            else if self.hasCopyall { script += "©" }
+            else if self.hasPlugin  { script += "^" }
+
+            script += self.hasOutput ? "→" : ""
+
+            return script
         }
     }
 

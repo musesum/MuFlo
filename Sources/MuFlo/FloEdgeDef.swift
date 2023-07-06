@@ -54,12 +54,12 @@ public class FloEdgeDef {
     public func scriptVal(_ scriptOps: FloScriptOps,
                           noParens: Bool = false) -> String {
         
-        var script = edgeOps.script()
+        var script = edgeOps.script(active: true)
         
         if pathVals.edgeExprs.count > 1 { script += "(" }
         for (path,val) in pathVals.edgeExprs {
             script += path
-            script += val?.scriptVal(scriptOps) ?? ""
+            script += val?.scriptVal(scriptOps, /* viaEdge */ true) ?? ""
         }
         if pathVals.edgeExprs.count > 1 { script += ")" }
         return script

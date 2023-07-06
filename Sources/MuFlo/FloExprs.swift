@@ -342,13 +342,14 @@ public class FloExprs: FloVal {
         }
         return script.with(trailing: ")")
     }
-    public func script(_ scriptOps: FloScriptOps = .All) -> String {
-        return scriptVal(scriptOps)
-    }
+//    public func script(_ scriptOps: FloScriptOps = .All) -> String {
+//        return scriptVal(scriptOps)
+//    }
     public override func scriptVal(_ scriptOps: FloScriptOps,
+                                   _ viaEdge: Bool,
                                    noParens: Bool = false) -> String {
 
-        let script = scriptExprs(scriptOps)
+        let script = scriptExprs(scriptOps, viaEdge)
 
         return (noParens ? script
                 : script.isEmpty ? script

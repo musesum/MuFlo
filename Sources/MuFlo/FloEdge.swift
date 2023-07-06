@@ -30,7 +30,7 @@ public class FloEdge: Hashable {
         return lhs.edgeKey == rhs.edgeKey
     }
 
-    convenience init(with: FloEdge) { // was operator = in c++ version
+    convenience init(with: FloEdge) {
 
         self.init(with.leftFlo, with.rightFlo, with.edgeOps, with.plugDefs)
         self.active = with.active

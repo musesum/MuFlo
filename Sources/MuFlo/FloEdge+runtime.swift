@@ -17,13 +17,8 @@ extension FloEdge {
         let visitedLeft = visit.wasHere(leftFlo.id)
         let visitedRight = visit.wasHere(rightFlo.id)
 
-        if edgeOps.hasSync {
-            let leftScript = leftFlo.exprs?.scriptExprs(.Now) ?? ""
-            let rightScript = rightFlo.exprs?.scriptExprs(.Now) ?? ""
-            let leftPathScript = leftFlo.path(2) + "(\(leftScript))"
-            let rightPathScript = rightFlo.path(2) + "(\(rightScript))"
-            //??? print ("sync: \(edgeKey)  \(leftPathScript) <> \(rightPathScript)")
-        }
+        logSync()
+
         if ((fromLeft && edgeOps.hasOutput && !visitedRight) ||
             (fromRight && edgeOps.hasInput && !visitedLeft )) {
 
@@ -37,6 +32,22 @@ extension FloEdge {
                 /// Did not meet conditionals, so stop.
                 /// for example, when cc != 13 for
                 /// `repeatX(cc == 13, val 0…127, chan, time)`
+            }
+        }
+        func setEdgeVal(_ destFlo: Flo,
+                        _ edgeExprs: FloExprs?,     /// `(2)` in `b(0…1) >> a(2)`
+                        _ fromExprs: FloExprs?)  {   /// `(0…1)` in `b(0…1) >> a`
+            
+
+        }
+
+        func logSync() {
+            if edgeOps.hasSync {
+                let leftScript = leftFlo.exprs?.scriptExprs(.Now, false) ?? ""
+                let rightScript = rightFlo.exprs?.scriptExprs(.Now, false) ?? ""
+                let leftPathScript = leftFlo.path(2) + "(\(leftScript))"
+                let rightPathScript = rightFlo.path(2) + "(\(rightScript))"
+                print ("sync: \(edgeKey)  \(leftPathScript) <> \(rightPathScript)")
             }
         }
         func logEdge() {

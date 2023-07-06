@@ -39,10 +39,11 @@ public class FloValData: FloVal {
         return true
     }
 
-    public override func printVal() -> String {
-        return scriptVal()
-    }
-    public override func scriptVal(_ scriptOpts: FloScriptOps = [.parens,.expand],
+//    public override func printVal() -> String {
+//        return scriptVal()
+//    }
+    public override func scriptVal(_ scriptOps: FloScriptOps = [.parens,.expand],
+                                   _ viaEdge: Bool,
                                    noParens: Bool = false) -> String {
         return "[data]"
     }

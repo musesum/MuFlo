@@ -4,7 +4,7 @@ import Foundation
 
 public struct FloScriptOps: OptionSet {
 
-    public let rawValue: Int
+    public var rawValue: Int
 
     public static let def     = FloScriptOps(rawValue: 1 << 0) ///  1 defined values `0…3=1` in  `a(x 0…3=1)`
     public static let val     = FloScriptOps(rawValue: 1 << 1) ///  2 current`2` in `a(x 2)` or `a(x 0…3=1:2)`
@@ -55,6 +55,15 @@ extension FloScriptOps: CustomStringConvertible {
     var delta   : Bool { contains(.delta  ) }
     var noLF    : Bool { contains(.noLF   ) }
 
-    var onlyNow : Bool { !def &&  now }
+    var notDefNow  : Bool { !def && now }
+    var notEdgeNow : Bool { !edge && now }
+
+    static public func += (lhs: inout FloScriptOps, rhs: FloScriptOps) {
+        lhs.rawValue |= rhs.rawValue
+    }
+    static public func + (lhs: FloScriptOps,
+                           rhs: FloScriptOps) -> FloScriptOps {
+        return FloScriptOps(rawValue: lhs.rawValue | rhs.rawValue)
+    }
 }
 

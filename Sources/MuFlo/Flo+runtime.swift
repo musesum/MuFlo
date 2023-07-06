@@ -89,9 +89,9 @@ extension Flo {
     /// 2. `a(1), b(2) >> a`        // b has no edge value
     /// 3. `a(1) >> b, b >> c, c(4)`// b is a passthrough node
     /// activating `b!` for each example
-    /// 1. `a(3), b(2) >> a(3)`     // `a(3)` is set from `b`'s `>> a(3)`
-    /// 2. `a(2), b(2) >> a(3)`     // `a(2)` is set directly from
-    /// 3. `a(1) >> b, b >> c(4)`   // nothing happens
+    /// 1a. `a(3), b(2) >> a(3)`     // `a(3)` is set from `b`'s `>> a(3)`
+    /// 2a. `a(2), b(2) >> a(3)`     // `a(2)` is set directly from
+    /// 3a. `a(1) >> b, b >> c(4)`   // nothing happens
     /// for example 3, activating a
     /// 3. `a(1) >> b, b >> c(1)`   // `a` passes through `b` to set `a`
     @discardableResult
@@ -101,12 +101,11 @@ extension Flo {
 
         if visit.wasHere(id) { return false }
 
-        // example 3. passthrough
+        /// example 3.  passthrough
         if exprs == nil {
-            // runtime setup as passthrough
-            passthrough = true
-        }
-        if passthrough {
+
+            passthrough = true // does not contain own valy
+
             if let edgeExprs {
                 /// for `a >> b(1), b >> c
                 /// `b` forwards`>>`'s `(1)` to `c`
@@ -123,13 +122,14 @@ extension Flo {
             guard let exprs else { return true }
 
             if let edgeExprs {
-                /// example 1. first eval edge via from value
+                ///example 1.` b!` for `a(1), b(2) >> a(3)`
+                /// first eval `b >> a` edge
                 edgeExprs.evalExprs(fromExprs, true, visit)
-                /// and then pass the result as a new from value
+                /// and then pass `(3)` to `a`
                 return exprs.setExprsVal(edgeExprs, visit)
 
             } else if let fromExprs {
-                // example 2. pass the from value directly
+                /// example 2. `b!` for `a(1), b(2) >> a` 
                 return exprs.setExprsVal(fromExprs, visit)
             }
         }

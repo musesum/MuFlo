@@ -4,8 +4,8 @@ import Foundation
 
 extension FloEdgeDefs {
 
-    func scriptVal(_ scriptOps: FloScriptOps,
-                   noParens: Bool = false) -> String {
+    func scriptEdgeVal(_ scriptOps: FloScriptOps,
+                       noParens: Bool = false) -> String {
 
         var script = ""
 
