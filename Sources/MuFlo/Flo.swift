@@ -64,6 +64,7 @@ public class Flo {
 
     var plugDefs: EdgeDefs?
     var plugins = [FloPlugin]()
+    public var hasPlugDefs: Bool { plugDefs?.count ?? 0 > 0 }
     public var hasPlugins: Bool { plugins.count > 0 }
     var setOps: FloValOps { hasPlugins ? [.val] : [.twe, .val] }
 

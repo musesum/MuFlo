@@ -9,20 +9,6 @@ import MuPar // visit
 
 extension Flo {
 
-    /// combine several expressions into one transaction and activate the callbacks only once
-    public func setNameVals(_ nameAnys: [(String,Double)],
-                            _ setOps: FloSetOps,
-                            _ visit: Visitor) {
-
-        // defer activation until after setting value
-        let noActivate = setOps.subtracting(.activate)
-        setAny(nameAnys, noActivate, visit)
-
-        // do the deferred activations, if there was one
-        if setOps.activate {
-            activate(visit)
-        }
-    }
     public func setAny(_ any: Any,
                        _ options: FloSetOps,
                        _ visit: Visitor = Visitor(0)) {
@@ -35,14 +21,14 @@ extension Flo {
                 exprs = fromExprs
             } else if let exprs {
                 // set my val to fromVal, with rescaling
-                if exprs.setExprsVal(fromExprs, visit) == false {
+                if exprs.setFromAny(fromExprs, visit) == false { // 🔷
                     // condition failed, so avoid activatating edges, below
                     return
                 }
             }
         } else if let exprs {
             // any is not a FloVal, so pass onto my FloVal if it exists
-            if exprs.setExprsVal(any, visit) == false {
+            if exprs.setFromAny(any, visit) == false { // 🔷
                 // condition failed, so avoid activatating edges, below
                 return
             }
@@ -61,12 +47,12 @@ extension Flo {
         }
         // maybe pass along my FloVal to other FloNodes and closures
         if options.activate {
-            activate(visit)
+            activate(visit) // 🚦
         }
     }
 
-    public func activate(_ visit: Visitor) {
-        
+    public func activate(_ visit: Visitor) { // 🚦
+
         guard visit.newVisit(id) else {
             print("🏁:\(id)", terminator: " ")
             return
@@ -77,7 +63,7 @@ extension Flo {
         }
         for floEdge in floEdges.values {
             
-            if floEdge.active {
+            if floEdge.active { // ⬦⃣
                 floEdge.followEdge(self, visit.via(.model)) //.. add via(via(.edge
             }
         }
@@ -97,41 +83,30 @@ extension Flo {
     @discardableResult
     func setEdgeVal(_ edgeExprs: FloExprs?,     /// `(2)` in `b(0…1) >> a(2)`
                     _ fromExprs: FloExprs?,     /// `(0…1)` in `b(0…1) >> a`
-                    _ visit: Visitor) -> Bool {
+                    _ visit: Visitor) -> Bool { // ⬦⃣
 
         if visit.wasHere(id) { return false }
 
-        /// example 3.  passthrough
-        if exprs == nil {
-
-            passthrough = true // does not contain own valy
-
-            if let edgeExprs {
-                /// for `a >> b(1), b >> c
-                /// `b` forwards`>>`'s `(1)` to `c`
-                edgeExprs.evalExprs(fromExprs, true, visit)
-                exprs = edgeExprs
-
-            } else if let fromExprs {
-                /// for `a(2) >> b, b >> c
-                /// `b` forwards `a`'s `(2)` to `c`
-                exprs = fromExprs
-            }
-            return true
-        } else {
-            guard let exprs else { return true }
-
+        if let exprs {
+            var passed = false
             if let edgeExprs {
                 ///example 1.` b!` for `a(1), b(2) >> a(3)`
                 /// first eval `b >> a` edge
-                edgeExprs.evalExprs(fromExprs, true, visit)
+                edgeExprs.evalExprs(fromExprs, true, visit) // 🔸
                 /// and then pass `(3)` to `a`
-                return exprs.setExprsVal(edgeExprs, visit)
+                passed = exprs.setFromAny(edgeExprs, visit) // 🔷
 
             } else if let fromExprs {
-                /// example 2. `b!` for `a(1), b(2) >> a` 
-                return exprs.setExprsVal(fromExprs, visit)
+                /// example 2. `b!` for `a(1), b(2) >> a`
+                passed = exprs.setFromAny(fromExprs, visit) // 🔷
             }
+            if name.contains("repeat") {
+                print ("\(passed ? "👍" : "⛔️" )\(path(3))") //??? 
+            }
+            return passed
+        } else { /// example 3.  passthrough
+            passthrough = true // does not contain own value
+            exprs = edgeExprs ?? fromExprs
         }
         return true
     }

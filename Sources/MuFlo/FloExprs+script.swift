@@ -39,8 +39,7 @@ extension FloExprs {
         return script
 
         func finishExpr() {
-            if !viaEdge,
-                scriptOps.now,
+            if scriptOps.now,
                position < nameAny.values.count {
 
                 let keyStr = nameAny.keys[position]
@@ -64,7 +63,7 @@ extension FloExprs {
                 } else if numStr.count > 0 {
                     if keyStr.first == "_", (script.isEmpty || scalar?.valOps.lit ?? false) {
                         script += numStr
-                    } else {
+                    } else if !viaEdge {
                         script += script.roundColonSpace() + numStr
                     }
                 }

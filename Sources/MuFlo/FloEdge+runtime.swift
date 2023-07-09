@@ -17,10 +17,10 @@ extension FloEdge {
         let visitedLeft = visit.wasHere(leftFlo.id)
         let visitedRight = visit.wasHere(rightFlo.id)
 
-        logSync()
-
         if ((fromLeft && edgeOps.hasOutput && !visitedRight) ||
             (fromRight && edgeOps.hasInput && !visitedLeft )) {
+
+            logEdge() //????  logSync()
 
             let fromExprs = fromFlo.exprs
 
@@ -29,18 +29,10 @@ extension FloEdge {
                 destFlo.activate(visit)
 
             } else {
-                /// Did not meet conditionals, so stop.
-                /// for example, when cc != 13 for
-                /// `repeatX(cc == 13, val 0…127, chan, time)`
+               //???? visit.block(destFlo)
             }
         }
-        func setEdgeVal(_ destFlo: Flo,
-                        _ edgeExprs: FloExprs?,     /// `(2)` in `b(0…1) >> a(2)`
-                        _ fromExprs: FloExprs?)  {   /// `(0…1)` in `b(0…1) >> a`
-            
-
-        }
-
+        
         func logSync() {
             if edgeOps.hasSync {
                 let leftScript = leftFlo.exprs?.scriptExprs(.Now, false) ?? ""
@@ -51,31 +43,30 @@ extension FloEdge {
             }
         }
         func logEdge() {
-
-            var arrow = fromLeft ? " ⫸" : "⫷ "
-            arrow += edgeOps.hasPlugin ? "⚡️ " : " "
-
-            print ("\n(" +
-                   "\(script(leftFlo))" + arrow +
-                   " \(script(rightFlo))"
-                   , terminator: ") ")
+            guard leftFlo.name.contains("repeat") ||
+                    rightFlo.name.contains("repeat") else { return }
+            let arrow = fromLeft ? " ⫸ " : " ⫷ "
+            let op = edgeOps.script(active: true)
+            let edge = "\(leftFlo.id) \(op) \(rightFlo.id)".pad(13)
+            print (edge + arrow + script(leftFlo) + arrow + script(rightFlo))
 
             func script(_ flo: Flo) -> String {
-                guard let exprs = flo.exprs else { return "[]" }
-                let plugged = !flo.plugins.isEmpty ? "⚡️" : ""
+                guard let exprs = flo.exprs else { return "()" }
+                let plugged = !flo.plugins.isEmpty ? "⚡️" : "/"
 
-                var str = "\(flo.path(9)).\(flo.id)\(plugged)["
-                var del = ""
+                var str = "\(flo.path(3))"
+                var del = "("
                 for (name,any) in exprs.nameAny {
-                    if let scalar = any as? FloValScalar {
-                        let valStr = scalar.val.digits(0...2)
-                        let tweStr = scalar.twe.digits(0...2)
-                        str += del + "\(name): \(valStr)/\(tweStr)"
-                        del = ", "
+                    if ["x","y","val"].contains(name),
+                       let scalar = any as? FloValScalar {
+
+                            let valStr = scalar.val.digits(0...2)
+                            let tweStr = scalar.twe.digits(0...2)
+                            str += del + "\(name): \(valStr)\(plugged)\(tweStr)"
+                            del = ", "
                     }
-                    str += "]"
                 }
-                return str
+                return "\(str))"
             }
         }
     }

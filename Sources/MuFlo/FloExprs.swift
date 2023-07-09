@@ -12,6 +12,7 @@ import MuPar
 import MuTime
 
 public typealias NameAny = OrderedDictionaryClass<String,Any>
+
 public class FloExprs: FloVal {
 
     public static var IdExprs = [Int:FloExprs]()
@@ -121,7 +122,6 @@ public class FloExprs: FloVal {
         return nums
     }
 
-
     // MARK: - Set
 
     func logValTwees(_ suffix: String = "") {
@@ -132,6 +132,7 @@ public class FloExprs: FloVal {
             }
         }
     }
+
     func setDefaults(_ visit: Visitor) {
         var nameVals = [(String,Double)]()
         if nameAny.count > 0 {
@@ -143,46 +144,120 @@ public class FloExprs: FloVal {
                 }
             }
             if nameVals.count > 0 {
-                setExprsVal(nameVals, visit)
+                setFromAny(nameVals, visit)
             }
         }
     }
     
     @discardableResult
-    public func setExprsVal(_ fromExprs: Any?,
-                            _ visit: Visitor) -> Bool {
-
-        guard let fromExprs else { return false }
+    public func setFromAny(_ fromAny: Any,
+                           _ visit: Visitor) -> Bool {
+        
         guard visit.newVisit(id) else { return false }
-
-        if visitPlugins(visit) {
-            return true
+        
+        if flo.hasPlugDefs,
+           flo.hasPlugins,
+           !visit.from.tween {
+            
+            visit.from += .tween
+            if setValues() {
+                setPlugins()
+                return true
+            } else {
+                return false
+            }
         } else {
-            return setFromVisit(fromExprs, visit)
+            return setValues()
         }
 
-        func visitPlugins(_ visit: Visitor) -> Bool {
-
-            guard let plugDefs = flo.plugDefs else { return false }
-            if plugDefs.isEmpty { return false }
-
-
-            if !visit.from.tween,
-               flo.plugins.count > 0 {
-
-                visit.from += .tween
-                setFromVisit(fromExprs, visit)
-
-                logValTwees(visitedPaths(visit))
-                for plugin in flo.plugins {
-                    plugin.startPlugin(flo.id)
-                }
-                return true
+        func setValues() -> Bool {
+            switch fromAny {
+            case let v     as Float            : setNum(Double(v),visit)
+            case let v     as CGFloat          : setNum(Double(v),visit)
+            case let v     as Double           : setNum(Double(v),visit)
+            case let v     as Int              : setNum(Double(v),visit)
+            case let n     as [(String,Any)]   : setNameNums(n,visit)
+            case let (n,v) as (String,Double)  : setNameNum(n,Double(v),visit)
+            case let (n,v) as (String,Float)   : setNameNum(n,Double(v),visit)
+            case let (n,v) as (String,CGFloat) : setNameNum(n,Double(v),visit)
+            case let v     as CGPoint          : return setPoint(v,visit)
+            case let v     as FloExprs         : return setExprs(v,visit)
+            default: print("🚫 mismatched setVal(\(fromAny))"); return false
             }
-            return false
+            return true
+
+            func setNameNum(_ name: String, _ num: Double, _ visit: Visitor) {
+                if let scalar = nameAny[name] as? FloValScalar {
+                    scalar.setScalarVal(num, flo.setOps)
+                } else {
+                    nameAny[name] = FloValScalar(flo, name, num)
+                }
+            }
+            func setNameNums(_ nameVals: [(String,Any)], _ visit: Visitor) {
+                for (name,any) in nameVals {
+                    switch any {
+                    case let v as Double  : setNameNum(name, Double(v), visit)
+                    case let v as Float   : setNameNum(name, Double(v), visit)
+                    case let v as CGFloat : setNameNum(name, Double(v), visit)
+                    case let v as Int     : setNameNum(name, Double(v), visit)
+                    default: break
+                    }
+                }
+            }
+            func setNum(_ val: Double, _ visit: Visitor) {
+
+                if let scalar = nameAny["_0"] as? FloValScalar {
+
+                    scalar.setScalarVal(val, flo.setOps)
+
+                } else {
+
+                    for any in nameAny.values {
+                        if let scalar = any as? FloValScalar {
+                            scalar.setScalarVal(val, flo.setOps)
+                        }
+                    }
+                }
+                if nameAny.isEmpty {
+                    let name = "_" + flo.name
+                    nameAny["_0"] = FloValScalar(flo, name, val)
+                }
+            }
+            func setPoint(_ p: CGPoint, _ visit: Visitor) -> Bool {
+
+                if opAnys.isEmpty {
+                    // create a new opVal list
+                    addPoint(p)
+                    return true
+                }
+                let copy = copy()
+                copy.injectNameNum("x", Double(p.x))
+                copy.injectNameNum("y", Double(p.y))
+
+                let result = evalExprs(copy, false, visit)
+                if result == false {
+                    clearCurrentVals(visit)
+                }
+                return result
+            }
+            func setExprs(_ fromExprs: FloExprs, _ visit: Visitor) -> Bool {
+
+                // next evalute destination expression result
+                let result = evalExprs(fromExprs, false, visit)
+                if result == false {
+                    clearCurrentVals(visit)
+                }
+                return result
+            }
+        }
+        func setPlugins() {
+            //??? logValTwees(logVisitedPaths(visit))
+            for plugin in flo.plugins {
+                plugin.startPlugin(flo.id)
+            }
         }
     }
-    public func visitedPaths(_ visit: Visitor) -> String {
+    public func logVisitedPaths(_ visit: Visitor) -> String {
 
         var str = "("
         var del = ""
@@ -202,39 +277,6 @@ public class FloExprs: FloVal {
     }
 
 
-
-    @discardableResult
-    func setFromVisit(_ any: Any,
-                      _ visit: Visitor) -> Bool {
-        switch any {
-        case let v     as Float            : return setNum(Double(v),visit)
-        case let v     as CGFloat          : return setNum(Double(v),visit)
-        case let v     as Double           : return setNum(Double(v),visit)
-        case let v     as Int              : return setNum(Double(v),visit)
-
-        case let v     as CGPoint          : return setPoint(v,visit)
-        case let v     as FloExprs         : return setExprs(v,visit)
-        case let n     as [(String,Any)]   : return setNameNums(n,visit)
-
-        case let (n,v) as (String,Double)  : return setNameNum(n,Double(v),visit)
-        case let (n,v) as (String,Float)   : return setNameNum(n,Double(v),visit)
-        case let (n,v) as (String,CGFloat) : return setNameNum(n,Double(v),visit)
-        default: print("🚫 mismatched setVal(\(any))"); return false
-        }
-    }
-
-    // set expression
-    func setExprs(_ fromExprs: FloExprs,
-                  _ visit: Visitor) -> Bool {
-
-        // next evalute destination expression result
-        let result = evalExprs(fromExprs, false, visit)
-        if result == false {
-            clearCurrentVals(visit)
-        }
-        return result
-    }
-
     /// when match fails, clear out current values set next to default
     func clearCurrentVals(_ visit: Visitor) {
         visit.remove(id)
@@ -250,79 +292,7 @@ public class FloExprs: FloVal {
             }
         }
     }
-    // set name double
-    @discardableResult
-    func setNameNum(_ name: String,
-                    _ num: Double,
-                    _ visit: Visitor) -> Bool {
 
-        if let scalar = nameAny[name] as? FloValScalar {
-            scalar.setScalarVal(num, flo.setOps)
-        } else {
-            nameAny[name] = FloValScalar(flo, name, num)
-        }
-        return true
-    }
-    // set [(name,any)]
-    func setNameNums(_ nameVals: [(String,Any)],
-                     _ visit: Visitor) -> Bool {
-
-        for (name,any) in nameVals {
-            switch any {
-            case let v as Double  : setNameNum(name, Double(v), visit)
-            case let v as Float   : setNameNum(name, Double(v), visit)
-            case let v as CGFloat : setNameNum(name, Double(v), visit)
-            case let v as Int     : setNameNum(name, Double(v), visit)
-            default: break
-            }
-        }
-        return true
-    }
-
-    // set anonymous ("val", double)
-    func setNum(_ val: Double,
-                _ visit: Visitor) -> Bool {
-
-        if let scalar = nameAny["_0"] as? FloValScalar {
-
-            scalar.setScalarVal(val, flo.setOps)
-            return true
-
-        } else {
-
-            for any in nameAny.values {
-                if let scalar = any as? FloValScalar {
-                    scalar.setScalarVal(val, flo.setOps)
-                    return true
-                }
-            }
-
-        }
-        if nameAny.isEmpty {
-            let name = "_" + flo.name
-            nameAny["_0"] = FloValScalar(flo, name, val)
-        }
-        return true
-    }
-
-    // set [("x",x), ("y",y)]
-    func setPoint(_ p: CGPoint,
-                  _ visit: Visitor) -> Bool {
-
-        if opAnys.isEmpty {
-            // create a new opVal list
-            addPoint(p)
-            return true
-        }
-        let copy = copy()
-        copy.injectNameNum("x", Double(p.x))
-        copy.injectNameNum("y", Double(p.y))
-        let result = evalExprs(copy, false, visit)
-        if result == false {
-            clearCurrentVals(visit)
-        }
-        return result
-    }
     // val = dflt, twe = dflt
     func bindVals() {
         if nameAny.count > 0 {
@@ -342,9 +312,7 @@ public class FloExprs: FloVal {
         }
         return script.with(trailing: ")")
     }
-//    public func script(_ scriptOps: FloScriptOps = .All) -> String {
-//        return scriptVal(scriptOps)
-//    }
+
     public override func scriptVal(_ scriptOps: FloScriptOps,
                                    _ viaEdge: Bool,
                                    noParens: Bool = false) -> String {

@@ -1174,7 +1174,7 @@ final class MuFloTests: XCTestCase {
 
         var err = 0
         // selectively set tuples by name, ignore the reset
-        let script = "a(x, y) b(v 0) >> a(x:v)"
+        let script = "a(x, y) b(v 0) >> a(x v)"
         print("\n" + script)
 
         let root = Flo("√")
@@ -1182,10 +1182,10 @@ final class MuFloTests: XCTestCase {
         if floParse.parseScript(root, script),
            let b = root.findPath("b") {
 
-            err += ParStr.testCompare("a(x, y) b(v 0) >> a(x:v)", root.scriptDef)
+            err += ParStr.testCompare("a(x, y) b(v 0) >> a(x v)", root.scriptDef)
 
             b.setAny(FloExprs(Flo("_t_"), [("v", 1)]), .activate)
-            err += ParStr.testCompare( "a(x = 1, y) b(v 1) >> a(x : v =1)", root.scriptAll)
+            err += ParStr.testCompare( "a(x = 1, y) b(v 1) >> a(x v)", root.scriptAll)
 
         } else {
             err += 1
@@ -1209,7 +1209,7 @@ final class MuFloTests: XCTestCase {
             err += ParStr.testCompare("a(x, y) b(v 0) >> a(x: v/2, y: v*2)", root.scriptAll)
 
             b.setAny(FloExprs(Flo("_t_"), [("v", 1)]), .activate)
-            err += ParStr.testCompare("a(x = 0.5, y = 2) b(v 1) >> a(x: v / 2 = 0.5, y: v * 2 = 2)", root.scriptAll)
+            err += ParStr.testCompare("a(x = 0.5, y = 2) b(v 1) >> a(x: v / 2, y: v * 2)", root.scriptAll)
 
         } else {
             err += 1

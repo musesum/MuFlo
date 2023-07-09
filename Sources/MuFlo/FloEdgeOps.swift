@@ -63,7 +63,7 @@ public struct FloEdgeOps: OptionSet {
         func scriptExpicitOps() -> String {
 
             switch self {
-                case [.input,.output]: return " <>"
+                case [.input,.output]: return "<>"
                 case [.input]: return "<<"
                 case [.output]: return ">>"
                 case [.plugin]: return "^"
@@ -73,7 +73,7 @@ public struct FloEdgeOps: OptionSet {
         }
         func scriptImplicitOps(_ active: Bool) -> String {
 
-            var script = self.hasInput ? " ←" : ""
+            var script = self.hasInput ? "←" : ""
 
             if      !active         { script += "◇" }
             else if self.hasSolo    { script += "⟡" }
