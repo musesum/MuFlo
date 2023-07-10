@@ -7,7 +7,7 @@ import MuTime
 enum FloAnimType { case linear, easeinout }
 
 protocol FloPluginProtocal {
-    func startPlugin(_ key: Int)
+    func startPlugin(_ key: Int, _ visit: Visitor)
 }
 
 public class FloPlugin {
@@ -19,6 +19,7 @@ public class FloPlugin {
     var steps = 0
     var flo: Flo
     var plugExprs: FloExprs // plug-in
+    var blocked: OrderedSetClass<Int>?
 
     init(_ flo: Flo,
          _ plugExprs: FloExprs) {
@@ -30,6 +31,7 @@ public class FloPlugin {
     func cancel() {
         NextFrame.shared.removeDelegate(flo.id)
         timeStart = 0
+        blocked = nil
     }
 }
 extension FloPlugin: NextFrameDelegate {
@@ -70,7 +72,11 @@ extension FloPlugin: NextFrameDelegate {
 
 extension FloPlugin: FloPluginProtocal {
 
-    func startPlugin(_ key: Int) {
+    func startPlugin(_ key: Int, _ visit: Visitor) {
+
+        // list of flo with exprs that didn't pass eval
+        blocked = blocked ?? visit.blocked
+
         if duration > 0 {
 
             let timeNow = Date().timeIntervalSince1970

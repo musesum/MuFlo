@@ -20,47 +20,49 @@ flo˚.setAny(["name",value])
 MuLeaf::syncVal { node.modelFlo.setAny(expanded, .activate, visit) }
 TouchDraw::drawRadius { azimuth˚?.setAny(cgPoint, .activate, visit) }
 
-| Flo::setAny
-|     fromExprs,exprs
-|     ? exprs.setFromAny(fromExprs, visit)🔷
-|     : let exprs
-|       ? exprs.setFromAny(any, visit)🔷
-|       : exprs = FloExprs(self,...)
-|     🚦activate
-|         closures(self,visit)
-          folowEdges ⬦⃣
-| ⬦⃣ FloEdge::followEdge
-|     setEdgeVal(destFlo)
-|     ? activate(destFlo)🚦
-|     : visit.block(destFlo)
-| 🔷FloExprs:setFromAny
-|     newTweens
-|     ? setValues
-|       ? setPlugins
-|          ? -> true
-|          : -> false	
-|     : -> setValues
-|
-| ⬦⃣ Flo::setEdgeVal
-|     exprs
-|     ? edgeExprs
-|       ? edgeExprs.evalExprs(fromExprs)🔸
-|         -> exprs.setFromAny(edgeExprs)🔷
-|        : fromExprs
-|          ? -> exprs.setFromAny(fromExprs)🔷
-|     : edgeExprs
-|       ? edgeExprs.evalExprs(fromExprs)🔸
-|         exprs = edgeExprs
-|       : fromExprs
-|         ? exprs = fromExprs
-|      -> true
-|
-| FloPlugin:: setTween
-|     flo.exprs.nameAny.values<scalar> twe += delta
-|     flo.activate🚦
-|
-| MuNodeVm::maybeTapLeaf()
-|     leafVm.modelFlo.activate(visit)🚦
+Flo::setAny
+    fromExprs,exprs
+    ? exprs.setFromAny(fromExprs, visit)🔷
+    : let exprs
+      ? exprs.setFromAny(any, visit)🔷
+      : exprs = FloExprs(self,...)
+    🚦activate
+        closures(self,visit)
+        folowEdges ⬦⃣
+
+⬦⃣ FloEdge::followEdge
+    setEdgeVal(destFlo)
+    ? activate(destFlo)🚦
+    : visit.block(destFlo)
+
+🔷FloExprs:setFromAny
+    newTweens
+    ? setValues
+      ? setPlugins
+         ? -> true
+         : -> false
+    : -> setValues
+
+⬦⃣ Flo::setEdgeVal
+    exprs
+    ? edgeExprs
+      ? edgeExprs.evalExprs(fromExprs)🔸
+        -> exprs.setFromAny(edgeExprs)🔷
+       : fromExprs
+         ? -> exprs.setFromAny(fromExprs)🔷
+    : edgeExprs
+      ? edgeExprs.evalExprs(fromExprs)🔸
+        exprs = edgeExprs
+      : fromExprs
+        ? exprs = fromExprs
+     -> true
+
+FloPlugin:: setTween
+    flo.exprs.nameAny.values<scalar> twe += delta
+    flo.activate🚦
+
+MuNodeVm::maybeTapLeaf()
+    leafVm.modelFlo.activate(visit)🚦
 
 /// depth first is bad, unpredictable
 
@@ -139,7 +141,7 @@ TouchDraw::drawRadius { azimuth˚?.setAny(cgPoint, .activate, visit) }
 3         <> tile.repeat(🏁) // visited
 
 _____________________________________________
-
+we
 🎚14 ⫸ 28 output.controller: 􀬎􀑪(input.controller skypad.repeatX output.controller)
 🎚14 ⫸ 118 output.controller: 􀬎􀎶(tile.repeat     skypad.repeatX output.controller)
 _____________________________________________

@@ -29,7 +29,7 @@ extension FloEdge {
                 destFlo.activate(visit)
 
             } else {
-               //???? visit.block(destFlo)
+                visit.block(destFlo.id)
             }
         }
         

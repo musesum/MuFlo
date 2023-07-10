@@ -253,7 +253,7 @@ public class FloExprs: FloVal {
         func setPlugins() {
             //??? logValTwees(logVisitedPaths(visit))
             for plugin in flo.plugins {
-                plugin.startPlugin(flo.id)
+                plugin.startPlugin(flo.id, visit)
             }
         }
     }
