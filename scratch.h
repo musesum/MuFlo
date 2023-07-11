@@ -1,3 +1,63 @@
+looping
+
+
+🎚13 ⫸ 0 output.controller: 􀬎􀑪􀎶(input.azimuth, compute.draw, tile.shift, skypad.shiftY, output.controller)
+􀿏[595]🔺
+􀿏[595]🔰
+🎚13 ⫸ 0 output.controller: 􀬎􀑪􀎶(input.azimuth, compute.draw, tile.shift, skypad.shiftY, output.controller)
+􀿏[595]🔺
+􀿏[595]🔰
+🎚13 ⫸ 0 output.controller: 􀬎􀑪􀎶(input.azimuth, compute.draw, tile.shift, skypad.shiftY, output.controller)
+􀿏
+
+
+
+0.00 🟢
+👍 shader.cell.zha: 3.4285715
+   👍 cell.zha.on: 1.4285715
+      👍 cell.slide.on: 0.0
+      👍 cell.tunl.on: 0.0
+      👍 cell.ave.on: 0.0
+      👍 cell.fred.on: 0.0
+      👍 cell.melt.on: 0.0
+      👍 cell.fade.on: 0.0
+⟹ pipeline fixup after:
+draw   (slide)  -> slide
+slide  (draw)   -> color
+color  (slide)  -> flatmap
+flatmap(color)  -> nil
+
+         ⛔️ cell.fade.on: 0.0
+         ⛔️ cell.fred.on: 0.0
+         ⛔️ cell.ave.on: 0.0
+         ⛔️ cell.melt.on: 0.0
+         ⛔️ cell.tunl.on: 0.0
+         🏁 cell.tunl.on
+         🏁 cell.ave.on
+         🏁 cell.fred.on
+         🏁 cell.melt.on
+         🏁 cell.fade.on
+
+0.08 🛑
+👍 shader.cell.zha: 3.4285715
+   👍 cell.zha.on: 1.4285715
+      👍 cell.slide.on: 0.0
+      👍 cell.tunl.on: 0.0
+      👍 cell.ave.on: 0.0
+      👍 cell.fred.on: 0.0
+      👍 cell.melt.on: 0.0
+      👍 cell.fade.on: 0.0
+         ⛔️ cell.fade.on: 0.0
+         ⛔️ cell.fred.on: 0.0
+         ⛔️ cell.ave.on: 0.0
+         ⛔️ cell.melt.on: 0.0
+         ⛔️ cell.tunl.on: 0.0
+         🏁 cell.tunl.on
+         🏁 cell.ave.on
+         🏁 cell.fred.on
+         🏁 cell.melt.on
+         🏁 cell.fade.on
+
 model.canvas.tile.repeat (x -1…1~0, y -1…1~0) >> (midi.cc.skypad.repeatX(val x)
                                                   midi.cc.skypad.repeatY(val y))
 ^ sky.main.anim⚡️

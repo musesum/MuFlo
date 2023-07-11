@@ -10,7 +10,8 @@ import MuVisit
 extension FloEdge {
     
     func followEdge(_ fromFlo: Flo,
-                    _ visit: Visitor) -> Flo? {
+                    _ visit: Visitor,
+                    _ depth: Int) -> Flo? {
 
         guard visit.newVisit(id) else { return nil }
 
@@ -23,21 +24,27 @@ extension FloEdge {
         if ((fromLeft && edgeOps.hasOutput && !visitedRight) ||
             (fromRight && edgeOps.hasInput && !visitedLeft )) {
 
-            //??? logEdge()
-            //??? logSync()
+            // logEdge()
+            // logSync()
 
             let fromExprs = fromFlo.exprs
 
             if  destFlo.setEdgeVal(edgeExprs, fromExprs, visit) {
-
+                logDepth("👍")
                 return destFlo
 
             } else {
+                logDepth("⛔️")
                 visit.block(destFlo.id)
+            }
+            func logDepth(_ icon: String) {
+                #if DEBUG
+                print("".pad(depth*3) + "\(icon) \(destFlo.path(3)): \(destFlo.float)")
+                #endif
             }
         }
         return nil
-        
+
         func logSync() {
             if edgeOps.hasSync {
                 let leftScript = leftFlo.exprs?.scriptExprs(.Now, false) ?? ""

@@ -51,13 +51,12 @@ extension Flo {
         }
     }
 
-    public func activate(_ visit: Visitor) { // 🚦
+    public func activate(_ visit: Visitor, _ depth: Int = 0) { // 🚦
 
         guard visit.newVisit(id) else {
-            print("🏁:\(id)", terminator: " ")
+           logDepth("🏁 \(path(3))")
             return
         }
-        
         for closure in closures {
             closure(self, visit)
         }
@@ -65,13 +64,19 @@ extension Flo {
         var passed = [Flo]()
         for floEdge in floEdges.values {
             if floEdge.active { // ⬦⃣
-                if let pass = floEdge.followEdge(self, visit.via(.model)) {
+                if let pass = floEdge.followEdge(self, visit.via(.model), depth) {
                     passed.append(pass)
                 }
             }
         }
         for pass in passed {
-            pass.activate(visit)
+            pass.activate(visit, depth+1)
+        }
+
+        func logDepth(_ icon: String) {
+            #if DEBUG
+            print("".pad(depth*3) + "\(icon) \(path(3)): \(float)")
+            #endif
         }
     }
 
@@ -105,9 +110,6 @@ extension Flo {
             } else if let fromExprs {
                 /// example 2. `b!` for `a(1), b(2) >> a`
                 passed = exprs.setFromAny(fromExprs, visit) // 🔷
-            }
-            if name.contains("repeat") {
-                print ("\(passed ? "👍" : "⛔️" )\(path(3))") //??? 
             }
             return passed
         } else { /// example 3.  passthrough

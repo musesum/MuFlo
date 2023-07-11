@@ -235,23 +235,19 @@ public class FloExprs: FloVal {
                 copy.injectNameNum("y", Double(p.y))
 
                 let result = evalExprs(copy, false, visit)
-                if result == false {
-                    clearCurrentVals(visit)
-                }
+                //??? if result == false { clearCurrentVals(visit) }
                 return result
             }
             func setExprs(_ fromExprs: FloExprs, _ visit: Visitor) -> Bool {
 
                 // next evalute destination expression result
                 let result = evalExprs(fromExprs, false, visit)
-                if result == false {
-                    clearCurrentVals(visit)
-                }
+                //??? if result == false { clearCurrentVals(visit) }
                 return result
             }
         }
         func setPlugins() {
-            //??? logValTwees(logVisitedPaths(visit))
+            // logValTwees(logVisitedPaths(visit))
             for plugin in flo.plugins {
                 plugin.startPlugin(flo.id, visit)
             }
@@ -264,35 +260,30 @@ public class FloExprs: FloVal {
         for vid in visit.visited {
             if let flo = Flo.IdFlo[vid] {
                 let path = flo.path(2)
-                str += del + path + ":\(vid)"
+                str += del + path // + ":\(vid)"
                 del = ", "
-//            } else if let exprs = FloExprs.IdExprs[vid] {
-//                str += del + "\(exprs.name):\(vid)"
-//            } else if let val = FloVal.IdFloVal[vid] {
-//                let path = val.flo.path(2)
-//                str += del + path + ":\(vid)"
             }
         }
         str += ")"
         return str
     }
 
-
-    /// when match fails, clear out current values set next to default
-    func clearCurrentVals(_ visit: Visitor) {
-        visit.remove(id)
-        return //???
-        for key in nameAny.keys {
-            if let val = nameAny[key] as? FloVal {
-                val.valOps -= [.twe,.val]
-                if let scalar = val as? FloValScalar {
-                    if val.valOps.lit || val.valOps.dflt {
-                        scalar.val = scalar.dflt
-                    }
-                }
-            }
-        }
-    }
+    //???
+//    /// when match fails, clear out current values set next to default
+//    func clearCurrentVals(_ visit: Visitor) {
+//        visit.remove(id)
+//        return //???
+//        for key in nameAny.keys {
+//            if let val = nameAny[key] as? FloVal {
+//                val.valOps -= [.twe,.val]
+//                if let scalar = val as? FloValScalar {
+//                    if val.valOps.lit || val.valOps.dflt {
+//                        scalar.val = scalar.dflt
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     // val = dflt, twe = dflt
     func bindVals() {
