@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import MuPar
+import MuVisit
 
 extension FloExprs { // + set
 

@@ -5,7 +5,7 @@
 //  License: Apache 2.0 - see License file
 
 import QuartzCore
-import MuPar // visit
+import MuVisit
 
 extension Flo {
 
@@ -61,11 +61,17 @@ extension Flo {
         for closure in closures {
             closure(self, visit)
         }
+
+        var passed = [Flo]()
         for floEdge in floEdges.values {
-            
             if floEdge.active { // ⬦⃣
-                floEdge.followEdge(self, visit.via(.model)) //.. add via(via(.edge
+                if let pass = floEdge.followEdge(self, visit.via(.model)) {
+                    passed.append(pass)
+                }
             }
+        }
+        for pass in passed {
+            pass.activate(visit)
         }
     }
 

@@ -5,7 +5,7 @@
 //  License: Apache 2.0 - see License file
 
 import Foundation
-import MuPar // ArrayClass
+import MuVisit // ArrayClass
 
 typealias EdgeDefs = ArrayClass<FloEdgeDef>
 

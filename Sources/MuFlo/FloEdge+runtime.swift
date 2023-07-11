@@ -4,12 +4,15 @@
 //  Copyright © 2019 DeepMuse
 
 import Foundation
-import MuPar // visit
+import MuVisit
+
 
 extension FloEdge {
     
     func followEdge(_ fromFlo: Flo,
-                    _ visit: Visitor) {
+                    _ visit: Visitor) -> Flo? {
+
+        guard visit.newVisit(id) else { return nil }
 
         let fromLeft = fromFlo == leftFlo // a >> b
         let fromRight = !fromLeft       // a << b
@@ -20,18 +23,20 @@ extension FloEdge {
         if ((fromLeft && edgeOps.hasOutput && !visitedRight) ||
             (fromRight && edgeOps.hasInput && !visitedLeft )) {
 
-            logEdge() //????  logSync()
+            //??? logEdge()
+            //??? logSync()
 
             let fromExprs = fromFlo.exprs
 
             if  destFlo.setEdgeVal(edgeExprs, fromExprs, visit) {
 
-                destFlo.activate(visit)
+                return destFlo
 
             } else {
                 visit.block(destFlo.id)
             }
         }
+        return nil
         
         func logSync() {
             if edgeOps.hasSync {

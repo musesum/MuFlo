@@ -1,7 +1,7 @@
 //  Created by warren on 5/13/23.
 
 import UIKit
-import MuPar
+import MuVisit
 import MuTime
 
 enum FloAnimType { case linear, easeinout }

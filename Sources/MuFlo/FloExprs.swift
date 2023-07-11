@@ -8,7 +8,7 @@
 import QuartzCore
 import Collections
 import Foundation
-import MuPar
+import MuVisit
 import MuTime
 
 public typealias NameAny = OrderedDictionaryClass<String,Any>
@@ -264,7 +264,8 @@ public class FloExprs: FloVal {
         for vid in visit.visited {
             if let flo = Flo.IdFlo[vid] {
                 let path = flo.path(2)
-                str += del + path + ":\(vid)" ; del = "\n"
+                str += del + path + ":\(vid)"
+                del = ", "
 //            } else if let exprs = FloExprs.IdExprs[vid] {
 //                str += del + "\(exprs.name):\(vid)"
 //            } else if let val = FloVal.IdFloVal[vid] {

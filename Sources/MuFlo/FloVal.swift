@@ -5,7 +5,7 @@
 import Foundation
 import CoreGraphics
 import MuTime
-import MuPar
+import MuVisit
 
 
 open class FloVal: Comparable {
