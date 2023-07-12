@@ -11,9 +11,7 @@ extension FloEdgeDefs {
 
         for edgeDef in edgeDefs {
 
-            let val = edgeDef.scriptVal(scriptOps)
-
-            script += val
+            script.spacePlus(edgeDef.scriptVal(scriptOps))
         }
         return script
     }

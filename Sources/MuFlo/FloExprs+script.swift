@@ -26,7 +26,7 @@ extension FloExprs {
 
             if scriptOps.def {
                 let str = opAny.scriptDefOps(scriptOps, script)
-                if str.first == "," || str.first == "="  {
+                if str.first == "," {
                     script += str
                 } else {
                     script.spacePlus(str)

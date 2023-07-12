@@ -13,7 +13,7 @@ extension Flo {
                        _ options: FloSetOps,
                        _ visit: Visitor = Visitor(0)) {
 
-        // any is a FloVal
+        // any is a FloExprs
         if let fromExprs = any as? FloExprs {
 
             if passthrough {

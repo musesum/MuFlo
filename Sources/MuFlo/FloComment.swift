@@ -22,12 +22,25 @@ public class FloComment {
         self.text  = text
         self.index = index
     }
+    func copy() -> FloComment {
+        return FloComment(type, name, text, index)
+    }
 }
 
 public class FloComments {
 
     var comments = [FloComment]()
     var haveType = Set<FloCommentType>()
+
+    public func copy() -> FloComments {
+        let copy = FloComments()
+        for comment in comments {
+            copy.comments.append(comment.copy())
+        }
+        copy.haveType = haveType
+        return copy
+    }
+
 
     public func addComment(_ flo: Flo, _ parItem: ParItem, _ prior: String) {
         if parItem.node?.pattern == "comment",
@@ -48,7 +61,7 @@ public class FloComments {
 
     public func mergeComments(_ flo: Flo, _ merge: Flo) {
 
-        flo.comments.comments.append(contentsOf: merge.comments.comments) // TODO really  merge both
+        //??? flo.comments.comments.append(contentsOf: merge.comments.comments) // TODO really  merge both
         flo.comments.haveType = flo.comments.haveType.union(merge.comments.haveType)
 
         var nameIndex = [String: Int]()
@@ -67,8 +80,6 @@ public class FloComments {
     public func have(type: FloCommentType) -> Bool {
         return haveType.contains(type)
     }
-
-    
 
     public func getComments(_ getType: FloCommentType,
                             _ scriptOpts: FloScriptOps) -> String {

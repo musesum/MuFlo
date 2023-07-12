@@ -27,7 +27,7 @@ public class FloOpAny {
         case .quote  : return scriptQuote()
         case .scalar : return scriptScalar()
         case .comma  : return op.rawValue + " "
-        case .EQ     : return op.rawValue
+        case .EQ     : return op.rawValue + " "
         case .assign : return op.rawValue + " "
         default      : return fullOps.def ? op.rawValue : ""
         }

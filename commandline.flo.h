@@ -205,19 +205,19 @@ d.a, d.b, d.c, f.a, f.b, f.c
 √: f <@ d       /// and lets connect `d` to `f` by name
 {               /// which allows `f` to shadow `d`
     d { a, b, c }
-    f @d ←@ d {
-        a ←@ d.a
-        b ←@ d.b
-        c ←@ d.c
+    f @d <@ d {
+        a <@ d.a
+        b <@ d.b
+        c <@ d.c
     }
 }
 √: f <@> d      /// or we could synchronize between `f` and `d`
 {               /// which allows `f` co-pilot  `d`
     d { a, b, c }
-    f @d ←@→ d {
-        a ←@→ d.a
-        b ←@→ d.b
-        c ←@→ d.c
+    f @d <@> d {
+        a <@> d.a
+        b <@> d.b
+        c <@> d.c
     }
 }
 √: f˚˚ ^ copilot(0.25) /// add a `^ copilot` plugin `0.25` seconds

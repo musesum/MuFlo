@@ -24,14 +24,14 @@ public struct FloEdgeOps: OptionSet {
         self.init()
         for char in str {
             switch char {
-            case "<","←": insert(.input)   // callback
-            case ">","→": insert(.output)   // call out
-            case "⟡"    : insert(.solo)     // overwrite
-            case "!"    : insert(.exclude)  // remove edge(s) //TODO: test
-            case "@"    : insert(.copyat)   // copy from another subtree
-            case "©"    : insert(.copyall)  // copy all subtree names and edges
-            case "^"    : insert(.plugin)   // plug-in redirects expression vals
-            default     : continue
+            case "<" : insert(.input)   // callback
+            case ">" : insert(.output)   // call out
+            case "⟡" : insert(.solo)     // overwrite
+            case "!" : insert(.exclude)  // remove edge(s) //TODO: test
+            case "@" : insert(.copyat)   // copy from another subtree
+            case "©" : insert(.copyall)  // copy all subtree names and edges
+            case "^" : insert(.plugin)   // plug-in redirects expression vals
+            default  : continue
             }
         }
     }
@@ -73,7 +73,7 @@ public struct FloEdgeOps: OptionSet {
         }
         func scriptImplicitOps(_ active: Bool) -> String {
 
-            var script = self.hasInput ? "←" : ""
+            var script = self.hasInput ? "<" : ""
 
             if      !active         { script += "◇" }
             else if self.hasSolo    { script += "⟡" }
@@ -81,7 +81,7 @@ public struct FloEdgeOps: OptionSet {
             else if self.hasCopyall { script += "©" }
             else if self.hasPlugin  { script += "^" }
 
-            script += self.hasOutput ? "→" : ""
+            script += self.hasOutput ? ">" : ""
 
             return script
         }

@@ -41,8 +41,8 @@ extension Flo {
                 default: scriptAddChildren()
             }
         }
-        script += edgeDefs.scriptEdgeVal(scriptOps)
-        script += comments.getComments(.edges, scriptOps)
+        script.spacePlus(edgeDefs.scriptEdgeVal(scriptOps))
+        script.spacePlus(comments.getComments(.edges, scriptOps))
         return script
         
         func scriptAddChildren() {
@@ -91,7 +91,7 @@ extension Flo {
         }
         return result
     }
-    
+
     private func scriptEdgeDefs(_ scriptOps: FloScriptOps) -> String {
 
         var script = ""
@@ -100,16 +100,16 @@ extension Flo {
 
             script = edgesScript
             if floEdges.count == 1 {
-                script += comments.getComments(.edges, scriptOps)
+                script.spacePlus(comments.getComments(.edges, scriptOps))
             }
         } else if edgeDefs.edgeDefs.count > 0 {
 
-            script += edgeDefs.scriptEdgeVal(scriptOps)
-            script += comments.getComments(.edges, scriptOps)
+            script.spacePlus(edgeDefs.scriptEdgeVal(scriptOps))
+            script.spacePlus(comments.getComments(.edges, scriptOps))
         }
         return script
     }
-    
+
     private func scriptPathRefs(_ edge: FloEdge) -> String {
 
         if let pathRefs = edge.rightFlo.pathRefs, pathRefs.count > 0  {
@@ -121,7 +121,7 @@ extension Flo {
                 script += delim + pathRef.scriptLineage(2)
                 delim = ", "
             }
-            if pathRefs.count > 1 { script += ") " }
+            if pathRefs.count > 1 { script += ")" }
             return script
         }
         return ""
@@ -207,8 +207,8 @@ extension Flo {
             let comment = comments.getComments(.child, scriptOpts).without(trailing: " \n")
 
             var script = "{"
-            script += (comment.count > 0 ? comment + "\n"
-                        : scriptOpts.noLF ? " " : "\n")
+            script += (comment.count > 0 ? " " + comment + "\n"
+                        : scriptOpts.noLF ? "" : "\n")
 
             var childScript = ""
             for showChild in showChildren {
@@ -303,16 +303,16 @@ extension Flo {
         let scriptExprs = exprs?.scriptVal(scriptOps, /*viaEdge*/ false) ?? ""
         script += scriptExprs
         if scriptOps.edge {
-            script += scriptEdgeDefs(scriptOps)
+            script.spacePlus(scriptEdgeDefs(scriptOps))
         }
         if children.isEmpty {
-            
             let comments = comments.getComments(.child, scriptOps)
             script.spacePlus(comments)
             // optional line feed
             if !scriptOps.noLF,
                scriptExprs.count > 0,
                comments.count == 0 {
+
                 script += "\n"
             }
         } else {

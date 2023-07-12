@@ -18,7 +18,7 @@ extension FloEdge {
 
         if let edgeExprs {
             let viaEdge = true
-            script.spacePlus(edgeExprs.scriptVal(scriptOpts, viaEdge))
+            script += edgeExprs.scriptVal(scriptOpts, viaEdge)
         }
         return script
     }

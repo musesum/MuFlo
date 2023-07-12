@@ -105,7 +105,7 @@ public class Flo {
                 edgeDefs = from.edgeDefs.copy()
             }
         }
-        comments = from.comments
+        comments = from.comments.copy()
     }
     public func makeFloFrom(parItem: ParItem) -> Flo {
 

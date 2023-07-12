@@ -1,6 +1,7 @@
 import CoreFoundation
 import XCTest
 import MuPar
+import MuVisit
 import MuSkyFlo
 
 @testable import MuFlo
@@ -180,7 +181,7 @@ final class MuFloTests: XCTestCase {
             /**/"a { b { c(1) } } z@a { b.c(2) }",
                 "a { b { c(1) } } z@a { b { c(2) } }")
 
-        err += test("a b c⟡→a")
+        err += test("a b c⟡>a")
         err += test("value(16777200)")
         err += test("value(1.67772e+07)", "value(16777200)")
 
@@ -195,13 +196,13 @@ final class MuFloTests: XCTestCase {
                     " z >> (a.b.d.g.h, a.b.e.g.h)")
 
 
-        err += test("a {b c}.{d e f >> b(1) } z @a z.b.f⟡→c(1) ",
+        err += test("a {b c}.{d e f >> b(1) } z @a z.b.f⟡>c(1) ",
                     "a { b { d e f >> a.b(1) } c { d e f >> a.b(1) } }" +
-                    "z @a { b { d e f⟡→z.c(1) } c { d e f } }")
+                    "z @a { b { d e f⟡>z.c(1) } c { d e f } }")
 
-        err += test("a {b c}.{d e f >> b(1) } z©a z.b.f⟡→c(1) ",
+        err += test("a {b c}.{d e f >> b(1) } z©a z.b.f⟡>c(1) ",
                     "a { b { d e f >> a.b(1) } c { d e f >> a.b(1) } } " +
-                    "z ©a { b { d e f⟡→z.c(1) } c { d e f >> z.b(1) } }")
+                    "z ©a { b { d e f⟡>z.c(1) } c { d e f >> z.b(1) } }")
 
         err += test("a._c   { d { e { f (\"ff\") } } } a.c.z @ _c { d { e.f   (\"ZZ\") } }",
                     "a { _c { d { e { f (\"ff\") } } } c { z @ _c { d { e { f (\"ZZ\") } } } } }")
@@ -424,14 +425,14 @@ final class MuFloTests: XCTestCase {
 
         subhead("copyat edge")
 
-        err += test("a {b c} z@a ←@a ",
-                    "a { b c } z@a ←@a { b ←@ a.b c ←@ a.c }")
+        err += test("a {b c} z@a <@a ",
+                    "a { b c } z@a <@a { b <@ a.b c <@ a.c }")
 
-        err += test("a {b c}.{d e} z@a ←@ a",
+        err += test("a {b c}.{d e} z@a <@ a",
         """
         a { b { d e } c { d e } }
-          z@a ←@a { b ←@ a.b { d ←@ a.b.d e ←@ a.b.e }
-                    c ←@ a.c { d ←@ a.c.d e ←@ a.c.e } }
+          z@a <@a { b <@ a.b { d <@ a.b.d e <@ a.b.e }
+                    c <@ a.c { d <@ a.c.d e <@ a.c.e } }
         """)
 
         XCTAssertEqual(err, 0)
@@ -629,21 +630,21 @@ final class MuFloTests: XCTestCase {
                abv.id == acv.id {
                 err += 1
             }
-            err += ParStr.testCompare("a.b(1) c @a ←@ a.b(1) ←@ a.b", root.scriptAll)
+            err += ParStr.testCompare("a.b(1) c @a <@ a.b(1) <@ a.b", root.scriptAll)
 
             ab.setAny(2, .activate)
-            err += ParStr.testCompare("a.b(2) c @a ←@ a.b(2) ←@ a.b", root.scriptAll)
+            err += ParStr.testCompare("a.b(2) c @a <@ a.b(2) <@ a.b", root.scriptAll)
         } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
     }
 
-    /// test `z@a ←@a`
+    /// test `z@a <@a`
     func testCopyAt1() { headline(#function)
         var err = 0
         // selectively set tuples by name, ignore the reset
-        let script = "a {b(1) c(2)}.{d(3) e(4)} z @a ←@a"
+        let script = "a {b(1) c(2)}.{d(3) e(4)} z @a <@a"
         print("\n" + script)
 
         let root = Flo("√")
@@ -667,8 +668,8 @@ final class MuFloTests: XCTestCase {
             err += ParStr.testCompare("""
             a        { b(1)        { d(3)          e(4)          }
                        c(2)        { d(3)          e(4)          } }
-            z @a ←@a { b(1) ←@ a.b { d(3) ←@ a.b.d e(4) ←@ a.b.e }
-                       c(2) ←@ a.c { d(3) ←@ a.c.d e(4) ←@ a.c.e } }
+            z @a <@a { b(1) <@ a.b { d(3) <@ a.b.d e(4) <@ a.b.e }
+                       c(2) <@ a.c { d(3) <@ a.c.d e(4) <@ a.c.e } }
             """, root.scriptAll)
 
             ab.setAny (10, .activate)
@@ -682,10 +683,11 @@ final class MuFloTests: XCTestCase {
             acd.setAny(50, .activate)
             ace.setAny(50, .activate)
             err += ParStr.testCompare("""
+
             a       { b(10)        { d(30)          e(40)          }
                       c(20)        { d(50)          e(50)          }}
-            z@a ←@a { b(10) ←@ a.b { d(30) ←@ a.b.d e(40) ←@ a.b.e }
-                      c(20) ←@ a.c { d(50) ←@ a.c.d e(50) ←@ a.c.e }}
+            z@a <@a { b(10) <@ a.b { d(30) <@ a.b.d e(40) <@ a.b.e }
+                      c(20) <@ a.c { d(50) <@ a.c.d e(50) <@ a.c.e }}
             """, root.scriptAll)
 
             zb.setAny (11, .activate)
@@ -695,10 +697,11 @@ final class MuFloTests: XCTestCase {
             zcd.setAny(55, .activate)
             zce.setAny(66, .activate)
             err += ParStr.testCompare("""
+
              a      { b(10)        { d(30)          e(40)          }
                       c(20)        { d(50)          e(50)          }}
-            z@a ←@a { b(11) ←@ a.b { d(33) ←@ a.b.d e(44) ←@ a.b.e }
-                      c(22) ←@ a.c { d(55) ←@ a.c.d e(66) ←@ a.c.e }}
+            z@a <@a { b(11) <@ a.b { d(33) <@ a.b.d e(44) <@ a.b.e }
+                      c(22) <@ a.c { d(55) <@ a.c.d e(66) <@ a.c.e }}
             """, root.scriptAll)
 
         } else {
@@ -707,11 +710,11 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
 
-    /// test `z@a ←@→ a`
+    /// test `z@a <@> a`
     func testCopyAt2() { headline(#function)
         var err = 0
         // selectively set tuples by name, ignore the reset
-        let script = "a {b(1) c(2)}.{d(3) e(4)} z@a ←@→ a"
+        let script = "a {b(1) c(2)}.{d(3) e(4)} z@a <@> a"
         print("\n" + script)
 
         let root = Flo("√")
@@ -741,10 +744,11 @@ final class MuFloTests: XCTestCase {
             ace.setAny(60, .activate)
 
             err += ParStr.testCompare("""
+
             a {         b(10)         { d(30)           e(40)           }
                         c(20)         { d(50)           e(60)           }}
-            z@a ←@→ a { b(10) ←@→ a.b { d(30) ←@→ a.b.d e(40) ←@→ a.b.e }
-                        c(20) ←@→ a.c { d(50) ←@→ a.c.d e(60) ←@→ a.c.e }}
+            z@a <@> a { b(10) <@> a.b { d(30) <@> a.b.d e(40) <@> a.b.e }
+                        c(20) <@> a.c { d(50) <@> a.c.d e(60) <@> a.c.e }}
             """, root.scriptAll)
 
             zb.setAny (11, .activate)
@@ -755,10 +759,11 @@ final class MuFloTests: XCTestCase {
             zce.setAny(66, .activate)
             
             err += ParStr.testCompare("""
+
             a        { b(11)         { d(33)           e(44)           }
                        c(22)         { d(55)           e(66)           }}
-            z@a ←@→a { b(11) ←@→ a.b { d(33) ←@→ a.b.d e(44) ←@→ a.b.e }
-                       c(22) ←@→ a.c { d(55) ←@→ a.c.d e(66) ←@→ a.c.e }}
+            z@a <@>a { b(11) <@> a.b { d(33) <@> a.b.d e(44) <@> a.b.e }
+                       c(22) <@> a.c { d(55) <@> a.c.d e(66) <@> a.c.e }}
             """, root.scriptAll)
             
         } else {
@@ -810,6 +815,7 @@ final class MuFloTests: XCTestCase {
                     a {b c}.{ d(x 1) e(y 2) } w(x 0, y 0, z 0)
                     """,
                     """
+
                     a { b { d (x 1) e (y 2) }
                         c { d (x 1) e (y 2) } }
                     w (x 0, y 0, z 0)
@@ -819,6 +825,7 @@ final class MuFloTests: XCTestCase {
                     a {b c}.{ d(x == 10, y 0, z 0) e(x 0, y == 21, z 0) }
                     """,
                     """
+                    
                     a { b { d (x == 10, y 0, z 0) e (x 0, y == 21, z 0) }
                         c { d (x == 10, y 0, z 0) e (x 0, y == 21, z 0) } }
                     """)
@@ -827,6 +834,7 @@ final class MuFloTests: XCTestCase {
                     a {b c}.{ d(x == 10, y 0, z 0) e(x 0, y == 21, z 0) } w(x 0, y 0, z 0) <> a˚.
                     """,
                     """
+
                     a { b { d (x == 10, y 0, z 0) e (x 0, y == 21, z 0) }
                         c { d (x == 10, y 0, z 0) e (x 0, y == 21, z 0) } }
                     w (x 0, y 0, z 0) <> (a.b.d, a.b.e, a.c.d, a.c.e)
@@ -850,6 +858,7 @@ final class MuFloTests: XCTestCase {
            let w = root.findPath("w") {
 
             err += ParStr.testCompare("""
+
             a { b { d(x==10, y 0, z 0) e(x 0, y==21, z 0) }
                 c { d(x==10, y 0, z 0) e(x 0, y==21, z 0) } }
                     w(x 0,  y 0, z 0) <>( a.b.d, a.b.e, a.c.d, a.c.e)
@@ -859,6 +868,7 @@ final class MuFloTests: XCTestCase {
 
             w.setAny(FloExprs(Flo("_t0_"), [("x", 0), ("y", 0), ("z", 0)]), .activate)
             err += ParStr.testCompare("""
+
             a { b { d(x==10, y 0, z 0)  e(x 0, y==21, z 0) }
                 c { d(x==10, y 0, z 0)  e(x 0, y==21, z 0) } }
                     w(x 0,   y 0, z 0) <>(a.b.d, a.b.e, a.c.d, a.c.e)
@@ -868,6 +878,7 @@ final class MuFloTests: XCTestCase {
             // 10, 11, 12 --------------------------------------------------
             w.setAny(FloExprs(Flo("_t1_"), [("x", 10), ("y", 11), ("z", 12)]), .activate)
             err += ParStr.testCompare("""
+
             a { b { d(x==10, y 11, z 12) e(x 0, y==21, z 0) }
                 c { d(x==10, y 11, z 12) e(x 0, y==21, z 0) } }
                     w(x 10, y 11, z 12) <> (a.b.d, a.b.e, a.c.d, a.c.e)
@@ -878,6 +889,7 @@ final class MuFloTests: XCTestCase {
             // when match fails, so no change
             w.setAny(FloExprs(Flo("_t2_"), [("x", 20), ("y", 21), ("z", 22)]), .activate)
             err += ParStr.testCompare("""
+
             a { b { d(x == 10, y 11, z 12) e(x 20, y == 21, z 22) }
                 c { d(x == 10, y 11, z 12) e(x 20, y == 21, z 22) } }
                     w(x 20, y 21, z 22) <> ( a.b.d, a.b.e, a.c.d, a.c.e)
@@ -886,6 +898,7 @@ final class MuFloTests: XCTestCase {
             // 10, 21, 33 --------------------------------------------------
             w.setAny( FloExprs(Flo("_t3_"), [("x", 10), ("y", 21), ("z", 33)]), .activate)
             err += ParStr.testCompare("""
+
             a { b { d(x==10, y 21, z 33) e(x 10, y==21, z 33) }
                 c { d(x==10, y 21, z 33) e(x 10, y==21, z 33) } }
                     w(x 10, y 21, z 33) <> (a.b.d, a.b.e, a.c.d, a.c.e)
