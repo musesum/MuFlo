@@ -57,7 +57,7 @@ a {b c}.{d e} // produces `a { b { d e } c { d e } }`
 z @ a         // produces `z { b { d e } c { d e } }`
 ```
 
-### Graph
+## Edges
 
 Each node may have any number of input and output edges, which attach to other nodes. A node can activate 
 - other nodes when its value changes as outputs( `>>` ) or 
@@ -212,6 +212,7 @@ Send/receive values to an effect, akin to an insert on a mixing board
 a (x 0…1, y 0…1) << (b,c)
 b (x 0…1, y 0…1)
 c (x 0…1, y 0…1)
+
 cubic(0.25) // cubic curve for last 0.25 seconds
 a ^ cubic // animate inputs from b,c
 ```
@@ -220,7 +221,7 @@ Plugins may be declared inline and sync
 ```c
 a (x 0…1, y 0…1) <> (b,c) ^ cubic
 ```
-In the above example, activating b will animate both a and c. 
+In the above example, activating b will animate inputs from both a and c. 
 
 #### Wildcards
 
@@ -259,6 +260,12 @@ MuPar - parser for DSLs and flexible NLP in Swift
 - contains a definition of the Flo Syntax
 - vertically integrated with Flo
 - Source [here](https://github.com/musesum/MuPar)
+
+MuVisit - visit each node only once
+ 
+ - break infinit loops in cicular graphs
+ - block nodes which failed an expression
+ - copy blocked list for animating tweens 
 
 MuFloD3 (future)
 
@@ -314,7 +321,7 @@ body {left right}
 
 *1970*'s Flo got its start with patch cords. Hundreds of patch cords. This was due to patching analog modular Synthesizers like the Moog System III and ARP 2600. It would take hours to wire up two electronic music studios, leaving litle time to perform. So, I started to develop a script for patchbays.
 
-*1980*'s Xerox OPSD contracted us to design a project management system. This was the first combination of tree (work breakdown) and graph (activities). Also wrote a hypertext system base this tree + graph approach. 
+*1980*'s Xerox OPSD contracted us to design a project management system. This was the first combination of tree (work breakdown) and graph (activities). Also wrote a hypertext system based on a tree + graph approach. 
  
 *1990*'s As a Technical Director (TD) at one of the first interactive ad agencies, wrote a dataflow based media script, called Flow. Flow supporting teams artist and animators, where the artist would script media flow, and the animator would add animation effects in C++.
 
@@ -322,7 +329,7 @@ body {left right}
 
 *2010*'s the Visual music synth was ported to iOS and iPadOS and rated 5 stars in the AppStore. Later deprecated by Apple in its switch to 64bit apps. The ObjectiveC/C++ app was ported to pure Swift in 2019. 
 
-*2020*'s Maybe Spatial Computing is the answer? 
+*2020*'s Maybe Spatial Computing is the answer. What was the question, again?
 
 ## Design Principles
 
@@ -330,7 +337,7 @@ body {left right}
 
 The syntax borrows principles from Xerox Parc, Swift and Python
 
-Xerox studied different text editors and, through detailed analytics, determined the gesture cost of transactions, like cut & paste. Thus, a data driven approach towards more efficient text editing.
+Xerox studied different text editors and, through detailed analytics, determined the gesture cost of a transactions, like cut & paste. Thus, a data driven approach towards more efficient text editing. The results of this approached was written up in the book "The Psychology of Human Computer Interaction" [here](file:///Users/warren/Downloads/1983_WP_ThePsychologyofHumanComputerInteraction.PDF)
 
 Swift eliminated semicolons, resulting in less text to edit, with somewhat more Human readable source.
 
@@ -455,7 +462,7 @@ Obviously, there is a lot of policy here, where the fictitious example.com agree
 
 There are several Graphical versions of visualizing data flow. An experiment with an earlier version of Flo (called Tr3), can be found [here](https://www.youtube.com/watch?v=a703TTbxghc&t=5s&ab_channel=Ikoino) 
 
-There have been extensive experiments of outputting a D3.JS force directed graph. With the advent of Spatial Computing, it at maybe worth creating a force directed graph directly in Swift/C++. 
+There have been extensive experiments of outputting a D3.JS force directed graph. With the advent of Spatial Computing, it at maybe worth creating a force directed graph directly in Swift/C++. Perhaps implementing the directed graph in 3D space may resolve some delimmas around complexity. Muriel Cooper explored some of these idea at MIT Media Lab. 
 
 ### Security
 

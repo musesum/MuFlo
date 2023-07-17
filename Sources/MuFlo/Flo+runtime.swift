@@ -54,7 +54,7 @@ extension Flo {
     public func activate(_ visit: Visitor, _ depth: Int = 0) { // 🚦
 
         guard visit.newVisit(id) else {
-           logDepth("🏁 \(path(3))")
+           //logDepth("🏁 \(path(3))")
             return
         }
         for closure in closures {

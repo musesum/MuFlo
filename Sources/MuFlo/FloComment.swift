@@ -61,7 +61,6 @@ public class FloComments {
 
     public func mergeComments(_ flo: Flo, _ merge: Flo) {
 
-        //??? flo.comments.comments.append(contentsOf: merge.comments.comments) // TODO really  merge both
         flo.comments.haveType = flo.comments.haveType.union(merge.comments.haveType)
 
         var nameIndex = [String: Int]()

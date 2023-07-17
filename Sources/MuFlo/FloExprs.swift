@@ -234,16 +234,12 @@ public class FloExprs: FloVal {
                 copy.injectNameNum("x", Double(p.x))
                 copy.injectNameNum("y", Double(p.y))
 
-                let result = evalExprs(copy, false, visit)
-                //??? if result == false { clearCurrentVals(visit) }
-                return result
+                return evalExprs(copy, false, visit)
             }
             func setExprs(_ fromExprs: FloExprs, _ visit: Visitor) -> Bool {
 
                 // next evalute destination expression result
-                let result = evalExprs(fromExprs, false, visit)
-                //??? if result == false { clearCurrentVals(visit) }
-                return result
+                return evalExprs(fromExprs, false, visit)
             }
         }
         func setPlugins() {
@@ -267,23 +263,6 @@ public class FloExprs: FloVal {
         str += ")"
         return str
     }
-
-    //???
-//    /// when match fails, clear out current values set next to default
-//    func clearCurrentVals(_ visit: Visitor) {
-//        visit.remove(id)
-//        return //???
-//        for key in nameAny.keys {
-//            if let val = nameAny[key] as? FloVal {
-//                val.valOps -= [.twe,.val]
-//                if let scalar = val as? FloValScalar {
-//                    if val.valOps.lit || val.valOps.dflt {
-//                        scalar.val = scalar.dflt
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     // val = dflt, twe = dflt
     func bindVals() {
