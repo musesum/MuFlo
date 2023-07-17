@@ -38,7 +38,7 @@ extension FloEdge {
                 visit.block(destFlo.id)
             }
             func logDepth(_ icon: String) {
-                #if DEBUG
+                #if false && DEBUG
                 print("".pad(depth*3) + "\(icon) \(destFlo.path(3)): \(destFlo.float)")
                 #endif
             }
