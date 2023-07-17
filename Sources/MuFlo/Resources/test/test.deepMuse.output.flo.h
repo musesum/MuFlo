@@ -122,7 +122,7 @@ midi { // musical instrument device interface
         controller (num 0…127, val 0…127, chan 1…32, port 1…16, time 0)
         afterTouch (num 0…127, val 0…127, chan 1…32, port 1…16, time 0)
         pitchBend (val 0…16384=8192, chan 1…32, port 1…16, time 0)
-        programChange (num 0…255, chan 1…32, port 1…16, time 0) //1, 632, 255
+        program  (num 0…255, chan 1…32, port 1…16, time 0) //1, 632, 255
     }
     output @ input {
         note { // note on/off from 0 thru 127
@@ -133,7 +133,7 @@ midi { // musical instrument device interface
         controller (num 0…127, val 0…127, chan 1…32, port 1…16, time 0)
         afterTouch (num 0…127, val 0…127, chan 1…32, port 1…16, time 0)
         pitchBend (val 0…16384=8192, chan 1…32, port 1…16, time 0)
-        programChange (num 0…255, chan 1…32, port 1…16, time 0) //1, 632, 255
+        program (num 0…255, chan 1…32, port 1…16, time 0) //1, 632, 255
     }
     cc {
         main {
@@ -162,8 +162,8 @@ midi { // musical instrument device interface
                 breathCtrl (num == 2, val, chan, time)
                 footPedal (num == 4, val, chan, time)
                 dataEntry (num == 6, val, chan, time)
-                effectControl1 (num == 12, val, chan, time)
-                effectControl2 (num == 13, val, chan, time)
+                effectCtrl1 (num == 12, val, chan, time)
+                effectCtrl2 (num == 13, val, chan, time)
             }
             _sound {
                 soundVariation (num == 70, val, chan, time)
