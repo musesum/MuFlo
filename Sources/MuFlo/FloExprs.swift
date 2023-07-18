@@ -125,10 +125,10 @@ public class FloExprs: FloVal {
     // MARK: - Set
 
     func logValTwees(_ suffix: String = "") {
-        print()
         for (name,any) in nameAny {
             if let scalar = any as? FloValScalar {
-                scalar.logValTweens("􁒖 \(name):", suffix + "\n[\(scalar.valOps.description)]")
+                //let opsStr =  " [\(scalar.valOps.description)]"
+                scalar.logValTweens("􁒖", suffix)
             }
         }
     }

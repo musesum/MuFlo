@@ -260,10 +260,10 @@ extension FloValScalar {
 
     func logValTweens(_ prefix: String,
                       _ suffix: String = "") {
-
-        let id = "\(id)".pad(6)
-        let path = flo.path(9).pad(-18)
-        let valTwe = "(val/twe: \(val.digits(2))/\(twe.digits(2)))"
-        print(prefix + id + path + valTwe + suffix)
+        if val == twe { return }
+        // let id = "\(id)".pad(6)
+        let path = flo.path(9).pad(-18) + "(\(name))"
+        let valTwe = " val/twe: \(val.digits(3))/\(twe.digits(3)) "
+        print(prefix + path + valTwe + suffix)
     }
 }

@@ -3,6 +3,7 @@
 import UIKit
 import MuVisit
 import MuTime
+import Collections
 
 enum FloAnimType { case linear, easeinout }
 
@@ -10,23 +11,26 @@ protocol FloPluginProtocal {
     func startPlugin(_ key: Int, _ visit: Visitor)
 }
 
+typealias TimeInt = (TimeInterval,Int)
 public class FloPlugin {
 
     var type = FloAnimType.linear
     var delay = TimeInterval(0.25)
-    var duration = TimeInterval(0.5)
+    var duration = TimeInterval(2.5)
     var timeStart = TimeInterval(0)
     var steps = 0
     var flo: Flo
     var plugExprs: FloExprs // plug-in
-    var blocked: OrderedSetClass<Int>?
+    var blocked: Blocked?
+
+    var deque = Deque<TimeInt>()
 
     init(_ flo: Flo,
          _ plugExprs: FloExprs) {
 
         self.flo = flo
         self.plugExprs = plugExprs
-        //.. print("\(flo.path(9))(\(plugExprs.name)) +⃣ \(plugExprs.flo.path(9))")
+        print("\(flo.path(9))(\(plugExprs.name)) +⃣ \(plugExprs.flo.path(9))")
     }
     func cancel() {
         NextFrame.shared.removeDelegate(flo.id)
@@ -44,13 +48,14 @@ extension FloPlugin: NextFrameDelegate {
     private func setTween(_ interval: Double) {
 
         guard let exprs = flo.exprs else { return cancel() }
+        exprs.logValTwees("* interval: \(interval.digits(3))")
 
         var hasDelta = false
         for any in exprs.nameAny.values {
             if let scalar = any as? FloValScalar {
                 let delta = scalar.val - scalar.twe
 
-                // plugExprs.logValTwees("* interval: \(interval.digits(2))")
+
                 if delta != 0 {
                     hasDelta = true
                     if abs(delta) < 1E-9 {

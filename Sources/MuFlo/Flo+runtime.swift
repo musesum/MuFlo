@@ -60,7 +60,7 @@ extension Flo {
         for closure in closures {
             closure(self, visit)
         }
-
+        // breadth first follow edges
         var passed = [Flo]()
         for floEdge in floEdges.values {
             if floEdge.active { // ⬦⃣
@@ -69,6 +69,7 @@ extension Flo {
                 }
             }
         }
+        // continue next breadth level with nodes that passed
         for pass in passed {
             pass.activate(visit, depth+1)
         }
