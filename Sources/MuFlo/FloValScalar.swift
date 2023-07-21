@@ -54,7 +54,7 @@ public class FloValScalar: FloVal {
                 return ret
             }
         }
-        print("🚫 \(flo.name): cannot normalize \(twe)")
+        print("⁉️ \(flo.name): cannot normalize \(twe)")
         return val
     }
     public func range() -> ClosedRange<Double> {
@@ -198,7 +198,7 @@ public class FloValScalar: FloVal {
         case let v as Float        : setValOpTwe(Double(v))
         case let v as CGFloat      : setValOpTwe(Double(v))
         case let v as Int          : setValOpTwe(Double(v))
-        default: print("🚫 setVal unknown type for: from")
+        default: print("⁉️ setVal unknown type for: from")
         }
 
         valOps += ops

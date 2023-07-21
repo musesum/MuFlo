@@ -182,7 +182,7 @@ public class FloExprs: FloVal {
             case let (n,v) as (String,CGFloat) : setNameNum(n,Double(v),visit)
             case let v     as CGPoint          : return setPoint(v,visit)
             case let v     as FloExprs         : return setExprs(v,visit)
-            default: print("🚫 mismatched setVal(\(fromAny))"); return false
+            default: print("⁉️ mismatched setVal(\(fromAny))"); return false
             }
             return true
 

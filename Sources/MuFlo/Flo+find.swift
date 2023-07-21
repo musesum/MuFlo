@@ -276,7 +276,7 @@ extension Flo {
             return flo
 
         } else if showError {
-            print("🚫 Flo:: could not find \'\(path)\'")
+            print("⁉️ Flo:: could not find \'\(path)\'")
         }
         return Flo()
     }

@@ -21,7 +21,7 @@ public class FloParse {
             makeParFlo()
         } else {
             rootParNode = ParNode("",[])
-            print("🚫 Flo3Parse::init could not parse FloPar")
+            print("⁉️ Flo3Parse::init could not parse FloPar")
         }
 
         // make a dispatch dictionary of parsing closures
@@ -258,7 +258,7 @@ public class FloParse {
             if let str = nextPar.nextPars.first?.value {
                 return str
             } else {
-                print("🚫 \(#function) unexpected value for \(nextPar.node?.pattern.description ?? "")")
+                print("⁉️ \(#function) unexpected value for \(nextPar.node?.pattern.description ?? "")")
             }
             return nil
         }
@@ -280,7 +280,7 @@ public class FloParse {
 
             flo.edgeDefs.parseEdgeExprs(flo)
 
-        default: print("🚫 unknown prior: \(prior)")
+        default: print("⁉️ unknown prior: \(prior)")
         }
         let pattern = parItem.node?.pattern ?? ""
         let nextFlo = parseNext(flo, pattern, parItem, level+1)

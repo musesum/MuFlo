@@ -57,7 +57,7 @@ public class FloEdgeDefs {
         if let pathVals = edgeDefs.last?.pathVals {
             pathVals.addPathVal("", FloExprs(flo, "edge"))
         } else {
-            print("🚫 \(#function) no edgeDefs to add edge")
+            print("⁉️ \(#function) no edgeDefs to add edge")
         }
     }
 

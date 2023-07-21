@@ -39,7 +39,7 @@ public class FloEdgeDef {
             pathVals.addPathVal(path, nil)
             
         } else {
-            print("🚫 FloEdgeDef: \(self) cannot process addPath(\(parItem))")
+            print("⁉️ FloEdgeDef: \(self) cannot process addPath(\(parItem))")
         }
     }
 

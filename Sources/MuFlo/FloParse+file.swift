@@ -34,7 +34,7 @@ public extension FloParse {
         do {
             return try String(contentsOfFile: path) }
         catch {
-            print("🚫 ParStr::\(#function) error:\(error) loading contents of:\(path)")
+            print("⁉️ ParStr::\(#function) error:\(error) loading contents of:\(path)")
         }
         return ""
     }
@@ -43,7 +43,7 @@ public extension FloParse {
         let script = read(filename, ext)
         print(filename, terminator: " ")
         let success = parseScript(root, script)
-        print(success ? "✓" : "🚫 parse failed")
+        print(success ? "✓" : "⁉️ parse failed")
         return success
     }
 

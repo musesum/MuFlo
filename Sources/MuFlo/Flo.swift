@@ -53,6 +53,10 @@ public class Flo {
     private var time = TimeInterval(0)  // UTC time of last change time
     public func updateTime() { time = Date().timeIntervalSince1970 }
 
+    public static func >> (lhs: Flo, rhs: Flo) {
+        // TODO
+    }
+
     var hasDelta = false            // any changes to descendants?
     var pathRefs: [Flo]?            // b in `a.b <> c` for `a{b{c}} a.b <> c
     var passthrough = false         // does not have its own FloVal, so pass through events

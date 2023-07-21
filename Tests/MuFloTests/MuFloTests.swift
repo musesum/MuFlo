@@ -29,7 +29,7 @@ final class MuFloTests: XCTestCase {
             // print("\n" + actual)
             err = ParStr.testCompare(expected, actual)
         } else  {
-            print(" 🚫 failed parse")
+            print(" ⁉️ failed parse")
             err += 1  // error found
         }
         return err
@@ -49,7 +49,7 @@ final class MuFloTests: XCTestCase {
         if let path = url?.path {
             do { return try String(contentsOfFile: path) } catch {}
         }
-        print("🚫 \(#function) cannot find:\(filename)")
+        print("⁉️ \(#function) cannot find:\(filename)")
         return nil
     }
     func readSky(_ filename: String) -> String? {
@@ -62,7 +62,7 @@ final class MuFloTests: XCTestCase {
             print (name +  " ✓")
             return 0
         } else {
-            print(name + " 🚫 parse failed")
+            print(name + " ⁉️ parse failed")
             return 1
         }
     }
@@ -72,7 +72,7 @@ final class MuFloTests: XCTestCase {
             print (name +  " ✓")
             return 0
         } else {
-            print(name + " 🚫 parse failed")
+            print(name + " ⁉️ parse failed")
             return 1
         }
     }
@@ -112,6 +112,13 @@ final class MuFloTests: XCTestCase {
         }
     }
 
+    func testAdhoc() {
+        let a = Flo("a")
+        let b = Flo("b")
+        let c = Flo("c")
+        a >> b
+        a >> c
+    }
     func testPretty() {
         let root = Flo("√")
         let script = "a ( b ( // oy\n c // yo\n d ) e )"
@@ -187,7 +194,7 @@ final class MuFloTests: XCTestCase {
 
         err += test("a.b.c(0…1) z@a { b.c(0…1~1) }",
                     "a { b { c(0…1) } } z@a { b { c(0…1~1) } }")
-                    // a { b { c(0…1) } } z@a { 🚫a b { c(0…1~1) } }
+                    // a { b { c(0…1) } } z@a { ⁉️a b { c(0…1~1) } }
 
 
         err += test("a {b c}.{d e}.{f g}.{h i} z >> a.b˚g.h",

@@ -10,20 +10,21 @@ enum FloAnimType { case linear, easeinout }
 protocol FloPluginProtocal {
     func startPlugin(_ key: Int, _ visit: Visitor)
 }
+typealias TimeVal = (TimeInterval, Double)
 
-typealias TimeInt = (TimeInterval,Int)
 public class FloPlugin {
 
     var type = FloAnimType.linear
     var delay = TimeInterval(0.25)
     var duration = TimeInterval(2.5)
     var timeStart = TimeInterval(0)
+    var timeNow = TimeInterval(0)
     var steps = 0
     var flo: Flo
-    var plugExprs: FloExprs // plug-in
+    var plugExprs: FloExprs //  -in
     var blocked: Blocked?
 
-    var deque = Deque<TimeInt>()
+    var deque = Deque<TimeVal>()
 
     init(_ flo: Flo,
          _ plugExprs: FloExprs) {
@@ -41,10 +42,12 @@ public class FloPlugin {
 extension FloPlugin: NextFrameDelegate {
 
     public func nextFrame() -> Bool {
-        let interval = getInterval()
+        timeNow = Date().timeIntervalSince1970
+        let interval = getInterval(timeNow)
         setTween(interval)
         return interval < 1
     }
+
     private func setTween(_ interval: Double) {
 
         guard let exprs = flo.exprs else { return cancel() }
@@ -79,23 +82,22 @@ extension FloPlugin: FloPluginProtocal {
 
     func startPlugin(_ key: Int, _ visit: Visitor) {
 
+        guard duration > 0 else { return }
+
         // list of flo with exprs that didn't pass eval
         blocked = blocked ?? visit.blocked
 
-        if duration > 0 {
+        timeNow = Date().timeIntervalSince1970
+        let timeDelta = timeNow - timeStart
 
-            let timeNow = Date().timeIntervalSince1970
-            let timeDelta = timeNow - timeStart
+        if  timeDelta > duration {
 
-            if  timeDelta > duration {
+            NextFrame.shared.addFrameDelegate(key, self)
+            timeStart = timeNow
 
-                NextFrame.shared.addFrameDelegate(key, self)
-                timeStart = timeNow
+        } else {
 
-            } else {
-
-                timeStart = timeNow - timeDelta / 2
-            }
+            timeStart = timeNow - timeDelta / 2
         }
     }
 
@@ -110,12 +112,12 @@ extension FloPlugin: FloPluginProtocal {
         }
     }
 
-    func getInterval() -> Double {
-        let timeNow = Date().timeIntervalSince1970
+    func getInterval(_ timeNow: Double) -> Double {
+
         let timeDelta = timeNow - timeStart
         let interval = timeDelta / duration
         let easing = easeInOut(interval/duration) * duration
         return max(0.0, min(easing, duration))
     }
-
 }
+

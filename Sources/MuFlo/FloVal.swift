@@ -66,12 +66,12 @@ open class FloVal: Comparable {
     public func setVal(_ from: Any?,
                        _ visit: Visitor) -> Bool {
 
-        assertionFailure("🚫 setVal needs override")
+        assertionFailure("⁉️ setVal needs override")
         return false
     }
 
     public func getVal() -> Any {
-        assertionFailure("🚫 getVal needs override")
+        assertionFailure("⁉️ getVal needs override")
     }
 
 }

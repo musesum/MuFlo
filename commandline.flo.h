@@ -50,7 +50,7 @@ b(%4:1) <> (a,c)    /// now `b` is connected to both `a` and `c`
 √: a!               /// activate `a`
 a(5) => b(%4:1)     /// `a` activates `b % 4`, same as before
 a(5) => c(/2:2.5)   /// `a` which activates `c`, but
-b(1) 🚫> c          /// `b`is blocked from activating `b`
+b(1) ⁉️> c          /// `b`is blocked from activating `b`
 
 /// so which value is assigned to `c`? depends on whether `a` or `b`
 /// gets there first because it will block the other activation

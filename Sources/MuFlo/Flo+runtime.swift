@@ -42,7 +42,7 @@ extension Flo {
             case let v as CGFloat: exprs = FloExprs(self, [(name, Double(v))])
             case let v as CGPoint: exprs = FloExprs(self, point: v)
             case let v as [(String, Double)]: exprs = FloExprs(self, v)
-            default: print("🚫 unknown val(\(any))")
+            default: print("⁉️ unknown val(\(any))")
             }
         }
         // maybe pass along my FloVal to other FloNodes and closures
@@ -53,10 +53,9 @@ extension Flo {
 
     public func activate(_ visit: Visitor, _ depth: Int = 0) { // 🚦
 
-        guard visit.newVisit(id) else {
-           //logDepth("🏁 \(path(3))")
-            return
-        }
+        //??? logDepth(visit.isBlocked(id) ? "⛔️" : visit.wasHere(id) ? "🏁" : "🚥")
+        guard visit.newVisit(id) else { return }
+
         for closure in closures {
             closure(self, visit)
         }
@@ -75,8 +74,9 @@ extension Flo {
         }
 
         func logDepth(_ icon: String) {
-            #if DEBUG
-            print("".pad(depth*3) + "\(icon) \(path(3)): \(float)")
+            #if DEBUG && false
+            let visited = exprs?.logVisitedPaths(visit) ?? ""
+            print("".pad(depth*3) + "\(id)" + "\(icon) \(path(3)): \(float) " + visited)
             #endif
         }
     }
