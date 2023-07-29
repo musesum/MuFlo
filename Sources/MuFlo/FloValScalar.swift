@@ -12,6 +12,7 @@ import MuTime // NextFrame
 public class FloValScalar: FloVal {
 
     // default scalar value is (0…1 = 1)
+    public var pre  = Double(0) // prevous value; for animating twe
     public var twe  = Double(0) // current value; 2 in 0…3~1:2
     public var val  = Double(0) // target value
     public var min  = Double(0) // minimum value; 0 in 0…3
@@ -29,7 +30,8 @@ public class FloValScalar: FloVal {
         self.min = fmin(num, 0.0)
         self.max = fmax(num, 1.0)
         self.val = num
-        self.twe = num 
+        self.twe = num
+
     }
 
     init (with scalar: FloValScalar, viaEval: Bool = false) {
@@ -41,6 +43,7 @@ public class FloValScalar: FloVal {
         dflt = scalar.dflt
         twe  = scalar.twe
         val  = scalar.val
+
     }
 
     public func normalized(_ normOp: FloValOps) -> Double {
@@ -75,7 +78,7 @@ public class FloValScalar: FloVal {
     }
 
     func setDefault(_ visit: Visitor) { // was setDefault
-
+        pre = twe
         if      valOps.dflt           { val = dflt }
         else if valOps.min, val < min { val = min  }
         else if valOps.max, val > max { val = max  }
@@ -192,6 +195,8 @@ public class FloValScalar: FloVal {
 
         guard let any else { return true }
 
+        pre = twe
+
         switch any {
         case let v as FloValScalar : setFrom(v)
         case let v as Double       : setValOpTwe(v)
@@ -221,6 +226,7 @@ public class FloValScalar: FloVal {
 
                 min = 0
                 max = Double.maximum(1, max)
+
                 if ops.twe { twe = fmod(v.twe, max) }
                 if ops.val { val = fmod(v.val, max) }
                 
@@ -231,12 +237,10 @@ public class FloValScalar: FloVal {
         }
 
         func setValOpTwe(_ num: Double) {
+
             if ops.twe { twe = num }
             if ops.val { val = num }
-            setInRange()
-        }
-        
-        func setInRange() {
+
             if valOps.modu { val = fmod(val, max) }
             if valOps.min, val < min { val = min }
             if valOps.max, val > max { val = max }
@@ -263,7 +267,7 @@ extension FloValScalar {
         if val == twe { return }
         // let id = "\(id)".pad(6)
         let path = flo.path(9).pad(-18) + "(\(name))"
-        let valTwe = " val/twe: \(val.digits(3))/\(twe.digits(3)) "
+        let valTwe = " val/twe/pre: \(val.digits(3))/\(twe.digits(3))/\(pre.digits(3)) "
         print(prefix + path + valTwe + suffix)
     }
 }

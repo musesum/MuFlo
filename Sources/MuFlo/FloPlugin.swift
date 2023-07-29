@@ -7,117 +7,101 @@ import Collections
 
 enum FloAnimType { case linear, easeinout }
 
-protocol FloPluginProtocal {
-    func startPlugin(_ key: Int, _ visit: Visitor)
-}
-typealias TimeVal = (TimeInterval, Double)
-
 public class FloPlugin {
-
-    var type = FloAnimType.linear
-    var delay = TimeInterval(0.25)
-    var duration = TimeInterval(2.5)
-    var timeStart = TimeInterval(0)
-    var timeNow = TimeInterval(0)
-    var steps = 0
+    
     var flo: Flo
+    
+    var duration: TimeInterval = 2.0
+    var type = FloAnimType.linear
     var plugExprs: FloExprs //  -in
     var blocked: Blocked?
-
-    var deque = Deque<TimeVal>()
-
+    var distance = CGFloat.zero
+    var interStart = CGFloat(0) // start of interval, may be >0 when interrupting animation
+    var timeStart = TimeInterval(0)
+    var timeNow = TimeInterval(0)
+    var timeDelta: TimeInterval { timeNow - timeStart } // 0...duration
+    var timeInter: TimeInterval { timeDelta / duration } // 0...1 normalized
+    var floScalars = [FloValScalar]()
+    var polyVals = [CubicPolyVal]()
+    var interNow: TimeInterval {
+        
+        let interSpan = 1 - interStart
+        let inter = interStart + timeInter * interSpan
+        let area = gaussianCDF(inter)
+        print("*** timeInter: \(timeInter.digits(2)) interStart: \(interStart.digits(2))  interSpan: \(interSpan.digits(2)) inter: \(inter.digits(2)) => area: \(area.digits(2)) ")
+        return inter
+    }
+    
     init(_ flo: Flo,
          _ plugExprs: FloExprs) {
-
+        
         self.flo = flo
         self.plugExprs = plugExprs
+        extractFloScalars()
+        
         print("\(flo.path(9))(\(plugExprs.name)) +⃣ \(plugExprs.flo.path(9))")
     }
-    func cancel() {
-        NextFrame.shared.removeDelegate(flo.id)
-        timeStart = 0
-        blocked = nil
+    
+    func extractFloScalars() {
+        if let values = flo.exprs?.nameAny.values {
+            for value in values {
+                if let scalar = value as? FloValScalar {
+                    floScalars.append(scalar)
+                    polyVals.append(CubicPolyVal(duration))
+                }
+            }
+        }
+    }
+    
+    func startPlugin(_ key: Int, _ visit: Visitor) {
+        
+        guard duration > 0 else { return }
+        
+        // let interPrev = interNow
+        timeNow = Date().timeIntervalSince1970
+        for i in 0 ..< floScalars.count {
+            let floVal = floScalars[i]
+            let polyVal = polyVals[i]
+            polyVal.addTimeVal((timeNow,floVal.val))
+        }
+        NextFrame.shared.addFrameDelegate(key, self)
+    }
+    func setTween() -> Bool {
+        
+        flo.exprs?.logValTwees()
+        
+        timeNow = Date().timeIntervalSince1970
+        var hasDelta = false
+        
+        for i in 0 ..< floScalars.count {
+            let floVal = floScalars[i]
+            let polyVal = polyVals[i]
+            if let val = polyVal.getTweenNow(timeNow) {
+                floVal.twe = val
+                hasDelta = hasDelta || abs( floVal.val - val) > 1E-9
+            }
+        }
+        flo.activate(Visitor(plugExprs.id, from: .tween))
+        if hasDelta {
+            return true
+        } else {
+            cancel(flo.id)
+            for polyVal in polyVals {
+                polyVal.finish()
+            }
+            return false
+        }
     }
 }
 extension FloPlugin: NextFrameDelegate {
 
     public func nextFrame() -> Bool {
-        timeNow = Date().timeIntervalSince1970
-        let interval = getInterval(timeNow)
-        setTween(interval)
-        return interval < 1
+        return setTween()
+    }
+    public func cancel(_ key: Int) {
+        NextFrame.shared.removeDelegate(key)
+        blocked = nil
     }
 
-    private func setTween(_ interval: Double) {
-
-        guard let exprs = flo.exprs else { return cancel() }
-        exprs.logValTwees("* interval: \(interval.digits(3))")
-
-        var hasDelta = false
-        for any in exprs.nameAny.values {
-            if let scalar = any as? FloValScalar {
-                let delta = scalar.val - scalar.twe
-
-
-                if delta != 0 {
-                    hasDelta = true
-                    if abs(delta) < 1E-9 {
-                        // precision fix
-                        scalar.twe = scalar.val
-                    } else {
-                        scalar.twe += delta * interval
-                    }
-                }
-            }
-        }
-        if hasDelta {
-            flo.activate(Visitor(plugExprs.id, from: .tween))
-        } else {
-            cancel()
-        }
-    }
-}
-
-extension FloPlugin: FloPluginProtocal {
-
-    func startPlugin(_ key: Int, _ visit: Visitor) {
-
-        guard duration > 0 else { return }
-
-        // list of flo with exprs that didn't pass eval
-        blocked = blocked ?? visit.blocked
-
-        timeNow = Date().timeIntervalSince1970
-        let timeDelta = timeNow - timeStart
-
-        if  timeDelta > duration {
-
-            NextFrame.shared.addFrameDelegate(key, self)
-            timeStart = timeNow
-
-        } else {
-
-            timeStart = timeNow - timeDelta / 2
-        }
-    }
-
-    func easeInOut(_ input: Double) -> Double {
-        let t = min(max(input, 0), 1) // Clamp input between 0 and 1
-
-        if t <= 0.5 {
-            return 0.5 * pow(2 * t, 2)
-        } else {
-            let x = 2 * t - 1
-            return 0.5 * (2 - pow(2, -10 * x))
-        }
-    }
-
-    func getInterval(_ timeNow: Double) -> Double {
-
-        let timeDelta = timeNow - timeStart
-        let interval = timeDelta / duration
-        let easing = easeInOut(interval/duration) * duration
-        return max(0.0, min(easing, duration))
-    }
 }
 
