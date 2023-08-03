@@ -22,21 +22,14 @@ public class FloPlugin {
     var timeDelta: TimeInterval { timeNow - timeStart } // 0...duration
     var timeInter: TimeInterval { timeDelta / duration } // 0...1 normalized
     var floScalars = [FloValScalar]()
-    var polyVals = [CubicPolyVal]()
-    var interNow: TimeInterval {
-        
-        let interSpan = 1 - interStart
-        let inter = interStart + timeInter * interSpan
-        let area = gaussianCDF(inter)
-        print("*** timeInter: \(timeInter.digits(2)) interStart: \(interStart.digits(2))  interSpan: \(interSpan.digits(2)) inter: \(inter.digits(2)) => area: \(area.digits(2)) ")
-        return inter
-    }
-    
+    let easyVals: EasyVals
+
     init(_ flo: Flo,
          _ plugExprs: FloExprs) {
         
         self.flo = flo
         self.plugExprs = plugExprs
+        self.easyVals = EasyVals(duration)
         extractFloScalars()
         
         print("\(flo.path(9))(\(plugExprs.name)) +⃣ \(plugExprs.flo.path(9))")
@@ -47,7 +40,6 @@ public class FloPlugin {
             for value in values {
                 if let scalar = value as? FloValScalar {
                     floScalars.append(scalar)
-                    polyVals.append(CubicPolyVal(duration))
                 }
             }
         }
@@ -56,39 +48,36 @@ public class FloPlugin {
     func startPlugin(_ key: Int, _ visit: Visitor) {
         
         guard duration > 0 else { return }
-        
-        // let interPrev = interNow
-        timeNow = Date().timeIntervalSince1970
+
+        var vals = [Double]()
+        var twes = [Double]()
         for i in 0 ..< floScalars.count {
-            let floVal = floScalars[i]
-            let polyVal = polyVals[i]
-            polyVal.addTimeVal((timeNow,floVal.val))
+            twes.append(floScalars[i].twe)
+            vals.append(floScalars[i].val)
         }
+        easyVals.add(from: twes, to: vals)
         NextFrame.shared.addFrameDelegate(key, self)
     }
     func setTween() -> Bool {
         
-        flo.exprs?.logValTwees()
-        
+       flo.exprs?.logValTwees()
+
         timeNow = Date().timeIntervalSince1970
         var hasDelta = false
-        
-        for i in 0 ..< floScalars.count {
+        let polyTweens = easyVals.getValNow(timeNow)
+        for i in 0 ..< polyTweens.count {
             let floVal = floScalars[i]
-            let polyVal = polyVals[i]
-            if let val = polyVal.getTweenNow(timeNow) {
-                floVal.twe = val
-                hasDelta = hasDelta || abs( floVal.val - val) > 1E-9
-            }
+            let polyTwe = polyTweens[i]
+
+            floVal.twe = polyTwe
+            hasDelta = hasDelta || abs( floVal.val - floVal.twe) > 1E-9
         }
         flo.activate(Visitor(plugExprs.id, from: .tween))
         if hasDelta {
             return true
         } else {
             cancel(flo.id)
-            for polyVal in polyVals {
-                polyVal.finish()
-            }
+            easyVals.finish()
             return false
         }
     }

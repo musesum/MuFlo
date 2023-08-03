@@ -1,6 +1,51 @@
 //  Created by warren on 3/25/21.
 
 import Foundation
+import Numerics
+
+infix operator ∆
+extension Array where Element: Numeric, Element: ExpressibleByIntegerLiteral {
+    static func + (lhs: Array, rhs: Array) -> Array {
+        guard lhs.count == rhs.count else {
+            fatalError("Arrays must have the same size to be added")
+        }
+
+        var result = Array()
+        for i in 0..<lhs.count {
+            result.append(lhs[i] + rhs[i])
+        }
+        return result
+    }
+    static func - (lhs: Array, rhs: Array) -> Array {
+        guard lhs.count == rhs.count else {
+            fatalError("Arrays must have the same size to be added")
+        }
+
+        var result = Array()
+        for i in 0..<lhs.count {
+            result.append(lhs[i] - rhs[i])
+        }
+        return result
+    }
+    static func ∆ (lhs: [Double], rhs: [Double]) -> any Numeric {
+        guard lhs.count == rhs.count else {
+            fatalError("Arrays must have the same size to be added")
+        }
+        var sum = Double(0)
+        for i in 0..<lhs.count {
+            sum += (lhs[i] - rhs[i]) * (lhs[i] - rhs[i])
+        }
+       return sqrt(sum)
+    }
+}
+extension Array where Element: FloatingPoint {
+    static func / (lhs: Array, rhs: Element) -> Array {
+        return lhs.map { $0 / rhs }
+    }
+    static func * (lhs: Array, rhs: Element) -> Array {
+        return lhs.map { $0 * rhs }
+    }
+}
 
 extension Formatter {
     static let number = NumberFormatter()
