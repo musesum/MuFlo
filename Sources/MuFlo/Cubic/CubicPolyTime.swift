@@ -4,7 +4,6 @@ import Foundation
 import simd
 typealias Int4 = Val4<Int>
 
-
 class CubicPolyVal {
 
     var duration: TimeInterval
@@ -15,7 +14,6 @@ class CubicPolyVal {
     public init(_ duration: TimeInterval) {
         self.duration = duration
     }
-
 
     private let BSpline = matrix_double4x4(rows: [
         SIMD4<Double>( 1, 4, 1, 0) / 6,

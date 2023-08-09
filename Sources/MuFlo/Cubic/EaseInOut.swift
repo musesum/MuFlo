@@ -29,7 +29,6 @@ import Foundation
 ///
 class EaseInOut {
 
-
     var timeStart   : Double
     var timeNow     : Double
 
@@ -74,10 +73,13 @@ class EaseInOut {
             return valTo
         }
         timeNow = now
-        let interWarp = warp(interval: timeNow - timeStart)
-        isDone = interWarp >= durationSum || interNow >= durationSum
-        //logInter()
-        return isDone ? valTo : valNow
+        
+        _ = warp(interval: timeNow - timeStart)
+        let warpDelta = abs(1 - warpNorm(interval: interNow))
+        isDone = (warpDelta < 1e-6) || interNow >= durationSum
+
+        logInter()
+        return valNow
     }
     func warp(interval: Double) -> Double {
         let timeNorm = interval / durationSum
@@ -117,8 +119,8 @@ class EaseInOut {
     func logInter(_ suffix: String = "" ) {
         print("now|warp|sum: (\(interNow.digits(2)) | \(interWarp.digits(2)) | \(durationSum.digits(2))) " +
               "(bump * fact): (\(interBump.digits(2)) * \(interFact.digits(2))) " +
-              "norm: \(warpNorm(interval: interNow).digits(3)) " +
-              "val: \(valNow.digits(2))" +
+              "norm: \(warpNorm(interval: interNow).digits(4)) " +
+              "val: \(valNow.digits(3))" +
               suffix)
     }
     static func test() {
