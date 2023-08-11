@@ -41,8 +41,8 @@ class EaseInOut {
     var interNorm   : Double = 0
     var interWarp   : Double = 0
     var interBump   : Double = 0
-    var interFact   : Double { (durationSum - interNow) / durationNow }
-    var interBumpNow: Double { interBump * interFact }
+    var bumpFactor  : Double { pow(abs(durationSum - interNow) / durationNow, 1.4) }
+    var bumpNow     : Double { interBump * bumpFactor }
 
     // value
     var valFrom     : Double
@@ -50,9 +50,10 @@ class EaseInOut {
     var valSpan     : Double { valTo - valFrom }
     var valNow      : Double { valBumpNow + valFrom + valSpan * interNorm }
     var valBump     : Double = 0
-    var valBumpNow  : Double { valBump * interFact }
+    var valBumpNow  : Double { valBump * bumpFactor }
 
     var isDone = false
+    private var lock = NSLock()
 
     init(duration: Double,
          from: Double,
@@ -70,6 +71,7 @@ class EaseInOut {
 
     func getVal(now: TimeInterval) -> Double {
         if isDone {
+            finish()
             return valTo
         }
         timeNow = now
@@ -85,29 +87,28 @@ class EaseInOut {
         let timeNorm = interval / durationSum
         self.interNow = interval
         interNorm = 3 * pow(timeNorm, 2) - 2 * pow(timeNorm, 3)
-        interWarp = interBumpNow + interNorm * durationSum
+        interWarp = bumpNow + interNorm * durationSum
         return interWarp
     }
     func warpNorm(interval: Double) -> Double {
-        return warp(interval: interval) / durationSum
+        let norm = warp(interval: interval) / durationSum
+        if norm < 0 || norm > 1 {
+            print("⁉️ err: EaseInOut::warpNorm(interval: \(interval)) =>  norm: \(norm)")
+            return 1
+        }
+        return norm
     }
 
-    func addPoint(_ val: Double, time: TimeInterval, duration: Double? = nil) {
-        timeNow = time
-        interNow = timeNow - timeStart
-        return addPoint(val, duration: duration)
-    }
-    func addPoint(_ val: Double, duration: Double? = nil) {
-
+    func addPoint(_ val: Double, duration: Double) {
+        //??? lock.lock()
         isDone = false
         
         let oldWarp = warp(interval: interNow)
         let oldVal = valNow
 
         valTo = val
-        if let duration {
-            durationNow = duration
-        }
+
+        durationNow = duration
         durationSum = interNow + durationNow
 
         let newWarp = warp(interval: interNow)
@@ -115,114 +116,21 @@ class EaseInOut {
 
         interBump += oldWarp - newWarp
         valBump   += oldVal - newVal
+        //??? lock.unlock()
     }
+    
     func logInter(_ suffix: String = "" ) {
         print("now|warp|sum: (\(interNow.digits(2)) | \(interWarp.digits(2)) | \(durationSum.digits(2))) " +
-              "(bump * fact): (\(interBump.digits(2)) * \(interFact.digits(2))) " +
+              "(bump * fact): (\(interBump.digits(2)) * \(bumpFactor.digits(2))) " +
               "norm: \(warpNorm(interval: interNow).digits(4)) " +
               "val: \(valNow.digits(3))" +
               suffix)
     }
-    static func test() {
-
-        var lastVal = Double(0)
-        let easy = EaseInOut(duration: 2.0, from: 10, to: 20)
-
-        var counter = 0
-        let divisions = Double(100)
-        var interNow: Double { Double(counter)/divisions }
-
-        while interNow <= easy.durationSum {
-
-            let interWarp = easy.warp(interval: interNow)
-            let deltaVal = interWarp - lastVal
-            lastVal = interWarp
-            easy.logInter("∆ \(deltaVal.digits(3))")
-
-            // some test points that shorten and lengthen total duration
-            switch counter {
-            case 100: addPoint( 30, duration: 0.5)
-            case 150: addPoint(-40, duration: 0.5)
-            case 180: addPoint( 50, duration: 1.0)
-            case 340: addPoint(-60, duration: 2.0)
-            case 520: addPoint( 70, duration: 0.5)
-            default: break
-            }
-            counter += 1
-
-            func addPoint(_ to: Double, duration: TimeInterval) {
-                easy.addPoint(to , duration: duration)
-                print("--- valTo: \(to.digits(2)) durationNow: \(duration) durationSum: \(easy.durationSum)")
-            }
-
-        }
-    }
-}
-
-class EasyVals {
-
-    var valsFrom  = [Double]()
-    var valsNow   = [Double]()
-    var valsTo    = [Double]()
-    var easys     = [EaseInOut]()
-    var duration  = TimeInterval(1)
-    var timeStart = TimeInterval(0)
-    var timeNow   = TimeInterval(0)
-    var isDone    = false
-
-    init(_ duration: Double) {
-        self.duration = duration
-    }
-    func add(from: [Double], to: [Double]) {
-
-        guard from.count == to.count else {
-            return print("EasyVals::add from.count:\(from.count) != to.count:\(to.count)")
-        }
-        isDone = false
-
-        if valsFrom.isEmpty {
-            /// setup new  easys[EaseInOut]
-            valsTo.removeAll()
-            easys.removeAll()
-
-            for i in 0 ..< from.count {
-
-                let fromi = from[i]
-                let toi = to[i]
-                let easyi = EaseInOut(duration: duration, from: fromi, to: toi)
-
-                valsFrom.append(fromi)
-                valsTo.append(toi)
-                easys.append(easyi)
-            }
-        } else {
-            /// add to current easys[EaseInOut]
-            valsTo.removeAll()
-
-            for i in 0 ..< to.count {
-                let toi = to[i]
-                valsTo.append(toi)
-                easys[i].addPoint(toi, duration: duration)
-
-            }
-        }
-    }
-    func getValNow(_ timeNow: TimeInterval) -> [Double] {
-        self.timeNow = timeNow
-        valsNow.removeAll()
-        var doneCount = 0
-        for easy in easys {
-            let val = easy.getVal(now: timeNow)
-            valsNow.append(val)
-            doneCount += easy.isDone ? 1 : 0
-        }
-        return valsNow
-    }
-
     func finish() {
-        easys.removeAll()
-        valsFrom.removeAll()
-        valsTo.removeAll()
+        interNow = 0
+        interNorm = 0
+        interWarp = 0
+        interBump = 0
     }
 
 }
