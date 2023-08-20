@@ -131,7 +131,7 @@ __________________________________________________________
 
 flo˚.setAny(["name",value])
 MuLeaf::syncVal { node.modelFlo.setAny(expanded, .activate, visit) }
-TouchDraw::drawRadius { azimuth˚?.setAny(cgPoint, .activate, visit) }
+TouchDraw::updateRadius { azimuth˚?.setAny(cgPoint, .activate, visit) }
 
 Flo::setAny
     fromExprs,exprs

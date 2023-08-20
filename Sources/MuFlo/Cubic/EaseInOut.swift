@@ -100,7 +100,7 @@ class EaseInOut {
     }
 
     func addPoint(_ val: Double, duration: Double) {
-        //??? lock.lock()
+        //?? lock.lock()
         isDone = false
         
         let oldWarp = warp(interval: interNow)
@@ -116,7 +116,7 @@ class EaseInOut {
 
         interBump += oldWarp - newWarp
         valBump   += oldVal - newVal
-        //??? lock.unlock()
+        //?? lock.unlock()
     }
     
     func logInter(_ suffix: String = "" ) {

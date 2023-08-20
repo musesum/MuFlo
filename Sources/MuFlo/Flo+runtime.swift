@@ -53,7 +53,7 @@ extension Flo {
 
     public func activate(_ visit: Visitor, _ depth: Int = 0) { // 🚦
 
-        //??? logDepth(visit.isBlocked(id) ? "⛔️" : visit.wasHere(id) ? "🏁" : "🚥")
+        //?? logDepth(visit.isBlocked(id) ? "⛔️" : visit.wasHere(id) ? "🏁" : "🚥")
         guard visit.newVisit(id) else { return }
 
         for closure in closures {
