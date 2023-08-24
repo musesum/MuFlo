@@ -33,7 +33,7 @@ public class FloPlugin {
         self.easyVals = EasyVals(duration)
         extractFloScalars()
         
-        print("\(flo.path(9))(\(plugExprs.name)) +⃣ \(plugExprs.flo.path(9))")
+        //print("\(flo.path(9))(\(plugExprs.name)) +⃣ \(plugExprs.flo.path(9))")
     }
     
     func extractFloScalars() {
