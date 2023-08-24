@@ -10,14 +10,14 @@ import UIKit
 import Compression
 import ZIPFoundation
 
-class MuFile {
-    
-    static let shared = MuFile()
+public class MuFile {
+
+    public static let shared = MuFile()
     private let documentURL: URL
     private let libraryURL: URL
     private var fileURLs: [URL]
     
-    init() {
+    public init() {
         documentURL = FileManager.default.urls(
             for: .documentDirectory,
             in: .userDomainMask).first!

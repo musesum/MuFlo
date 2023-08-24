@@ -12,7 +12,7 @@ public class FloArchive: NSObject {
     public var archive: MuArchive?
     private var fromSnapshot = true
 
-    private var archiveName: String
+    public var archiveName: String
     private var archiveDate = TimeInterval(0)
 
     private var scriptNames: [String]
@@ -31,7 +31,7 @@ public class FloArchive: NSObject {
         self.archiveName = archive
         self.scriptNames = scripts
         for texture in textures {
-            textureData[texture] = nil
+            textureData[texture] = nil as Data?
         }
         super.init()
 
@@ -39,7 +39,7 @@ public class FloArchive: NSObject {
         let fname = archiveName + ".zip"
         if let archive = MuArchive.readArchive(fname) {
 
-            archiveDate = MuFile.shared.documentDate(archiveName)
+            archiveDate = MuFile.shared.documentDate(fname)
             print(String(format: "Documents/\(fname) %.2f Δ 0", archiveDate))
             getFloBundleChanges()
             getDocumentChanges()
@@ -165,17 +165,11 @@ public class FloArchive: NSObject {
             }
             func getTextureData () {
                 for name in textureData.keys {
-                    let fname = name + ".txt"
+                    let fname = name + ".tex"
                     archive.get(fname, 1_000_000) { data in
                         self.textureData[name] = data
                     }
                 }
-// ???               archive.get("Snapshot.tex", 30_000_000) { data in
-//                    if let data {
-//                        print("--- archive.get Snapshot.tex \(data.count)")
-//                         TextureData.shared.data = data
-//                    }
-//                }
             }
 
             func parseFloData(_ data: Data, merge: Bool = false, finished: CallVoid? = nil) {
@@ -190,8 +184,6 @@ public class FloArchive: NSObject {
             }
         }
     }
-
-
 
     /// remove ove leading "√ { \n" from script file if it exists
     func dropRoot(_ script: String?) -> String? {

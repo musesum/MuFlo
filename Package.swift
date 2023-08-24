@@ -15,6 +15,7 @@ let package = Package(
         .package(url: "https://github.com/musesum/MuVisit.git", from: "0.23.0"),
         .package(url: "https://github.com/musesum/MuSkyFlo.git", from: "0.23.0"),
         .package(url: "https://github.com/musesum/MuTime.git", from: "0.23.0"),
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.0")),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.0")),
         .package(url: "https://github.com/apple/swift-numerics",  .upToNextMajor(from: "1.0.0"))
     ],
@@ -24,6 +25,7 @@ let package = Package(
                 dependencies: [
                     .product(name: "Numerics", package: "swift-numerics"),
                     .product(name: "Collections", package: "swift-collections"),
+                    .product(name: "ZIPFoundation", package: "ZIPFoundation"),
                     .product(name: "MuSkyFlo", package: "MuSkyFlo"),
                     .product(name: "MuTime", package: "MuTime"),
                     .product(name: "MuVisit", package: "MuVisit"),

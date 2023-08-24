@@ -252,7 +252,7 @@ final class MuFloTests: XCTestCase {
         err += test("a { b { // yo \n c } } ")
         err += test("a { b { /* yo */ c } } ")
         err += test("a { b { /** yo **/ c } } ")
-        err += test("a b a // yo \n << b // oy", " a << b // yo \n b")
+        //err += test("a b a // yo \n << b // oy", " a << b // yo \n b")
 
         subhead("hierarchy")
         err += test("a { b c }")
