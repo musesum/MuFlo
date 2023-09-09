@@ -10,7 +10,7 @@ import MuVisit
 
 open class FloVal: Comparable {
     
-    public static var IdFloVal = [Int: FloVal]() //?? debugging only
+    //public static var IdFloVal = [Int: FloVal]() // debugging only
     public var id = -Visitor.nextId()
 
     public var valOps = FloValOps(rawValue: 0) // which combination of the following?
@@ -28,14 +28,14 @@ open class FloVal: Comparable {
     init(_ flo: Flo, _ name: String) {
         self.flo = flo
         self.name = name
-        FloVal.IdFloVal[id] = self
+        //FloVal.IdFloVal[id] = self
     }
     
     init(with: FloVal) {
         self.flo = with.flo
         self.name = with.name
         self.valOps = with.valOps
-        FloVal.IdFloVal[id] = self
+        //FloVal.IdFloVal[id] = self
     }
 
     func parse(string: String) -> Bool {
