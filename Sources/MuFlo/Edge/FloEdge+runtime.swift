@@ -4,8 +4,6 @@
 //  Copyright © 2019 DeepMuse
 
 import Foundation
-import MuVisit
-
 
 extension FloEdge {
     

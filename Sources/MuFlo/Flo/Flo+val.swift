@@ -5,7 +5,6 @@
 
 import QuartzCore
 import Collections
-import MuVisit
 
 extension Flo {
     

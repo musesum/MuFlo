@@ -5,7 +5,6 @@
 //  License: Apache 2.0 - see License file
 
 import Foundation
-import MuPar
 
 extension FloParse {
 

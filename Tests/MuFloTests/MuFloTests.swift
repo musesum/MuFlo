@@ -1,7 +1,5 @@
 import CoreFoundation
 import XCTest
-import MuPar
-import MuVisit
 import MuSkyFlo
 
 @testable import MuFlo

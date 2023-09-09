@@ -5,8 +5,6 @@
 //  License: Apache 2.0 - see License file
 
 import Foundation
-import MuVisit
-import MuPar
 
 public class FloParse {
 
