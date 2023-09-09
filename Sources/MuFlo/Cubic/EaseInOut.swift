@@ -120,11 +120,13 @@ class EaseInOut {
     }
     
     func logInter(_ suffix: String = "" ) {
+        #if false
         print("now|warp|sum: (\(interNow.digits(2)) | \(interWarp.digits(2)) | \(durationSum.digits(2))) " +
               "(bump * fact): (\(interBump.digits(2)) * \(bumpFactor.digits(2))) " +
               "norm: \(warpNorm(interval: interNow).digits(4)) " +
               "val: \(valNow.digits(3))" +
               suffix)
+        #endif
     }
     func finish() {
         interNow = 0

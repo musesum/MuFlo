@@ -60,9 +60,7 @@ public class FloPlugin {
         NextFrame.shared.addFrameDelegate(key, self)
     }
     func setTween() -> Bool {
-        
-       flo.exprs?.logValTwees()
-
+       // flo.exprs?.logValTwees()
         timeNow = Date().timeIntervalSince1970
         var hasDelta = false
         let polyTweens = easyVals.getValNow(timeNow)

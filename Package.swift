@@ -1,10 +1,10 @@
-// swift-tools-version:5.8
+// swift-tools-version: 5.8
 
 import PackageDescription
 
 let package = Package(
     name: "MuFlo",
-    platforms: [.iOS(.v15)],
+    platforms: [.iOS(.v16)],
     products: [
         .library(
             name: "MuFlo",
@@ -15,7 +15,7 @@ let package = Package(
         .package(url: "https://github.com/musesum/MuVisit.git", from: "0.23.0"),
         .package(url: "https://github.com/musesum/MuSkyFlo.git", from: "0.23.0"),
         .package(url: "https://github.com/musesum/MuTime.git", from: "0.23.0"),
-        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.0")),
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .branch("development")),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.0")),
         .package(url: "https://github.com/apple/swift-numerics",  .upToNextMajor(from: "1.0.0"))
     ],
