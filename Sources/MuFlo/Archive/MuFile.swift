@@ -1,10 +1,5 @@
-//
 //  MuFile.swift
-//  MuseSky
-//
-//  Created by warren on 9/23/19.
-//  Copyright © 2019 DeepMuse All rights reserved.
-//
+//  created by musesum on 9/23/19.
 
 import UIKit
 import Compression

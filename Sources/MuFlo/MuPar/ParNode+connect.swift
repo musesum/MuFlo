@@ -1,8 +1,5 @@
 //  ParNode+connect.swift
-//
-//  Created by warren on 7/7/17.
-//  Copyright © 2017 DeepMuse
-//  License: Apache 2.0 - see License file
+//  created by musesum on 7/7/17.
 
 public extension ParNode {
     

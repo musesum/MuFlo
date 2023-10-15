@@ -1,7 +1,5 @@
 //  FloEdge+runtime.swift
-//
-//  Created by warren on 5/10/19.
-//  Copyright © 2019 DeepMuse
+//  created by musesum on 5/10/19.
 
 import Foundation
 

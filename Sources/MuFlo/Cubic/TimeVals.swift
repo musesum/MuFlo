@@ -1,10 +1,5 @@
-//
 //  TimeVals.swift
-//  DeepMuse
-//
-//  Created by warren on 8/1/23.
-//  Copyright © 2023 DeepMuse. All rights reserved.
-//
+//  created by musesum on 8/1/23.
 
 import Foundation
 class TimeVals {

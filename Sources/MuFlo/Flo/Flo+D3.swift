@@ -1,10 +1,5 @@
-//
 //  Flo+D3.swift
-//  FloGraph
-//
-//  Created by warren on 6/22/19.
-//  Copyright © 2019 DeepMuse
-//  License: Apache 2.0 - see License file
+//  created by musesum on 6/22/19.
 
 import Foundation
 extension FloEdge {

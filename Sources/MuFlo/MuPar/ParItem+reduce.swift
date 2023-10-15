@@ -1,6 +1,6 @@
 //  ParItem+reduce.swift
 //
-//  Created by warren on 3/18/19.
+//  created by musesum on 3/18/19.
 //  License: Apache 2.0 - see License file
 
 import Foundation

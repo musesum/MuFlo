@@ -1,8 +1,5 @@
 //  ParNode+print.swift
-//
-//  Created by warren on 7/1/17.
-//  Copyright © 2017 DeepMuse
-//  License: Apache 2.0 - see License file
+//  created by musesum on 7/1/17.
 
 import Foundation
 

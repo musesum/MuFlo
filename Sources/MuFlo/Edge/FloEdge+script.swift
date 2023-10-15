@@ -1,8 +1,6 @@
 //  FloEdge+script.swift
-//
-//  Created by warren on 5/18/19.
-//  Copyright © 2019 DeepMuse
-//  License: Apache 2.0 - see License file
+//  created by musesum on 5/18/19.
+
 
 import Foundation
 

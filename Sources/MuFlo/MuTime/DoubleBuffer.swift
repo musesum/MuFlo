@@ -1,8 +1,8 @@
-//  Created by warren on 12/16/22.
+//  created by musesum on 12/16/22.
 
 import Foundation
 
-public protocol BufferFlushDelegate {
+public protocol DoubleBufferDelegate {
     associatedtype Item
     mutating func flushItem<Item>(_ item: Item) -> Bool
 }
@@ -16,7 +16,7 @@ public class DoubleBuffer<Item> {
     private var timer: Timer?
     private var lock = NSLock()
 
-    public var flusher: (any BufferFlushDelegate)?
+    public var delegate: (any DoubleBufferDelegate)?
 
     public var isEmpty: Bool {
         bufs[indexNow].isEmpty
@@ -34,14 +34,14 @@ public class DoubleBuffer<Item> {
     }
 
     public func flushBuf() -> Bool {
-        guard var flusher else { return false }
+        guard var delegate else { return false }
         if bufs[indexNow].count == 0 { return false }
 
         let indexFlush = indexNow // flush what used to be nextBuffer
         indexNow = indexNow ^ 1   // flip double buffer
         var isDone = false
         for item in bufs[indexFlush] {
-            isDone = isDone || flusher.flushItem(item) // isDone || 
+            isDone = isDone || delegate.flushItem(item) // isDone 
         }
         bufs[indexFlush].removeAll()
         return isDone

@@ -1,10 +1,5 @@
-//
 //  ContainerClass.swift
-//  DeepMuse
-//
-//  Created by warren on 6/19/23.
-//  Copyright © 2023 DeepMuse. All rights reserved.
-//
+//  created by musesum on 6/19/23.
 
 import Foundation
 import Collections

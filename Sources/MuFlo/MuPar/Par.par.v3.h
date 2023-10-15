@@ -1,8 +1,5 @@
 //  Par.par.h
-//
-//  Created by warren on 6/22/17.
-//  Copyright © 2019 DeepMuse
-//  License: Apache 2.0 - see License file
+//  created by musesum on 6/22/17.
 
 // this is not parsed, describes Par.par in the Par.swift file
 par ≈ name "≈" right sub? end {

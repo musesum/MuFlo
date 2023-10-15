@@ -1,7 +1,5 @@
 //  Flo+script.swift
-//
-//  Created by warren on 4/16/19.
-//  Copyright © 2019 DeepMuse
+//  created by musesum on 4/16/19.
 
 import Foundation
 
