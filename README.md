@@ -110,17 +110,17 @@ In the above example, attach a closure to `draw.brush.size`, which then updates 
 
 Each node may have a value of: scalar, expression, or string
 ```c
-a (1)              // scalar with an initial value of 1
-b (0…1)            // scalar that ranges between 0 and 1
-c (0…127 = 1)      // scalar between 0 and 127, defaulting to 1
-d ("yo")             // a string value "yo"
-e (x 0…1, y 0…1)   // an expression (see below)
+a (1)            // scalar with an initial value of 1
+b (0…1)          // scalar that ranges between 0 and 1
+c (0…127~1)      // scalar between 0 and 127, defaulting to 1
+d ("yo")         // a string value "yo"
+e (x 0…1, y 0…1) // an expression (see below)
 ```
 Flo automatically remaps scalar ranges, given the nodes `b` & `c`
 ```c 
-b (0…1)        // range 0 to 1, defaults to 0
-c (0…127 = 1)  // range 0 to 127, with initial value of 1
-b <> c         // synchronize b and c and auto-remap values
+b (0…1)       // range 0 to 1, defaults to 0
+c (0…127~1)   // range 0 to 127, with initial value of 1
+b <> c        // synchronize b and c and auto-remap values
 ```
 When the value of `b` is changed to `0.5` it activates `c` and remaps its value to `63`;
 When the value of `c` is changed to `31`, it activates  `b` and remapts its value to `0.25`
@@ -178,8 +178,8 @@ Thus, it is possible to mirror a model in realtime. Use cases include: co-pilot 
 
 An epression is a series of named values and conditionals; they are expessed together as a group
 ```c
-a (x 1, y 2)  // x and y are sent together as a tuple
-b (x 0…1, y 0…1)  // can contain ranges
+a (x 1, y 2)          // x and y are sent together as a tuple
+b (x 0…1, y 0…1)      // can contain ranges
 c (x 0…1~1, y 0…1~1)  // and default values
 ```
 A receiver may capture a subset of a send event
@@ -214,7 +214,8 @@ b (x 0…1, y 0…1)
 c (x 0…1, y 0…1)
 
 cubic(0.25) // cubic curve for last 0.25 seconds
-a ^ cubic // animate inputs from b,c
+a ^ cubic // animate changes to a on a cubic curve
+
 ```
 Plugins may be declared inline and sync
 
@@ -271,7 +272,7 @@ MuFloD3 (future)
 
 - simple visualization of the Flo graph, using D3JS
 - continuation of prototype of previous version of Flo
-- Proof of concept [here]( https://www.youtube.com/watch?v=a703TTbxghc) (using Prefuse toolkit)
+- proof of concept [here]( https://www.youtube.com/watch?v=a703TTbxghc) (using Prefuse toolkit)
 
 ## Use cases
 
@@ -302,7 +303,7 @@ Use a camera to record body pose
 - Create a functional mirror `graph <@> body`
 - Proof of concept using Kinect/OpenNI, shown [here](https://www.youtube.com/watch?v=aFO6j6tvdk8)
 
-Check out `test.robot.input.flo.h`, which defines a Humanoid robot just a few lines of code:
+Check out `test.robot.input.flo.h`, which defines a Humanoid robot with just a few lines of code:
 ```c
 body {left right}
     .{shoulder.elbow.wrist
@@ -321,9 +322,9 @@ body {left right}
 
 *1970*'s Flo got its start with patch cords. Hundreds of patch cords. This was due to patching analog modular Synthesizers like the Moog System III and ARP 2600. It would take hours to wire up two electronic music studios, leaving litle time to perform. So, I started to develop a script for patchbays.
 
-*1980*'s Xerox OPSD contracted us to design a project management system. This was the first combination of tree (work breakdown) and graph (activities). Also wrote a hypertext system based on a tree + graph approach. 
+*1980*'s Xerox OPSD (the commercial side of PARC) contracted us to design a project management system for their graphical UI based OS. This was our first combination of tree (work breakdown) and graph (activities). Later, wrote a hypertext system also based on a tree + graph approach. 
  
-*1990*'s As a Technical Director (TD) at one of the first interactive ad agencies, wrote a dataflow based media script, called Flow. Flow supporting teams artist and animators, where the artist would script media flow, and the animator would add animation effects in C++.
+*1990*'s As a Technical Director (TD) at one of the first interactive ad agencies, wrote a dataflow based media script, called Flow. Flow supported a team, which  paired an artist with a coder. The artist would script interactive media and the coder would extend the script with new features in C++.
 
 *2000*'s Was performing as a VJ with a visual Music synthesizer written in C++ and OpenGL. The script was created to patch graphic tablets, MIDI controllers, and a Virtual Puppeteering device, called a Vuppet.
 
@@ -337,7 +338,7 @@ body {left right}
 
 The syntax borrows principles from Xerox Parc, Swift and Python
 
-Xerox studied different text editors and, through detailed analytics, determined the gesture cost of a transactions, like cut & paste. Thus, a data driven approach towards more efficient text editing. The results of this approached was written up in the book "The Psychology of Human Computer Interaction" [here](file:///Users/warren/Downloads/1983_WP_ThePsychologyofHumanComputerInteraction.PDF)
+Xerox studied different text editors and, through detailed analytics, determined the gesture cost of a transactions, like cut & paste. Thus, a data driven approach towards more efficient text editing. The results of this approached was written up in the book "The Psychology of Human Computer Interaction" [here](https://books.google.com/books?id=iUtaDwAAQBAJ&printsec=frontcover#v=onepage&q&f=true)
 
 Swift eliminated semicolons, resulting in less text to edit, with somewhat more Human readable source.
 
@@ -366,7 +367,7 @@ What is the gesture cost of authoring on an iPhone or iPad? In other words, how 
 
 So, I spent a few weeks playing with replacing the { } with ( ). The syntax seemed so much cleaner, but Xcode would crash. Instead of filing a bug report, I assumed that the problem may extend to other editors. So, reverted back to `{ }`.
 
-There are two special characters, which seems to violate interoperability, but pass: `…` and `˚` 
+There are two special characters, which seems to violate interoperability, but seems ok: `…` and `˚` 
     `…` is `option ;` on a Mac and `123, long-press .` on an iPhone
     `˚` is `option k` on a Mac and `123, long-press 0` on an iPhone/iPad
     
@@ -414,7 +415,7 @@ This is where the toy visual music synth may play a part. By segmenting and remi
 
 This is more of a problem for the publishers of LLMs as they begin to license APIs. There are also security issues, mentioned later.
 
-Around 1989, software publishers began to experiment with protecting content. The term of art was called Digital Rights Management or DRM. DRM had two approaches: recompile code for each app, or support a secure enclave at the OS level. The recompile approach was prohibitively expensive. It was deployed and tested ad hoc. It didn't scale. The solution was to create a secure enclave. Deploy the binary in a sandbox, where all changes was contained an reversible. Today, most app are installed into a secure enclave. (BTW, this author invented and patented the process in 1990.)
+Around 1989, software publishers began to experiment with protecting content. The term of art was called Digital Rights Management or DRM. DRM had two approaches: recompile code for each app, or support a secure enclave at the OS level. The recompile approach was prohibitively expensive. It was deployed and tested ad hoc. It didn't scale. The solution was to create a secure enclave. Deploy the binary in a sandbox, where all changes was contained and reversible. Today, most app are installed into a secure enclave. (BTW, this author pioneered the process [US5341429A](https://patents.google.com/patent/US5341429?oq=ininventor:%22John+W.+Stringer%22), [US5642417A](https://patents.google.com/patent/US5642417?oq=ininventor:%22John+W.+Stringer%22))
 
 Why mention DRM? Because LLMs are on the other side of a scaling issue. By one estimate [here](https://devops.com/api-sprawl-a-looming-threat-to-digital-economy/) there may be 45 million developers accessing over a billion APIs, by 2030. How many APIs will embed a LLM? This is akin to the old model of recompiling and app for DRM. Managing the sprawl does not scale. What is needed is a secure enclave for APIs.
 
@@ -460,6 +461,8 @@ time(hms)
 ```
 Obviously, there is a lot of policy here, where the fictitious example.com agrees to sync `<>` with a client. It is possible that the Flo example generates the Postman example.  
 
+### Visual Exploration 
+
 There are several Graphical versions of visualizing data flow. An experiment with an earlier version of Flo (called Tr3), can be found [here](https://www.youtube.com/watch?v=a703TTbxghc&t=5s&ab_channel=Ikoino) 
 
 There have been extensive experiments of outputting a D3.JS force directed graph. With the advent of Spatial Computing, it at maybe worth creating a force directed graph directly in Swift/C++. Perhaps implementing the directed graph in 3D space may resolve some delimmas around complexity. Muriel Cooper explored some of these idea at MIT Media Lab. 
@@ -468,12 +471,12 @@ There have been extensive experiments of outputting a D3.JS force directed graph
 
 Prompt engineering is already a thing. LLMs are spouting misinformation with complete confidence. Fixes are often ad hoc after a attack was found in the field. What if you were able to explore and proactively defend attack? Let's say you have a 100 Trillion parameter LLM and you want to explore Election Misinformation attacks. So you shadow the LLM with a statement like `˚˚election<(1000)>˚˚attack` to yield a graph election attacks limited to 1000 nodes. 
 
-Does Flo support this now? Nope. 
+Does Flo support this now? Nope. (Would need a compiler)
 
 ### Expressiveness
 
-One technique is to cluster words with similar meanings, such as Word2Vec [here](https://cnkndmr.gitlab.io/others/en/neural-network-word2vec.html). Now imagine collapsing clusters into a single node, somewhat akin to taking the above example [here](https://youtu.be/a703TTbxghc?t=287) and collapsing the convex hulls into --say-- a dozen nodes. This has been for decades with Project Management software, where a complex project is broken into sub-projects. The main difference is, while Project management works top-down, the custering works bottom up.
+One technique is to cluster words with similar meanings, such as [Word2Vec](https://cnkndmr.gitlab.io/others/en/neural-network-word2vec.html). Now imagine [clustering](https://youtu.be/a703TTbxghc?t=287) related meanings and folding that cluster into a single node. This has been for decades with Project Management software, where a complex project is broken into sub-projects. The main difference is, while Project management works top-down, the custering works bottom up.
 
 Returning to the `˚˚election<(1000)>˚˚attack` example. The `˚˚election` and `˚˚attack` paths can represent clusters of similar meanings around the keywords `election` and `attack` -- as a kind of theasarus. Meanwhile, the edge `<1000>` could reduce millions of result to a 1000 nodes with the strongest connections. 
 
-That in turn could be reduced to <100> or even <10> most relevan connections as a navigational starting point. Perhaps as a spatial flythrough venn set -- a kind of 3D version of [this](https://github.com/christophe-g/d3-venn)
+That in turn could be reduced to <100> or even <10> most relevant connections as a navigational starting point. Perhaps as a spatial flythrough venn set -- a kind of 3D version of [this](https://github.com/christophe-g/d3-venn)
