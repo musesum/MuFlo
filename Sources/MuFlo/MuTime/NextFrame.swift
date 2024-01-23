@@ -46,8 +46,8 @@ public class NextFrame {
         print("􀿏[\(key)]🔺")
     }
 
-    @objc func nextFrames() -> Bool  {
-        guard !pause else { return false }
+    @objc public func nextFrames(force: Bool = false) -> Bool  {
+        if !force && pause { return false }
         for (key,delegate) in delegates {
             if delegate.nextFrame() == false {
                 removeDelegate(key)

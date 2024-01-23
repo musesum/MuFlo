@@ -56,6 +56,8 @@ public class FloPlugin {
         easyVals.add(from: twes, to: vals)
         NextFrame.shared.addFrameDelegate(key, self)
     }
+
+    /// Tween is intermediate value for animation plug-in
     func setTween() -> Bool {
        // flo.exprs?.logValTwees()
         timeNow = Date().timeIntervalSince1970

@@ -28,16 +28,17 @@ public class Flo {
     public var children = [Flo]()   // expanded flo from  wheres˚flo
     public var comments = FloComments()
 
-    public var string  : String   { get { StringVal()  ?? "??"  }}
-    public var double  : Double   { get { DoubleVal()  ?? .zero }}
-    public var float   : Float    { get { FloatVal()   ?? .zero }}
-    public var cgFloat : CGFloat  { get { CGFloatVal() ?? .zero }}
-    public var cgPoint : CGPoint  { get { CGPointVal() ?? .zero }}
-    public var cgSize  : CGSize   { get { CGSizeVal()  ?? .zero }}
-    public var int     : Int      { get { IntVal()     ?? .zero }}
-    public var uint32  : UInt32   { get { UInt32Val()  ?? .zero }}
-    public var bool    : Bool     { get { BoolVal()             }}
-    public var names   : [String] { get { NamesVal()   ?? []    }}
+    public var string  : String       { get { StringVal()  ?? "??"  }}
+    public var double  : Double       { get { DoubleVal()  ?? .zero }}
+    public var float   : Float        { get { FloatVal()   ?? .zero }}
+    public var cgFloat : CGFloat      { get { CGFloatVal() ?? .zero }}
+    public var cgPoint : CGPoint      { get { CGPointVal() ?? .zero }}
+    public var cgSize  : CGSize       { get { CGSizeVal()  ?? .zero }}
+    public var int     : Int          { get { IntVal()     ?? .zero }}
+    public var uint32  : UInt32       { get { UInt32Val()  ?? .zero }}
+    public var bool    : Bool         { get { BoolVal()             }}
+    public var xyz     : SIMD3<Float> { get { XyzVal() ?? .zero     }}
+    public var names   : [String]     { get { NamesVal()   ?? []    }}
 
     public var scriptDelta : String { scriptRoot(FloScriptOps.Delta) }
     public var scriptNow   : String { scriptRoot(FloScriptOps.Now  ) }

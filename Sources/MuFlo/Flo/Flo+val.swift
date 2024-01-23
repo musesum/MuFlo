@@ -25,7 +25,28 @@ extension Flo {
         }
         return false
     }
-    
+    func XyzVal() -> SIMD3<Float>? {
+        var x: Float?
+        var y: Float?
+        var z: Float?
+        if let exprs {
+            for any in exprs.nameAny.values {
+                if let scalar = any as? FloValScalar {
+                    switch name {
+                    case "x": x = Float(scalar.twe)
+                    case "y": y = Float(scalar.twe)
+                    case "z": z = Float(scalar.twe)
+                        default: continue
+                    }
+                }
+            }
+            if let x, let y, let z {
+                return SIMD3<Float>(x: x, y: y, z: z)
+            }
+        }
+        return nil
+    }
+
     func DoubleVal() -> Double? {
         if let exprs {
             for any in exprs.nameAny.values {
