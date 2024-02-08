@@ -2,9 +2,7 @@
 //
 
 import Foundation
-extension Double {
-    
-}
+
 extension FloOpAny {
 
     func evaluate(_ toVal: Any?,

@@ -23,7 +23,7 @@ public class Par {
                 .replacingOccurrences(of: "(", with: "(\n")
                 .replacingOccurrences(of: ",", with: ",\n")
             
-            if Par.trace2 { print(result + divider()) }
+            if Par.trace2 { print(result.divider()) }
             
             if let node = parseParItem(parItem) {
                 return node
@@ -36,15 +36,15 @@ public class Par {
         
         let _ = parStr.read(filename, ext)
         
-        if Par.trace { print(parStr.str + divider()) }
-        
+        if Par.trace { print(parStr.str.divider()) }
+
         if let parItem = Par.par.findMatch(parStr).parLast {
             
             let result = parItem.makeScript()
                 .replacingOccurrences(of: "(", with: "(\n")
                 .replacingOccurrences(of: ",", with: ",\n")
             
-            if Par.trace2 { print(result + divider()) }
+            if Par.trace2 { print(result.divider()) }
             
             if let node = parseParItem(parItem) {
                 return node
@@ -70,7 +70,7 @@ public class Par {
         var lastNode = superNode
         
         if Par.trace2 {
-            print("\n" + pad(level) + superNode.makeScript(isLeft: false), terminator: ": ")
+            print("\n⦙ ".pad(level) + superNode.makeScript(isLeft: false), terminator: ": ")
         }
         
         /// parse list of sibling pars and promote up a level

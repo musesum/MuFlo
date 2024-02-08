@@ -11,6 +11,7 @@ let package = Package(
             targets: ["MuFlo"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/musesum/MuExtensions.git", .branch("main")),
         .package(url: "https://github.com/musesum/MuSkyFlo.git", from: "0.23.0"),
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .branch("development")),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.0")),
@@ -23,6 +24,7 @@ let package = Package(
                     .product(name: "Numerics", package: "swift-numerics"),
                     .product(name: "Collections", package: "swift-collections"),
                     .product(name: "ZIPFoundation", package: "ZIPFoundation"),
+                    .product(name: "MuExtensions", package: "MuExtensions"),
                     .product(name: "MuSkyFlo", package: "MuSkyFlo"),
                     ],
                 resources: [.process("Resources")]),
