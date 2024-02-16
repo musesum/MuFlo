@@ -18,14 +18,14 @@ public class FloArchive: NSObject {
 
     private var bundleNameDates = [String: TimeInterval]()
     private var documentNameDates = [String: TimeInterval]()
-    private var bundle: Bundle
+    private var bundles: [Bundle]
 
-    public init(bundle: Bundle,
+    public init(bundles: [Bundle],
                 archive: String,
                 scripts: [String],
                 textures: [String]) {
 
-        self.bundle = bundle
+        self.bundles = bundles
         self.archiveName = archive
         self.scriptNames = scripts
         for texture in textures {
@@ -55,11 +55,14 @@ public class FloArchive: NSObject {
         func getFloBundleChanges() {
 
             for name in scriptNames {
-                if let floPath = bundle.path(forResource: name, ofType: ".flo.h") {
-                    let date = MuFile.shared.pathDate(floPath)
-                    if date > 0 {
-                        bundleNameDates[name] = date
-                        print(String(format: "Bundle/%@ %.2f Δ %.f", name, date, date - archiveDate))
+                for bundle in bundles {
+                    if let floPath = bundle.path(forResource: name, ofType: ".flo.h") {
+                        let date = MuFile.shared.pathDate(floPath)
+                        if date > 0 {
+                            bundleNameDates[name] = date
+                            print(String(format: "Bundle/%@ %.2f Δ %.f", name, date, date - archiveDate))
+                        }
+                        continue
                     }
                 }
             }
@@ -239,17 +242,18 @@ public class FloArchive: NSObject {
     }
     func read(_ fname: String,
               _ ext: String) -> String? {
-
-        guard let path = bundle.path(forResource: fname, ofType: ext)  else {
-            print("⁉️ FloBundle:: couldn't find file: \(fname).\(ext)")
-            return nil
-        }
-        do {
-            return try String(contentsOfFile: path) }
-        catch {
-            print("⁉️ filename:: error:\(error) loading contents of:\(path)")
+        
+        for bundle in bundles {
+            if let path = bundle.path(forResource: fname, ofType: ext) {
+                do {
+                    return try String(contentsOfFile: path)
+                }  catch {
+                    print("⁉️ filename:: error:\(error) loading contents of:\(path)")
+                }
+            }
         }
         return nil
     }
-
+    
+    
 }
