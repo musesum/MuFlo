@@ -254,8 +254,6 @@ extension Flo {
 
         let (prefix, _, suffix) = path.splitWild(".")
 
-        if name == prefix { return findPath(suffix) }
-
         for child in children {
             if child.name == prefix { return child.findPath(suffix) }
         }
