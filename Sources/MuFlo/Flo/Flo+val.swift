@@ -2,6 +2,7 @@
 
 import QuartzCore
 import Collections
+import UIKit
 
 extension Flo {
     
@@ -30,13 +31,13 @@ extension Flo {
         var y: Float?
         var z: Float?
         if let exprs {
-            for any in exprs.nameAny.values {
+            for (name,any) in exprs.nameAny {
                 if let scalar = any as? FloValScalar {
                     switch name {
                     case "x": x = Float(scalar.twe)
                     case "y": y = Float(scalar.twe)
                     case "z": z = Float(scalar.twe)
-                        default: continue
+                    default: continue
                     }
                 }
             }
@@ -167,6 +168,28 @@ extension Flo {
     /// get nameed value
     public func component(named: String) -> Any? {
         return exprs?.nameAny[named] ?? nil
+    }
+    /// get named double
+    public func double(named: String) -> Double? {
+        if let any = exprs?.nameAny[named] {
+            switch any {
+            case let scalar as FloValScalar: return scalar.twe
+            case let double as Double: return double
+            default:  break
+            }
+        }
+        return nil
+    }
+    /// get named Phase
+    public func phase(named: String) -> UITouch.Phase? {
+        if let any = exprs?.nameAny[named] {
+            switch any {
+            case let scalar as FloValScalar: return UITouch.Phase(rawValue: Int(scalar.twe))
+            case let double as Double: return  UITouch.Phase(rawValue: Int(double))
+            default:  break
+            }
+        }
+        return nil
     }
 
     /// convert FloExprs contiguous array to dictionary

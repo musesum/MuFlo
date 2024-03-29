@@ -37,7 +37,7 @@ public class Flo {
     public var int     : Int          { get { IntVal()     ?? .zero }}
     public var uint32  : UInt32       { get { UInt32Val()  ?? .zero }}
     public var bool    : Bool         { get { BoolVal()             }}
-    public var xyz     : SIMD3<Float> { get { XyzVal() ?? .zero     }}
+    public var xyz     : SIMD3<Float> { get { XyzVal()     ?? .zero }}
     public var names   : [String]     { get { NamesVal()   ?? []    }}
 
     public var scriptDelta : String { scriptRoot(FloScriptOps.Delta) }

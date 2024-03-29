@@ -6,6 +6,8 @@ import Foundation
 
 public class FloValScalar: FloVal {
 
+    public static let blank = FloValScalar(Flo(), "blank")
+
     // default scalar value is (0…1 = 1)
     public var pre  = Double(0) // prevous value; for animating twe
     public var twe  = Double(0) // current value; 2 in 0…3~1:2
@@ -52,7 +54,6 @@ public class FloValScalar: FloVal {
                 return ret
             }
         }
-        print("⁉️ \(flo.name): cannot normalize \(twe)")
         return val
     }
     public func range() -> ClosedRange<Double> {

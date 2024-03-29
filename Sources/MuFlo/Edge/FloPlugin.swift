@@ -65,9 +65,7 @@ public class FloPlugin {
         let polyTweens = easyVals.getValNow(timeNow)
         for i in 0 ..< polyTweens.count {
             let floVal = floScalars[i]
-            let polyTwe = polyTweens[i]
-
-            floVal.twe = polyTwe
+            floVal.twe = polyTweens[i]
             hasDelta = hasDelta || abs( floVal.val - floVal.twe) > 1E-9
         }
         flo.activate(Visitor(plugExprs.id, from: .tween))

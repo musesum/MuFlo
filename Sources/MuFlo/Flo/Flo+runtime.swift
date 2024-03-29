@@ -5,6 +5,24 @@ import QuartzCore
 
 extension Flo {
 
+    public func setDoubles(_ nameDoubles: [(String,Double)]) {
+        guard let exprs else { return err("exprs == nil")}
+        let nameAny = exprs.nameAny
+
+        for (xname,double) in nameDoubles {
+            guard let val = nameAny[xname] else {
+                return err("\(xname) not found") }
+            if let scalar = val as? FloValScalar {
+                scalar.twe = double
+                scalar.val = double
+            } else {
+                nameAny[xname] = FloValScalar(self,xname,double)
+            }
+        }
+        func err(_ msg: String) {
+            print("⁉️ Flo::setDoubles \(path()) \(msg)")
+        }
+    }
     public func setAny(_ any: Any,
                        _ options: FloSetOps,
                        _ visit: Visitor = Visitor(0)) {
@@ -76,7 +94,6 @@ extension Flo {
             #endif
         }
     }
-
 
     /// three examples:
     /// 1. `a(1), b(2) >> a(3)`     // b has an edge value (3)
