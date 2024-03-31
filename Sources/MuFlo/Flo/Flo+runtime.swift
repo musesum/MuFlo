@@ -20,7 +20,7 @@ extension Flo {
             }
         }
         func err(_ msg: String) {
-            print("⁉️ Flo::setDoubles \(path()) \(msg)")
+            //print("⁉️ Flo::setDoubles \(path()) \(msg)")
         }
     }
     public func setAny(_ any: Any,
