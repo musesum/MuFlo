@@ -1,6 +1,5 @@
 import CoreFoundation
 import XCTest
-import MuSkyFlo
 
 @testable import MuFlo
 
@@ -50,22 +49,9 @@ final class MuFloTests: XCTestCase {
         print("⁉️ \(#function) cannot find:\(filename)")
         return nil
     }
-    func readSky(_ filename: String) -> String? {
-        return MuSkyFlo.read(filename, "flo.h")
-    }
 
-    func parseSky(_ name: String, _ root: Flo) -> Int {
-        if let script = MuSkyFlo.read(name, "flo.h"),
-           FloParse().parseScript(root, script) {
-            print (name +  " ✓")
-            return 0
-        } else {
-            print(name + " ⁉️ parse failed")
-            return 1
-        }
-    }
     func parse(_ name: String,_ root: Flo) -> Int {
-        if let script = read(name) ?? MuSkyFlo.read(name, "flo.h"),
+        if let script = read(name),
            floParse.parseScript(root, script) {
             print (name +  " ✓")
             return 0
@@ -75,17 +61,7 @@ final class MuFloTests: XCTestCase {
         }
     }
 
-    func testSkyFile(_ inFile: String, out outFile: String) -> Int {
 
-        if let inScript  = MuSkyFlo.read(inFile,  "flo.h"),
-           let outScript = MuSkyFlo.read(outFile, "flo.h") {
-
-            return testParse(inScript, outScript)
-
-        } else {
-            return 1 // error
-        }
-    }
     func testParse(_ inScript: String,
                    _ outScript: String,
                    full: Bool = false) -> Int {
@@ -1354,33 +1330,6 @@ final class MuFloTests: XCTestCase {
 
     }
 
-    //    func testMidi() { headline(#function)
-    //        var err = 0
-    //        err += testSkyFile("midi",  out: "test.midi.output")
-    //        XCTAssertEqual(err, 0)
-    //    }
-    //
-    //    func testShader() { headline(#function)
-    //        var err = 0
-    //        err += testSkyFile("shader",  out: "test.shader.output")
-    //        XCTAssertEqual(err, 0)
-    //    }
-    //
-    //    /// test `DeepMuse` app script
-    //    func testMuseSky() { headline(#function)
-    //
-    //        let root = Flo("√")
-    //        var err = 0
-    //        err += parseSky("sky", root)
-    //        err += parseSky("menu", root)
-    //        err += parseSky("shader", root)
-    //
-    //        let actual = root.scriptRoot([.parens, .def, .edge, .comment, .noLF])
-    //        let expect = readSky("test.sky.output") ?? ""
-    //        err += ParStr.testCompare(expect, actual)
-    //
-    //        XCTAssertEqual(err, 0)
-    //    }
 
     // MARK: - all tests
 
@@ -1412,7 +1361,6 @@ final class MuFloTests: XCTestCase {
         ("testPassthrough", testPassthrough),
         ("testD3Script", testD3Script),
         ("testBodySkeleton", testBodySkeleton),
-        // ("testMidi", testMidi),
-        // ("testMuseSky", testMuseSky),
+
     ]
 }
