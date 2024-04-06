@@ -2,7 +2,6 @@
 //  created by musesum on 7/3/17.
 
 import Foundation
-import MuExtensions
 
 public class ParRepetitions {
     

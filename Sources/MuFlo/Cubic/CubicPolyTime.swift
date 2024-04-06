@@ -2,7 +2,6 @@
 
 import Foundation
 import simd
-import MuExtensions
 
 typealias Int4 = Val4<Int>
 
