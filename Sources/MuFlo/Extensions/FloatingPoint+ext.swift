@@ -10,20 +10,21 @@ public extension Formatter {
 public extension FloatingPoint {
 
     func digits(_ range: ClosedRange<Int>) -> String {
-        let lower: Int
-        let minus: Bool
+        let lowerBound: Int
+        let hasMinus: Bool
         if range.lowerBound < 0 {
-            lower = -range.lowerBound
-            minus = true
+            lowerBound = -range.lowerBound
+            hasMinus = true
         } else {
-            lower = range.lowerBound
-            minus = false
+            lowerBound = range.lowerBound
+            hasMinus = false
         }
         Formatter.number.roundingMode = NumberFormatter.RoundingMode.halfEven
-        Formatter.number.minimumFractionDigits = lower
+        Formatter.number.minimumFractionDigits = lowerBound
         Formatter.number.maximumFractionDigits = range.upperBound
-        let str = Formatter.number.string(for:  self) ?? ""
-        return minus && self < 0 ? str : " " + str
+        let number = Formatter.number.string(for:  self) ?? ""
+        let placeholder = hasMinus && self >= 0 ? " " : ""
+        return placeholder + number
     }
 
     func digits(_ range: Int) -> String {

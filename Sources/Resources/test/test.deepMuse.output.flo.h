@@ -93,17 +93,17 @@ shader {
     }
     file {
         cell {
-            fade ("cell.fader.metal")
-            ave ("cell.ave.metal")
-            melt ("cell.melt.metal")
-            tunl ("cell.tunl.metal")
-            slide ("cell.slide.metal")
-            fred ("cell.fred.metal")
-            zha ("cell.zha.metal")
+            fade ("kernel.cell.fader.metal")
+            ave ("kernel.cell.ave.metal")
+            melt ("kernel.cell.melt.metal")
+            tunl ("kernel.cell.tunl.metal")
+            slide ("kernel.cell.slide.metal")
+            fred ("kernel.cell.fred.metal")
+            zha ("kernel.cell.zha.metal")
         }
         pipe {
-            record camera ("cell.camera.metal")
-            camix ("cell.camix.metal")
+            record camera ("kernel.cell.camera.metal")
+            camix ("kernel.cell.camix.metal")
             draw ("pipe.draw.metal")
             render ("pipe.render.metal")
             color ("pipe.color.metal")

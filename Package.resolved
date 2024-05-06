@@ -1,15 +1,6 @@
 {
   "pins" : [
     {
-      "identity" : "muextensions",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/musesum/MuExtensions.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "7e7dcde9b02fa2671c9ae3aadb5646ec19e4eaa5"
-      }
-    },
-    {
       "identity" : "swift-collections",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections.git",

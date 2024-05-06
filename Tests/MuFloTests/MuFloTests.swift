@@ -127,7 +127,7 @@ final class MuFloTests: XCTestCase {
         err += test("a(x,y,z)<<b, b(x:1, y:2, z:3)")
         err += test("a(0…1~0:1)", nil, [.parens, .def, .val])
 
-        err += test("cell.one(1).two(2).three(3)", nil, [.parens, .val, .compact])
+        err += test("kernel.cell.one(1).two(2).three(3)", nil, [.parens, .val, .compact])
         err += test("a(0…1~0:1)", nil, [.parens, .def, .val])
 
         err += test("c(0…1:1)", nil, [.parens, .def, .val ])

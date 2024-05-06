@@ -10,7 +10,7 @@ extension Flo {
         if let exprs,
            let str = exprs.opAnys.first?.any as? String {
             // anonymous String inside expression
-            // example `color ("compute.color.metal")`
+            // example `color ("kernel.color.metal")`
             return str
         }
         return nil
