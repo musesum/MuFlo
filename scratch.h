@@ -1,0 +1,6 @@
+76.04: updateRunway x(210,613, 100,20)
+76.04: updateRunway z(322,646, 20,100)
+76.04: updateRunway xyz(198,636, 120,120)
+76.04: updateRunway y(174,646, 20,100)
+78.76: thumb (0.00, 0.00, 0.75) center (19.00, 655.00)
+88.93: touchThumbNext  pointNow(307,749)  xyz ( 0.74, 0.22, 0.00)
