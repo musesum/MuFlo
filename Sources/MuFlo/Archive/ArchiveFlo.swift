@@ -181,8 +181,7 @@ open class ArchiveFlo: NSObject {
             if let data = zip.readFile(name + ".png"),
                let tex = pngDataToTexture(data) {
                 tex.label = name
-                self.
-                [name] = tex
+                self.nameTex[name] = tex
             }
         }
     }
