@@ -46,12 +46,13 @@ public struct VisitType: OptionSet {
        return joined
     }
     public var bind   : Bool { contains(.bind  ) }
+    public var tween  : Bool { contains(.tween ) }
     public var remote : Bool { contains(.remote) }
     public var canvas : Bool { contains(.canvas) }
     public var user   : Bool { contains(.user  ) }
     public var model  : Bool { contains(.model ) }
     public var midi   : Bool { contains(.midi  ) }
-    public var tween  : Bool { contains(.tween ) }
+
 
     public static func + (lhs: VisitType, rhs: VisitType) -> VisitType {
         return VisitType(rawValue: lhs.rawValue | rhs.rawValue)

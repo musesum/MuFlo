@@ -56,7 +56,7 @@ public class FloComments {
         return hasType.contains(type)
     }
 
-    public func getComments(_ getType: FloCommentType,
+    public func scriptComments(_ getType: FloCommentType,
                             _ scriptOpts: FloScriptOps) -> String {
         var result = ""
         if scriptOpts.comment, have(type: getType) {

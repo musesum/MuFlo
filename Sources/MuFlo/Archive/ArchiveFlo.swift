@@ -4,7 +4,7 @@ import UIKit
 ///
 /// Each MU archive usually contains the file entries:
 ///
-///     - full.flo.h // flo script snapshot
+///     - delta.flo.h // flo script snapshot
 ///     - icon.png // displayed in picker
 ///     - pipe.draw.png // cellular automata texture
 ///
@@ -46,7 +46,7 @@ import UIKit
 ///     - in finder reveal the "Deep Muse" app's `files`,
 ///     - copies `Snapshot.mu` file to Mac
 ///     - double-click to expand the file in a directory
-///     - edit the `full.flo.h` script directly
+///     - edit the `delta.flo.h` script directly
 ///
 ///     - compress directory back to a `Snapshot.zip`,
 ///     - rename extension to `Snapshot.mu`,
@@ -72,9 +72,7 @@ open class ArchiveFlo: NSObject {
     private var textureNames: [String]
     private var bundles: [Bundle]
     private let Files = FileManager.default
-
     public var nameTex = [String: MTLTexture?]()
-    //... public let root˚ = Flo.root˚
 
     public init(_ bundles      : [Bundle],
                 _ snapName     : String,
@@ -110,7 +108,7 @@ open class ArchiveFlo: NSObject {
         }
 
         func readZip(_ zip: ArchiveZip) {
-            if let data = zip.readFile("full.flo.h"),
+            if let data = zip.readFile("now.flo.h"),
                let script = dropRoot(String(data: data, encoding: .utf8)) {
 
                 let mergeRoot = Flo("√")
@@ -118,7 +116,7 @@ open class ArchiveFlo: NSObject {
                     Flo.root˚.mergeFloValues(mergeRoot)
                 }
             } else {
-                parseAppStartupScripts()
+                parseAppStartupScripts() //.....move this up and merge with delta.flo.h
             }
             unzipPngTextures(zip)
 
@@ -153,14 +151,18 @@ open class ArchiveFlo: NSObject {
         if let archive = ArchiveZip(snapName, "mu", .read),
            archive.archiveTime > getApplicationTime() {
 
-            if let data = archive.readFile("full.flo.h"),
+            if Flo.root˚.children.isEmpty {
+                parseAppStartupScripts()
+            }
+
+            if let data = archive.readFile("now.flo.h"),
                let script = dropRoot(String(data: data, encoding: .utf8)) {
 
-                if FloParse.shared.parseRoot(Flo.root˚, script) {
-                    Flo.root˚.activateAllValues() //...
+                let mergeRoot = Flo("√")
+                if FloParse.shared.parseRoot(mergeRoot, script) {
+
+                    Flo.root˚.mergeFloValues(mergeRoot) 
                 }
-            } else {
-                parseAppStartupScripts()
             }
             unzipPngTextures(archive)
             return true
@@ -179,7 +181,8 @@ open class ArchiveFlo: NSObject {
             if let data = zip.readFile(name + ".png"),
                let tex = pngDataToTexture(data) {
                 tex.label = name
-                self.nameTex[name] = tex
+                self.
+                [name] = tex
             }
         }
     }

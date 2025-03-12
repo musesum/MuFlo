@@ -39,18 +39,18 @@ final class MuFloTests: XCTestCase {
         err += test("a.b.c {d e f}",  "a.b.c { d e f }")
         err += test("a.b.c.{d e f}",  "a.b.c { d e f }")
 
-        err += test("a { b c } a.b(-> c(1))", "a { b(-> a.c(1)) c }")
-        err += test("a { b c } a { b(-> c(1)) }", "a { b(-> a.c(1)) c }")
+        err += test("a { b c } a.b(-> c(1))", "a { b(-> c(1)) c }")
+        err += test("a { b c } a { b(-> c(1)) }", "a { b(-> c(1)) c }")
 
-        err += test("a { b f } z:a z.f(-> b(1))", "a { b f } z { b f(-> z.b(1)) }")
+        err += test("a { b f } z:a z.f(-> b(1))", "a { b f } z { b f(-> b(1)) }")
 
         err += test("a { b c }.{ d e } z:a z.b.e(-> z.c(1))",
-                    "a { b { d e } c { d e } } z { b { d e(-> z.c(1)) } c { d e } }")
+                    "a { b { d e } c { d e } } z { b { d e(-> c(1)) } c { d e } }")
 
         err += test("a {b c}.{d e f(-> b(1)) } z:a z.b.f(->c(1))",
                     """
-                    a { b { d e f(-> a.b(1)) } c { d e f(-> a.b(1)) } }
-                    z { b { d e f(-> z.c(1)) } c { d e f(-> z.b(1)) } }
+                    a { b { d e f(-> b(1)) } c { d e f(-> b(1)) } }
+                    z { b { d e f(-> c(1)) } c { d e f(-> b(1)) } }
                     """) // f; f to b
 
         err += test("a { b c }.{ d(0…1, -> a˚on(0)) }",
@@ -78,8 +78,9 @@ final class MuFloTests: XCTestCase {
     }
     func testEdgeComma() { headline(#function)
         var err = 0
-        err += test("z { b c { d e f(-> (z.b(1), z.c(1))) } }") 
-        err += test("z { b c { d e f(-> (z.b.d(1), z.b.e(1))) } }")
+        err += test("z { b c { d e f(-> c) } }")
+        err += test("z { b c { d e f(-> (b(1), c(1))) } }")
+        err += test("z { b c { d e f(-> (z.b.d(1), z.b.e(1))) } }") // no  (z.b.d(1), z.b.e(1))
         XCTAssertEqual(err, 0)
     }
     func testSimple() { headline(#function)
@@ -168,7 +169,7 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
 
-    func testPraseComments() { headline(#function)
+    func testParseComments() { headline(#function)
         var err = 0
         err += test("a // yo")
         err += test("a { b } // yo", "a { // yo \nb } ")
@@ -220,7 +221,7 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
 
-    func testValue() { headline(#function)
+    func testExpr() { headline(#function)
         var err = 0
         subhead("simple")
         err += test("a (1)")
@@ -318,7 +319,7 @@ final class MuFloTests: XCTestCase {
 
         subhead("degree edge")
         err += test("a { b { c } } a˚˚(<> .*) ", "a(<> b).b(<> c).c")
-        err += test("a { b { c } }  ˚˚(<> ..) ", "a(<> √).b(<> a).c(<> a.b)")
+        err += test("a { b { c } }  ˚˚(<> ..) ", "a(<> √).b(<> a).c(<> b)")
 
         subhead("multi edge")
         err += test("a(<- (b c))", "a(<- (b, c))")
@@ -468,6 +469,13 @@ final class MuFloTests: XCTestCase {
         } else {
             err += 1
         }
+        XCTAssertEqual(err, 0)
+    }
+    func testEdgePath() { headline(#function)
+        var err=0
+        XCTAssertEqual(err, 0)
+        err += test("a { b c }.{ d e (-> d) }",
+                    "a { b { d e(-> d) } c { d e(-> d) } }")
         XCTAssertEqual(err, 0)
     }
     //MARK: - Base
@@ -1029,7 +1037,7 @@ final class MuFloTests: XCTestCase {
            let a = root.findPath("a") {
 
             err += Parsin.testCompare("a(x in 2…4, y in 3…5, -> b)  b(x 1…2, y 2…3)", root.scriptAll)
-            err += Parsin.testCompare("a(x, y, -> b) b(x, y)", root.scriptNow)
+            err += Parsin.testCompare("a(x : 2, y : 3, -> b) b(x : 1, y : 2)", root.scriptNow)
 
             // will fail expression, so no current values
             a.setAnyExprs(CGPoint(x: 1, y: 4), .fire)
@@ -1183,59 +1191,38 @@ final class MuFloTests: XCTestCase {
         }
         XCTAssertEqual(err, 0)
     }
-    func testSky() { headline(#function)
-        var err = 0
-        let script = """
-        sky { // visual music synth
-            main { // main controls
-                run(x 0…1~1) // currently running
-                anim(x 0…1~0.5) // animation transition speed
-            }
-            network {
-                bonjour // bonjour status 
-                follow(x 0…1~1) // follow remote events
-                midi(x 0…1~1) // follow midi events
-            }
-            color { // false color mapping palette
-                pal0("roygbik")
-                pal1("wKZ")
-                xfade(x 0…1~0.5)
-            }
-            input { // phone and tablet pencil input
-                azimuth(x -0.2…0.2, y -0.2…0.2, -> pipe.draw.shift)
-                accel(x -0.3…0.3, y -0.3…0.3, z -0.3…0.3) // accelerometer
-                radius(x 1…92~9 : 22.941578) // finger silhouette
-                tilt(x 0…1~1)
-                force(x 0…0.5, -> sky.draw.brush.size)
-            }
-            draw { // draw on metal layer
-                screen.fill(0…1~0) // fill cellular automata universe
-                brush { // type of brush and range
-                    size(x 1…64~10) // range of radius
-                    press(x 0…1~1) // pressure changes size
-                    index(x 1…255~127) // index in 256 color palette
-                }
-                line { // place holder for line drawing
-                    prev(x 0…1, y 0…1) // staring point of segment
-                    next(x 0…1, y 0…1) // endint point of segment
-                }
-                dot {
-                    on(x 0_11, y 0_11, z 0_127)
-                    off(x 0_11, y 0_11, z 0_127)
-                }
-            }
-            pov(x -0.3…0.3, y 0.8…1.2, z -0.5…0.01, time)
-            touching(<-model.hand˚middle.tip)
-        }
-        """
-        let root = Flo("√")
-        if floParse.parseRoot(root, script) {
-            let script2 = root.scriptFull
-            err += Parsin.testCompare(script, script2)
-        }
 
+    func testPolyEdge() { headline(#function)
+        var err = 0
+        err += test("a(0…1, <-b, ->c, ^-d) b c d(1)" )
         XCTAssertEqual(err, 0)
     }
+    func testSideLineage() { headline(#function)
+        var err = 0
+        err += test("a {b c}.{d e}.{f g} a.b.d.f(<-e.f)",
+                    "a { b { d { f(<-e.f) g } e { f g } } c { d { f g } e { f g } } }" )
+        XCTAssertEqual(err, 0)
+    }
+    func testLeafComments() { headline(#function)
+        // extra LF after comment?
+        var err = 0
+        err += test(
+        """
+        a { 
+            b(1) // bb
+            c
+        }
+        """,
+        """
+           a {
+            b(1) // bb
+            c
+        }
+        
+        """, .Full, strict: true)
+        XCTAssertEqual(err, 0)
+    }
+
     //MARK: - assign
     func testClosure() { headline(#function)
         /// test `a(x:0…2, y:0…2, z:99), b (x:0…2, y:0…2) <- a`
@@ -1326,8 +1313,8 @@ final class MuFloTests: XCTestCase {
             if let note = root.findPath("note") {
                 note.activate()
                 err += Parsin.testCompare(
-                "grid(x : 4.166667, y : 2, z : 51), note(num : 50)",
-                root.scriptVal)
+                "grid(x : 4.166667, y : 2, z : 51) note(num : 50)",
+                root.scriptValue)
             } else {
                 err += 1
             }
@@ -1386,13 +1373,13 @@ final class MuFloTests: XCTestCase {
             err += Parsin.testCompare("a(0…1,<-b), b(<-c), c(0…10,<-a)",root.scriptAll)
 
             c.setAnyExprs(5.0, .fire)
-            err += Parsin.testCompare("a(0.5), b(5), c(5)",root.scriptVal)
+            err += Parsin.testCompare("a(0.5) b(5) c(5)",root.scriptValue)
 
             a.setAnyExprs(0.1, .fire)
-            err += Parsin.testCompare("a(0.1), b(1), c(1)",root.scriptVal)
+            err += Parsin.testCompare("a(0.1) b(1) c(1)",root.scriptValue)
 
             b.setAnyExprs(0.2, .fire)
-            err += Parsin.testCompare("a(0.02), b(0.2), c(0.2)",root.scriptVal)
+            err += Parsin.testCompare("a(0.02) b(0.2) c(0.2)",root.scriptValue)
         } else {
             err += 1
         }
@@ -1419,13 +1406,13 @@ final class MuFloTests: XCTestCase {
             err += Parsin.testCompare(
             """
             radio {
-                a(on 1, -> (radio.a(on 0), radio.b(on 0))) {
-                    a1(1, -> radio.a(on 1))
-                    a2(2, -> radio.a(on 1))
+                a(on 1, -> (a(on 0), b(on 0))) {
+                    a1(1, -> a(on 1))
+                    a2(2, -> a(on 1))
                 }
-                b(on 0, -> (radio.a(on 0), radio.b(on 0))) {
-                    b1(1, -> radio.b(on 1))
-                    b2(2, -> radio.b(on 1))
+                b(on 0, -> (a(on 0), b(on 0))) {
+                    b1(1, -> b(on 1))
+                    b2(2, -> b(on 1))
                 }
             }
             """,root.scriptFull)
@@ -1435,13 +1422,13 @@ final class MuFloTests: XCTestCase {
             err += Parsin.testCompare(
             """
             radio {
-                a(on 0, -> (radio.a(on 0), radio.b(on 0))) {
-                    a1(1, -> radio.a(on 1))
-                    a2(2, -> radio.a(on 1))
+                a(on 0, -> (a(on 0), b(on 0))) {
+                    a1(1, -> a(on 1))
+                    a2(2, -> a(on 1))
                 }
-                b(on 1, -> (radio.a(on 0), radio.b(on 0))) {
-                    b1(1, -> radio.b(on 1))
-                    b2(22, -> radio.b(on 1))
+                b(on 1, -> (a(on 0), b(on 0))) {
+                    b1(1, -> b(on 1))
+                    b2(22, -> b(on 1))
                 }
             }
             """,root.scriptFull)
@@ -1475,13 +1462,13 @@ final class MuFloTests: XCTestCase {
             err += Parsin.testCompare(
             """
             radio {
-                a(on 1, -> (radio.a(on 0), radio.b(on 0))) {
-                    a1(1, -> radio.a(on 1))
-                    a2(2, -> radio.a(on 1))
+                a(on 1, -> (a(on 0), b(on 0))) {
+                    a1(1, -> a(on 1))
+                    a2(2, -> a(on 1))
                 }
-                b(on 0, -> (radio.a(on 0), radio.b(on 0))) {
-                    b1(1, -> radio.b(on 1))
-                    b2(2, -> radio.b(on 1))
+                b(on 0, -> (a(on 0), b(on 0))) {
+                    b1(1, -> b(on 1))
+                    b2(2, -> b(on 1))
                 }
             }
             """,root.scriptFull)
@@ -1491,13 +1478,13 @@ final class MuFloTests: XCTestCase {
             err += Parsin.testCompare(
             """
              radio {
-                a(on 0, -> (radio.a(on 0), radio.b(on 0))) {
-                    a1(1, -> radio.a(on 1))
-                    a2(2, -> radio.a(on 1))
+                a(on 0, -> (a(on 0), b(on 0))) {
+                    a1(1, -> a(on 1))
+                    a2(2, -> a(on 1))
                 }
-                b(on 1, -> (radio.a(on 0), radio.b(on 0))) {
-                    b1(1, -> radio.b(on 1))
-                    b2(22, -> radio.b(on 1))
+                b(on 1, -> (a(on 0), b(on 0))) {
+                    b1(1, -> b(on 1))
+                    b2(22, -> b(on 1))
                 }
             }
             """,root.scriptFull)
@@ -1584,6 +1571,97 @@ final class MuFloTests: XCTestCase {
         err += testFile("test.body.input", out: "test.body.output", .Full)
         err += testFile("test.skeleton.input",  out: "test.skeleton.output", .Curly)
         err += testFile("test.hand.input",  out: "test.hand.output", .Curly)
+        XCTAssertEqual(err, 0)
+    }
+
+    //MARK: - deltas
+    
+
+    func testDelta() { headline(#function)
+        /// test delta changes only
+        var err = 0
+        let script = "a { b(0) c(0) d(0…1, ^- f) e(0…1 ø) f } "
+        print("\n" + script)
+
+        let root = Flo("√")
+        if floParse.parseRoot(root, script),
+           let a = root.findPath("a"),
+           let b = a.findPath("b"),
+           let c = a.findPath("c"),
+           let d = a.findPath("d"),
+           let e = a.findPath("e")
+        {
+
+            err += Parsin.testCompare("a { b(0) c(0) d(0…1, ^- f) e(0…1) f } ",root.scriptAll)
+
+            b.setAnyExprs(1, .fire)
+            var now = root.scriptRoot(.Delta)
+            err += Parsin.testCompare("a.b(1)",now)
+
+            c.setAnyExprs(2, .fire)
+            now = root.scriptRoot(.Delta)
+            err += Parsin.testCompare("a { b(1) c(2) }",now)
+
+            d.setAnyExprs(0.3, .fire)
+            now = root.scriptRoot(.Delta)
+            err += Parsin.testCompare("a { b(1) c(2) d(0.3) }",now)
+
+            e.setAnyExprs(0.4, .fire)
+            now = root.scriptRoot(.Delta)
+            err += Parsin.testCompare("a { b(1) c(2) d(0.3) e(0.4)}",now)
+
+        } else {
+            err += 1
+        }
+        XCTAssertEqual(err, 0)
+    }
+    func testValue() { headline(#function)
+        /// test delta changes only
+        var err = 0
+        let script = "a { b(0) c(0) d(0…1, ^- f) e(0…1) f } "
+        print("\n" + script)
+
+        let root = Flo("√")
+        if floParse.parseRoot(root, script),
+           let a = root.findPath("a"),
+           let b = a.findPath("b"),
+           let c = a.findPath("c"),
+           let d = a.findPath("d"),
+           let e = a.findPath("e")
+        {
+
+            err += Parsin.testCompare("a { b(0) c(0) d(0…1, ^- f) e(0…1) f } ",root.scriptAll)
+
+            b.setAnyExprs(1, .fire)
+            var now = root.scriptRoot( [.now,.parens,.compact,.noLF]  )
+            err += Parsin.testCompare("a { b(1) c(0) d(0) e(0) f }",now)
+
+            c.setAnyExprs(2, .fire)
+            now = root.scriptRoot( [.now,.parens,.compact,.noLF]  )
+            err += Parsin.testCompare("a { b(1) c(2) d(0) e(0) f }",now)
+
+            d.setAnyExprs(0.3, .fire)
+            now = root.scriptRoot( [.now,.parens,.compact,.noLF] )
+            err += Parsin.testCompare("a { b(1) c(2) d(0.3) e(0) f }",now)
+
+            e.setAnyExprs(0.4, .fire)
+            now = root.scriptRoot( [.now,.parens,.compact,.noLF]  )
+            err += Parsin.testCompare("a { b(1) c(2) d(0.3) e(0.4) f }",now)
+
+        } else {
+            err += 1
+        }
+        XCTAssertEqual(err, 0)
+    }
+
+    func testSky() { headline(#function)
+        var err = 0
+        err += testFile("test.sky.in", out: "test.sky.out", .Full)
+        XCTAssertEqual(err, 0)
+    }
+    func testSkyVal() { headline(#function)
+        var err = 0
+        err += testFile("test.sky.in", out: "test.sky.out.val", .Val)
         XCTAssertEqual(err, 0)
     }
 }

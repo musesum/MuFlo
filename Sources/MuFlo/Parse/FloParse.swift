@@ -133,11 +133,11 @@ public class FloParse {
 
             for parse in parsed.subParse {
                 switch parse.parser.pattern {
-                case "range" : parseRange(parse) // double range
-                case "num"   : scalar.parseNum(parse.firstDouble())
-                case "dflt"  : scalar.parseDflt(parse.firstDouble())
-                case "now"   : scalar.parseNow(parse.firstDouble())
-                default      : logDefault(#function, parse)
+                case "range"  : parseRange(parse) // double range
+                case "num"    : scalar.parseNum(parse.firstDouble())
+                case "origin" : scalar.parseOrigin(parse.firstDouble())
+                case "now"    : scalar.parseNow(parse.firstDouble())
+                default       : logDefault(#function, parse)
                 }
             }
             func parseRange( _ parsed: Parsed) {
@@ -150,8 +150,8 @@ public class FloParse {
                 }
                 func addRangeOp(_ parsed: Parsed) {
                     switch parsed.nextResult {
-                    case "...", "…" : scalar.options.insert(.thru)
-                    case "_"        : scalar.options.insert(.thri)
+                    case "...", "…" : scalar.scalarOps.insert(.thru)
+                    case "_"        : scalar.scalarOps.insert(.thri)
                     default         : logDefault(#function, parsed)
                     }
                 }
@@ -254,7 +254,7 @@ public class FloParse {
             }
         }
         flo.graft(graft)
-        print("  => \(flo.scriptAll) ")
+        //.... print("  => \(flo.scriptAll) ")
     }
 
     func bindRoot(_ root: Flo, _ scriptOps: FloScriptOps = []) {

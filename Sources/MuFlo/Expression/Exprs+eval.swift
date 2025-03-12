@@ -182,28 +182,28 @@ extension Exprs { // + eval
         for (name,val) in mySetters {
 
             switch val {
-            case let val as Scalar:
+            case let scalar as Scalar:
                 if let toVal = nameAny[name] as? Scalar {
                     /// `x` in `a(x 1) << b`
-                    if name.first == "_",  viaEdge, toVal.options.liter {
+                    if name.first == "_",  viaEdge, toVal.scalarOps.liter {
                         // dont set a(2) in  a(1), b(0…1) >> a(2)
                     } else {
-                        toVal.setScalarVal(val, flo.setOps)
-                        toVal.options += .value
+                        toVal.setScalarVal(scalar, flo.scalarOps)
+                        toVal.scalarOps |= .value
                     }
                 } else {
                     /// `x` in `a(x) << b`
-                    nameAny[name] = val.copyEval()
+                    nameAny[name] = scalar.copyEval()
                 }
-            case let val as Double:
+            case let double as Double:
 
-                nameAny[name] = Scalar(flo, name, val)
+                nameAny[name] = Scalar(flo, name, double)
 
-            case let val as String:
+            case let string as String:
                 if let toVal = nameAny[name] as? FloVal {
-                    if !val.isEmpty {
+                    if !string.isEmpty {
                         /// `x` in `a(x in 2…4) << b, b(x 3)`
-                        toVal.setVal(val, visit)
+                        toVal.setVal(string, visit)
                     }
                 }
             default:

@@ -13,16 +13,17 @@ public struct FloScriptOps: OptionSet {
     public static let parens  = FloScriptOps(rawValue: 1 << 4) ///  16 `(1)` in `a(1)` but not `2` in `b(x 2)`
     public static let expand  = FloScriptOps(rawValue: 1 << 5) ///  32 expand edgeDef to full list edges
     public static let comment = FloScriptOps(rawValue: 1 << 6) ///  64 commas (`,`) and `// comment`
-    public static let delta   = FloScriptOps(rawValue: 1 << 7) /// 128 only values where `.now != .dflt`
+    public static let delta   = FloScriptOps(rawValue: 1 << 7) /// 128 only values where `.now != .origin`
     public static let noLF    = FloScriptOps(rawValue: 1 << 8) /// 256 `no line feed
     public init(rawValue: Int = 0) { self.rawValue = rawValue }
 
     public static var Delta : FloScriptOps { [.delta, .now,                  .parens, .compact, .noLF] }
-    public static var Now   : FloScriptOps { [        .now, .edge, .comment, .parens, .compact, .noLF] }
-    public static var Val   : FloScriptOps { [        .now,        .comment, .parens, .compact, .noLF] }
+    public static var Now   : FloScriptOps { [        .now,        .comment, .parens, .compact       ] }
+    public static var Full  : FloScriptOps { [.def,   .now, .edge, .comment, .parens, .compact       ] }
+    public static var Val   : FloScriptOps { [        .now,                  .parens,                ] }
     public static var Def   : FloScriptOps { [.def,         .edge, .comment, .parens, .compact, .noLF] }
     public static var All   : FloScriptOps { [.def,   .now, .edge, .comment, .parens, .compact, .noLF] }
-    public static var Full  : FloScriptOps { [.def,   .now, .edge, .comment, .parens, .compact       ] }
+
     public static var Curly : FloScriptOps { [.def,   .now, .edge, .comment, .parens                 ] }
 }
 

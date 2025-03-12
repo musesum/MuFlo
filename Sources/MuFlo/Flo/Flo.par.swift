@@ -6,18 +6,19 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
     base := ":" (path | name)
     exprs := "(" (edge | value)+ ")" {
         value := (name scalar | scalar | name exprOp | exprOp | name | quote | comment)+ {
-            scalar := (range | num) (dflt | now)* {
-                range := num rangeOp num
-                dflt := "~" num
-                now  := ":" num
+            scalar := (range | num) (origin | empty | now)* {
+                range  := num rangeOp num
+                origin := "~" num
+                now    := ":" num
+                empty  := '(∅|ø)'
             }
             rangeOp := '(\.\.\.|…|_)'
-            exprOp := '(in|<=|>=|==|<[^>\-:!]|>|[*:=/%,+-,])'
-            quote := '"([^"]*)"'
-            num := '([+-]*\d*\.?\d+(e[+-]?\d+)?)'
+            exprOp  := '(in|<=|>=|==|<[^>\-:!]|>|[*:=/%,+-,])'
+            quote   := '"([^"]*)"'
+            num     := '([+-]*\d*\.?\d+(e[+-]?\d+)?)'
         }
         edge := edgeOp (edgePar | edgeVal) {
-            edgeOp := '(\^-|<-|->|<>|<:>|:>|<:|<!>|<!|!>)'
+            edgeOp  := '(\^-|<-|->|<>|<:>|:>|<:|<!>|<!|!>)'
             edgePar := "(" (edgeVal comment*)+ ")"
             edgeVal := (path | name | edge | exprs)+
         }

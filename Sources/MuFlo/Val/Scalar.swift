@@ -7,13 +7,13 @@ import Foundation
 public class Scalar: FloVal {
 
     public static let blank = Scalar(Flo(), "blank")
-    public var options = ScalarOptions(rawValue: 0)
-    public var prior = Double(0) // prevous value; for animating twe
+    public var scalarOps = ScalarOps(rawValue: 0)
     public var tween = Double(0) // current value; 2 in 0…3~1=2
     public var value = Double(0) // target value
-    public var mini = Double(0) // minimum value; 0 in 0…3
-    public var maxi = Double(1) // maximum value; 3 in 0…3
-    public var dflt = Double(0) // default value; 1 in 0…3~1
+    public var minim = Double(0) // minimum value; 0 in 0…3
+    public var maxim = Double(1) // maximum value; 3 in 0…3
+    public var origin = Double(0) // default value; 1 in 0…3~1
+    public var prior = Double(0) // prevous value; for animating tween
 
     override init(_ flo: Flo, _ name: String?) {
         let name = name ?? "_"
@@ -23,9 +23,9 @@ public class Scalar: FloVal {
 
     init(_ flo: Flo,_ name: String,_ num: Double) {
         super.init(flo, name)
-        options = [.value]
-        self.mini = fmin(num, 0.0)
-        self.maxi = fmax(num, 1.0)
+        scalarOps = [.value]
+        self.minim = fmin(num, 0.0)
+        self.maxim = fmax(num, 1.0)
         self.value = num
         self.tween = num
         self.prior = value
@@ -33,38 +33,38 @@ public class Scalar: FloVal {
 
     init (with scalar: Scalar, viaEval: Bool = false) {
         super.init(scalar.flo, scalar.name)
-        options = scalar.options // use default values
-        if viaEval { options -= .liter }
-        mini  = scalar.mini
-        maxi  = scalar.maxi
-        dflt  = scalar.dflt
+        scalarOps = scalar.scalarOps // use default values
+        if viaEval { scalarOps -= .liter }
+        minim  = scalar.minim
+        maxim  = scalar.maxim
+        origin  = scalar.origin
         tween = scalar.tween
         value = scalar.value
         prior = value
     }
 
-    public func normalized(_ normOp: ScalarOptions) -> Double {
-        if options.contains([.mini,.maxi]) {
-            let range = maxi - mini
+    public func normalized(_ normOp: ScalarOps) -> Double {
+        if scalarOps.contains([.minim,.maxim]) {
+            let range = maxim - minim
             if normOp.tween {
-                let ret = (tween - mini) / range
+                let ret = (tween - minim) / range
                 return ret
             } else if normOp.value {
-                let ret = (value - mini) / range
+                let ret = (value - minim) / range
                 return ret
             }
         }
         return value
     }
     public func range() -> ClosedRange<Double> {
-        if mini <= maxi { return mini...maxi }
-        else          { return mini...(mini+1) }
+        if minim <= maxim { return minim...maxim }
+        else          { return minim...(minim+1) }
     }
 
     // startup set values without animation
     func bindVal() {
 
-        if !options.value {
+        if !scalarOps.value {
             let visit = Visitor(0,.bind)
             setDefault(visit, /* withPrior */ false)
             tween = value
@@ -73,19 +73,19 @@ public class Scalar: FloVal {
 
     func setDefault(_ visit: Visitor, _ withPrior: Bool) { // was setDefault
         prior = tween
-        if      options.dflt               { value = dflt  }
-        else if options.mini, value < mini { value = mini  }
-        else if options.maxi, value > maxi { value = maxi  }
-        else if options.modu               { value = 0     }
+        if      scalarOps.origin             { value = origin  }
+        else if scalarOps.minim, value < minim { value = minim  }
+        else if scalarOps.maxim, value > maxim { value = maxim  }
+        else if scalarOps.modulo             { value = 0     }
         tween = value
     }
     static func |= (lhs: Scalar, rhs: Scalar) {
         
-        let mergeOps = lhs.options.rawValue |  rhs.options.rawValue
-        lhs.options = ScalarOptions(rawValue: mergeOps)
-        if rhs.options.mini { lhs.mini = rhs.mini }
-        if rhs.options.maxi { lhs.maxi = rhs.maxi }
-        if rhs.options.value { lhs.value = rhs.value } 
+        let mergeOps = lhs.scalarOps.rawValue |  rhs.scalarOps.rawValue
+        lhs.scalarOps = ScalarOps(rawValue: mergeOps)
+        if rhs.scalarOps.minim { lhs.minim = rhs.minim }
+        if rhs.scalarOps.maxim { lhs.maxim = rhs.maxim }
+        if rhs.scalarOps.value { lhs.value = rhs.value } 
     }
 
     public static func == (lhs: Scalar,
@@ -103,9 +103,9 @@ public class Scalar: FloVal {
 
     public func inRange(from: Double) -> Bool {
 
-        if options.modu, from > maxi { return false }
-        if options.mini, from < mini { return false }
-        if options.maxi, from > maxi { return false }
+        if scalarOps.modulo, from > maxim { return false }
+        if scalarOps.minim, from < minim { return false }
+        if scalarOps.maxim, from > maxim { return false }
         return true
     }
 
@@ -121,7 +121,7 @@ public class Scalar: FloVal {
             if !hasDelta() {
                 return ""
             }
-            PrintLog("⁉️ \(flo.name) [\(scriptOps.description)].[\(options.description)] : \(value)")
+            PrintLog("⁉️ \(flo.name) [\(scriptOps.description)].[\(scalarOps.description)] : \(value)")
         }
 
         let script = scriptScalar(scriptOps, scriptOps)
@@ -143,27 +143,26 @@ public class Scalar: FloVal {
                       _ nowOps: FloScriptOps) -> String {
 
         var str = ""
-        if options.rawValue == 0   { return "" }
+        if scalarOps.rawValue == 0   { return "" }
 
         if nowOps.def {
-            if options.mini { str += mini.digits(0...6) }
-            if options.thru { str += "…" } /// `…` is `⌥⃣;` on mac
-            if options.thri { str += "_" } /// integer range for midi
-            if options.modu { str += "%" } /// modulo
-            if options.maxi { str += maxi.digits(0...6) }
-            if options.dflt { str += "~" + dflt.digits(0...6) }
-            if options.isLit{ str += value.digits(0...6) }
+            if scalarOps.minim  { str += minim.digits(0...6) }
+            if scalarOps.thru   { str += "…" } /// `…` is `⌥⃣;` on mac
+            if scalarOps.thri   { str += "_" } /// integer range for midi
+            if scalarOps.modulo { str += "%" } /// modulo
+            if scalarOps.maxim  { str += maxim.digits(0...6) }
+            if scalarOps.origin { str += "~" + origin.digits(0...6) }
+            if scalarOps.liter  { str += value.digits(0...6) }
         }
         else if !scriptOps.def, scriptOps.now {
-            if      options.isLit { str += value.digits(0...6) } // litNow
-            else if options.value { str += value.digits(0...6) } // soloNow
-        } else if !options.isLit, options.value { str += value.digits(0...6) } // soloNow
+           str += value.digits(0...6)
+        } else if !scalarOps.liter, scalarOps.value { str += value.digits(0...6) } // soloNow
 
         return str
     }
 
     public func hasPrior() -> Bool {
-        return options.value && value != prior
+        return scalarOps.value && value != prior
     }
 
     // MARK: - set
@@ -179,44 +178,44 @@ public class Scalar: FloVal {
     ///
     @discardableResult
     public func setScalarVal(_ any: Any?,
-                             _ ops: ScalarOptions) -> Bool {
+                             _ ops: ScalarOps) -> Bool {
 
         guard let any else { return true }
 
         prior = tween
 
         switch any {
-        case let v as Scalar : setFrom(v)
-        case let v as Double       : setTween(v)
-        case let v as Float        : setTween(Double(v))
-        case let v as CGFloat      : setTween(Double(v))
-        case let v as Int          : setTween(Double(v))
+        case let v as Scalar  : setFrom(v)
+        case let v as Double  : setTween(v)
+        case let v as Float   : setTween(Double(v))
+        case let v as CGFloat : setTween(Double(v))
+        case let v as Int     : setTween(Double(v))
         default: PrintLog("⁉️ setVal unknown type for: from")
         }
 
-        options += ops
+        scalarOps |= ops
 
         return true
 
         func setFrom(_ v: Scalar) {
 
             /// both have a range
-            if (  options.thru ||   options.thri),
-               (v.options.thru || v.options.thri)  {
+            if (  scalarOps.thru ||   scalarOps.thri),
+               (v.scalarOps.thru || v.scalarOps.thri)  {
 
-                let toRange = (  maxi -   mini) + (   options.thri ? 1.0 : 0.0)
-                let frRange = (v.maxi - v.mini) + ( v.options.thri ? 1.0 : 0.0)
+                let toRange = (  maxim -   minim) + (   scalarOps.thri ? 1.0 : 0.0)
+                let frRange = (v.maxim - v.minim) + ( v.scalarOps.thri ? 1.0 : 0.0)
 
-                if ops.tween { tween = (v.tween - v.mini) * (toRange / frRange) + mini }
-                if ops.value { value = (v.value - v.mini) * (toRange / frRange) + mini }
+                if ops.tween { tween = (v.tween - v.minim) * (toRange / frRange) + minim }
+                if ops.value { value = (v.value - v.minim) * (toRange / frRange) + minim }
 
-            } else if options.modu {
+            } else if scalarOps.modulo {
 
-                mini = 0
-                maxi = Double.maximum(1, maxi)
+                minim = 0
+                maxim = Double.maximum(1, maxim)
 
-                if ops.tween { tween = fmod(v.tween, maxi) }
-                if ops.value { value = fmod(v.value, maxi) }
+                if ops.tween { tween = fmod(v.tween, maxim) }
+                if ops.value { value = fmod(v.value, maxim) }
                 
             } else {
                 
@@ -229,9 +228,9 @@ public class Scalar: FloVal {
             if ops.tween { tween = num }
             if ops.value { value = num }
 
-            if options.modu { value = fmod(value, maxi) }
-            if options.mini, value < mini { value = mini }
-            if options.maxi, value > maxi { value = maxi }
+            if scalarOps.modulo { value = fmod(value, maxim) }
+            if scalarOps.minim, value < minim { value = minim }
+            if scalarOps.maxim, value > maxim { value = maxim }
         }
     }
 
@@ -246,6 +245,13 @@ public class Scalar: FloVal {
     }
     public func copyEval() -> Scalar {
         return Scalar(with: self, viaEval: true)
+    }
+
+    //.... put this into refactored Scalar
+    override public func hasDelta() -> Bool {
+        if      scalarOps.origin { return value != origin }
+        else if scalarOps.minim  { return value != minim }
+        else                     { return value != prior }
     }
 }
 extension Scalar {

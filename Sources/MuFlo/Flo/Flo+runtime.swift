@@ -22,6 +22,8 @@ extension Flo {
             //PrintLog("⁉️ Flo::setDoubles \(path()) \(msg)")
         }
     }
+
+    //TODO: only used by NodeVm:: var spotlight: Bool {...}
     public func setVal(_ name: String,
                        _ value: Double,
                        _ options: SetOptions,
@@ -79,6 +81,7 @@ extension Flo {
             activateEdges(visitor,0)
         }
     }
+    
     public func activate(_ visitor: Visitor = Visitor(0), _ depth: Int = 0) {
         // logDepth(visit.isBlocked(id) ? "⛔️" : visit.wasHere(id) ? "🏁" : "🚥")
         guard visitor.newVisit(id) else { return }

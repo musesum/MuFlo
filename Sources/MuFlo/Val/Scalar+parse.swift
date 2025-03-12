@@ -5,34 +5,34 @@ import Foundation
 extension Scalar { // + Parse
 
     func parseRange(_ num: Double) {
-        if options.maxi {
+        if scalarOps.maxim {
             value = num
             tween = num
-        } else if options.mini {
-            options += .maxi
-            maxi = num
+        } else if scalarOps.minim {
+            scalarOps |= .maxim
+            maxim = num
         } else {
-            options += .mini
-            mini = num
+            scalarOps |= .minim
+            minim = num
         }
     }
 
     func parseNum(_ num: Double) {
-        options += .liter
-        dflt = num
+        scalarOps |= .liter
+        origin = num
         value = num
         tween = num
     }
-    func parseDflt(_ num: Double) {
+    func parseOrigin(_ num: Double) {
         if !num.isNaN {
-            options += .dflt
-            dflt = num
+            scalarOps |= .origin
+            origin = num
             tween = num
         }
     }
     func parseNow(_ num: Double) {
         if !num.isNaN {
-            options += .value
+            scalarOps |= .value
             tween = num
             value = num
         }

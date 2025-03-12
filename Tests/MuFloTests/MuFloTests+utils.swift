@@ -37,7 +37,8 @@ extension MuFloTests {
      */
     func test(_ script: String,
               _ expected: String? = nil,
-              _ scriptOps: FloScriptOps = FloScriptOps.All) -> Int {
+              _ scriptOps: FloScriptOps = FloScriptOps.All,
+              strict: Bool = false) -> Int {
 
         var err = 0
 
@@ -47,14 +48,13 @@ extension MuFloTests {
 
         if floParse.parseRoot(root, script) {
             let actual = root.scriptRoot(scriptOps)
-            err = Parsin.testCompare(expected, actual)
+            err = Parsin.testCompare(expected, actual, strict: strict)
         } else  {
             print(" ⁉️ failed parse")
             err += 1  // error found
         }
         return err
     }
-
     func testFile(_ input: String,
                   out: String,
                   _ ops: FloScriptOps) -> Int {

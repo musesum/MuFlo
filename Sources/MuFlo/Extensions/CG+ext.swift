@@ -46,7 +46,14 @@ public extension CGRect {
                       width: lhs.width * rhs,
                       height: lhs.height * rhs)
     }
-    
+    static func + (lhs: CGRect, rhs: CGFloat) -> CGRect {
+
+        return CGRect(x: lhs.minX + rhs,
+                      y: lhs.minY + rhs,
+                      width: lhs.width + rhs,
+                      height: lhs.height + rhs)
+    }
+
     func horizontal() -> Bool {
         
         return size.width > size.height

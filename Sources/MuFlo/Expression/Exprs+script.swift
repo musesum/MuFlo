@@ -73,7 +73,7 @@ extension Exprs { // + script
                 } else if numStr.count > 0 {
                     if keyStr.first == "_",
                        (script.isEmpty ||
-                        scalar?.options.liter ?? false) {
+                        scalar?.scalarOps.liter ?? false) {
 
                         script += numStr
 
@@ -89,13 +89,13 @@ extension Exprs { // + script
 
             func logFinish(_ scalar: Scalar?, _ keyStr: String) {
                 guard let scalar else { return }
-                var shortOps = scalar.options ; shortOps -= .tween
+                var shortOps = scalar.scalarOps ; shortOps -= .tween
                 let padOps = "[\(shortOps.description)]".pad(27)
                 let padScript = "\(script)".pad(24)
                 let padPath = "\(scalar.flo.path(5))(\(keyStr))".pad(20)
                 let valStr = scalar.value.digits(0...2)
-                let dfltStr = scalar.dflt.digits(0...2)
-                print("🧪\n \(padScript) \(padPath) \(scalar.id) \(padOps) next: \(valStr)  dflt: \(dfltStr)")
+                let dfltStr = scalar.origin.digits(0...2)
+                print("🧪\n \(padScript) \(padPath) \(scalar.id) \(padOps) next: \(valStr)  origin: \(dfltStr)")
             }
         }
     }

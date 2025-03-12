@@ -15,25 +15,25 @@ public class Exprs: FloVal {
     /// `t(x/2, y/2) << u(x 1, y 2)` ⟹ `t(x 0.5, y 1.0)` // after u fires
     public var evalAnys = EvalAnys()
 
+    var hasValue: Bool { return !nameAny.isEmpty || !evalAnys.isEmpty }
+
+    public func normalize(_ name: String, _ normOp: ScalarOps) -> Double? {
+        if let scalar = nameAny[name] as? Scalar {
+            return scalar.normalized(normOp)
+        }
+        return nil
+    }
+
     /// return _0, _1, ... for anonymous values
     var anonKey: String { String(format: "_%i", nameAny.keys.count) }
 
-    public init(_ flo: Flo) {
-        super.init(flo, "_\(flo.name)")
-    }
-    public init(_ flo: Flo, _ name: String, _ any: Any? = nil) {
-        super.init(flo, "_\(flo.name)")
-        if let any {
-            nameAny[name] = any
-        }
-    }
     public func includesOp(_ op: EvalOp) -> Bool {
         for evalAny in evalAnys {
             if evalAny.op == op { return true }
         }
         return false
     }
-    public subscript(_ subName: String, _ op: ScalarOptions) -> Double? {
+    public subscript(_ subName: String, _ op: ScalarOps) -> Double? {
         if let scalar = nameAny[subName] as? Scalar {
             switch op {
             case .value: return scalar.value
@@ -47,8 +47,17 @@ public class Exprs: FloVal {
             return nil
         }
     }
-    var hasValue: Bool { return !nameAny.isEmpty || !evalAnys.isEmpty }
-    
+
+
+    public init(_ flo: Flo) {
+        super.init(flo, "_\(flo.name)")
+    }
+    public init(_ flo: Flo, _ name: String, _ any: Any? = nil) {
+        super.init(flo, "_\(flo.name)")
+        if let any {
+            nameAny[name] = any
+        }
+    }
     init(from: Exprs) {
         
         super.init(with: from)
@@ -143,7 +152,7 @@ public class Exprs: FloVal {
     func logValTweens(_ suffix: String = "") {
         for any in nameAny.values {
             if let scalar = any as? Scalar {
-                let opsStr = " [\(scalar.options.description)]"
+                let opsStr = " [\(scalar.scalarOps.description)]"
                 scalar.logValTweens("􁒖", opsStr + suffix)
             }
         }
@@ -154,8 +163,8 @@ public class Exprs: FloVal {
         if nameAny.count > 0 {
             for (name,any) in nameAny {
                 if let scalar = any as? Scalar {
-                    if scalar.options.dflt, scalar.value != scalar.dflt {
-                        nameVals.append((name, scalar.dflt))
+                    if scalar.scalarOps.origin, scalar.value != scalar.origin {
+                        nameVals.append((name, scalar.origin))
                     } else if withPrior,
                               scalar.prior != scalar.value {
                         nameVals.append((name, scalar.prior))
@@ -213,7 +222,7 @@ public class Exprs: FloVal {
             }
             func setNameNum(_ name: String, _ num: Double, _ visit: Visitor) {
                 if let scalar = nameAny[name] as? Scalar {
-                    scalar.setScalarVal(num, flo.setOps)
+                    scalar.setScalarVal(num, flo.scalarOps)
                 } else {
                     nameAny[name] = Scalar(flo, name, num)
                 }
@@ -233,13 +242,13 @@ public class Exprs: FloVal {
 
                 if let scalar = nameAny["_0"] as? Scalar {
 
-                    scalar.setScalarVal(num, flo.setOps)
+                    scalar.setScalarVal(num, flo.scalarOps)
 
                 } else {
 
                     for any in nameAny.values {
                         if let scalar = any as? Scalar {
-                            scalar.setScalarVal(num, flo.setOps)
+                            scalar.setScalarVal(num, flo.scalarOps)
                         }
                     }
                 }
@@ -321,7 +330,7 @@ public class Exprs: FloVal {
         return str
     }
 
-    // val = dflt, twe = dflt
+    // val = origin, twe = origin
     func bindVals() {
         if nameAny.count > 0 {
             for value in nameAny.values {
@@ -359,7 +368,7 @@ public class Exprs: FloVal {
                 : scriptOps.parens ? "(\(script))"
                 : script)
     }
-    override public func hasDelta() -> Bool {
+    override public func hasDelta() -> Bool { //.... refactor scalarOp into Scalar
         for val in nameAny.values {
             if let val = val as? FloVal, val.hasDelta() {
                 return true

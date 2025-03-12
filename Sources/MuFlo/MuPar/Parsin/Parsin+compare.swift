@@ -8,12 +8,15 @@ public extension Parsin { // + compare
     /// compare expected with actual result and print error strings
     /// with ⁉️ marker at beginning of non-matching section
     ///
-    static func testCompare(_ expect: String, _ actual: String, echo: Bool = false) -> Int {
+    static func testCompare(_ expect: String,
+                            _ actual: String,
+                            strict: Bool = false,
+                            echo: Bool = false) -> Int {
         if echo {
             print ("⟹ " + expect, terminator: "")
         }
         // for non-match, compare will insert a ⁉️ into expectedErr and actualErr
-        if let (expectedErr, actualErr) = Parsin.compare(expect, actual) {
+        if let (expectedErr, actualErr) = Parsin.compare(expect, actual, strict) {
             print (" ⁉️ mismatch")
             print ("expect ⟹ " + expectedErr)
             print ("actual ⟹ " + actualErr.divider())
@@ -25,6 +28,7 @@ public extension Parsin { // + compare
     }
     private static func compare(_ expect: String,
                                 _ actual: String,
+                                _ strict: Bool = false,
                                 skipComments: Bool = true) -> (String, String)? {
 
         let expectSub = Substring(expect)
@@ -50,13 +54,13 @@ public extension Parsin { // + compare
 
         // advance i1, i2 indexes past whitespace and/or comments
         func eatWhitespace() {
-
+            let eat = strict ? "\t " : "\n\t "
             while expecti < expectSub.endIndex &&
-                    "\n\t ".contains(expectSub[expecti]) {
+                    eat.contains(expectSub[expecti]) {
                 expecti = expectSub.index(after: expecti)
             }
             while actuali < actualSub.endIndex &&
-                    "\n\t ".contains(actualSub[actuali]) {
+                    eat.contains(actualSub[actuali]) {
                 actuali = actualSub.index(after: actuali)
             }
             if skipComments {

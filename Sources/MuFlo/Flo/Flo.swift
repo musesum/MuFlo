@@ -9,10 +9,7 @@ import Metal
 /// graph with exactly the same namespace. Useful for saving and
 /// recalling state of a saved graph, or synchronizing between devices
 /// which have the same exact graph namespace.
-
-public class HashFlo {
-    var hashFlo =  [Int: Flo]()
-}
+public class HashFlo { var dict = [Int: Flo]() }
 
 public enum LogBind { case none, value, def }
 
@@ -20,7 +17,9 @@ public class Flo {
 
     public static var IdFlo = [Int:Flo]() // debugging
     public static var root˚ = Flo("√")
-    public var hashFlos : HashFlo!
+    public static func script(path: String) -> String { root˚.scriptPath(path) }
+
+    public var hashFlo : HashFlo!
 
     public var id = Visitor.nextId()
     public var name = ""
@@ -37,7 +36,10 @@ public class Flo {
     var comments = FloComments()
     var plugDefs: EdgeDefArray?     /// class reference to [EdgeDef]
     var plugins = [EdgePlugin]()
-    var setOps: ScalarOptions { hasPlugins ? [.value] : [.tween, .value] }
+
+    var scalarOps: ScalarOps { //.. TODO: refactor into Scalar class
+        hasPlugins ? [.value] : [.tween, .value]
+    }
     var deltaTween = false          /// any changes to descendants?
 
     public var youngest : Flo          { get { children.last ?? self }}
@@ -80,7 +82,7 @@ public class Flo {
 
     public var scriptDelta : String { scriptRoot(FloScriptOps.Delta) }
     public var scriptNow   : String { scriptRoot(FloScriptOps.Now  ) }
-    public var scriptVal   : String { scriptRoot(FloScriptOps.Val  ) }
+    public var scriptValue : String { scriptRoot(FloScriptOps.Val  ) }
     public var scriptDef   : String { scriptRoot(FloScriptOps.Def  ) }
     public var scriptAll   : String { scriptRoot(FloScriptOps.All  ) }
     public var scriptFull  : String { scriptRoot(FloScriptOps.Full ) }
@@ -250,8 +252,8 @@ public class Flo {
     ///
     public func bindHashFlo(_ prior: Flo? = nil) {
 
-        hashFlos = prior?.hashFlos ?? HashFlo()
-        hashFlos.hashFlo[hash] = self
+        hashFlo = prior?.hashFlo ?? HashFlo()
+        hashFlo.dict[hash] = self
 
         for child in children {
             child.bindHashFlo(self)
@@ -291,18 +293,36 @@ extension Flo {
 
     func mergeFloValues(_ mergeRoot: Flo) {
 
-        if let mergeFlo = mergeRoot.hashFlos.hashFlo[hash],
-           let mergeExprs = mergeFlo.exprs,
-            let exprs {
+        var merged = false
+        if let exprs,
+           let mergeFlo = mergeRoot.hashFlo.dict[hash],
+           let mergeExprs = mergeFlo.exprs {
 
-            NoDebugLog {
-                P("# \(exprs.name)_\(self.id) <- \(mergeFlo.name)_\(mergeFlo.id)") }
-            exprs.setFromAny(mergeExprs, Visitor(0))
+            NoDebugLog { P("\(self.scriptOnlyFlo()) <= \(mergeFlo.scriptOnlyFlo())") }
+
+            for (key,value) in mergeExprs.nameAny {
+                if let mergeScalar = value as? Scalar,
+                   let selfScalar = exprs.nameAny[key] as? Scalar {
+                    selfScalar.value = mergeScalar.value
+                    merged = true
+                }
+            }
         }
         children.forEach { $0.mergeFloValues(mergeRoot) }
+
+        if merged {
+            updateClosurePlugins()
+        }
+    }
+    func updateClosurePlugins() {
+        for closure in closures {
+            closure(self, Visitor(0))
+        }
+        for plugin in plugins {
+            plugin.startPlugin(id, Visitor(0))
+        }
     }
     func activateAllValues() {
-
         activate(Visitor(0))
         children.forEach { $0.activateAllValues() }
     }

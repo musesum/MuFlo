@@ -3,7 +3,6 @@
 
 import Foundation
 
-
 extension Flo { // + script
 
     /** Is this Flo elegible to shorten with a dot?
@@ -27,16 +26,12 @@ extension Flo { // + script
 
             script = edgesScript
             if floEdges.count == 1 {
-                let comment = comments.getComments(.edge, scriptOps)
-                if comment.count > 10 { //....
-                    print(comment)
-                }
+                let comment = comments.scriptComments(.edge, scriptOps)
                 script.spacePlus(comment)
             }
         } else if edgeDefs.edgeDefs.count > 0, scriptOps.edge {
 
             script.commaPlus(edgeDefs.scriptEdgeVal(self,scriptOps))
-            //script.spacePlus(comments.getComments(.edge, scriptOps))
         }
         return script
     }
@@ -105,12 +100,12 @@ extension Flo { // + script
 
                     if edge.edgeOps != edgeOps {
                         edgeOps = edge.edgeOps
-                        script.spacePlus(scriptTypeEdges(leftTypeEdges, scriptOps))
+                        script.commaPlus(scriptTypeEdges(leftTypeEdges, scriptOps))
                         leftTypeEdges.removeAll()
                     }
                     leftTypeEdges.append(edge)
                 }
-                script.spacePlus(scriptTypeEdges(leftTypeEdges, scriptOps))
+                script.commaPlus(scriptTypeEdges(leftTypeEdges, scriptOps))
                 return script.without(trailing: " ")
             }
          }
@@ -143,7 +138,7 @@ extension Flo { // + script
             return ""
         }
         func scriptManyChildren() -> String {
-            let comment = comments.getComments(.branch, scriptOpts).without(trailing: " \n")
+            let comment = comments.scriptComments(.branch, scriptOpts).without(trailing: " \n")
             
             var script = "{"
             if comment.count > 0 {
@@ -158,14 +153,19 @@ extension Flo { // + script
             }
 
             script.spacePlus(childScript)
+            if !scriptOpts.noLF {
+                if script.last != "\n" { script += "\n" }
+            }
             script.spacePlus("}")
-            script += scriptOpts.noLF ? "" : "\n"
+            if !scriptOpts.noLF {
+               script += "\n"
+            }
             return script
         }
     }
 
-    func showChildren(_ scriptOpts: FloScriptOps) -> [Flo] {
-        if scriptOpts.delta {
+    func showChildren(_ scriptOps: FloScriptOps) -> [Flo] {
+        if scriptOps.delta {
             if !deltaTween { return [] }
             var result = [Flo]()
             for child in children {
@@ -181,13 +181,11 @@ extension Flo { // + script
     /// Populate tree hierarchy of total changes made to each subtree.
     /// When using FloScriptFlag .delta, no changes to subtree are printed out
     func hasDeltas() -> Bool {
-        deltaTween = false
         if let exprs {
-            for v in exprs.nameAny.values {
+            for expr in exprs.nameAny.values {
                 // does expression have a delta
-                if let vv = v as? Scalar,
-                   !vv.options.isTransient,
-                   vv.hasDelta() {
+                if let scalar = expr as? Scalar,
+                   scalar.hasDelta() {
                     deltaTween = true
                     break // only need to check for first occurence
                 }
@@ -201,7 +199,7 @@ extension Flo { // + script
         }
         return deltaTween
     }
-    
+
     public func scriptRoot(_ ops: FloScriptOps) -> String {
 
         var script = ""
@@ -221,17 +219,31 @@ extension Flo { // + script
         }
         return script
     }
-    
+
+    public func scriptOnlyFlo() -> String {
+        var script = name
+        var scriptExpr = ""
+        if let exprs {
+            scriptExpr = exprs.scriptVal(self, .All, viaEdge: false)
+        } else if let scriptEdge = scriptFloEdges(.All) {
+            scriptExpr = "(\(scriptEdge))"
+        }
+        script += scriptExpr
+        return script
+    }
+    public func scriptPath(_ path: String) -> String {
+        return Flo.root˚.findPath(path)?.scriptOnlyFlo() ?? ""
+    }
+
     /// create a parse ready String
-    ///
     public func scriptFlo(_ scriptOps: FloScriptOps) -> String {
 
         if scriptOps.delta, !deltaTween {
              return ""
         }
         var script = name
-
         var scriptExpr = ""
+
         if let exprs {
             scriptExpr = exprs.scriptVal(self, scriptOps, viaEdge: false)
         } else if let scriptEdge = scriptFloEdges(scriptOps) {
@@ -240,18 +252,22 @@ extension Flo { // + script
         script += scriptExpr
 
         if children.isEmpty {
-
-            let comment = comments.getComments(.branch, scriptOps)
-            if comment.count > 10 { //....
-                print(comment)
+            if scriptExpr.isEmpty, scriptOps.now, scriptOps.delta {
+                return "" // no values to set
             }
-            script.spacePlus(comment)
 
-            if comment.count > 0,
-               comment != "," { // already has a comma auto added
-                script += " " + comment + "\n"
-            } else if !scriptOps.noLF, scriptExpr.count > 0 {
-                script += "\n"
+            var singleLF = "\n"
+            let comment = comments.scriptComments(.branch, scriptOps)
+            if comment == "," {
+                script += ", "
+            } else if comment.count > 0  {
+                script += " " + comment + singleLF
+                singleLF = ""
+            }
+            if !scriptOps.noLF,
+                scriptExpr.count > 0 {
+
+                script += singleLF // may be ""
             }
 
         } else {
@@ -275,20 +291,31 @@ extension Flo { // + script
     }
 
     public func scriptLineage(up: Flo) -> String? {
-        if parent == nil {
-            return ""
+        let myLineage = fullLineage()
+        let upLineage = up.fullLineage()
+
+        // Determine the common prefix length.
+        var count = 0
+        while count < myLineage.count,
+              count < upLineage.count,
+              myLineage[count] == upLineage[count] {
+            count += 1
         }
-        if parent?.id == up.id {
-            return name
+
+        // matching lineage
+        if count == myLineage.count {
+            return self.name
         }
-        if let lineage = parent?.scriptLineage(up: up) {
-            if lineage == "" {
-                return name
-            } else {
-                return lineage + "." + name
-            }
+        // Otherwise, return the remaining parts of the target's lineage.
+        return myLineage.dropFirst(count).joined(separator: ".")
+    }
+
+    private func fullLineage() -> [String] {
+        if let parent = self.parent {
+            return parent.fullLineage() + [self.name]
+        } else {
+            return [self.name]
         }
-        return nil
     }
 
     public func scriptLineage(down: Flo) -> String? {
