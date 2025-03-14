@@ -52,7 +52,7 @@ public struct FloParset: OptionSet {
         return FloParset(rawValue: lhs.rawValue & rhs.rawValue)
     }
 
-    var value  : Bool { contains(.value ) }
+    var value  : Bool { contains(.value  ) }
     var name   : Bool { contains(.name   ) }
     var scalar : Bool { contains(.scalar ) }
     var assign : Bool { contains(.assign ) }

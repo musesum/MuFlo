@@ -35,6 +35,9 @@ public struct VisitType: OptionSet {
         (.tween,   "􀎶"),
     ]
 
+    public func has(_ candidates: VisitType) -> Bool {
+        return self.intersection(candidates) != []
+    }
     public var description: String {
         let result: [String] = Self.debugDescriptions.filter { contains($0.0) }.map { $0.1 }
         let joined = result.joined(separator: ", ")
@@ -45,14 +48,6 @@ public struct VisitType: OptionSet {
         let joined = result.joined(separator: "")
        return joined
     }
-    public var bind   : Bool { contains(.bind  ) }
-    public var tween  : Bool { contains(.tween ) }
-    public var remote : Bool { contains(.remote) }
-    public var canvas : Bool { contains(.canvas) }
-    public var user   : Bool { contains(.user  ) }
-    public var model  : Bool { contains(.model ) }
-    public var midi   : Bool { contains(.midi  ) }
-
 
     public static func + (lhs: VisitType, rhs: VisitType) -> VisitType {
         return VisitType(rawValue: lhs.rawValue | rhs.rawValue)

@@ -177,6 +177,34 @@ public class Exprs: FloVal {
         }
     }
 
+    public func setOrigin(_ visit: Visitor) {
+        var nameVals = [(String,Double)]()
+        if nameAny.count > 0 {
+            for (name,any) in nameAny {
+                if let scalar = any as? Scalar {
+                    nameVals.append((name, scalar.origin))
+                }
+            }
+            if nameVals.count > 0 {
+                setFromAny(nameVals, visit)
+            }
+        }
+    }
+
+    public func setPrior(_ visit: Visitor) {
+        var nameVals = [(String,Double)]()
+        if nameAny.count > 0 {
+            for (name,any) in nameAny {
+                if let scalar = any as? Scalar {
+                    nameVals.append((name, scalar.prior))
+                }
+            }
+            if nameVals.count > 0 {
+                setFromAny(nameVals, visit)
+            }
+        }
+    }
+
     @discardableResult
     public func setFromAny(_ fromAny: Any,
                            _ visit: Visitor) -> Bool {
@@ -301,7 +329,7 @@ public class Exprs: FloVal {
         func newTween() -> Bool {
             if flo.hasPlugDefs,
                flo.hasPlugins,
-               !visit.type.tween {
+               !visit.type.has(.tween) {
                 
                 visit.type += .tween
                 return true

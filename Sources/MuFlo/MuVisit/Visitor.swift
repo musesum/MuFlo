@@ -68,7 +68,7 @@ public class Visitor {
         return visited || blocking
     }
     public func isLocal() -> Bool {
-        return !type.remote
+        return !type.has(.remote)
     }
     public func newVisit(_ id: Int) -> Bool {
         if wasHere(id) {

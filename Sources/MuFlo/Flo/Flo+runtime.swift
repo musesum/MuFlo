@@ -88,7 +88,7 @@ extension Flo {
         for closure in closures {
             closure(self, visitor)
         }
-        activateEdges(visitor, depth)
+         activateEdges(visitor, depth)
     }
     private func activateEdges(_ visitor: Visitor, _ depth: Int) {
         // breadth first follow edges

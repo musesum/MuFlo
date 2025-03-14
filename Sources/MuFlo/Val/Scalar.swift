@@ -8,6 +8,8 @@ public class Scalar: FloVal {
 
     public static let blank = Scalar(Flo(), "blank")
     public var scalarOps = ScalarOps(rawValue: 0)
+    public var scalarState: ScalarState { ScalarState(self) }
+
     public var tween = Double(0) // current value; 2 in 0…3~1=2
     public var value = Double(0) // target value
     public var minim = Double(0) // minimum value; 0 in 0…3
@@ -246,7 +248,7 @@ public class Scalar: FloVal {
     public func copyEval() -> Scalar {
         return Scalar(with: self, viaEval: true)
     }
-
+    
     //.... put this into refactored Scalar
     override public func hasDelta() -> Bool {
         if      scalarOps.origin { return value != origin }

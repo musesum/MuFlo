@@ -108,16 +108,38 @@ public class Flo {
     public var hasPlugDefs: Bool { plugDefs?.count ?? 0 > 0 }
     public var hasPlugins: Bool { plugins.count > 0 }
 
-    public func hasChanged() -> Bool {
+    public var scalarState: ScalarState {
+        guard let exprs else { return [] }
+        var onOrigins = 0
+        var offOrigins = 0
+        var hasPriors = 0
+        var count = 0
+        var exprsState: ScalarState = []
+
+        for value in exprs.nameAny.values {
+            if let state = (value as? Scalar)?.scalarState ?? nil {
+                count += 1
+                if state.onOrigin  { onOrigins += 1 }
+                if state.offOrigin { offOrigins += 1 }
+                if state.hasPrior  { hasPriors += 1 }
+            }
+        }
+        if onOrigins == count { exprsState.insert(.onOrigin) }
+        if offOrigins > 0     { exprsState.insert(.offOrigin) }
+        if hasPriors > 0      { exprsState.insert(.hasPrior) }
+        return exprsState
+    }
+
+    public func hasDelta() -> Bool {
         guard let exprs else { return false }
         for val in exprs.nameAny.values {
             if let scalar = val as? Scalar {
-                if !scalar.hasDelta() {
-                    return false
+                if scalar.hasDelta() {
+                    return true
                 }
             }
         }
-        return true
+        return false
     }
     public func hasPrior() -> Bool {
         guard let exprs else { return false }
