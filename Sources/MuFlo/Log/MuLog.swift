@@ -6,22 +6,22 @@ public class MuLog {
     
     static var logStart = TimeInterval(0)
     static var prevTime = [String: TimeInterval]()
-
+    
     /// return elapsed time from first first Log
     static func timeElapsed() -> TimeInterval {
-
+        
         let timeNow = Date().timeIntervalSince1970
         if logStart == 0 { logStart = timeNow }
         return timeNow - logStart // starts from first log
     }
-
+    
     /// log during runtime
     public static func TimeLog(_ key: String,
-                              interval: TimeInterval = 0,
-                              _ body: (()->())?) {
-
+                               interval: TimeInterval = 0,
+                               _ body: (()->())?) {
+        
         let elapsedTime = timeElapsed()
-
+        
         // next time
         if let timePrev = prevTime[key] {
             let timeDelta = elapsedTime - timePrev
@@ -36,7 +36,7 @@ public class MuLog {
             prevTime[key] = elapsedTime
         }
     }
-
+    
     /// log when debug
     public static func PrintLog(_ title: String) {
         print("\(timeElapsed().digits(2)): \(title)")
@@ -45,12 +45,12 @@ public class MuLog {
 
 /// log when debug
 public func TimeLog(_ key: String,
-                interval: TimeInterval = 0,
-                _ body: (()->())?) {
-
-    #if DEBUG
+                    interval: TimeInterval = 0,
+                    _ body: (()->())?) {
+    
+#if DEBUG
     MuLog.TimeLog(key, interval: interval, body)
-    #endif
+#endif
 }
 
 /// log when debug
@@ -64,9 +64,9 @@ public func PrintLog(_ title: String? = nil, _ body: (()->())? = nil) {
 
 /// log when debugging
 public func DebugLog(_ body: (()->())?) {
-    #if DEBUG
+#if DEBUG
     MuLog.TimeLog("Debug", interval: 0, body)
-    #endif
+#endif
 }
 /// log when debugging
 public func NoDebugLog(_ body: (()->())?) {
