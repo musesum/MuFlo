@@ -1495,6 +1495,11 @@ final class MuFloTests: XCTestCase {
         }
         XCTAssertEqual(err, 0)
     }
+    func testFlatJson() { headline(#function)
+        var err = 0
+        let root = Flo("√")
+        let script = ""
+    }
     //MARK: - Scripts
     func testD3Script() { headline(#function)
         /// D3.js script for force directed graph

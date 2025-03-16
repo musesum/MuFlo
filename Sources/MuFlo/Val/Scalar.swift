@@ -120,7 +120,7 @@ public class Scalar: FloVal {
                                    viaEdge: Bool,
                                    noParens: Bool = false) -> String {
         if scriptOps.delta {
-            if !hasDelta() {
+            if !hasDelta(scriptOps) {
                 return ""
             }
             PrintLog("⁉️ \(flo.name) [\(scriptOps.description)].[\(scalarOps.description)] : \(value)")
@@ -249,8 +249,8 @@ public class Scalar: FloVal {
         return Scalar(with: self, viaEval: true)
     }
     
-    //.... put this into refactored Scalar
-    override public func hasDelta() -> Bool {
+    //TODO: put this into refactored Scalar
+    override public func hasDelta(_ scriptOps: FloScriptOps) -> Bool {
         if      scalarOps.origin { return value != origin }
         else if scalarOps.minim  { return value != minim }
         else                     { return value != prior }

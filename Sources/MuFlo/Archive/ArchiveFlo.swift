@@ -68,6 +68,7 @@ import UIKit
 ///
 open class ArchiveFlo: NSObject {
 
+    static var  archiveTime = Date().timeIntervalSince1970
     private var scriptNames: [String]
     private var textureNames: [String]
     private var bundles: [Bundle]
@@ -79,9 +80,11 @@ open class ArchiveFlo: NSObject {
                 _ scriptNames  : [String],
                 _ textureNames : [String]) {
 
+        ArchiveFlo.archiveTime = Date().timeIntervalSince1970
         self.bundles = bundles
         self.scriptNames = scriptNames
         self.textureNames = textureNames
+
         //TODO: get textureNames from pipe.flo
         for textureName in textureNames {
             nameTex[textureName] = nil as MTLTexture?
@@ -108,18 +111,31 @@ open class ArchiveFlo: NSObject {
         }
 
         func readZip(_ zip: ArchiveZip) {
-            if let data = zip.readFile("now.flo.h"),
+
+            ArchiveFlo.archiveTime = Date().timeIntervalSince1970
+
+            if let data = zip.readFile("delta.flo.h"),
                let script = dropRoot(String(data: data, encoding: .utf8)) {
 
                 let mergeRoot = Flo("√")
                 if FloParse.shared.parseRoot(mergeRoot, script) {
-                    Flo.root˚.mergeFloValues(mergeRoot)
+                    Flo.root˚.mergeFloValues(mergeRoot, activating: true)
+                    // print(mergeRoot.scriptFlatJson()) // genius
+                    // genius NO  unzipPngTextures(zip)
+                }
+            } else if let data = zip.readFile("now.flo.h"),
+                      let script = dropRoot(String(data: data, encoding: .utf8)) {
+
+                let mergeRoot = Flo("√")
+                if FloParse.shared.parseRoot(mergeRoot, script) {
+                    Flo.root˚.mergeFloValues(mergeRoot, activating: false)
+                    // genius print(mergeRoot.scriptFlatJson())
+                    unzipPngTextures(zip)
                 }
             } else {
-                parseAppStartupScripts() //.....move this up and merge with delta.flo.h
+                parseAppStartupScripts() //TODO: move this up and merge with delta.flo.h
+                unzipPngTextures(zip)
             }
-            unzipPngTextures(zip)
-
             // remove file from Inbox -- but not from downloads
             if url.path.contains("/Inbox") {
                 try? FileManager.default.removeItem(at: url)
@@ -161,10 +177,11 @@ open class ArchiveFlo: NSObject {
                 let mergeRoot = Flo("√")
                 if FloParse.shared.parseRoot(mergeRoot, script) {
 
-                    Flo.root˚.mergeFloValues(mergeRoot) 
+                    Flo.root˚.mergeFloValues(mergeRoot, activating: false) 
                 }
             }
             unzipPngTextures(archive)
+            ArchiveFlo.archiveTime = Date().timeIntervalSince1970
             return true
 
         } else {

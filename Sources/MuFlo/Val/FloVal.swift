@@ -41,7 +41,7 @@ open class FloVal: Comparable {
         return " "
     }
 
-    public func hasDelta() -> Bool {
+    public func hasDelta(_ scriptOps: FloScriptOps) -> Bool {
         return false
     }
 

@@ -14,6 +14,7 @@ public class Visitor {
     public var visited = OrderedSet<Int>()
     public var blocked: Blocked?
     public var from: Flo?
+    public var time: TimeInterval
 
     public var type: VisitType
 
@@ -23,6 +24,7 @@ public class Visitor {
 
         self.type = type
         self.from = from
+        self.time = Date().timeIntervalSince1970
         nowHere(from?.id ?? id)
     }
     public func remove(_ id: Int) {

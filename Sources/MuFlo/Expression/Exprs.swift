@@ -9,6 +9,9 @@ public class Exprs: FloVal {
 
     public static var IdExprs = [Int:Exprs]()
 
+    /// time interfal of last change
+    var time = Date().timeIntervalSince1970
+
     /// `t(x 1, y 2)` ⟹ `["x": 1, "y": 2]`
     public var nameAny = NameAny()
 
@@ -215,6 +218,10 @@ public class Exprs: FloVal {
             if newTween() {
                 pluginTween()
             }
+            // genius saving some of changes
+            // later will compare with last archive time
+            // in order o save deata
+            time = visit.time
             return true
         }
         return false
@@ -383,6 +390,10 @@ public class Exprs: FloVal {
                                    viaEdge: Bool,
                                    noParens: Bool = false) -> String {
 
+        if scriptOps.time, time <= ArchiveFlo.archiveTime {
+            return ""
+        }
+
         var script = scriptExprs(scriptOps, viaEdge)
 
         if !viaEdge, scriptOps.edge {
@@ -396,9 +407,12 @@ public class Exprs: FloVal {
                 : scriptOps.parens ? "(\(script))"
                 : script)
     }
-    override public func hasDelta() -> Bool { //.... refactor scalarOp into Scalar
+    override public func hasDelta(_ scriptOps: FloScriptOps) -> Bool { //.... refactor scalarOp into Scalar
+        if scriptOps.time, time <= ArchiveFlo.archiveTime {
+            return false
+        }
         for val in nameAny.values {
-            if let val = val as? FloVal, val.hasDelta() {
+            if let val = val as? FloVal, val.hasDelta(scriptOps) {
                 return true
             }
         }

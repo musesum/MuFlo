@@ -180,12 +180,12 @@ extension Flo { // + script
     }
     /// Populate tree hierarchy of total changes made to each subtree.
     /// When using FloScriptFlag .delta, no changes to subtree are printed out
-    func hasDeltas() -> Bool {
+    func hasDeltas(_ scriptOps: FloScriptOps) -> Bool {
         if let exprs {
             for expr in exprs.nameAny.values {
                 // does expression have a delta
                 if let scalar = expr as? Scalar,
-                   scalar.hasDelta() {
+                   scalar.hasDelta(scriptOps) {
                     deltaTween = true
                     break // only need to check for first occurence
                 }
@@ -193,27 +193,27 @@ extension Flo { // + script
         }
         // need to set hasDelta for all descendants
         for child in children {
-            if child.hasDeltas() {
+            if child.hasDeltas(scriptOps) {
                 deltaTween = true
             }
         }
         return deltaTween
     }
 
-    public func scriptRoot(_ ops: FloScriptOps) -> String {
+    public func scriptRoot(_ scriptOps: FloScriptOps) -> String {
 
         var script = ""
-        if ops.delta {
-            deltaTween = hasDeltas()
+        if scriptOps.delta {
+            deltaTween = hasDeltas(scriptOps)
             for child in children {
                 if child.deltaTween {
-                    let childScript = child.scriptFlo(ops)
+                    let childScript = child.scriptFlo(scriptOps)
                     script.spacePlus(childScript)
                 }
             }
         } else {
             for child in children {
-                let childScript = child.scriptFlo(ops)
+                let childScript = child.scriptFlo(scriptOps)
                 script.spacePlus(childScript)
             }
         }
@@ -272,6 +272,7 @@ extension Flo { // + script
 
         } else {
             let childScript = scriptChildren(scriptOps)
+            if childScript.isEmpty { return script }
             if ".:".contains(childScript[0]) {
                 script += childScript
             } else {

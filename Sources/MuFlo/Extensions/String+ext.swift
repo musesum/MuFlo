@@ -4,8 +4,22 @@
 import Foundation
 
 public extension String {
+    var trimNonLetterPrefix: String {
+        guard let index = self.firstIndex(where: { $0.isLetter }) else {
+            return self
+        }
+        return String(self[index...])
+    }
+    /// Extracts a numeric prefix (as a String) matching a floating-point pattern.
+    var numericPrefix: String? {
+        let pattern = #"^\d+(\.\d+)?"#
+        if let range = self.range(of: pattern, options: .regularExpression) {
+            return String(self[range])
+        }
+        return nil
+    }
 
-     subscript(idx: Int) -> String {
+    subscript(idx: Int) -> String {
         String(self[index(startIndex, offsetBy: idx)])
     }
     subscript(range: ClosedRange<Int>) -> String {

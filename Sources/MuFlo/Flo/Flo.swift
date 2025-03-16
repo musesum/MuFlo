@@ -87,6 +87,7 @@ public class Flo {
     public var scriptAll   : String { scriptRoot(FloScriptOps.All  ) }
     public var scriptFull  : String { scriptRoot(FloScriptOps.Full ) }
 
+
     private var time = TimeInterval(0)  // UTC time of last change time
     public func updateTime() { time = Date().timeIntervalSince1970 }
     public var bound: Bool { !name.hasSuffix("?") }
@@ -130,11 +131,11 @@ public class Flo {
         return exprsState
     }
 
-    public func hasDelta() -> Bool {
+    public func hasDelta(_ scriptOps: FloScriptOps) -> Bool {
         guard let exprs else { return false }
         for val in exprs.nameAny.values {
             if let scalar = val as? Scalar {
-                if scalar.hasDelta() {
+                if scalar.hasDelta(scriptOps) {
                     return true
                 }
             }
@@ -311,16 +312,55 @@ extension Flo: Hashable {
         }
     }
 }
+
+extension Flo { //.... Genius
+
+    func scriptFlatJson() -> String {
+        let script = "{\n\"nodes\" : [ \n\(scriptFlatJsonItems())\n]\n}"
+        return script
+    }
+
+    func scriptFlatJsonItems() -> String {
+        var nodeItems: [String] = []
+
+        if let exprs {
+            var anysItems: [String] = []
+            for (name, any) in exprs.nameAny {
+                if let scalar = any as? Scalar {
+                    let digits = scalar.value.digits(-6)
+                    // Append each JSON object string without a trailing comma
+                    anysItems.append("{ \"name\" : \"\(name)\", \"any\": \"\(digits)\" }")
+                }
+            }
+            if !anysItems.isEmpty {
+                let anys = anysItems.joined(separator: ",\n")
+                // Append the complete node string to the nodeItems array
+                nodeItems.append("{\"path\" : \"\(path(9))\", \"anys\": [\(anys)]}")
+            }
+        }
+
+        for child in children {
+            let childNodes = child.scriptFlatJsonItems()
+            // Only append if childNodes is not empty
+            if !childNodes.isEmpty {
+                nodeItems.append(childNodes)
+            }
+        }
+
+        // Join all node items with commas to form a valid JSON array
+        return nodeItems.joined(separator: ",\n")
+    }
+}
 extension Flo {
 
-    func mergeFloValues(_ mergeRoot: Flo) {
+    func mergeFloValues(_ mergeRoot: Flo, activating: Bool) {
 
         var merged = false
         if let exprs,
            let mergeFlo = mergeRoot.hashFlo.dict[hash],
            let mergeExprs = mergeFlo.exprs {
 
-            NoDebugLog { P("\(self.scriptOnlyFlo()) <= \(mergeFlo.scriptOnlyFlo())") }
+            DebugLog { P("\(self.scriptOnlyFlo()) <= \(mergeFlo.scriptOnlyFlo())") }
 
             for (key,value) in mergeExprs.nameAny {
                 if let mergeScalar = value as? Scalar,
@@ -330,10 +370,13 @@ extension Flo {
                 }
             }
         }
-        children.forEach { $0.mergeFloValues(mergeRoot) }
+        children.forEach { $0.mergeFloValues(mergeRoot, activating: activating) }
 
         if merged {
             updateClosurePlugins()
+            if activating {
+                activate(Visitor(0))
+            }
         }
     }
     func updateClosurePlugins() {

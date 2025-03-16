@@ -10,19 +10,36 @@ import SwiftUI
     var icon : Image
     var url  : URL?
     var spot = false
+    var title: String
+    var time: TimeInterval
+    var genius: String? // genius prepare post
 
     init(_ name: String,
          _ icon: UIImage,
+         _ description: String?,
          _ url: URL?) {
 
         self.name = name
         self.icon = Image(uiImage: icon)
         self.url = url
-    }
+        self.title = name.trimNonLetterPrefix
 
-    init(_ name: String,
-         _ icon: Image) {
-        self.name = name
-        self.icon = icon
+        if let numberString = name.numericPrefix,
+           let time = TimeInterval(numberString)
+        {
+            self.time = time
+        } else {
+            self.time = Date().timeIntervalSince1970
+        }
+
+        self.genius =
+        "{\n" +
+        "\"id\": \"\(name)\",\n" +
+        "\"title\": \"\(title)\",\n" +
+        "\"description\": \"\(description ?? "")\",\n" +
+        "\"external_url\": \"\(url?.absoluteString ?? "")\",\n" +
+        "\"image_url\": \"\(url?.absoluteString ?? "")\"\n" +
+        "},"
+        print(genius!)
     }
 }

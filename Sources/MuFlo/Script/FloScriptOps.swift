@@ -15,8 +15,10 @@ public struct FloScriptOps: OptionSet {
     public static let comment = FloScriptOps(rawValue: 1 << 6) ///  64 commas (`,`) and `// comment`
     public static let delta   = FloScriptOps(rawValue: 1 << 7) /// 128 only values where `.now != .origin`
     public static let noLF    = FloScriptOps(rawValue: 1 << 8) /// 256 `no line feed
+    public static let time    = FloScriptOps(rawValue: 1 << 9) /// 512 time change
     public init(rawValue: Int = 0) { self.rawValue = rawValue }
 
+    public static var Time  : FloScriptOps { [.delta, .now, .time,           .parens] }
     public static var Delta : FloScriptOps { [.delta, .now,                  .parens, .compact, .noLF] }
     public static var Now   : FloScriptOps { [        .now,        .comment, .parens, .compact       ] }
     public static var Full  : FloScriptOps { [.def,   .now, .edge, .comment, .parens, .compact       ] }
@@ -38,6 +40,7 @@ extension FloScriptOps: CustomStringConvertible {
         (.expand,   "expand"  ),
         (.comment,  "comment" ),
         (.delta,    "delta"   ),
+        (.time,     "time"    ),
         (.noLF,     "noLF"    ),
     ]
 
@@ -55,6 +58,7 @@ extension FloScriptOps: CustomStringConvertible {
     var expand  : Bool { contains(.expand ) }
     var comment : Bool { contains(.comment) }
     var delta   : Bool { contains(.delta  ) }
+    var time    : Bool { contains(.time   ) }
     var noLF    : Bool { contains(.noLF   ) }
 
     static public func += (lhs: inout FloScriptOps, rhs: FloScriptOps) {

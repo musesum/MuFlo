@@ -32,8 +32,10 @@ import SwiftUI
                let data = archive.readFile("icon.png"),
                let icon = UIImage(data: data) {
 
+                let descriptionData = archive.readFile("description.txt")
+                let description = String(data: descriptionData ?? Data(), encoding: .utf8)
                 let name = url.deletingPathExtension().lastPathComponent
-                let item  = ArchiveItem(name, icon, url)
+                let item  = ArchiveItem(name, icon, description, url)
                 archiveActs.append(item)
             }
         }

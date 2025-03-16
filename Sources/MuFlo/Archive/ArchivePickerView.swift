@@ -50,7 +50,7 @@ public struct ArchiveItemView: View {
                         .background(.clear)
                     )
                     .shadow(color: .black, radius: 1.0)
-                Text(archiveItem.name)
+                Text(archiveItem.title)
                     .foregroundColor(.white)
                     .shadow(color: .black, radius: 1.0)
                     .scaledToFit()
