@@ -330,8 +330,6 @@ public class Exprs: FloVal {
             if flo.hasPlugDefs,
                flo.hasPlugins,
                !visit.type.has(.tween) {
-                
-                visit.type += .tween
                 return true
             }
             return false
@@ -343,21 +341,6 @@ public class Exprs: FloVal {
             }
         }
     }
-    public func logVisitedPaths(_ visit: Visitor) -> String {
-
-        var str = "("
-        var del = ""
-        for vid in visit.visited {
-            if let flo = Flo.IdFlo[vid] {
-                let path = flo.path(2)
-                str += del + path // + ":\(vid)"
-                del = ", "
-            }
-        }
-        str += ")"
-        return str
-    }
-
     // val = origin, twe = origin
     func bindVals() {
         if nameAny.count > 0 {
@@ -396,7 +379,7 @@ public class Exprs: FloVal {
                 : scriptOps.parens ? "(\(script))"
                 : script)
     }
-    override public func hasDelta() -> Bool { //.... refactor scalarOp into Scalar
+    override public func hasDelta() -> Bool { //TODO: refactor scalarOp into Scalar
         for val in nameAny.values {
             if let val = val as? FloVal, val.hasDelta() {
                 return true

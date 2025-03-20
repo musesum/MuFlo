@@ -3,11 +3,9 @@
 
 import Foundation
 
-public class Edge: Hashable {
+public class Edge: FloId, Hashable {
 
-    var id = Visitor.nextId()
     var edgeKey = "" // created with makeKey()
-
     var edgeOps = EdgeOptions()
     var active = true
     var leftFlo: Flo
@@ -42,14 +40,14 @@ public class Edge: Hashable {
         self.leftFlo = leftFlo
         self.rightFlo = rightFlo
         self.plugDefs = plugDefs
+        super.init()
         makeKey()
     }
     convenience init(_ def: EdgeDef,
                      _ leftFlo: Flo,
                      _ rightFlo: Flo,
                      _ exprs: Exprs?,
-                     _ plugDefs: EdgeDefArray?
-        ) {
+                     _ plugDefs: EdgeDefArray?) {
 
         self.init(leftFlo, rightFlo, def.edgeOps, plugDefs)
         self.edgeExpress = exprs

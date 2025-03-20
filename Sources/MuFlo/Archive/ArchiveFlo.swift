@@ -116,7 +116,7 @@ open class ArchiveFlo: NSObject {
                     Flo.root˚.mergeFloValues(mergeRoot)
                 }
             } else {
-                parseAppStartupScripts() //.....move this up and merge with delta.flo.h
+                parseAppStartupScripts() //TODO: move this up and merge with delta.flo.h
             }
             unzipPngTextures(zip)
 

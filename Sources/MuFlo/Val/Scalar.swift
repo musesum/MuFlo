@@ -249,7 +249,7 @@ public class Scalar: FloVal {
         return Scalar(with: self, viaEval: true)
     }
     
-    //.... put this into refactored Scalar
+    //TODO: put this into refactored Scalar
     override public func hasDelta() -> Bool {
         if      scalarOps.origin { return value != origin }
         else if scalarOps.minim  { return value != minim }

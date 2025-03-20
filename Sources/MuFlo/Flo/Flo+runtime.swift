@@ -82,33 +82,26 @@ extension Flo {
         }
     }
     
-    public func activate(_ visitor: Visitor = Visitor(0), _ depth: Int = 0) {
-        // logDepth(visit.isBlocked(id) ? "⛔️" : visit.wasHere(id) ? "🏁" : "🚥")
-        guard visitor.newVisit(id) else { return }
+    public func activate(_ visit: Visitor = Visitor(0), _ depth: Int = 0) {
+        guard visit.newVisit(id) else { return }
         for closure in closures {
-            closure(self, visitor)
+            closure(self, visit)
         }
-         activateEdges(visitor, depth)
+         activateEdges(visit, depth)
     }
-    private func activateEdges(_ visitor: Visitor, _ depth: Int) {
+    private func activateEdges(_ visit: Visitor, _ depth: Int) {
         // breadth first follow edges
         var passed = [Flo]()
         for floEdge in floEdges.values {
             if floEdge.active { // ⬦⃣
-                if let pass = floEdge.followEdge(self, visitor.via(.model), depth) {
+                if let pass = floEdge.followEdge(self, visit.via(.model), depth) {
                     passed.append(pass)
                 }
             }
         }
         // continue next breadth level with nodes that passed
         for pass in passed {
-            pass.activate(visitor, depth+1)
-        }
-        func logDepth(_ icon: String) {
-            #if DEBUG && false
-            let visited = exprs?.logVisitedPaths(visit) ?? ""
-            print("".pad(depth*3) + "\(id)" + "\(icon) \(path(3)): \(float) " + visited)
-            #endif
+            pass.activate(visit, depth+1)
         }
     }
 

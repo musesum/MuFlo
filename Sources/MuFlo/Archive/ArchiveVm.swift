@@ -2,16 +2,13 @@
 
 import SwiftUI
 
-@Observable public class ArchiveVm: Identifiable {
-    
+@Observable public class ArchiveVm: FloId, Identifiable {
+
     public static let shared = ArchiveVm()
-    public let id = Visitor.nextId()
     public var archiveProto: ArchiveProto?
     public var archiveActs: [ArchiveItem] { getArchiveMus() }
     private let Files = FileManager.default
     public var nameNow = "Archive"
-
-    public init() {}
 
     func archiveAction(_ archiveItem: ArchiveItem,_ taps: Int) {
         switch taps {

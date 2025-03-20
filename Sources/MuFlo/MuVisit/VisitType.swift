@@ -22,7 +22,7 @@ public struct VisitType: OptionSet {
         (.canvas,  "canvas"),   // user touched a non-menu canvas
         (.user,    "user"  ),   // a user gesture
         (.remote,  "remote"),   // from a remote device
-        (.remote,  "midi"  ),   // from a midi device
+        (.midi,    "midi"  ),   // from a midi device
         (.tween,   "tween" ),   // from an animataion
     ]
     static public var logDescriptions: [(Self, String)] = [

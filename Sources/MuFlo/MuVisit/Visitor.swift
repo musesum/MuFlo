@@ -6,21 +6,21 @@ import Collections
 
 /// Visit a node only once. Collect and compare with a set of nodes already visited.
 public class Visitor {
-
-    static var Id = 0  // unique identifier for each node
-    public static func nextId() -> Int { Id += 1; return Id }
-
+    
+    static var VisitorId = 0  // unique identifier for each node
+    public static func nextId() -> Int { VisitorId += 1; return VisitorId }
+    
     private var lock = NSLock()
     public var visited = OrderedSet<Int>()
     public var blocked: Blocked?
     public var from: Flo?
-
+    
     public var type: VisitType
-
+    
     public init (_ id: Int = 0,
                  _ type: VisitType = .model,
                  from: Flo? = nil) {
-
+        
         self.type = type
         self.from = from
         nowHere(from?.id ?? id)
@@ -59,7 +59,7 @@ public class Visitor {
         lock.unlock()
         return blocking
     }
-
+    
     public func wasHere(_ id: Int) -> Bool {
         lock.lock()
         let visited = visited.contains(id)
@@ -87,6 +87,17 @@ public class Visitor {
         let visits = visited.map { String($0)}.joined(separator: ",")
         lock.unlock()
         return "\(type.log):(\(visits))"
+    }
+    public func logVisits() {
+        for visit in visited {
+            if let any = FloIdAny[visit] {
+                switch any {
+                case let f as Flo:  print ("\(visit): \(f.name)")
+                default : continue
+                }
+            }
+            
+        }
     }
 }
 

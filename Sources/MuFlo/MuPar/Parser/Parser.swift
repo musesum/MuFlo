@@ -5,9 +5,8 @@ import Foundation
 import Collections
 
 /// A node in a parse graph with prefix and suffix edges.
-public class Parser {
+public class Parser: FloId {
 
-    var id = Visitor.nextId()
     var pattern: String         /// name, quote, or regex pattern
     var type: ParType           /// type of operation on parsin
     var repeats: ParRepeats     /// number of allowed repetitions to be true
@@ -26,6 +25,7 @@ public class Parser {
         self.type = type
         self.repeats = ParRepeats(parCount)
         self.pattern = pattern
+        super.init()
 
         if (pattern.count>1 && pattern[0] == "_") {
             self.pattern.removeFirst()

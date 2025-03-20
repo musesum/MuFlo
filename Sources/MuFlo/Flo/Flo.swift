@@ -13,15 +13,22 @@ public class HashFlo { var dict = [Int: Flo]() }
 
 public enum LogBind { case none, value, def }
 
-public class Flo {
+public var FloIdAny = [Int:Any]() // debugging
+open class FloId {
+    public var id: Int
+    public init() {
+        id = Visitor.nextId()
+        FloIdAny[id] = self
+    }
+}
 
-    public static var IdFlo = [Int:Flo]() // debugging
+public class Flo: FloId {
+
     public static var root˚ = Flo("√")
     public static func script(path: String) -> String { root˚.scriptPath(path) }
 
     public var hashFlo : HashFlo!
 
-    public var id = Visitor.nextId()
     public var name = ""
     public var type = FloType.unknown
     public var exprs: Exprs?
@@ -170,9 +177,7 @@ public class Flo {
         return hashed
     }()
 
-    init() {
-        Flo.IdFlo[id] = self
-    }
+   
     public convenience init(_ name: String, parent: Flo?, type: FloType = .name) {
         self.init()
         self.name = name

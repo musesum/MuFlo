@@ -5,7 +5,9 @@
 import Foundation
 
 extension Edge {
-
+    public func script() -> String {
+        return scriptEdgeVal(leftFlo, [.edge, .noLF])
+    }
     func scriptEdgeVal(_ flo: Flo,
                        _ scriptOpts: FloScriptOps) -> String {
 

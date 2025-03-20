@@ -5,9 +5,8 @@
 import Foundation
 import CoreGraphics
 
-open class FloVal: Comparable {
+open class FloVal: FloId, Comparable {
 
-    public var id = -Visitor.nextId()
     public var name: String
     public var flo: Flo  // flo that declared and contains this value
 	
@@ -22,6 +21,7 @@ open class FloVal: Comparable {
     init(_ flo: Flo, _ name: String) {
         self.flo = flo
         self.name = name
+        super.init()
     }
     
     init(with: FloVal) {

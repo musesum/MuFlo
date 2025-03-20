@@ -254,7 +254,6 @@ public class FloParse {
             }
         }
         flo.graft(graft)
-        //.... print("  => \(flo.scriptAll) ")
     }
 
     func bindRoot(_ root: Flo, _ scriptOps: FloScriptOps = []) {
