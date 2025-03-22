@@ -43,7 +43,9 @@ public class ArchiveZip {
             let archive = try Archive(url: URL, accessMode: mode, pathEncoding: nil)
             return archive
         } catch {
-            PrintLog("⁉️ \(#function) could not open \(self.name)")
+            if self.name != "Snapshot" {
+                PrintLog("⁉️ \(#function) could not open \(self.name)")
+            }
             return nil
         }
     }
@@ -76,7 +78,7 @@ public class ArchiveZip {
         guard let entry = (archive[filename] ??
                            archive[path] ??
                            archive[urlName]) else {
-            return err("archive \(path) not found") }
+            return name == "Snapshot" ? nil : err("archive \(path) not found") }
 
         var data = Data()
         do {
@@ -98,7 +100,6 @@ public class ArchiveZip {
         
         let atURL = Files.docURL.appendingPathComponent(at).appendingPathExtension(ext)
         let withURL = Files.docURL.appendingPathComponent(with).appendingPathExtension(ext)
-
         do {
             _ = try Files.replaceItemAt(atURL, withItemAt: withURL)
         }
