@@ -82,6 +82,6 @@ public func NoTimeLog(_ key: String,
 }
 
 /// shorten print statement, limited to string
-public func P(_ msg: String) {
-    print(msg)
+public func P(_ msg: String, terminator: String = "\n") {
+    print(msg, terminator: terminator)
 }

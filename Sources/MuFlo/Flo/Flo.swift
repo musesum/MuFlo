@@ -44,10 +44,10 @@ public class Flo: FloId {
     var plugDefs: EdgeDefArray?     /// class reference to [EdgeDef]
     var plugins = [EdgePlugin]()
 
-    var scalarOps: ScalarOps { //.. TODO: refactor into Scalar class
+    var scalarOps: ScalarOps { //TODO: refactor into Scalar class
         hasPlugins ? [.value] : [.tween, .value]
     }
-    var deltaTween = false          /// any changes to descendants?
+    var deltaTween = false /// any changes to descendants?
 
     public var youngest : Flo          { get { children.last ?? self }}
     public var string   : String       { get { StringVal()  ?? "??"  }}
