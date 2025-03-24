@@ -112,7 +112,7 @@ public class Par {
                     Parser(.or,"leaf", .one, [
                         Parser(.and, "path", .one, [ Parser(.regx,"^[A-Za-z_][A-Za-z0-9_.]*")]),
                         Parser(.and, "quote", .one, [ Parser(.regx, #"^\"([^\"]*)\""#)]),
-                        Parser(.and, "regex", .one, [ Parser(.regx,"^'(?i)([^\']+)'")])]),
+                        Parser(.and, "regex", .one, [ Parser(.regx,"^'(.*)'$")])]),
                     Parser(.and, "repeats")]),
                 Parser(.and, "parens", .one, [
                     Parser(.quote,"("),

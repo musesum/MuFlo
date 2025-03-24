@@ -169,8 +169,11 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
 
-    func testParseComments() { headline(#function)
+    func testComments() { headline(#function)
         var err = 0
+        err += test("a('does something interesting')")
+        err += test("a(x 'x does this', y 'y does that')")
+        err += test("a(x, 'x does this', y, 'y does that')")
         err += test("a // yo")
         err += test("a { b } // yo", "a { // yo \nb } ")
         err += test("a { b // yo \n }", "a.b // yo")
@@ -362,7 +365,7 @@ final class MuFloTests: XCTestCase {
            let b = root.findPath("b") {
 
             b.activate(Visitor(0))
-            err = Parsin.testCompare("a(3), b(2, -> a(3))", root.scriptNow)
+            err = Parsin.testCompare("a(3), b(2)", root.scriptNow)
         } else {
             err = 1
         }
@@ -745,7 +748,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let b = root.findPath("b") {
 
-            err += Parsin.testCompare("a(x == 10, y, <- b) b(x : 0, y : 0)", root.scriptNow)
+            err += Parsin.testCompare("a(x == 10, y) b(x : 0, y : 0)", root.scriptNow)
 
             b.activate()
             err += Parsin.testCompare("a(x == 10, y, <- b) b(x 0, y 0)", root.scriptAll)
@@ -945,10 +948,10 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let b = root.findPath("b") {
 
-            err += Parsin.testCompare("a(x, y, <- b), b(x : 0, y : 0)", root.scriptNow)
+            err += Parsin.testCompare("a(x, y), b(x : 0, y : 0)", root.scriptNow)
 
             b.setAnyExprs(CGPoint(x: 1, y: 2), .fire)
-            err += Parsin.testCompare("a(x : 1, y : 2, <- b), b(x : 1, y : 2)", root.scriptNow)
+            err += Parsin.testCompare("a(x : 1, y : 2), b(x : 1, y : 2)", root.scriptNow)
             err += Parsin.testCompare("a(x, y, <- b), b(x 1, y 2)", root.scriptDef)
 
         } else {
@@ -969,7 +972,7 @@ final class MuFloTests: XCTestCase {
            let c = root.findPath("c") {
 
             c.setAnyExprs(CGPoint(x: 1, y: 2), .fire)
-            err = Parsin.testCompare("a(x : 1, <- c), c(x : 1, y : 2)", root.scriptNow)
+            err = Parsin.testCompare("a(x : 1), c(x : 1, y : 2)", root.scriptNow)
         } else {
             err += 1
         }
@@ -990,7 +993,7 @@ final class MuFloTests: XCTestCase {
             let p = CGPoint(x: 1, y: 2)
             c.setAnyExprs(p, .fire)
 
-            err += Parsin.testCompare("a(x : 1, <- c), b(y : 2, <- c), c(x : 1, y : 2)", root.scriptNow)
+            err += Parsin.testCompare("a(x : 1), b(y : 2), c(x : 1, y : 2)", root.scriptNow)
 
         } else {
             err += 1
@@ -1014,7 +1017,7 @@ final class MuFloTests: XCTestCase {
             err += Parsin.testCompare(
                 "a(x 0…2, y 0…2, z 99), b(x 0…2, y 0…2, <- a)", root.scriptDef)
 
-            err += Parsin.testCompare("a(x : 1, y : 1, z : 99), b(x : 1, y : 1, <- a)", root.scriptNow)
+            err += Parsin.testCompare("a(x : 1, y : 1, z : 99), b(x : 1, y : 1)", root.scriptNow)
             err += Parsin.testCompare("a(x 0…2 : 1, y 0…2 : 1, z 99), b(x 0…2 : 1, y 0…2 : 1, <- a)", root.scriptAll)
 
         } else {
@@ -1037,7 +1040,7 @@ final class MuFloTests: XCTestCase {
            let a = root.findPath("a") {
 
             err += Parsin.testCompare("a(x in 2…4, y in 3…5, -> b)  b(x 1…2, y 2…3)", root.scriptAll)
-            err += Parsin.testCompare("a(x : 2, y : 3, -> b) b(x : 1, y : 2)", root.scriptNow)
+            err += Parsin.testCompare("a(x : 2, y : 3) b(x : 1, y : 2)", root.scriptNow)
 
             // will fail expression, so no current values
             a.setAnyExprs(CGPoint(x: 1, y: 4), .fire)
@@ -1047,11 +1050,11 @@ final class MuFloTests: XCTestCase {
             a.setAnyExprs(CGPoint(x: 3, y: 4), .fire)
             err += Parsin.testCompare("a(x in 2…4 : 3, y in 3…5 : 4, -> b) b(x 1…2 : 1.5, y 2…3 : 2.5)", root.scriptAll)
 
-            err += Parsin.testCompare("a(x : 3, y : 4, -> b) b(x : 1.5, y : 2.5)", root.scriptNow)
+            err += Parsin.testCompare("a(x : 3, y : 4) b(x : 1.5, y : 2.5)", root.scriptNow)
 
             // fail, will keep last value
             a.setAnyExprs(CGPoint(x:1, y:4), .fire)
-            err += Parsin.testCompare("a(x : 3, y : 4, -> b) b(x : 1.5, y : 2.5)", root.scriptNow)
+            err += Parsin.testCompare("a(x : 3, y : 4) b(x : 1.5, y : 2.5)", root.scriptNow)
 
         } else {
             err += 1
@@ -1504,7 +1507,7 @@ final class MuFloTests: XCTestCase {
 
         if floParse.parseRoot(root, script) {
 
-            err += Parsin.testCompare("a.b.c(1) d.e(2, <> a.b.c) f.e(2, <> a.b.c)", root.scriptNow)
+            err += Parsin.testCompare("a.b.c(1) d.e(2) f.e(2)", root.scriptNow)
 
 //            err += Parsin.testCompare(
 //            """
@@ -1580,7 +1583,7 @@ final class MuFloTests: XCTestCase {
     func testDelta() { headline(#function)
         /// test delta changes only
         var err = 0
-        let script = "a { b(0) c(0) d(0…1, ^- f) e(0…1 ø) f } "
+        let script = "a { b(0) c(0) d(0…1, ^- f) e(0…1) f } "
         print("\n" + script)
 
         let root = Flo("√")
@@ -1656,12 +1659,19 @@ final class MuFloTests: XCTestCase {
 
     func testSky() { headline(#function)
         var err = 0
-        err += testFile("test.sky.in", out: "test.sky.out", .Full)
+            err += testFile("test.sky", out: "test.sky", .Full)
+        XCTAssertEqual(err, 0)
+    }
+    func testTipNow() { headline(#function)
+        var err = 0
+        //err += test("a(x 0…1)","a(x : 0)",.Now)
+        err += test("a(x 0…1, 'tip')","a(x 0…1, 'tip')",.All)
+        err += test("a(x 0…1, 'tip')","a(x : 0)",.Now)
         XCTAssertEqual(err, 0)
     }
     func testSkyVal() { headline(#function)
         var err = 0
-        err += testFile("test.sky.in", out: "test.sky.out.val", .Val)
+        err += testFile("test.sky", out: "test.sky.val", .Now)
         XCTAssertEqual(err, 0)
     }
 }

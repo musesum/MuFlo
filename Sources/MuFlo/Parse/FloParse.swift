@@ -105,6 +105,7 @@ public class FloParse {
             case "scalar"  : addScalar(parse)
             case "exprOp"  : addOp(parse)
             case "quote"   : exprs.addQuote(parse.nextResult)
+            case "tooltip" : exprs.addTooltip(parse.nextResult)
             case "comment" : addComment(parse)
             default        : logDefault(#function, parse)
             }

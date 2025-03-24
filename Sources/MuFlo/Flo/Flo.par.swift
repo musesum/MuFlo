@@ -5,16 +5,16 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
     name := '(?!\d)\w+'
     base := ":" (path | name)
     exprs := "(" (edge | value)+ ")" {
-        value := (name scalar | scalar | name exprOp | exprOp | name | quote | comment)+ {
-            scalar := (range | num) (origin | empty | now)* {
+        value := (name scalar | scalar | name exprOp | exprOp | name | quote | tooltip)+ {
+            scalar := (range | num) (origin | now)* {
                 range  := num rangeOp num
                 origin := "~" num
                 now    := ":" num
-                empty  := '(∅|ø)'
             }
             rangeOp := '(\.\.\.|…|_)'
             exprOp  := '(in|<=|>=|==|<[^>\-:!]|>|[*:=/%,+-,])'
             quote   := '"([^"]*)"'
+            tooltip := ''([^']*)''
             num     := '([+-]*\d*\.?\d+(e[+-]?\d+)?)'
         }
         edge := edgeOp (edgePar | edgeVal) {

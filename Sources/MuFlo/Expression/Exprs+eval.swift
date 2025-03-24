@@ -70,12 +70,16 @@ extension Exprs { // + eval
             let evalAny = evalAnys[i]
 
             switch evalAny.op {
-            case .none                  : break // start here
-            case .quote,.scalar,.num    : if !exprLiteral() { return false }
-            case .path,.name            : if !exprName() { return false }
-            case .EQ,.LE,.GE, .LT,.GT,.In,.add,.sub,.muy,.div, .mod,.assign
-                /**/                    : opNow = evalAny.op; hasOp = true
-            case .comma                 : exprFinish()
+            case .none,.tooltip:
+                break // start here
+            case .quote,.scalar,.num:
+                if !exprLiteral() { return false }
+            case .path,.name:
+                if !exprName() { return false }
+            case .EQ,.LE,.GE, .LT,.GT,.In,.add,.sub,.muy,.div, .mod, .assign:
+                opNow = evalAny.op; hasOp = true
+            case .comma:
+                exprFinish()
             }
 
 

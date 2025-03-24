@@ -61,6 +61,12 @@ extension Exprs { // + add
             nameAny[key] = quote
         }
     }
+    func addTooltip(_ tip: String?) {
+        if let tip = tip?.without(trailing: " ")  {
+            evalAnys.append(EvalAny(toolip: tip))
+            nameAny[anonKey] = tip
+        }
+    }
     func addOpName(_ name: String?,
                    _ hadName: Bool) {
 
