@@ -11,8 +11,8 @@ extension Edge {
 
         guard visit.newVisit(id) else { return nil }
 
-        let fromLeft = fromFlo == leftFlo // a >> b
-        let fromRight = !fromLeft       // a << b
+        let fromLeft = fromFlo == leftFlo // a(-> b)
+        let fromRight = !fromLeft       // a(<- b)
         let destFlo = fromLeft ? rightFlo : leftFlo
         let visitedLeft = visit.wasHere(leftFlo.id)
         let visitedRight = visit.wasHere(rightFlo.id)

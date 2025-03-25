@@ -259,10 +259,16 @@ public extension CGRect {
         return [Float(minX),Float(minY),Float(width),Float(height)]
     }
 }
-
+public extension UInt8 {
+    func digits(_ digits: Int = 0) -> String {
+        let str = String(self, radix: 10)
+        let pad = String(repeating: " ", count: digits - str.count) + str
+        return pad
+    }
+}
 public extension CGPoint {
     
-    func digits(_ digits: Int = 0) ->String {
+    func digits(_ digits: Int = 0) -> String {
         "(\(x.digits(0)),\(y.digits(0)))"
     }
     

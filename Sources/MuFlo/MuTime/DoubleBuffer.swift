@@ -35,9 +35,12 @@ public class DoubleBuffer<Item> {
 
     public func flushBuf() -> Bool {
         guard var delegate else { return false }
-        if bufs[indexNow].count == 0 { return false }
 
         lock.lock()
+        guard bufs[indexNow].count > 0 else {
+            lock.unlock()
+            return false
+        }
 
         let indexFlush = indexNow // flush what used to be nextBuffer
         indexNow = indexNow ^ 1   // flip double buffer

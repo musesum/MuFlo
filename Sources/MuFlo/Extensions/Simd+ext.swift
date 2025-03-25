@@ -190,8 +190,11 @@ public extension SIMD3<Double> {
 }
 public extension Double {
 
-    func quantize(_ div: Double) -> Double {
-
-        return (self * div).rounded() / div
+    func quantize(_ div: Double?) -> Double {
+        if let div {
+            return (self * div).rounded() / div
+        } else {
+            return self
+        }
     }
 }
