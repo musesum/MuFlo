@@ -205,11 +205,16 @@ public class Scalar: FloVal {
             if (  scalarOps.thru ||   scalarOps.thri),
                (v.scalarOps.thru || v.scalarOps.thri)  {
 
-                let toRange = (  maxim -   minim) + (   scalarOps.thri ? 1.0 : 0.0)
-                let frRange = (v.maxim - v.minim) + ( v.scalarOps.thri ? 1.0 : 0.0)
+                let frOffset = (v.scalarOps.thri ? 1.0 : 0.0)
+                let toRange = (maxim - minim) + (scalarOps.thri ? 1.0 : 0.0)
+                let frRange = (v.maxim - v.minim) + frOffset
 
-                if ops.tween { tween = (v.tween - v.minim) * (toRange / frRange) + minim }
-                if ops.value { value = (v.value - v.minim) * (toRange / frRange) + minim }
+                if ops.tween {
+                    tween = (v.tween - v.minim) * (toRange / frRange) + minim
+                }
+                if ops.value {
+                    value = (v.value - v.minim) * (toRange / frRange) + minim
+                }
 
             } else if scalarOps.modulo {
 
@@ -218,9 +223,9 @@ public class Scalar: FloVal {
 
                 if ops.tween { tween = fmod(v.tween, maxim) }
                 if ops.value { value = fmod(v.value, maxim) }
-                
+
             } else {
-                
+
                 setTween(v.value)
             }
         }
