@@ -6,6 +6,7 @@ import Foundation
 typealias EdgeDefArray = ArrayClass<EdgeDef>
 
 /// define one or more edges
+@MainActor //_____
 public class EdgeDefs {
 
     var edgeDefs = EdgeDefArray()  /// `a <> ˚˚`

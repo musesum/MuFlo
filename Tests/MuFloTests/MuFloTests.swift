@@ -5,7 +5,7 @@ import XCTest
 
 final class MuFloTests: XCTestCase {
 
-    var floParse = FloParse()
+    //var floParse = FloParse()
     var testErrors = 0
     var totalErrors = 0
 
@@ -16,7 +16,6 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
     func testDefaultValues() { headline(#function)
-        Par.printParsin = true
         var err = 0
         err += test("a (z 0_127 = 1)")
         err += test("w (x 0, y 0)")
@@ -361,7 +360,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let b = root.findPath("b") {
 
             b.activate(Visitor(0))
@@ -380,7 +379,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let b = root.findPath("b") {
 
             b.activate(Visitor(0, .model))
@@ -399,7 +398,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script) {
+        if FloParse().parseRoot(root, script) {
             let result = root.scriptRoot([.parens, .now])
             err += Parsin.testCompare("a { b { f g } c { f g } }", result)
         } else {
@@ -416,7 +415,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            //let a =  root.findPath("a"),
            let z =  root.findPath("z") {
             z.activate(Visitor(0, .model))
@@ -437,7 +436,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let z =  root.findPath("z") {
 
             z.activate(Visitor(0, .model))
@@ -458,7 +457,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let z =  root.findPath("z") {
 
             z.activate(Visitor(0, .model))
@@ -563,7 +562,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let a = root.findPath("a"),
            let c = root.findPath("c"),
            let ab = a.findPath("b"),
@@ -592,7 +591,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let a =  root.findPath("a"),
            let ab = a.findPath("b"),
            let ac = a.findPath("c"),
@@ -674,7 +673,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let a = root.findPath("a"),
            let ab = a.findPath("b"),
            let ac = a.findPath("c"),
@@ -738,14 +737,13 @@ final class MuFloTests: XCTestCase {
     }
     //MARK: - Filter
     func testFilter() { headline(#function)
-        Par.printParsin = true
         var err = 0
 
         let script = "a(x == 10, y, <- b) b(x 0, y 0)"
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse([.printParsin]).parseRoot(root, script),
            let b = root.findPath("b") {
 
             err += Parsin.testCompare("a(x == 10, y) b(x : 0, y : 0)", root.scriptNow)
@@ -764,7 +762,6 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
     func testFilter0() { headline(#function)
-        Par.printParsin = true
         var err = 0
 
         err += test("a (w == 0, x 1, y 0)")
@@ -808,7 +805,6 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
     func testFilter1() { headline(#function)
-        Par.printParsin = true
         var err = 0
 
         let script = """
@@ -818,7 +814,7 @@ final class MuFloTests: XCTestCase {
         """
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse([.printParsin]).parseRoot(root, script),
 
            let w = root.findPath("w") {
 
@@ -875,7 +871,6 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
     func testFilter2() { headline(#function)
-        Par.printParsin = true
         var err = 0
         // selectively set tuples by name, ignore the reset
         let script = """
@@ -884,7 +879,7 @@ final class MuFloTests: XCTestCase {
         """
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse([.printParsin]).parseRoot(root, script),
            let w = root.findPath("w") {
 
             // 0, 0, 0 --------------------------------------------------
@@ -945,7 +940,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse([.printParsin]).parseRoot(root, script),
            let b = root.findPath("b") {
 
             err += Parsin.testCompare("a(x, y), b(x : 0, y : 0)", root.scriptNow)
@@ -968,7 +963,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let c = root.findPath("c") {
 
             c.setAnyExprs(CGPoint(x: 1, y: 2), .fire)
@@ -987,7 +982,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let c = root.findPath("c") {
 
             let p = CGPoint(x: 1, y: 2)
@@ -1002,14 +997,12 @@ final class MuFloTests: XCTestCase {
     }
     func testExpr3() { headline(#function)
         /// test `a(x:0…2, y:0…2, z:99), b (x:0…2, y:0…2) <- a`
-        Par.printParsin = true
-        Par.traceParser = false
         var err = 0
 
         let script = "a(x 0…2, y 0…2, z 99), b(x 0…2, y 0…2, <- a)"
 
         let root = Flo("√")
-        if floParse.parseRoot(root, script),
+        if FloParse([.printParsin]).parseRoot(root, script),
            let a = root.findPath("a") {
 
             a.setAnyExprs(CGPoint(x: 1, y: 1), .fire)
@@ -1024,19 +1017,15 @@ final class MuFloTests: XCTestCase {
             err += 1
         }
         XCTAssertEqual(err, 0)
-        Par.printParsin = false
-        Par.traceParser = false
     }
     func testExpr4() { headline(#function)
         /// test `a(x in 2…4, y in 3…5) -> b b(x 1…2, y 2…3)`
-        Par.printParsin = true
-        Par.traceParser = false
         var err = 0
 
         let script = "a(x in 2…4, y in 3…5, -> b) b(x 1…2, y 2…3)"
 
         let root = Flo("√")
-        if floParse.parseRoot(root, script),
+        if FloParse([.printParsin]).parseRoot(root, script),
            let a = root.findPath("a") {
 
             err += Parsin.testCompare("a(x in 2…4, y in 3…5, -> b)  b(x 1…2, y 2…3)", root.scriptAll)
@@ -1060,8 +1049,6 @@ final class MuFloTests: XCTestCase {
             err += 1
         }
         XCTAssertEqual(err, 0)
-        Par.printParsin = false
-        Par.traceParser = false
     }
     func testExpr5() { headline(#function)
         /// test `b(sum: x + y + z) <- a`
@@ -1073,7 +1060,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let a = root.findPath("a") {
 
             a.setAnyExprs(Exprs(Flo("_t_"), [("x", 1), ("y", 2), ("z", 3)]), .fire)
@@ -1099,7 +1086,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let a = root.findPath("a") {
 
             err += Parsin.testCompare(
@@ -1130,7 +1117,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let a = root.findPath("a"),
            let b = root.findPath("b"),
            let z = root.findPath("z"){
@@ -1179,7 +1166,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script)  {
+        if FloParse().parseRoot(root, script)  {
 
             err += Parsin.testCompare(
             """
@@ -1230,13 +1217,10 @@ final class MuFloTests: XCTestCase {
     func testClosure() { headline(#function)
         /// test `a(x:0…2, y:0…2, z:99), b (x:0…2, y:0…2) <- a`
         var err = 0
-        Par.printParsin = true
-        Par.traceParser = false
-
         let script = "a(x 0…2, y 0…2)"
 
         let root = Flo("√")
-        if floParse.parseRoot(root, script),
+        if FloParse([.printParsin]).parseRoot(root, script),
            let a = root.findPath("a") {
 
             let p0 = CGPoint(x:1, y:1)
@@ -1253,8 +1237,6 @@ final class MuFloTests: XCTestCase {
             err += 1
         }
         XCTAssertEqual(err, 0)
-        Par.printParsin = false
-        Par.traceParser = false
     }
     func testAssign0() { headline(#function)
         /// test `a(x, y) b(v 0) -> a(x v)
@@ -1266,7 +1248,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let b = root.findPath("b") {
 
             err += Parsin.testCompare("a(x, y) b(v 0, -> a(x = v))", root.scriptDef)
@@ -1288,7 +1270,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
             let b = root.findPath("b") {
 
             err += Parsin.testCompare("a(x, y) b(v 0, -> a(x = v/2, y = v*2))", root.scriptAll)
@@ -1308,7 +1290,7 @@ final class MuFloTests: XCTestCase {
         let script = "grid(x = num / 12, y = num % 12, z = num + 1, <- note), note(num 50)"
 
         let root = Flo("√")
-        if floParse.parseRoot(root, script) {
+        if FloParse().parseRoot(root, script) {
             err += Parsin.testCompare(
             "grid(x = num / 12, y = num % 12, z = num + 1, <- note), note(num 50)",
             root.scriptAll)
@@ -1338,7 +1320,7 @@ final class MuFloTests: XCTestCase {
 
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let note = root.findPath("note") {
 
             err += Parsin.testCompare("""
@@ -1368,7 +1350,7 @@ final class MuFloTests: XCTestCase {
         print("\n" + script)
 
         let root = Flo("√")
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let a = root.findPath("a"),
            let b = root.findPath("b"),
            let c = root.findPath("c") {
@@ -1401,7 +1383,7 @@ final class MuFloTests: XCTestCase {
         """
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let radio = root.findPath("radio"),
            let a = radio.findPath("a"),
            let b2 = radio.findPath("b.b2") {
@@ -1454,7 +1436,7 @@ final class MuFloTests: XCTestCase {
         """
         let root = Flo("√")
 
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let radio = root.findPath("radio"),
            let a = radio.findPath("a"),
            let b2 = radio.findPath("b.b2") {
@@ -1505,7 +1487,7 @@ final class MuFloTests: XCTestCase {
         let root = Flo("√")
         let script = "a.b.c(1) d { e(2, <> a.b.c) } f : d"
 
-        if floParse.parseRoot(root, script) {
+        if FloParse().parseRoot(root, script) {
 
             err += Parsin.testCompare("a.b.c(1) d.e(2) f.e(2)", root.scriptNow)
 
@@ -1546,7 +1528,7 @@ final class MuFloTests: XCTestCase {
         b (_r 3, _s 4)
         """
         let root = Flo("√")
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let b = root.findPath("b") {
             
             err += Parsin.testCompare(
@@ -1587,7 +1569,7 @@ final class MuFloTests: XCTestCase {
         print("\n" + script)
 
         let root = Flo("√")
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let a = root.findPath("a"),
            let b = a.findPath("b"),
            let c = a.findPath("c"),
@@ -1625,7 +1607,7 @@ final class MuFloTests: XCTestCase {
         print("\n" + script)
 
         let root = Flo("√")
-        if floParse.parseRoot(root, script),
+        if FloParse().parseRoot(root, script),
            let a = root.findPath("a"),
            let b = a.findPath("b"),
            let c = a.findPath("c"),

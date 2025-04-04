@@ -2,9 +2,13 @@
 
 import SwiftUI
 
-@Observable public class ArchiveVm: FloId, Identifiable {
+@Observable
+@MainActor
+public class ArchiveVm: Identifiable {
 
     public static let shared = ArchiveVm()
+    
+    public let id = Visitor.nextId()
     public var archiveProto: ArchiveProto?
     public var archiveActs: [ArchiveItem] { getArchiveMus() }
     private let Files = FileManager.default
@@ -15,7 +19,9 @@ import SwiftUI
         case 1,2:
             if let archiveProto,
                let url = archiveItem.url {
-                archiveProto.readUserArchive(url, local: true)
+                Task {
+                    await archiveProto.readUserArchive(url, local: true)
+                }
             }
             nameNow = archiveItem.name
         default: break

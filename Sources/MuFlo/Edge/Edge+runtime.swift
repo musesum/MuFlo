@@ -45,7 +45,7 @@ extension Edge {
 
             func script(_ flo: Flo) -> String {
                 guard let exprs = flo.exprs else { return "()" }
-                let plugged = !flo.plugins.isEmpty ? "⚡️" : "/"
+                let plugged = !flo.edgePlugins.isEmpty ? "⚡️" : "/"
 
                 var str = "\(flo.path(3))"
                 var del = "("

@@ -1,6 +1,7 @@
 import SwiftUI
 import Combine
 
+@MainActor
 struct MultiTapButton<Label>: View where Label: View {
 
     let label: Label
@@ -75,16 +76,17 @@ struct MultiTapButton<Label>: View where Label: View {
 
         if timer != nil { return }
         timer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false)  {_ in
-
-            cancelTimer()
-
-            if isScrolling { return }
-            isTriggered = true
-
-            if tapTime > 0 {
-                tapOnce()
-            } else {
-                longPress()
+            Task { @MainActor in
+                cancelTimer()
+                
+                if isScrolling { return }
+                isTriggered = true
+                
+                if tapTime > 0 {
+                    tapOnce()
+                } else {
+                    longPress()
+                }
             }
         }
     }

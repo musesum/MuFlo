@@ -66,6 +66,7 @@ import UIKit
 /// in the Documents directory, and newer than the `Snapshot.mu` archive will
 /// load exclusively from the App Bundle. So, redoing the onboarding of 1)
 ///
+@MainActor //_____
 open class ArchiveFlo: NSObject {
 
     private var scriptNames: [String]
@@ -73,12 +74,15 @@ open class ArchiveFlo: NSObject {
     private var bundles: [Bundle]
     private let Files = FileManager.default
     public var nameTex = [String: MTLTexture?]()
+    public var root˚: Flo
 
-    public init(_ bundles      : [Bundle],
+    public init(_ root˚        : Flo,
+                _ bundles      : [Bundle],
                 _ snapName     : String,
                 _ scriptNames  : [String],
                 _ textureNames : [String]) {
-
+        
+        self.root˚ = root˚ // placeholder
         self.bundles = bundles
         self.scriptNames = scriptNames
         self.textureNames = textureNames
@@ -87,7 +91,7 @@ open class ArchiveFlo: NSObject {
             nameTex[textureName] = nil as MTLTexture?
         }
         super.init()
-
+        
         if !parseSnapshot(snapName) {
             parseAppStartupScripts()
         } else {
@@ -112,8 +116,8 @@ open class ArchiveFlo: NSObject {
                let script = dropRoot(String(data: data, encoding: .utf8)) {
 
                 let mergeRoot = Flo("√")
-                if FloParse.shared.parseRoot(mergeRoot, script) {
-                    Flo.root˚.mergeFloValues(mergeRoot)
+                if FloParse().parseRoot(mergeRoot, script) {
+                    root˚.mergeFloValues(mergeRoot)
                 }
             } else {
                 parseAppStartupScripts() //TODO: move this up and merge with delta.flo.h
@@ -151,7 +155,7 @@ open class ArchiveFlo: NSObject {
         if let archive = ArchiveZip(snapName, "mu", .read),
            archive.archiveTime > getApplicationTime() {
 
-            if Flo.root˚.children.isEmpty {
+            if root˚.children.isEmpty {
                 parseAppStartupScripts()
             }
 
@@ -159,9 +163,9 @@ open class ArchiveFlo: NSObject {
                let script = dropRoot(String(data: data, encoding: .utf8)) {
 
                 let mergeRoot = Flo("√")
-                if FloParse.shared.parseRoot(mergeRoot, script) {
+                if FloParse().parseRoot(mergeRoot, script) {
 
-                    Flo.root˚.mergeFloValues(mergeRoot) 
+                    root˚.mergeFloValues(mergeRoot)
                 }
             }
             unzipPngTextures(archive)
@@ -214,7 +218,7 @@ open class ArchiveFlo: NSObject {
     /// New install or user manually removed snapshot file
     func parseAppStartupScripts() {
         for scriptName in scriptNames {
-            _ = parseFlo(Flo.root˚, scriptName)
+            _ = parseFlo(root˚, scriptName)
         }
     }
 
@@ -245,7 +249,7 @@ open class ArchiveFlo: NSObject {
 }
 public protocol ArchiveProto {
 
-    func readUserArchive(_ url: URL, local: Bool)
+    func readUserArchive(_ url: URL, local: Bool) async 
 
     func saveArchive (_ title: String,
                       _ description: String,

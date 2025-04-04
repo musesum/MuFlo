@@ -4,11 +4,11 @@ import UIKit
 import Collections
 
 enum EdgeAnimType { case linear, easeinout }
+@MainActor //_____
+public class EdgePlugin: @unchecked Sendable {
 
-public class EdgePlugin {
-    
     var flo: Flo
-    
+
     var duration: TimeInterval = 2.0
     var animType = EdgeAnimType.linear
     var plugExpress: Exprs //  -in
@@ -24,14 +24,14 @@ public class EdgePlugin {
 
     init(_ flo: Flo,
          _ plugExprs: Exprs) {
-        
+
         self.flo = flo
         self.plugExpress = plugExprs
         self.easyVals = EasyVals(duration)
         extractFloScalars()
         //print("\(flo.path(9))(\(plugExprs.name)) +⃣ \(plugExprs.flo.path(9))")
     }
-    
+
     func extractFloScalars() {
         if let values = flo.exprs?.nameAny.values {
             for value in values {
@@ -41,9 +41,9 @@ public class EdgePlugin {
             }
         }
     }
-    
+
     func startPlugin(_ key: Int, _ visit: Visitor) {
-        
+
         guard duration > 0 else { return }
 
         var vals = [Double]()
@@ -57,8 +57,8 @@ public class EdgePlugin {
     }
 
     /// Tween is intermediate value for animation plug-in
-    func setTween() -> Bool {
-       // flo.exprs?.logValTweens()
+    func setTween() async -> Bool {
+        // flo.exprs?.logValTweens()
         timeNow = Date().timeIntervalSince1970
         var hasDelta = false
         let polyTweens = easyVals.getValNow(timeNow)
@@ -71,7 +71,7 @@ public class EdgePlugin {
         if hasDelta {
             return true
         } else {
-            cancel(flo.id)
+            await cancel(flo.id)
             easyVals.finish()
             return false
         }
@@ -79,13 +79,14 @@ public class EdgePlugin {
 }
 extension EdgePlugin: NextFrameDelegate {
 
-    public func nextFrame() -> Bool {
-        return setTween()
+    public func nextFrame() async -> Bool {
+        return await setTween()
     }
-    public func cancel(_ key: Int) {
-        NextFrame.shared.removeDelegate(key)
+    public func cancel(_ key: Int) async {
+        Task { @MainActor in
+            NextFrame.shared.removeDelegate(key)
+        }
         blocked = nil
     }
-
 }
 

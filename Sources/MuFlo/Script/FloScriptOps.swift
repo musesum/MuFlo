@@ -2,7 +2,7 @@
 
 import Foundation
 
-public struct FloScriptOps: OptionSet {
+public struct FloScriptOps: OptionSet, Sendable {
 
     public var rawValue: Int
 
@@ -29,7 +29,7 @@ public struct FloScriptOps: OptionSet {
 
 extension FloScriptOps: CustomStringConvertible {
 
-    static public var debugDescriptions: [(Self, String)] = [
+    static public let debugDescriptions: [(Self, String)] = [
         (.def,      "def"     ),
         (.now,      "now"     ),
         (.edge,     "edge"    ),

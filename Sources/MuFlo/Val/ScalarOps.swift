@@ -9,8 +9,8 @@ import Foundation
 
  When assigning from another scalar range, the values are remapped to relative position with each respective range. So, a current value of 1 in range 0…2
  */
-public struct ScalarOps: OptionSet {
-    
+public struct ScalarOps: OptionSet, Sendable {
+
     public static let thru   = ScalarOps(rawValue: 1 <<  1) // double 0…1 range including 1
     public static let thri   = ScalarOps(rawValue: 1 <<  2) // integer 0_n range including n
     public static let modulo = ScalarOps(rawValue: 1 <<  3) // %2 modulo
@@ -45,7 +45,7 @@ public struct ScalarOps: OptionSet {
 }
 extension ScalarOps: CustomStringConvertible {
 
-    static public var debugDescriptions: [(Self, String)] = [
+    static public let debugDescriptions: [(Self, String)] = [
         (.thru,   "thru"   ),
         (.thri,   "thri"   ),
         (.modulo, "modulo" ),

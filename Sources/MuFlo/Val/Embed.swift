@@ -3,6 +3,7 @@
 
 import Foundation
 
+@MainActor //_____
 public class Embed: FloVal {
 
     var embed = ""

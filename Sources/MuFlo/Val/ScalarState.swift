@@ -1,7 +1,9 @@
 // created by musesum on 3/13/25
 
 import Foundation
-public struct ScalarState: OptionSet {
+
+@MainActor //_____
+public struct ScalarState: OptionSet, Sendable {
 
     public static let onOrigin  = ScalarState(rawValue: 1 <<  1)
     public static let offOrigin = ScalarState(rawValue: 1 <<  2)
@@ -17,7 +19,7 @@ public struct ScalarState: OptionSet {
     }
 
     public var rawValue: Int
-    public init(rawValue: Int) { self.rawValue = rawValue }
+    nonisolated public init(rawValue: Int) { self.rawValue = rawValue }
     public init(_ scalar: Scalar) {
         self = []
         if  scalar.scalarOps.origin {

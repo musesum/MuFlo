@@ -2,31 +2,36 @@
 //  created by musesum on 6/22/17.
 
 import Foundation
-
+public enum ParOps: Sendable {
+    case printParsin
+    case traceParser
+    case printParParTree
+    case printParParDetail
+    case printParParParsed
+}
 /// Parse a script into a new graph, using static `Par.par` graph
-public class Par {
-    public static let shared = Par()
-    public static var printParsin = false
-    public static var traceParser = false
-    public static var printParParTree = false
-    public static var printParParDetail = false
-    public static var printParParParsed = false
+final class Par: Sendable {
 
+    let ops: Set<ParOps>
 
+    init(_ ops: Set<ParOps>) {
+        self.ops = ops
+    }
     public func parse(par: String) -> Parser? {
         return parse(script: par, "\t ")
     }
 
-    public func parse(script: String,_ whitespace: String = "\t\n ") -> Parser? {
+    public func parse(script: String,
+                      _ whitespace: String = "\t\n ") -> Parser? {
         let parsin = Parsin(script, whitespace) // parse in script
 
-        if Par.printParParDetail { Par.par.printDetail() }
-        if Par.printParParTree { Par.par.printTree() }
-        if Par.printParsin { print(parsin.str.divider()) }
+        if ops.contains(.printParParDetail) { Par.par.printDetail() }
+        if ops.contains(.printParParTree) { Par.par.printTree() }
+        if ops.contains(.printParsin) { print(parsin.str.divider()) }
 
         if let parsed = Par.par.parseInput(parsin)?.parsed {
 
-            if Par.printParParParsed { print(parsed.makeScript()) }
+            if ops.contains(.printParParParsed) { print(parsed.makeScript()) }
 
             let def = Parser(.def,"",.one)
             if let parser = parse(parser: def, parsed, 0) {
@@ -39,12 +44,12 @@ public class Par {
 
         func parse(parser: Parser, _ parsed: Parsed, _ level: Int) -> Parser? {
 
-            if Par.traceParser {
+            if ops.contains(.traceParser) {
                 print("\n⦙ ".pad(level) + parser.makeScript(isLeft: false), terminator: ": ")
             }
             for subParsed in parsed.subParse {
 
-                if Par.traceParser { print (subParsed.parser.pattern, terminator: " ") }
+                if ops.contains(.traceParser) { print (subParsed.parser.pattern, terminator: " ") }
 
                 switch subParsed.parser.pattern {
                 case "par"    : addSub(.def,"", subParsed)
@@ -73,7 +78,7 @@ public class Par {
             /// Apply name to super node
             func addName(_ type: ParType, _ subParsed: Parsed) {
                 let pattern = subParsed.result ?? ""
-                if Par.traceParser { print ("`" + pattern, terminator: "` ") }
+                if ops.contains(.traceParser) { print ("`" + pattern, terminator: "` ") }
                 parser.isName = true
                 parser.type = type
                 parser.pattern = pattern
@@ -81,7 +86,7 @@ public class Par {
             /// apply literal to current par
             func addLeaf(_ type: ParType,_ subParsed: Parsed) {
                 let pattern = subParsed.result ?? ""
-                if Par.traceParser { print(pattern, terminator: " ") }
+                if ops.contains(.traceParser) { print(pattern, terminator: " ") }
                 let addParser = Parser(type, pattern)
                 parser.subParsers.append(addParser)
                 addParser.uberParser = parser
@@ -96,7 +101,7 @@ public class Par {
     }
 
     /// Explicitly declared parse graph, desciption of syntax in Par.par.h
-    static let par =
+    nonisolated(unsafe) static let par =
     Parser(.def, "", .one, [
         Parser(.and, "par", .many, [
             Parser(.and, "name", .one, [

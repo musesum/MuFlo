@@ -9,23 +9,16 @@ import Metal
 /// graph with exactly the same namespace. Useful for saving and
 /// recalling state of a saved graph, or synchronizing between devices
 /// which have the same exact graph namespace.
+@MainActor //_____
 public class HashFlo { var dict = [Int: Flo]() }
 
 public enum LogBind { case none, value, def }
 
-public var FloIdAny = [Int:Any]() // debugging
-open class FloId {
-    public var id: Int
-    public init() {
-        id = Visitor.nextId()
-        FloIdAny[id] = self
-    }
-}
+@MainActor //_____
+public class Flo: Hashable {
 
-public class Flo: FloId {
-
-    public static var root˚ = Flo("√")
-    public static func script(path: String) -> String { root˚.scriptPath(path) }
+    let id = Visitor.nextId()
+    public static func script(_ root: Flo, path: String) -> String { root.scriptPath(root,path) }
 
     public var hashFlo : HashFlo!
 
@@ -41,8 +34,8 @@ public class Flo: FloId {
                                     ///
     var closures = [FloVisitor]()   /// during activate call a list of closures
     var comments = FloComments()
-    var plugDefs: EdgeDefArray?     /// class reference to [EdgeDef]
-    var plugins = [EdgePlugin]()
+    var edgeDefArray: EdgeDefArray?     /// class reference to [EdgeDef]
+    var edgePlugins = [EdgePlugin]()
 
     var scalarOps: ScalarOps { //TODO: refactor into Scalar class
         hasPlugins ? [.value] : [.tween, .value]
@@ -112,8 +105,8 @@ public class Flo: FloId {
     }
 
     public var passthrough = false // does not have its own FloVal, so pass through events
-    public var hasPlugDefs: Bool { plugDefs?.count ?? 0 > 0 }
-    public var hasPlugins: Bool { plugins.count > 0 }
+    public var hasPlugDefs: Bool { edgeDefArray?.count ?? 0 > 0 }
+    public var hasPlugins: Bool { edgePlugins.count > 0 }
 
     public var scalarState: ScalarState {
         guard let exprs else { return [] }
@@ -171,19 +164,23 @@ public class Flo: FloId {
             $0.leftFlo.id == self.id
         }.map { $0.rightFlo }
     }()
-    public lazy var hash: Int = {
-        if time == 0 { updateTime() }
-        let hashed = path(9999).strHash()
-        return hashed
-    }()
+    var hash = 0
+    nonisolated public func hash(into hasher: inout Hasher) {
+        hasher.combine(hash)
+    }
+    nonisolated public static func == (lhs: Flo, rhs: Flo) -> Bool {
+        return lhs.id == rhs.id
+    }
 
-   
+
+
     public convenience init(_ name: String, parent: Flo?, type: FloType = .name) {
         self.init()
         self.name = name
         self.parent = parent
         self.type = type
         parent?.children.append(self)
+        self.hash = path(99).strHash()
     }
     public convenience init(deepcopy: Flo,
                             parent: Flo?,
@@ -197,6 +194,7 @@ public class Flo: FloId {
             let newChild = Flo(deepcopy: copyChild, parent: self, via: via)
             children.append(newChild)
         }
+        self.hash = path(99).strHash()
         passthrough = deepcopy.passthrough
         exprs = deepcopy.exprs?.copy(self)
         edgeDefs = deepcopy.edgeDefs.copy()
@@ -212,10 +210,16 @@ public class Flo: FloId {
         self.type = decorate.type
         self.exprs = exprs.copy(self)
         parent.children.append(self)
+        self.hash = path(99).strHash()
 
         for decorChild in decorate.children {
             _ = Flo(decorate: decorChild, parent: self, exprs: exprs)
         }
+    }
+    public convenience init(_ name: String, _ type: FloType = .name) {
+        self.init()
+        self.name = name
+        self.type = type
     }
 
     public func makeFloFrom(parsed: Parsed) -> Flo {
@@ -286,23 +290,7 @@ public class Flo: FloId {
             child.bindHashFlo(self)
         }
     }
-}
 
-extension Flo: Hashable {
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(hash)
-    }
-
-    public static func == (lhs: Flo, rhs: Flo) -> Bool {
-        return lhs.id == rhs.id
-    }
-
-    public convenience init(_ name: String, _ type: FloType = .name) {
-        self.init()
-        self.name = name
-        self.type = type
-    }
     public func makeAnyExprs(_ any: Any) -> Exprs? {
         switch any {
         case let v as Int:     return Exprs(self, [(name, Double(v))])
@@ -345,7 +333,7 @@ extension Flo {
         for closure in closures {
             closure(self, Visitor(0))
         }
-        for plugin in plugins {
+        for plugin in edgePlugins {
             plugin.startPlugin(id, Visitor(0))
         }
     }

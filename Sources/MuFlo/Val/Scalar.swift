@@ -4,9 +4,11 @@
 import QuartzCore
 import Foundation
 
+//public let ScalarBlank = Scalar(Flo(), "blank")
+
+@MainActor //_____
 public class Scalar: FloVal {
 
-    public static let blank = Scalar(Flo(), "blank")
     public var scalarOps = ScalarOps(rawValue: 0)
     public var scalarState: ScalarState { ScalarState(self) }
 

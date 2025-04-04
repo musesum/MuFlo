@@ -1,13 +1,13 @@
 //  created by musesum on 12/16/22.
 
 import Foundation
-
+@MainActor //_____
 public protocol DoubleBufferDelegate {
     associatedtype Item
     mutating func flushItem<Item>(_ item: Item) -> Bool
 }
-
-public class DoubleBuffer<Item> {
+@MainActor //_____
+public class DoubleBuffer<Item>: @unchecked Sendable {
 
     private var buf0 = [Item]()
     private var buf1 = [Item]()
@@ -18,9 +18,9 @@ public class DoubleBuffer<Item> {
 
     public var delegate: (any DoubleBufferDelegate)?
 
-    public var isEmpty: Bool {
+    public var isEmpty: Bool { get {
         bufs[indexNow].isEmpty
-    }
+    }}
 
     /// canvas manages loop from metal frame callback
     public init(internalLoop: Bool) {
@@ -28,9 +28,6 @@ public class DoubleBuffer<Item> {
         if internalLoop {
             self.bufferLoop()
         }
-    }
-    deinit {
-        timer?.invalidate()
     }
 
     public func flushBuf() -> Bool {
@@ -49,7 +46,7 @@ public class DoubleBuffer<Item> {
             isDone = isDone || delegate.flushItem(item) // isDone
         }
         bufs[indexFlush].removeAll()
-        
+
         lock.unlock()
 
         return isDone
@@ -62,11 +59,16 @@ public class DoubleBuffer<Item> {
     }
 
     func bufferLoop() {
-
-        timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { timer in
-            let isDone = self.flushBuf()
-            if isDone {
+        timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [weak self] timer in
+            guard let self = self else {
                 timer.invalidate()
+                return
+            }
+            Task { @MainActor in
+                let isDone = self.flushBuf()
+                if isDone {
+                    self.timer?.invalidate()
+                }
             }
         }
     }

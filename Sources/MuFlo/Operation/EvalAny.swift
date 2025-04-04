@@ -2,6 +2,7 @@
 
 import Foundation
 
+@MainActor //_____
 public class EvalAny {
     
     public var op = EvalOp.none

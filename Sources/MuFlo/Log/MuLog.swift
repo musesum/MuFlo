@@ -4,8 +4,8 @@ import Foundation
 
 public class MuLog {
     
-    static var logStart = TimeInterval(0)
-    static var prevTime = [String: TimeInterval]()
+    nonisolated(unsafe) static var logStart = TimeInterval(0)
+    nonisolated(unsafe) static var prevTime = [String: TimeInterval]()
     
     /// return elapsed time from first first Log
     static func timeElapsed() -> TimeInterval {

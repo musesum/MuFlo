@@ -51,7 +51,7 @@ extension EdgeDef { // + connect
 
             leftFlo.floEdges[newKey] = newEdge
             rightFlo.floEdges[newKey] = newEdge
-            leftFlo.plugDefs = plugDefs
+            leftFlo.edgeDefArray = plugDefs
             edges[newKey] = newEdge
             addPlugins()
         }
@@ -62,7 +62,7 @@ extension EdgeDef { // + connect
                     if edge.edgeOps.hasPlugin,
                        let plugExprs = edge.rightFlo.exprs {
                         let plugin = EdgePlugin(edge.leftFlo, plugExprs)
-                        leftFlo.plugins.append(plugin)
+                        leftFlo.edgePlugins.append(plugin)
                     }
                 }
             }

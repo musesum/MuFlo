@@ -7,6 +7,7 @@ public typealias NameInt = OrderedDictionaryClass<String,Int>
 public typealias NameAny = OrderedDictionaryClass<String,Any>
 public typealias EvalAnys =  ContiguousArray<EvalAny>
 
+@MainActor //_____
 extension EvalAnys {
     /// set a faux Set key, even though this is a Dict
     public mutating func setKey(_ key: String, op: EvalOp) {

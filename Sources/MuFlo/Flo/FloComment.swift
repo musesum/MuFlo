@@ -4,6 +4,7 @@ import Foundation
 
 public enum FloCommentType { case unknown, branch, edge }
 
+@MainActor //_____
 public class FloComment {
     let type: FloCommentType
     let name: String
@@ -21,6 +22,7 @@ public class FloComment {
     }
 }
 
+@MainActor //_____
 public class FloComments {
 
     var comments = [FloComment]()

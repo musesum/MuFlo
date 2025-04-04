@@ -2,7 +2,7 @@
 //  created by musesum on 4/16/19.
 
 import Foundation
-
+@MainActor //_____
 extension Flo { // + script
 
     /** Is this Flo elegible to shorten with a dot?
@@ -231,8 +231,8 @@ extension Flo { // + script
         script += scriptExpr
         return script
     }
-    public func scriptPath(_ path: String) -> String {
-        return Flo.root˚.findPath(path)?.scriptOnlyFlo() ?? ""
+    public func scriptPath(_ root: Flo, _ path: String) -> String {
+        return root.findPath(path)?.scriptOnlyFlo() ?? ""
     }
 
     /// create a parse ready String

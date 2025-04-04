@@ -4,7 +4,7 @@
 
 import Foundation
 
-public struct SetOptions: OptionSet {
+public struct SetOptions: OptionSet, Sendable {
 
     public static let fire    = SetOptions(rawValue: 1 << 0) // trigger event
     public static let sneak   = SetOptions(rawValue: 1 << 1) // quietly set value, no trigger

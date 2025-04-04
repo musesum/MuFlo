@@ -3,7 +3,7 @@
 
 import Foundation
 
-
+@MainActor //_____
 public class FloValData: FloVal {
 
     var data: UnsafeMutablePointer<UInt8>? = nil

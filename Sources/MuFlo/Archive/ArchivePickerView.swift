@@ -3,16 +3,15 @@
 import SwiftUI
 
 public struct ArchivePickerView: View {
-
-   var archiveVm = ArchiveVm.shared
-    @State var gridColumns = Array(repeating: GridItem(.flexible()), count: 3)
-
+    var archiveVm = ArchiveVm.shared
     public init() {}
+    @State var gridColumns = Array(repeating: GridItem(.flexible()), count: 3)
+    
     public var body: some View {
         ScrollView(.vertical) {
             LazyVGrid(columns: gridColumns) {
                 ForEach(archiveVm.archiveActs) {
-                    ArchiveItemView($0)
+                    ArchiveItemView(archiveItem:$0)
                 }
             }
             .padding()
@@ -27,9 +26,6 @@ public struct ArchiveItemView: View {
     var stroke: Color { isCurrent ? .white : .clear }
     var width: CGFloat { isCurrent ? 2.0 : 0 }
 
-    init(_ archiveItem: ArchiveItem) {
-        self.archiveItem = archiveItem
-    }
     func open(_ archiveItem: ArchiveItem, _ taps: Int) {
         archiveVm.archiveAction(archiveItem, taps)
     }

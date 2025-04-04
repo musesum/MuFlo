@@ -149,6 +149,7 @@ public extension MTLViewport {
                   zfar    :1)
     }
 }
+@MainActor //_____
 extension MTLRenderCommandEncoder {
     public func setFragmentTexture(_ flo: Flo?, index: Int) {
 
@@ -176,7 +177,7 @@ extension MTLRenderCommandEncoder {
     }
 
 }
-
+@MainActor //_____
 extension MTLComputeCommandEncoder {
 
     public func setTexture(_ flo: Flo?, index: Int) {

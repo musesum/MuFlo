@@ -3,28 +3,28 @@
 
 import Foundation
 
-public class FloParse {
+@MainActor //_____
+public struct FloParse {
 
-    public static let shared = FloParse()
-    public static var printParsedAll = false
-    public static var printParsedTokens = false
-    public static var logBindChildren = false
+    public static let printParsedAll = false
+    public static let printParsedTokens = false
+    public static let logBindChildren = false
 
-    internal var logParsing = false
-    internal var logDefaults = false
-    internal var logBind = false
-    internal var floParser: Parser
+    internal let logParsing = false
+    internal let logDefaults = false
+    internal let logBind = false
+    internal let parser: Parser
 
-    public init() {
+    public init(_ parOps: Set<ParOps> = []) {
         // parse the Flo.par quasi-BNF definition for Flo scripts
-        if let floParser = Par.shared.parse(par: FloPar) {
-            if floParser.subParsers.isEmpty {
+        if let parser = Par(parOps).parse(par: FloPar) {
+            if parser.subParsers.isEmpty {
                 err("floParser.subParsers.isEmpty")
             }
-            floParser.repeats.repMax = Int.max
-            self.floParser = floParser
+            parser.repeats.repMax = Int.max
+            self.parser = parser
         } else {
-            floParser = Parser(.def,"")
+            parser = Parser(.def,"")
             err("could not parse FloPar")
         }
         func err(_ msg: String) {
@@ -35,7 +35,7 @@ public class FloParse {
     public func parseRoot(_ root: Flo, _ script: String) -> Bool {
         // parse the script.flo.h
         let parsin = Parsin(script)
-        if let parsed = floParser.parseInput(parsin, 0)?.parsed {
+        if let parsed = parser.parseInput(parsin, 0)?.parsed {
 
             parsed.reduce()
             if FloParse.printParsedAll    { parsed.printAll() }

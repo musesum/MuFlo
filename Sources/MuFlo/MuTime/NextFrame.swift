@@ -1,11 +1,12 @@
 import UIKit
 import QuartzCore
 
-public protocol NextFrameDelegate {
-    func nextFrame() -> Bool
-    func cancel(_ key: Int)
+public protocol NextFrameDelegate: Sendable {
+    func nextFrame() async -> Bool
+    func cancel(_ key: Int) async -> Void
 }
 
+@MainActor
 public class NextFrame {
 
     public static let shared = NextFrame()
@@ -35,9 +36,10 @@ public class NextFrame {
 
     public func addFrameDelegate(_ key: Int,
                                  _ delegate: NextFrameDelegate) {
-        lock.lock()
-        delegates[key] = delegate
-        lock.unlock()
+            lock.lock()
+            delegates[key] = delegate
+            lock.unlock()
+
     }
     public func removeDelegate(_ key: Int) {
         lock.lock()
@@ -63,9 +65,11 @@ public class NextFrame {
     @objc public func nextFrame(force: Bool = false) -> Bool  {
         if !force && pause { return false }
         goBetweenFrames()
-        for (key,delegate) in delegates {
-            if delegate.nextFrame() == false {
-                removeDelegate(key)
+        Task {
+            for (key,delegate) in delegates {
+                if await delegate.nextFrame() == false {
+                    removeDelegate(key)
+                }
             }
         }
         return true

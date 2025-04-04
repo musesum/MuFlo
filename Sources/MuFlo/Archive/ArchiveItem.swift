@@ -2,8 +2,8 @@
 
 import SwiftUI
 
-@Observable public class ArchiveItem: FloId, Identifiable, Equatable {
-
+@Observable public class ArchiveItem:Identifiable, Equatable {
+    public let id = Visitor.nextId()
     public static func == (lhs: ArchiveItem, rhs: ArchiveItem) -> Bool { lhs.id == rhs.id }
     var name : String
     var icon : Image

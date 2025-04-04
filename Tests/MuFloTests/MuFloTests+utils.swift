@@ -23,7 +23,7 @@ extension MuFloTests {
     }
     func parse(_ name: String,_ root: Flo) -> Int {
         if let script = read(name),
-           floParse.parseRoot(root, script) {
+           FloParse().parseRoot(root, script) {
             print (name +  " ✓")
             return 0
         } else {
@@ -46,7 +46,7 @@ extension MuFloTests {
         let root = Flo("√")
         let expected = expected ?? script
 
-        if floParse.parseRoot(root, script) {
+        if FloParse().parseRoot(root, script) {
             let actual = root.scriptRoot(scriptOps)
             err = Parsin.testCompare(expected, actual, strict: strict)
         } else  {
@@ -63,7 +63,7 @@ extension MuFloTests {
             let outScript = read(out) ?? inScript
             let root = Flo("√")
 
-            if floParse.parseRoot(root, inScript) {
+            if FloParse().parseRoot(root, inScript) {
                 print (name +  " ✓")
                 let actual = root.scriptRoot(ops)
                 let err = Parsin.testCompare(outScript, actual)

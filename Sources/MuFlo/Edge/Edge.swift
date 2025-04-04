@@ -3,8 +3,9 @@
 
 import Foundation
 
-public class Edge: FloId, Hashable {
-
+@MainActor //_____
+public class Edge {
+    let id = Visitor.nextId()
     var edgeKey = "" // created with makeKey()
     var edgeOps = EdgeOptions()
     var active = true
@@ -12,16 +13,6 @@ public class Edge: FloId, Hashable {
     var rightFlo: Flo
     var edgeExpress: Exprs?
     var plugDefs: EdgeDefArray?  /// reference to EdgePlugin [EdgeDef] array
-
-    public static var LineageDepth = 99 
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(edgeKey)
-    }
-
-    public static func == (lhs: Edge, rhs: Edge) -> Bool {
-        return lhs.edgeKey == rhs.edgeKey
-    }
 
     convenience init(with: Edge) {
 
@@ -40,7 +31,6 @@ public class Edge: FloId, Hashable {
         self.leftFlo = leftFlo
         self.rightFlo = rightFlo
         self.plugDefs = plugDefs
-        super.init()
         makeKey()
     }
     convenience init(_ def: EdgeDef,
@@ -60,4 +50,13 @@ public class Edge: FloId, Hashable {
         edgeKey = lhs + arrow + rhs
     }
     
+}
+extension Edge: Equatable, Hashable {
+
+    nonisolated public static func == (lhs: Edge, rhs: Edge) -> Bool {
+        MainActor.run { lhs.edgeKey == rhs.edgeKey }
+    }
+    nonisolated public func hash(into hasher: inout Hasher) {
+        MainActor.run {  hasher.combine(edgeKey) }
+    }
 }

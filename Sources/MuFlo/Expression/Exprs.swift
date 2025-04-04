@@ -5,9 +5,8 @@ import QuartzCore
 import Collections
 import Foundation
 
+@MainActor //_____
 public class Exprs: FloVal {
-
-    public static var IdExprs = [Int:Exprs]()
 
     /// `t(x 1, y 2)` ⟹ `["x": 1, "y": 2]`
     public var nameAny = NameAny()
@@ -61,7 +60,6 @@ public class Exprs: FloVal {
     init(from: Exprs) {
         
         super.init(with: from)
-        Exprs.IdExprs[id] = self
 
         //options = from.options
         for (name, val) in from.nameAny {
@@ -85,23 +83,19 @@ public class Exprs: FloVal {
     }
     init(_ flo: Flo, _ point: CGPoint) {
         super.init(flo, "_" + flo.name)
-        Exprs.IdExprs[id] = self
         addPoint(point)
     }
     init(_ flo: Flo, _ size: CGSize) {
         super.init(flo, "_" + flo.name)
-        Exprs.IdExprs[id] = self
         addSize(size)
     }
     public init(_ flo: Flo, _ rect: CGRect) {
         super.init(flo, "_" + flo.name)
-        Exprs.IdExprs[id] = self
         addRect(rect)
     }
     
     public init(_ flo: Flo,_ nameNums: [(String, Double)]) {
         super.init(flo, "nameNums")
-        Exprs.IdExprs[id] = self
         for (name, num) in nameNums {
             if evalAnys.count > 0 {
                 addOpStr(",")
@@ -213,7 +207,7 @@ public class Exprs: FloVal {
 
         if updateValues() {
             if newTween() {
-                pluginTween()
+                pluginTween(visit)
             }
             return true
         }
@@ -334,11 +328,11 @@ public class Exprs: FloVal {
             }
             return false
         }
-        func pluginTween() {
-            // logValTweens(logVisitedPaths(visit))
-            for plugin in flo.plugins {
-                plugin.startPlugin(flo.id, visit)
-            }
+    }
+    func pluginTween(_ visit: Visitor) {
+        // logValTweens(logVisitedPaths(visit))
+        for edgePlugin in flo.edgePlugins {
+            edgePlugin.startPlugin(flo.id, visit)
         }
     }
     // val = origin, twe = origin

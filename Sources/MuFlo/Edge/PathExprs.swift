@@ -6,6 +6,7 @@ import Collections
 typealias Path = String
 typealias PathExprs = OrderedDictionaryClass<Path,Exprs?>
 
+@MainActor //_____
 extension OrderedDictionaryClass<Path,Exprs?> {
     func addPathExprs(_ path: Path,_ exprs: Exprs?) {
         if path.isEmpty,
