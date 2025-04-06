@@ -1,151 +1,188 @@
-sky ('visual music synth') {
-    main ('main controls') {
-        run (x 0…1~1,'currently running')
-        anim(x 0…1~0.5,'animation transition speed')
-    }
-    network {
-        bonjour('bonjour status')
-        follow (x 0…1~1,'follow remote events')
-        midi   (x 0…1~1,'follow midi events')
-    }
-    color ('false color mapping palette') {
-        pal0 ("roygbik", 'red orange yellow green blue indigo black')
-        pal1 ("wKZ", 'white & blacK with capital K meaning both sides, Z means with Zeno fractal')
-        xfade (x 0…1~0.5, 'cross fade btween pal0 and pal1')
-    }
-    input ('phone and tablet pencil input') {
-        azimuth (x -0.2…0.2, y -0.2…0.2, -> pipe.draw.shift)
-        accel   (x -0.3…0.3, y -0.3…0.3, z -0.3…0.3,'accelerometer')
-        radius  (x 1…92~9,'for iPhone, finger silhouette changes brush size')
-        tilt    (x 0…1~1, 'for iPad pen, allow tilt to shift screen')
-        force   (x 0…0.5, -> draw.brush.size, 'iPad pen, pressure with change brush size')
-    }
-    draw ('draw on metal layer') {
-        screen.fill(x 0…1~0,'fill cellular automata universe')
-        brush ('type of brush and range') {
-            size  (x 1…64~10:10,'range of radius')
-            press (x 0…1~1,'pressure changes size')
-            index (x 1…255~127,'index in 256 color palette')
-        }
-        line ('place holder for line drawing') {
-            prev (x 0…1, y 0…1,'staring point of segment')
-            next (x 0…1, y 0…1,'endint point of segment')
-        }
-        dot {
-            on  (x 0_11, y 0_11, z 0_127)
-            off (x 0_11, y 0_11, z 0_127)
-        }
-    }
-    pov (x -0.3…0.3, y 0.8…1.2, z -0.5…0.01, time, 'point of view')
-}
-pipe (on 1) {
+ 0.00: sky ✓
+ 0.16: pipe.avp ✓
+ 0.23: canvas ✓
+ 0.28: plato.avp ✓
+ 0.34: cell ✓
+ 0.40: camera ✓
+ 0.45: more ✓
+ 0.52: hand ✓
+ 0.70: midi ✓
+MIDI.swift:init():52:Initializing MIDI (MIDI.swift:init():52)
+ 2.62: 🧭 updateTexture(3840,2160) pipe.draw.out
+ 2.62: 🧭 updateTexture(3840,2160) pipe.cell.out
+ 2.63: 🧭 updateTexture(3840,2160) pipe.color.out
+ 2.63: 🧭 updateTexture(256,1) pipe.color.pal
+ 2.63: 🧭 updateTexture(3840,2160) pipe.camix.out
+ 2.64: 🧭 updateTexture(3840,2160) pipe.tile.out
+ 16.69: 🧭 customTexture(_:_:remake:) via: map.cube.cudex
+ 16.69: 🧭 TouchesView::init size (3840,2160)
+ 16.70: 🖐️left.ring.knuc(on: false)
+ 16.70: 🖐️left.little.tip(on: true)
+ 16.70: 🖐️left.little.base(on: false)
+ 16.70: 🖐️left.middle.inter(on: false)
+ 16.70: 🖐️left.little.knuc(on: false)
+ 16.70: 🖐️left.middle.base(on: false)
+ 16.70: 🖐️left.index.inter(on: false)
+ 16.70: 🖐️left.ring.meta(on: false)
+ 16.70: 🖐️left.index.base(on: false)
+ 16.70: 🖐️left.middle.meta(on: false)
+ 16.70: 🖐️left.thumb.knuc(on: false)
+ 16.70: 🖐️left.thumb.base(on: false)
+ 16.70: 🖐️left.little.meta(on: false)
+ 16.70: 🖐️left.ring.inter(on: false)
+ 16.70: 🖐️left.index.knuc(on: false)
+ 16.70: 🖐️left.little.inter(on: false)
+ 16.70: 🖐️left.thumb.inter(on: false)
+ 16.70: 🖐️hand.left.wrist(on: false)
+ 16.70: 🖐️left.ring.tip(on: true)
+ 16.70: 🖐️left.index.meta(on: false)
+ 16.70: 🖐️left.middle.knuc(on: false)
+ 16.70: 🖐️left.index.tip(on: true)
+ 16.70: 🖐️left.ring.base(on: false)
+ 16.70: 🖐️hand.left.forearm(on: false)
+ 16.70: 🖐️left.middle.tip(on: true)
+ 16.70: 🖐️left.thumb.tip(on: true)
+ 16.70: 🖐️right.thumb.base(on: false)
+ 16.70: 🖐️right.middle.base(on: false)
+ 16.70: 🖐️right.little.base(on: false)
+ 16.70: 🖐️right.index.tip(on: true)
+ 16.70: 🖐️right.little.tip(on: true)
+ 16.70: 🖐️right.little.knuc(on: false)
+ 16.70: 🖐️hand.right.wrist(on: false)
+ 16.70: 🖐️right.index.base(on: false)
+ 16.70: 🖐️right.middle.knuc(on: false)
+ 16.70: 🖐️right.index.inter(on: false)
+ 16.70: 🖐️right.thumb.inter(on: false)
+ 16.70: 🖐️right.thumb.tip(on: true)
+ 16.70: 🖐️right.middle.inter(on: false)
+ 16.70: 🖐️right.ring.tip(on: true)
+ 16.70: 🖐️right.middle.meta(on: false)
+ 16.70: 🖐️right.ring.meta(on: false)
+ 16.70: 🖐️right.index.knuc(on: false)
+ 16.70: 🖐️right.ring.base(on: false)
+ 16.70: 🖐️right.little.inter(on: false)
+ 16.70: 🖐️right.thumb.knuc(on: false)
+ 16.70: 🖐️right.ring.knuc(on: false)
+ 16.70: 🖐️right.little.meta(on: false)
+ 16.70: 🖐️right.ring.inter(on: false)
+ 16.70: 🖐️right.middle.tip(on: true)
+ 16.70: 🖐️hand.right.forearm(on: false)
+ 16.70: 🖐️right.index.meta(on: false)
+ 17.13: 📋 updateUIView touchesView(0,0, 0,0)
+ 17.18: 🧭 resizeFrame(3840,2160) clipNorm( 0.00, 0.00,  1.00, 1.00)
+ 17.18: 🧭 Non-Immersive size(1280,720) ports:0
 
-    draw (on 1) {
-        in (tex, <- cell.out)
-        out (tex, archive, 'archive: save snapshot of drawing surface')
-        shift (buf, x 0…1~0.5,  y 0…1~0.5)
-    }
-    camera (on 0) {
-        out (tex)
-        front (buf, x 0)
-    }
-    cell (on 1) {
-        fake (tex, <- draw.out)
-        real (tex, <- (draw.out, camera.out))
-        out (tex)
-        rule (on 1) {
-            slide(on 1) { version (buf, x 0…7 : 3)   loops (buf, z 0) }
-            zha  (on 0) { version (buf, x 0…6 : 2)   loops (buf, z 10) }
-            ave  (on 0) { version (buf, x 0…1 : 0.5) loops (buf, y 0…99~0) }
-            fade (on 0) { version (buf, x 1…3 : 1.2) loops (buf, y 0…32~0) }
-            melt (on 0) { version (buf, x 0…1 : 0.5) loops (buf, y 0…32~0) }
-            tunl (on 0) { version (buf, x 0…5 : 1)   loops (buf, y 0…32~0) }
-            fred (on 0) { version (buf, x 0…4 : 4)   loops (buf, y 0…32~0) }
-            *(-> *(on 0), 'solo only one rule')
-            ˚version(-> ..(on 1),'changing `version` auto switches rule')
-        }
-    }
-    color (on 1) {
-        in (tex, <- (camera.out, cell.out))
-        out (tex)
-        pal (tex, w 256, h 1)
-        plane (buf, y 0…1)
-    }
-    camix (on 0, <- camera) {
-        in  (tex, <- color.out)
-        cam (tex, <- camera.out)
-        out (tex)
-        mixcam (buf, x 0…1~1)
-        frame(buf)
-    }
-    tile (on 1) {
-        in (tex, <- (color.out, camix.out))
-        out (tex)
-        repeat (buf, x -1…1~0, y -1…1~0)
-        mirror (buf, x  0…1~0, y  0…1~0)
-    }
-    render (on 1) {
-        in (tex, <- tile.out)
-        map (on 1)  {
-            flat(on 1)
-            cube(on 1) {
-                cudex (tex)
-                mixcube (buf, x 0…1 : 1, ^- sky.main.anim)
-            }
-        }
-        plato (on 1) {
-            cube (tex, <- map.cube.cudex)
-            pal  (tex, <- color.pal)
-            range01 (buf, x 0…1)
-            shading (buf)
-        }
-    }
-}
-plato ('platonic solids',
-       columns 2,
-       svg "icon.plato.icosa") {
+ 43.61: 📋 updateUIView touchesView(0,0, 0,0)
+ 43.64: 📋 updateUIView touchesView(0,0, 0,0)
+ 43.64: 🧭 resizeFrame(2732,2048) clipNorm( 0.12, 0.00,  0.75, 1.00)
+ 43.64: 🧭 Immersive size(910,682) ports:0
+ 43.67: 🧭 Immersive config
 
-    show ('show / hide the platonic object',
-          tog, x 1,
-          sym "eye",
-          <> pipe.render.plato(on : x)) {
+ " UserInfo={NSLocalizedDescription=Unable to find function "CC_ApplyStencilFragmentFunction" (render pipeline) in binary archives. 
+ Expected <MTLBinaryKey: 0x30273d0d0> Key: 
+ 1E6372F4FC948C5F69FA1A73831B9C97680E498FF3C029E29E91A81E00F564C8 Function hash
+ 0000000000000000000000000000000000000000000000000000000000000000 air-nt 
+ 94C247712038C4872E8E59EC07EC249E3916F0410439854EF64AD2069EB8875E air-nt plugin
+ 7551C170C80655A98DAA04E12D5F3DBBF851B1F2515D8580188E7A4269B581E8 metal framework 
+ }
+cannot add handler to 0 from 1 - dropping
+ 43.92: 👍♦️ ✋ left.index.tip  (-0.06,-0.48,-0.13) ∆ thumbTip(-0.07,-0.46,-0.14) =>  0.029 👐1009 0 => 3
+ 43.92: 👐 from: left.middle.tip hash: 1014
+ 43.92: 👍♦️ ✋ left.middle.tip (-0.08,-0.49,-0.12) ∆ thumbTip(-0.07,-0.46,-0.14) =>  0.039 👐1014 0 => 3
+ 43.92: 👍♦️ ✋ left.ring.tip   (-0.10,-0.50,-0.13) ∆ thumbTip(-0.07,-0.46,-0.14) =>  0.051 👐1019 0 => 3
+ 43.92: 👍♦️ ✋ left.little.tip (-0.11,-0.50,-0.13) ∆ thumbTip(-0.07,-0.46,-0.14) =>  0.061 👐1024 0 => 3
+ 43.92: 🖐️ little.tip(-0.11,-0.50,-0.13) ring.tip(-0.10,-0.50,-0.13) index.tip(-0.06,-0.48,-0.13) middle.tip(-0.08,-0.49,-0.12) thumb.tip(-0.07,-0.46,-0.14) 
 
-        material ('gradient xy and transparencey z',
-                  xyz, x 0…1~0, y 0…1~0,z 0…1~0.75,
-                  svg "icon.opacity",
-                  ^- sky.main.anim)
-    }
-    harmonic ('number of face triangle subdivisions',
-              seg, x 0_6,
-              svg "icon.subtriangle")
+ 43.92: 👍♦️ 🤚 right.index.tip ( 0.03, 0.89,-0.23) ∆ thumbTip( 0.03, 0.87,-0.21) =>  0.035 👐2009 0 => 3
+ 43.92: 👍♦️ 🤚 right.middle.tip( 0.05, 0.87,-0.23) ∆ thumbTip( 0.03, 0.87,-0.21) =>  0.030 👐2014 0 => 3
+ 43.92: 👍♦️ 🤚 right.ring.tip  ( 0.07, 0.86,-0.24) ∆ thumbTip( 0.03, 0.87,-0.21) =>  0.050 👐2019 0 => 3
+ 43.92: 👍♦️ 🤚 right.little.tip( 0.08, 0.85,-0.24) ∆ thumbTip( 0.03, 0.87,-0.21) =>  0.067 👐2024 0 => 3
+Session event dataProviderStateChanged(dataProviders: [HandTrackingProvider(0x0000000302b5cae0, state: running)], newState: running, error: nil)
+ 43.92: 🧭 resizeFrame(2732,2048) clipNorm( 0.12, 0.00,  0.75, 1.00)
+ 43.92: 🧭 Immersive size(910,682) ports:0
+cannot add handler to 0 from 1 - dropping
+Presenting a drawable without a device anchor. This drawable won't be presented.
+ 43.95: draw -> slide -> color -> tile -> flat -> cube -> plato -> nil
+ 44.65: 🧭 Immersive secondMenuFrame
+ 44.65: 🧭 Immersive size(1355,1087) ports:2
+ 44.97: 🧭 Immersive secondMenuFrame
+ 44.97: 🧭 Immersive size(1355,1087) ports:2
+ 45.93: 🖐️ index.tip( 0.03, 0.92,-0.22) little.tip( 0.08, 0.87,-0.24) thumb.tip( 0.02, 0.90,-0.21) ring.tip( 0.06, 0.88,-0.23) middle.tip( 0.04, 0.89,-0.22) 
 
-    phase ('phase between tetra, cube, octa, dodec, icosa',
-           seg, x 0_10 : 1,
-           svg "icon.plato.phase")
+ 47.94: 🖐️ index.tip( 0.03, 0.90,-0.22) little.tip( 0.08, 0.86,-0.23) thumb.tip( 0.02, 0.88,-0.21) ring.tip( 0.07, 0.86,-0.22) middle.tip( 0.05, 0.87,-0.21) 
 
-    convex ('inward / outward of subdivided triangles',
-            val, x 0.9…1.1 : 0.98,
-            svg "icon.convex")
+ 47.96: draw -> slide -> color -> tile -> flat -> cube -> plato -> nil
+ 48.94: 👍🟢 🤚 right.index.tip ( 0.04, 0.90,-0.22) ∆ thumbTip( 0.03, 0.89,-0.21) =>  0.014 👐2009 3 => 0
+ 48.94: 🤚👍1
+ 49.09: 👍♦️ 🤚 right.index.tip ( 0.04, 0.90,-0.23) ∆ thumbTip( 0.03, 0.89,-0.21) =>  0.018 👐2009 1 => 3
+ARPredictorRemoteService <0x111f5de60>: Query queue is not running.
+Session event dataProviderStateChanged(dataProviders: [HandTrackingProvider(0x0000000302b5cae0, state: paused)], newState: paused, error: nil)
+ 49.14: 📋 updateUIView touchesView(0,0, 0,0)
+ 49.15: 📋 updateUIView touchesView(0,0, 0,0)
+ 49.15: 🧭 resizeFrame(2400,1800) clipNorm( 0.12, 0.00,  0.75, 1.00)
+ 49.15: 🧭 Non-Immersive size(800,600) ports:2
+ 49.21: 🧭 resizeFrame(2400,1800) clipNorm( 0.12, 0.00,  0.75, 1.00)
+ 49.21: 🧭 Non-Immersive size(800,600) ports:2
+cannot add handler to 0 from 1 - dropping
+Info.plist configuration "(no name)" for CPSceneSessionRoleImmersiveSpaceApplication contained UISceneClassName key, but could not load class with name "".
+Info.plist configuration "(no name)" for CPSceneSessionRoleImmersiveSpaceApplication contained UISceneDelegateClassName key, but could not load class with name "".
+Info.plist configuration "(no name)" for CPSceneSessionRoleImmersiveSpaceApplication contained UISceneClassName key, but could not load class with name "".
+Info.plist configuration "(no name)" for CPSceneSessionRoleImmersiveSpaceApplication contained UISceneDelegateClassName key, but could not load class with name "".
+Session event dataProviderStateChanged(dataProviders: [HandTrackingProvider(0x0000000302b5cae0, state: running)], newState: running, error: nil)
+ 51.78: 📋 updateUIView touchesView(0,0, 0,0)
+ 51.80: 📋 updateUIView touchesView(0,0, 0,0)
+ 51.80: 🧭 resizeFrame(4065,3263) clipNorm( 0.15, 0.00,  0.70, 1.00)
+ 51.80: 🧭 Immersive size(1355,1087) ports:2
+ 51.82: 🧭 Immersive config
+cannot add handler to 0 from 1 - dropping
+ 51.85: 🧭 resizeFrame(4065,3263) clipNorm( 0.15, 0.00,  0.70, 1.00)
+ 51.85: 🧭 Immersive size(1355,1087) ports:2
+ 51.85: 🖐️ index.tip( 0.03, 0.90,-0.23) little.tip( 0.08, 0.85,-0.23) thumb.tip( 0.03, 0.88,-0.21) ring.tip( 0.07, 0.86,-0.23) middle.tip( 0.05, 0.87,-0.23) 
 
-    zoom ('zoom into and around platonic object',
-          val, y 0…1~0,
-          sym "square.arrowtriangle.4.outward",d
-          ^- sky.main.anim)
+cannot add handler to 0 from 1 - dropping
+ 53.75: 👍🟢 🤚 right.index.tip ( 0.04, 0.90,-0.23) ∆ thumbTip( 0.04, 0.89,-0.22) =>  0.014 👐2009 3 => 0
+ 53.75: 🤚👍1
+ 53.86: 🖐️ index.tip( 0.04, 0.89,-0.23) little.tip( 0.09, 0.85,-0.23) thumb.tip( 0.04, 0.89,-0.22) ring.tip( 0.08, 0.86,-0.22) middle.tip( 0.06, 0.87,-0.22) 
 
-    cubemap ('show cubemap or flat screen (ignored on AVP',
-             tog, x 0_1 : 1,
-             sym "cube",
-             <> pipe.render.map.cube.mixcube)
+ 53.94: 👍♦️ 🤚 right.index.tip ( 0.04, 0.90,-0.23) ∆ thumbTip( 0.04, 0.88,-0.22) =>  0.017 👐2009 1 => 3
+ARPredictorRemoteService <0x111f5de60>: Query queue is not running.
+Session event dataProviderStateChanged(dataProviders: [HandTrackingProvider(0x0000000302b5cae0, state: paused)], newState: paused, error: nil)
+ 53.99: 📋 updateUIView touchesView(0,0, 0,0)
+ 54.01: 📋 updateUIView touchesView(0,0, 0,0)
+ 54.01: 🧭 resizeFrame(2400,1800) clipNorm( 0.12, 0.00,  0.75, 1.00)
+ 54.01: 🧭 Non-Immersive size(800,600) ports:2
+ 54.10: 🧭 resizeFrame(2400,1800) clipNorm( 0.12, 0.00,  0.75, 1.00)
+ 54.10: 🧭 Non-Immersive size(800,600) ports:2
+cannot add handler to 0 from 1 - dropping
+Session event dataProviderStateChanged(dataProviders: [HandTrackingProvider(0x0000000302b5cae0, state: running)], newState: running, error: nil)
+Info.plist configuration "(no name)" for CPSceneSessionRoleImmersiveSpaceApplication contained UISceneClassName key, but could not load class with name "".
+Info.plist configuration "(no name)" for CPSceneSessionRoleImmersiveSpaceApplication contained UISceneDelegateClassName key, but could not load class with name "".
+Info.plist configuration "(no name)" for CPSceneSessionRoleImmersiveSpaceApplication contained UISceneClassName key, but could not load class with name "".
+Info.plist configuration "(no name)" for CPSceneSessionRoleImmersiveSpaceApplication contained UISceneDelegateClassName key, but could not load class with name "".
+ 59.30: 🧭 Immersive config
+cannot add handler to 0 from 1 - dropping
+ 59.34: 📋 updateUIView touchesView(0,0, 0,0)
+ 59.35: 📋 updateUIView touchesView(0,0, 0,0)
+ 59.35: 🧭 resizeFrame(4065,3263) clipNorm( 0.15, 0.00,  0.70, 1.00)
+ 59.35: 🧭 Immersive size(1355,1087) ports:2
+ 59.37: 🖐️ index.tip( 0.04, 0.90,-0.23) little.tip( 0.10, 0.84,-0.22) thumb.tip( 0.03, 0.88,-0.21) ring.tip( 0.08, 0.85,-0.22) middle.tip( 0.06, 0.87,-0.22) 
 
-    _run ( 'run the platonic transformation',
-          tog, x 0_1 : 1,
-          svg "icon.counter")
+ 59.37: 🧭 resizeFrame(4065,3263) clipNorm( 0.15, 0.00,  0.70, 1.00)
+ 59.37: 🧭 Immersive size(1355,1087) ports:2
+cannot add handler to 0 from 1 - dropping
+ 61.37: 🖐️ index.tip( 0.04, 0.90,-0.23) little.tip( 0.10, 0.84,-0.22) thumb.tip( 0.04, 0.89,-0.21) ring.tip( 0.09, 0.85,-0.21) middle.tip( 0.07, 0.87,-0.21) 
 
-    _wire ( 'show wireframe',
-           tog, x 0_1 : 0,
-           svg "icon.wireframe")
+ 63.38: 🖐️ index.tip( 0.05, 0.90,-0.23) little.tip( 0.11, 0.84,-0.21) thumb.tip( 0.04, 0.89,-0.21) ring.tip( 0.09, 0.85,-0.21) middle.tip( 0.07, 0.87,-0.21) 
 
-    _counter('absolute counter',
-             svg "icon.counter")
-}
-
+ 63.66: 👍🟢 🤚 right.index.tip ( 0.05, 0.90,-0.23) ∆ thumbTip( 0.04, 0.89,-0.21) =>  0.015 👐2009 3 => 0
+ 63.66: 🤚👍1
+ 63.88: 👍♦️ 🤚 right.index.tip ( 0.05, 0.90,-0.23) ∆ thumbTip( 0.04, 0.89,-0.21) =>  0.015 👐2009 1 => 3
+ARPredictorRemoteService <0x111f5de60>: Query queue is not running.
+Session event dataProviderStateChanged(dataProviders: [HandTrackingProvider(0x0000000302b5cae0, state: paused)], newState: paused, error: nil)
+ 63.89: 📋 updateUIView touchesView(0,0, 0,0)
+ 63.91: 📋 updateUIView touchesView(0,0, 0,0)
+ 63.91: 🧭 resizeFrame(2400,1800) clipNorm( 0.12, 0.00,  0.75, 1.00)
+ 63.91: 🧭 Non-Immersive size(800,600) ports:2
+ 64.00: 🧭 resizeFrame(2400,1800) clipNorm( 0.12, 0.00,  0.75, 1.00)
+ 64.00: 🧭 Non-Immersive size(800,600) ports:2
+cannot add handler to 0 from 1 - dropping
