@@ -62,10 +62,12 @@ public class EdgePlugin {
         timeNow = Date().timeIntervalSince1970
         var hasDelta = false
         let polyTweens = easyVals.getValNow(timeNow)
-        for i in 0 ..< polyTweens.count {
-            let floVal = floScalars[i]
-            floVal.tween = polyTweens[i]
-            hasDelta = hasDelta || abs(floVal.value - floVal.tween) > 1E-9
+        for i in 0 ..< polyTweens.count  {
+            if i < floScalars.count  {
+                let floVal = floScalars[i]
+                floVal.tween = polyTweens[i]
+                hasDelta = hasDelta || abs(floVal.value - floVal.tween) > 1E-9
+            }
         }
         flo.activate(Visitor(plugExpress.id, .tween))
         if hasDelta {
