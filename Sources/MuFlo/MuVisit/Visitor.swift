@@ -88,16 +88,5 @@ public class Visitor {
         lock.unlock()
         return "\(type.log):(\(visits))"
     }
-    public func logVisits() {
-        for visit in visited {
-            if let any = FloIdAny[visit] {
-                switch any {
-                case let f as Flo:  print ("\(visit): \(f.name)")
-                default : continue
-                }
-            }
-            
-        }
-    }
 }
 

@@ -13,22 +13,12 @@ public class HashFlo { var dict = [Int: Flo]() }
 
 public enum LogBind { case none, value, def }
 
-public var FloIdAny = [Int:Any]() // debugging
-open class FloId {
-    public var id: Int
-    public init() {
-        id = Visitor.nextId()
-        FloIdAny[id] = self
-    }
-}
-
-public class Flo: FloId {
+public class Flo {
 
     public static var root˚ = Flo("√")
     public static func script(path: String) -> String { root˚.scriptPath(path) }
-
+    var id = Visitor.nextId()
     public var hashFlo : HashFlo!
-
     public var name = ""
     public var type = FloType.unknown
     public var exprs: Exprs?
@@ -38,7 +28,6 @@ public class Flo: FloId {
     var pathRefs: [Flo]?            /// `b` in `a.b(<> c)` for `a.b.c a.b(<> c)
     var edgeDefs = EdgeDefs()       /// `b` and `c` in `a(<-(b c)`
     var floEdges = [String: Edge]() /// some edges are defined by another Flo
-                                    ///
     var closures = [FloVisitor]()   /// during activate call a list of closures
     var comments = FloComments()
     var plugDefs: EdgeDefArray?     /// class reference to [EdgeDef]
@@ -177,7 +166,6 @@ public class Flo: FloId {
         return hashed
     }()
 
-   
     public convenience init(_ name: String, parent: Flo?, type: FloType = .name) {
         self.init()
         self.name = name
@@ -225,7 +213,6 @@ public class Flo: FloId {
         }
         return self
     }
-
     public func makeGraft() -> Flo {
         let graft = Flo("𐂷", .graft)
         return graft 
@@ -237,7 +224,7 @@ public class Flo: FloId {
         }
     }
     @discardableResult
-    public func  addChild(_ parsed: Parsed, _ type: FloType) -> Flo {
+    public func addChild(_ parsed: Parsed, _ type: FloType) -> Flo {
 
         if let pathName = parsed.nextResult {
             let child = Flo(pathName, type)

@@ -2,9 +2,10 @@
 
 import SwiftUI
 
-@Observable public class ArchiveVm: FloId, Identifiable {
+@Observable public class ArchiveVm: Identifiable {
 
     public static let shared = ArchiveVm()
+    public var id = Visitor.nextId()
     public var archiveProto: ArchiveProto?
     public var archiveActs: [ArchiveItem] { getArchiveMus() }
     private let Files = FileManager.default
