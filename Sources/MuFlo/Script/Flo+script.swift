@@ -232,7 +232,7 @@ extension Flo { // + script
         return script
     }
     public func scriptPath(_ path: String) -> String {
-        return Flo.root˚.findPath(path)?.scriptOnlyFlo() ?? ""
+        return findPath(path)?.scriptOnlyFlo() ?? ""
     }
 
     /// create a parse ready String

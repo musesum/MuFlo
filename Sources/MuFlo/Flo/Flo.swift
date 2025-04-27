@@ -13,8 +13,6 @@ public class HashFlo { var dict = [Int: Flo]() }
 public enum LogBind { case none, value, def }
 public class Flo {
 
-    public static var root˚ = Flo("√")
-    public static func script(path: String) -> String { root˚.scriptPath(path) }
     var id = Visitor.nextId()
     public var hashFlo : HashFlo!
     public var name = ""

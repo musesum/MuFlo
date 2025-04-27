@@ -73,12 +73,15 @@ open class ArchiveFlo: NSObject {
     private var bundles: [Bundle]
     private let Files = FileManager.default
     public var nameTex = [String: MTLTexture?]()
+    public var root˚: Flo
 
-    public init(_ bundles      : [Bundle],
+    public init(_ root˚        : Flo,
+                _ bundles      : [Bundle],
                 _ snapName     : String,
                 _ scriptNames  : [String],
                 _ textureNames : [String]) {
 
+        self.root˚ = root˚
         self.bundles = bundles
         self.scriptNames = scriptNames
         self.textureNames = textureNames
@@ -113,7 +116,7 @@ open class ArchiveFlo: NSObject {
 
                 let mergeRoot = Flo("√")
                 if FloParse.shared.parseRoot(mergeRoot, script) {
-                    Flo.root˚.mergeFloValues(mergeRoot)
+                    root˚.mergeFloValues(mergeRoot)
                 }
             } else {
                 parseAppStartupScripts() //TODO: move this up and merge with delta.flo.h
@@ -151,7 +154,7 @@ open class ArchiveFlo: NSObject {
         if let archive = ArchiveZip(snapName, "mu", .read),
            archive.archiveTime > getApplicationTime() {
 
-            if Flo.root˚.children.isEmpty {
+            if root˚.children.isEmpty {
                 parseAppStartupScripts()
             }
 
@@ -161,7 +164,7 @@ open class ArchiveFlo: NSObject {
                 let mergeRoot = Flo("√")
                 if FloParse.shared.parseRoot(mergeRoot, script) {
 
-                    Flo.root˚.mergeFloValues(mergeRoot) 
+                    root˚.mergeFloValues(mergeRoot) 
                 }
             }
             unzipPngTextures(archive)
@@ -214,7 +217,7 @@ open class ArchiveFlo: NSObject {
     /// New install or user manually removed snapshot file
     func parseAppStartupScripts() {
         for scriptName in scriptNames {
-            _ = parseFlo(Flo.root˚, scriptName)
+            _ = parseFlo(root˚, scriptName)
         }
     }
 
