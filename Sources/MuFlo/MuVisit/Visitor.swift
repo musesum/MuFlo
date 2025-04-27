@@ -5,25 +5,33 @@ import Collections
 
 
 /// Visit a node only once. Collect and compare with a set of nodes already visited.
+/// 
 public class Visitor {
     
-    static var VisitorId = 0  // unique identifier for each node
-    public static func nextId() -> Int { VisitorId += 1; return VisitorId }
-    
+    nonisolated(unsafe) static var VisitorId = 0  // unique identifier for each node
     private var lock = NSLock()
+    public static func nextId() -> Int {
+        let lock = NSLock()
+        lock.lock()
+        VisitorId += 1
+        lock.unlock()
+        return VisitorId
+    }
+
     public var visited = OrderedSet<Int>()
     public var blocked: Blocked?
     public var from: Flo?
-    
     public var type: VisitType
-    
+
+
     public init (_ id: Int = 0,
                  _ type: VisitType = .model,
                  from: Flo? = nil) {
         
         self.type = type
         self.from = from
-        nowHere(from?.id ?? id)
+        let fromId = from?.id ?? id
+        nowHere(fromId)
     }
     public func remove(_ id: Int) {
         lock.lock()

@@ -10,9 +10,7 @@ import Metal
 /// recalling state of a saved graph, or synchronizing between devices
 /// which have the same exact graph namespace.
 public class HashFlo { var dict = [Int: Flo]() }
-
 public enum LogBind { case none, value, def }
-
 public class Flo {
 
     public static var root˚ = Flo("√")

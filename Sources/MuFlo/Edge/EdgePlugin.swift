@@ -6,9 +6,7 @@ import Collections
 enum EdgeAnimType { case linear, easeinout }
 
 public class EdgePlugin {
-    
     var flo: Flo
-    
     var duration: TimeInterval = 2.0
     var animType = EdgeAnimType.linear
     var plugExpress: Exprs //  -in

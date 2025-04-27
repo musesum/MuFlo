@@ -2,7 +2,6 @@
 
 import Foundation
 
-
 public struct VisitType: OptionSet {
 
     public let rawValue: Int

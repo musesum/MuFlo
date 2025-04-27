@@ -5,27 +5,22 @@
 import Foundation
 import CoreGraphics
 
-open class FloVal: Comparable {
+open class FloVal {
     var id = Visitor.nextId()
     public var name: String
     public var flo: Flo  // flo that declared and contains this value
-	
-    public static func == (lhs: FloVal, rhs: FloVal) -> Bool {
-        return lhs.flo.path(9) == rhs.flo.path(9)
-    }
-
-    public static func < (lhs: FloVal, rhs: FloVal) -> Bool {
-        return lhs.id < rhs.id
-    }
+    let path: String
 
     init(_ flo: Flo, _ name: String) {
         self.flo = flo
         self.name = name
+        self.path = flo.path(99)
     }
     
     init(with: FloVal) {
         self.flo = with.flo
         self.name = with.name
+        self.path = flo.path(99)
     }
 
     // "2" in `a:(0…9=2)`
@@ -60,4 +55,15 @@ open class FloVal: Comparable {
         assertionFailure("⁉️ getVal needs override")
     }
 
+}
+
+extension FloVal: Comparable {
+
+    public static func == (lhs: FloVal, rhs: FloVal) -> Bool {
+        return lhs.path == rhs.path
+    }
+
+    public static func < (lhs: FloVal, rhs: FloVal) -> Bool {
+        return lhs.id < rhs.id
+    }
 }

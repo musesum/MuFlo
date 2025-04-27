@@ -1,6 +1,7 @@
 // created by musesum on 3/13/25
 
 import Foundation
+
 public struct ScalarState: OptionSet {
 
     public static let onOrigin  = ScalarState(rawValue: 1 <<  1)

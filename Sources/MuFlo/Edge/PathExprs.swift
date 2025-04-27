@@ -37,8 +37,15 @@ extension OrderedDictionaryClass<Path,Exprs?> {
                     rhs: OrderedDictionaryClass<Path,Exprs?>) -> Bool {
 
         for (path,express) in lhs {
-            if express == rhs[path]  { continue }
-            return false
+            if let express {
+                if let rhsExpress = rhs[path] {
+                    if express != rhsExpress { return false }
+                } else {
+                    continue
+                }
+            } else if rhs[path] != nil {
+                return false
+            }
         }
         return true
     }

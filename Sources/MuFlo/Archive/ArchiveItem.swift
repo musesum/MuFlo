@@ -2,7 +2,8 @@
 
 import SwiftUI
 
-@Observable public class ArchiveItem: Identifiable, Equatable {
+@Observable
+public class ArchiveItem: Identifiable, Equatable {
 
     public static func == (lhs: ArchiveItem, rhs: ArchiveItem) -> Bool { lhs.id == rhs.id }
     public var id = Visitor.nextId()

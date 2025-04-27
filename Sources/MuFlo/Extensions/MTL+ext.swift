@@ -176,7 +176,6 @@ extension MTLRenderCommandEncoder {
     }
 
 }
-
 extension MTLComputeCommandEncoder {
 
     public func setTexture(_ flo: Flo?, index: Int) {

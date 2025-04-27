@@ -4,7 +4,6 @@
 import Collections
 
 public extension Parser {
-
     /**
      Search self, then before's afters, before's before's afters, etc.
 

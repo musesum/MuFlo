@@ -4,7 +4,6 @@
 //  License: Apache 2.0 - see License file
 
 import Foundation
-
 class BundleResource {
 
     let resourcePath = "../Resources"
