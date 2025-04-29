@@ -61,7 +61,7 @@ extension EdgeDef { // + connect
                 for edge in plugDef.edges.values {
                     if edge.edgeOps.hasPlugin,
                        let plugExprs = edge.rightFlo.exprs {
-                        let plugin = EdgePlugin(edge.leftFlo, plugExprs)
+                        let plugin = EdgePlugin(edge.leftFlo, nextFrame, plugExprs)
                         leftFlo.plugins.append(plugin)
                     }
                 }

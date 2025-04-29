@@ -79,7 +79,8 @@ open class ArchiveFlo: NSObject {
                 _ bundles      : [Bundle],
                 _ snapName     : String,
                 _ scriptNames  : [String],
-                _ textureNames : [String]) {
+                _ textureNames : [String],
+                _ nextFrame    : NextFrame) {
 
         self.root˚ = root˚
         self.bundles = bundles
@@ -91,15 +92,15 @@ open class ArchiveFlo: NSObject {
         }
         super.init()
 
-        if !parseSnapshot(snapName) {
-            parseAppStartupScripts()
+        if !parseSnapshot(snapName, nextFrame) {
+            parseAppStartupScripts(nextFrame)
         } else {
             //DebugLog { P("√ {\n \(self.root˚.scriptFull) }\n") }
         }
     }
 
     /// called via AppSky::
-    public func readUrl(_ url: URL, local: Bool) {
+    public func readUrl(_ url: URL, _ nextFrame: NextFrame, local: Bool) {
 
         if  let zip = ArchiveZip(url, accessMode: .read) {
             readZip(zip) // from email
@@ -115,11 +116,11 @@ open class ArchiveFlo: NSObject {
                let script = dropRoot(String(data: data, encoding: .utf8)) {
 
                 let mergeRoot = Flo("√")
-                if FloParse.shared.parseRoot(mergeRoot, script) {
+                if FloParse.shared.parseRoot(mergeRoot, script, nextFrame) {
                     root˚.mergeFloValues(mergeRoot)
                 }
             } else {
-                parseAppStartupScripts() //TODO: move this up and merge with delta.flo.h
+                parseAppStartupScripts(nextFrame) //TODO: move this up and merge with delta.flo.h
             }
             unzipPngTextures(zip)
 
@@ -149,20 +150,20 @@ open class ArchiveFlo: NSObject {
     }
 
     /// via app reading archive called "Snapshot.mu" which was autosaved
-    func parseSnapshot(_ snapName: String) -> Bool {
+    func parseSnapshot(_ snapName: String, _ nextFrame: NextFrame) -> Bool {
 
         if let archive = ArchiveZip(snapName, "mu", .read),
            archive.archiveTime > getApplicationTime() {
 
             if root˚.children.isEmpty {
-                parseAppStartupScripts()
+                parseAppStartupScripts(nextFrame)
             }
 
             if let data = archive.readFile("now.flo.h"),
                let script = dropRoot(String(data: data, encoding: .utf8)) {
 
                 let mergeRoot = Flo("√")
-                if FloParse.shared.parseRoot(mergeRoot, script) {
+                if FloParse.shared.parseRoot(mergeRoot, script, nextFrame) {
 
                     root˚.mergeFloValues(mergeRoot) 
                 }
@@ -215,18 +216,19 @@ open class ArchiveFlo: NSObject {
     }
 
     /// New install or user manually removed snapshot file
-    func parseAppStartupScripts() {
+    func parseAppStartupScripts(_ nextFrame: NextFrame) {
         for scriptName in scriptNames {
-            _ = parseFlo(root˚, scriptName)
+            _ = parseFlo(root˚, scriptName, "flo.h", nextFrame)
         }
     }
 
     func parseFlo(_ root: Flo,
                   _ fname: String,
-                  _ ext: String = "flo.h") -> Bool {
+                  _ ext: String = "flo.h",
+                  _ nextFrame: NextFrame) -> Bool {
 
         guard let script = read(fname, ext) ?? read(fname, ext) else { return false }
-        let success = FloParse().parseRoot(root, script)
+        let success = FloParse().parseRoot(root, script, nextFrame)
         PrintLog(fname + (success ? " ✓" : " ⁉️ parse failed"))
         return success
     }
@@ -248,7 +250,7 @@ open class ArchiveFlo: NSObject {
 }
 public protocol ArchiveProto {
 
-    func readUserArchive(_ url: URL, local: Bool)
+    func readUserArchive(_ url: URL, _ nextFrame: NextFrame, local: Bool)
 
     func saveArchive (_ title: String,
                       _ description: String,

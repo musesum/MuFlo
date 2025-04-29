@@ -2,22 +2,19 @@ import UIKit
 import QuartzCore
 
 public protocol NextFrameDelegate {
-    func nextFrame() -> Bool
+    func goFrame() -> Bool
     func cancel(_ key: Int)
 }
 
 public class NextFrame {
-
-    public static let shared = NextFrame()
-    public var fps: TimeInterval { TimeInterval(preferredFps) }
-    public var pause = false
-    
     private var lock = NSLock()
     private var preferredFps = 60
     private var displayLink: CADisplayLink?
     private var delegates = [Int: NextFrameDelegate]()
-    public var betweenFrames = [(() -> Void)?]()
 
+    public var betweenFrames = [(() -> Void)?]()
+    public var fps: TimeInterval { TimeInterval(preferredFps) }
+    public var pause = false
 
     public init() {
         displayLink = CADisplayLink(target: self, selector: #selector(nextFrame))
@@ -64,7 +61,7 @@ public class NextFrame {
         if !force && pause { return false }
         goBetweenFrames()
         for (key,delegate) in delegates {
-            if delegate.nextFrame() == false {
+            if delegate.goFrame() == false {
                 removeDelegate(key)
             }
         }

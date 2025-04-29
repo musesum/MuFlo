@@ -58,10 +58,11 @@ public class EdgeDefs {
     }
 
     /// connect direct edges
-    func bindEdges(_ flo: Flo) {
+    func bindEdges(_ flo: Flo, _ nextFrame: NextFrame) {
         let edgeOnlyDefs = EdgeDefArray()
         for edgeDef in edgeDefs {
             if edgeDef.edgeOps.hasPlugin {
+                edgeDef.nextFrame = nextFrame
                 plugDefs.append(edgeDef)
             } else {
                 edgeOnlyDefs.append(edgeDef)

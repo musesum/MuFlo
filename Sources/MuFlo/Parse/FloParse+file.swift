@@ -15,10 +15,10 @@ public extension FloParse {
         return ""
     }
 
-    func parseFlo(_ root: Flo, _ filename: String, _ ext: String = "flo.h") -> Bool {
+    func parseFlo(_ root: Flo, _ filename: String, _ ext: String = "flo.h", _ nextFrame: NextFrame) -> Bool {
         let script = read(filename, ext)
         print(filename, terminator: " ")
-        let success = parseRoot(root, script)
+        let success = parseRoot(root, script, nextFrame)
         print(success ? "✓" : "⁉️ parse failed")
         return success
     }

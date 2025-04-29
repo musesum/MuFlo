@@ -4,19 +4,24 @@ import SwiftUI
 
 @Observable public class ArchiveVm: Identifiable {
 
-    public static let shared = ArchiveVm()
+    //.... public static let shared = ArchiveVm()
     public var id = Visitor.nextId()
     public var archiveProto: ArchiveProto?
     public var archiveActs: [ArchiveItem] { getArchiveMus() }
     private let Files = FileManager.default
     public var nameNow = "Archive"
+    public var nextFrame: NextFrame
+
+    public init(_ nextFrame: NextFrame) {
+        self.nextFrame = nextFrame
+    }
 
     func archiveAction(_ archiveItem: ArchiveItem,_ taps: Int) {
         switch taps {
         case 1,2:
             if let archiveProto,
                let url = archiveItem.url {
-                archiveProto.readUserArchive(url, local: true)
+                archiveProto.readUserArchive(url, nextFrame, local: true)
             }
             nameNow = archiveItem.name
         default: break

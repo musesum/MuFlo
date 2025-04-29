@@ -5,6 +5,7 @@ import Foundation
 
 public class EdgeDef {
 
+    var nextFrame: NextFrame?
     var edgeOps = EdgeOptions()
     var pathExprs = PathExprs()
     var edges = [String: Edge]() // each edge is also shared by two Flos

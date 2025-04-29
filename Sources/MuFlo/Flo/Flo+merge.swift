@@ -448,10 +448,10 @@ extension Flo {
             children = filtered
         }
     }
-    func bindEdges() {
-        edgeDefs.bindEdges(self)
+    func bindEdges(_ nextFrame: NextFrame) {
+        edgeDefs.bindEdges(self, nextFrame)
         for child in children {
-            child.bindEdges()
+            child.bindEdges(nextFrame)
         }
     }
     /** bind 2nd a.b in `a.b { c d } a.e:a.b { f g }`
