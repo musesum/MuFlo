@@ -31,7 +31,7 @@ public class FloParse {
         }
     }
     @discardableResult
-    public func parseRoot(_ root: Flo, _ script: String, _ nextFrame: NextFrame) -> Bool {
+    public func parseRoot(_ root: Flo, _ script: String, _ nextFrame: NextFrame? = nil) -> Bool {
         // parse the script.flo.h
         let parsin = Parsin(script)
         if let parsed = floParser.parseInput(parsin, 0)?.parsed {
@@ -256,7 +256,7 @@ public class FloParse {
         flo.graft(graft)
     }
 
-    func bindRoot(_ root: Flo, _ nextFrame: NextFrame, _ scriptOps: FloScriptOps = []) {
+    func bindRoot(_ root: Flo, _ nextFrame: NextFrame?, _ scriptOps: FloScriptOps = []) {
         if logBind {  print("bindRoot     ") }
         step("bindPathName ") { root.bindPathName() }
         step("bindTopDown  ") { root.bindTopDown() }

@@ -448,7 +448,7 @@ extension Flo {
             children = filtered
         }
     }
-    func bindEdges(_ nextFrame: NextFrame) {
+    func bindEdges(_ nextFrame: NextFrame?) {
         edgeDefs.bindEdges(self, nextFrame)
         for child in children {
             child.bindEdges(nextFrame)
