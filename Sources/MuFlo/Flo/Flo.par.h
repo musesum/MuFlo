@@ -10,11 +10,11 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
                 origin := "=" num
                 now    := ":" num
             }
-            rangeOp := '(\.\.\.|…|_)'
+            rangeOp := '(\.\.\.|…|_|~)'
             exprOp  := '(in|<=|>=|==|<[^>\-:!]|>|[*:=/%,+-,])'
             quote   := '"([^"]*)"'
             tooltip := ''([^']*)''
-            num     := '([+-]*\d*\.?\d+(e[+-]?\d+)?)'
+                            num     := '([+-]*\d*\.?\d+(e[+-]?\d+)?)'
         }
         edge := edgeOp (edgePar | edgeVal) {
             edgeOp  := '(\^-|<-|->|<>|<:>|:>|<:|<!>|<!|!>)'

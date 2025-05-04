@@ -45,13 +45,13 @@ public class Scalar: FloVal {
         prior = value
     }
 
-    public func normalized(_ normOp: ScalarOps) -> Double {
+    public func normalized(_ normOps: ScalarOps) -> Double {
         if scalarOps.contains([.minim,.maxim]) {
             let range = maxim - minim
-            if normOp.tween {
+            if normOps.tween {
                 let ret = (tween - minim) / range
                 return ret
-            } else if normOp.value {
+            } else if normOps.value {
                 let ret = (value - minim) / range
                 return ret
             }
@@ -149,8 +149,9 @@ public class Scalar: FloVal {
 
         if nowOps.def {
             if scalarOps.minim  { str += minim.digits(0...6) }
-            if scalarOps.thru   { str += "…" } /// `…` is `⌥⃣;` on mac
-            if scalarOps.thri   { str += "_" } /// integer range for midi
+            if scalarOps.ranged { str += "…" } /// `…` is `⌥⃣;` on mac
+            if scalarOps.rangei { str += "_" } /// integer range for midi
+            if scalarOps.rangea { str += "~" } /// autoranged min max
             if scalarOps.modulo { str += "%" } /// modulo
             if scalarOps.maxim  { str += maxim.digits(0...6) }
             if scalarOps.origin { str += "=" + origin.digits(0...6) }
@@ -180,14 +181,15 @@ public class Scalar: FloVal {
     ///
     @discardableResult
     public func setScalarVal(_ any: Any?,
-                             _ ops: ScalarOps) -> Bool {
+                             _ scalarOps: ScalarOps,
+                             _ setOps: SetOps) -> Bool {
 
         guard let any else { return true }
 
         prior = tween
 
         switch any {
-        case let v as Scalar  : setFrom(v)
+        case let v as Scalar  : setFrom(v, setOps)
         case let v as Double  : setTween(v)
         case let v as Float   : setTween(Double(v))
         case let v as CGFloat : setTween(Double(v))
@@ -195,25 +197,37 @@ public class Scalar: FloVal {
         default: PrintLog("⁉️ setVal unknown type for: from")
         }
 
-        scalarOps |= ops
+        self.scalarOps |= scalarOps
 
         return true
 
-        func setFrom(_ v: Scalar) {
+        func setFrom(_ from: Scalar, _ setOps: SetOps) {
 
-            /// both have a range
-            if (  scalarOps.thru ||   scalarOps.thri),
-               (v.scalarOps.thru || v.scalarOps.thri)  {
+            if setOps.ranging {
+                if from.scalarOps.rangea {
+                    from.minim = min(from.minim, from.value)
+                    from.maxim = max(from.maxim, from.value)
 
-                let frOffset = (v.scalarOps.thri ? 1.0 : 0.0)
-                let toRange = (maxim - minim) + (scalarOps.thri ? 1.0 : 0.0)
-                let frRange = (v.maxim - v.minim) + frOffset
-
-                if ops.tween {
-                    tween = (v.tween - v.minim) * (toRange / frRange) + minim
                 }
-                if ops.value {
-                    value = (v.value - v.minim) * (toRange / frRange) + minim
+                if self.scalarOps.rangea {
+                    self.minim = min(self.minim, from.minim)
+                    self.maxim = max(self.maxim, from.maxim)
+                }
+                PrintLog("*** from: \(from.minim.digits(-2)) …\(from.maxim.digits(-2)) = \(from.value.digits(-2)) [\(from.scalarOps.description)] name: \(from.flo.name) id: \(from.flo.id)")
+                PrintLog("*** self: \(self.minim.digits(-2)) …\(self.maxim.digits(-2)) = \(self.value.digits(-2)) [\(self.scalarOps.description)] name: \(flo.name) id: \(flo.id)")
+            }
+            /// both have a range
+            if self.scalarOps.hasRange, from.scalarOps.hasRange {
+
+                let frOffset = (from.scalarOps.rangei ? 1.0 : 0.0)
+                let toRange = (maxim - minim) + (scalarOps.rangei ? 1.0 : 0.0)
+                let frRange = (from.maxim - from.minim) + frOffset
+
+                if scalarOps.tween {
+                    tween = (from.tween - from.minim) * (toRange / frRange) + minim
+                }
+                if scalarOps.value {
+                    value = (from.value - from.minim) * (toRange / frRange) + minim
                 }
 
             } else if scalarOps.modulo {
@@ -221,19 +235,19 @@ public class Scalar: FloVal {
                 minim = 0
                 maxim = Double.maximum(1, maxim)
 
-                if ops.tween { tween = fmod(v.tween, maxim) }
-                if ops.value { value = fmod(v.value, maxim) }
+                if scalarOps.tween { tween = fmod(from.tween, maxim) }
+                if scalarOps.value { value = fmod(from.value, maxim) }
 
             } else {
 
-                setTween(v.value)
+                setTween(from.value)
             }
         }
 
         func setTween(_ num: Double) {
 
-            if ops.tween { tween = num }
-            if ops.value { value = num }
+            if scalarOps.tween { tween = num }
+            if scalarOps.value { value = num }
 
             if scalarOps.modulo { value = fmod(value, maxim) }
             if scalarOps.minim, value < minim { value = minim }

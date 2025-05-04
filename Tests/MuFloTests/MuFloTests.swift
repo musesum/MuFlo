@@ -364,7 +364,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let b = root.findPath("b") {
 
-            b.activate(Visitor(0))
+            b.activate([],Visitor(0))
             err = Parsin.testCompare("a(3), b(2)", root.scriptNow)
         } else {
             err = 1
@@ -383,7 +383,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let b = root.findPath("b") {
 
-            b.activate(Visitor(0, .model))
+            b.activate([],Visitor(0, .model))
             err += Parsin.testCompare("a { a1(2) a2(2) } b(-> (a.a1(2), a.a2(2)))", root.scriptRoot([.parens, .now, .edge]))
         } else {
             err = 1
@@ -419,7 +419,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            //let a =  root.findPath("a"),
            let z =  root.findPath("z") {
-            z.activate(Visitor(0, .model))
+            z.activate([],Visitor(0, .model))
             let result = root.scriptRoot([.parens, .now, .edge])
             err += Parsin.testCompare(
             "a { b { f g(2) } c { f g(2) } } z(-> (a.b.g(2), a.c.g(2)))", result)
@@ -440,8 +440,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let z =  root.findPath("z") {
 
-            z.activate(Visitor(0, .model))
-
+            z.activate([],Visitor(0, .model))
             err += Parsin.testCompare(
             "a { b { d e(2) } c { d e(2) } } z(-> (a.b.e(2), a.c.e(2)))", root.scriptAll)
         } else {
@@ -461,7 +460,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let z =  root.findPath("z") {
 
-            z.activate(Visitor(0, .model))
+            z.activate([],Visitor(0, .model))
 
             err += Parsin.testCompare(
             """
@@ -750,7 +749,7 @@ final class MuFloTests: XCTestCase {
 
             err += Parsin.testCompare("a(x == 10, y) b(x : 0, y : 0)", root.scriptNow)
 
-            b.activate()
+            b.activate([])
             err += Parsin.testCompare("a(x == 10, y, <- b) b(x 0, y 0)", root.scriptAll)
 
             /// send an anonymous expression to `b` to satisfy filter
@@ -1135,7 +1134,7 @@ final class MuFloTests: XCTestCase {
            let b = root.findPath("b"),
            let z = root.findPath("z"){
 
-            z.activate() // changes a
+            z.activate([]) // changes a
             err += Parsin.testCompare(
                 """
                 a(x  1, y  2, z 30, <- z)
@@ -1143,7 +1142,7 @@ final class MuFloTests: XCTestCase {
                 z(x  1, y  2)
                 """, root.scriptAll)
 
-            a.activate() // no change
+            a.activate([]) // no change
             err += Parsin.testCompare(
                 """
                 a(x  1, y  2, z 30, <- z)
@@ -1151,7 +1150,7 @@ final class MuFloTests: XCTestCase {
                 z(x  1, y  2)
                 """, root.scriptAll)
 
-            b.activate() // changes z, which changes a
+            b.activate([]) // changes z, which changes a
             err += Parsin.testCompare(
                 """
                 a(x 10, y 20, z 30, <- z)
@@ -1314,7 +1313,7 @@ final class MuFloTests: XCTestCase {
             root.scriptAll)
 
             if let note = root.findPath("note") {
-                note.activate()
+                note.activate([])
                 err += Parsin.testCompare(
                 "grid(x : 4.166667, y : 2, z : 51) note(num : 50)",
                 root.scriptValue)
@@ -1555,8 +1554,8 @@ final class MuFloTests: XCTestCase {
             b (_r 3, _s 4)
             """, root.scriptFull)
             
-            b.activate()
-            
+            b.activate([])
+
             err += Parsin.testCompare(
             """
             a (_p 3, _q 4, <- b)
@@ -1656,7 +1655,37 @@ final class MuFloTests: XCTestCase {
         }
         XCTAssertEqual(err, 0)
     }
+    func testRange() { headline(#function)
+        /// test delta changes only
+        var err = 0
+        let script = "a { b(0~1, -> c) c(0…1) } "
+        print("\n" + script)
 
+        let root = Flo("√")
+        if floParse.parseRoot(root, script),
+           let a = root.findPath("a"),
+           let b = a.findPath("b"),
+           let c = a.findPath("c")
+        {
+            err += Parsin.testCompare("a { b(0~1, -> c) c(0…1) } ",root.scriptAll)
+
+            b.setAnyExprs(0.5, .fire)
+            var now = root.scriptRoot( [.now,.parens,.compact,.noLF])
+            err += Parsin.testCompare("a { b(0.5) c(0.5) }", now)
+
+            b.setAnyExprs(2, [.fire, .ranging]) // set max
+            now = root.scriptRoot( [.now,.parens,.compact,.noLF])
+            err += Parsin.testCompare("a { b(2) c(1) }", now)
+
+            b.setAnyExprs(0.5, .fire)
+            now = root.scriptRoot( [.now,.parens,.compact,.noLF])
+            err += Parsin.testCompare("a { b(0.5) c(0.25) }", now)
+
+        } else {
+            err += 1
+        }
+        XCTAssertEqual(err, 0)
+    }
     func testSky() { headline(#function)
         var err = 0
             err += testFile("test.sky", out: "test.sky", .Full)

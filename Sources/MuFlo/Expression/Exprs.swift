@@ -33,9 +33,9 @@ public class Exprs: FloVal {
         }
         return false
     }
-    public subscript(_ subName: String, _ op: ScalarOps) -> Double? {
+    public subscript(_ subName: String, _ scalarOps: ScalarOps) -> Double? {
         if let scalar = nameAny[subName] as? Scalar {
-            switch op {
+            switch scalarOps {
             case .value: return scalar.value
             case .tween: return scalar.tween
             default: return err("\(#function) unknown return")
@@ -43,7 +43,7 @@ public class Exprs: FloVal {
         }
         return err("name: \(name)(\(subName)) not found")
         func err(_ msg: String) -> Double? {
-            PrintLog("⁉️ \(msg) op: [\(op.description)]");
+            PrintLog("⁉️ \(msg) scalarOps: [\(scalarOps.description)]");
             return nil
         }
     }
@@ -157,7 +157,7 @@ public class Exprs: FloVal {
         }
     }
 
-    func setDefaults(_ visit: Visitor, _ withPrior: Bool) {
+    func setDefaults(_ setOps: SetOps, _ visit: Visitor, _ withPrior: Bool) {
         var nameVals = [(String,Double)]()
         if nameAny.count > 0 {
             for (name,any) in nameAny {
@@ -171,12 +171,12 @@ public class Exprs: FloVal {
                 }
             }
             if nameVals.count > 0 {
-                setFromAny(nameVals, visit)
+                setFromAny(nameVals, setOps, visit)
             }
         }
     }
 
-    public func setOrigin(_ visit: Visitor) {
+    public func setOrigin(_ setOps: SetOps, _ visit: Visitor) {
         var nameVals = [(String,Double)]()
         if nameAny.count > 0 {
             for (name,any) in nameAny {
@@ -185,12 +185,12 @@ public class Exprs: FloVal {
                 }
             }
             if nameVals.count > 0 {
-                setFromAny(nameVals, visit)
+                setFromAny(nameVals, setOps, visit)
             }
         }
     }
 
-    public func setPrior(_ visit: Visitor) {
+    public func setPrior(_ setOps: SetOps, _ visit: Visitor) {
         var nameVals = [(String,Double)]()
         if nameAny.count > 0 {
             for (name,any) in nameAny {
@@ -199,18 +199,19 @@ public class Exprs: FloVal {
                 }
             }
             if nameVals.count > 0 {
-                setFromAny(nameVals, visit)
+                setFromAny(nameVals, setOps, visit)
             }
         }
     }
 
     @discardableResult
     public func setFromAny(_ fromAny: Any,
+                           _ setOps: SetOps,
                            _ visit: Visitor) -> Bool {
 
         guard visit.newVisit(id) else { return false }
 
-        if updateValues() {
+        if updateValues(setOps) {
             if newTween() {
                 pluginTween()
             }
@@ -218,64 +219,64 @@ public class Exprs: FloVal {
         }
         return false
 
-        func updateValues() -> Bool {
+        func updateValues(_ setOps: SetOps) -> Bool {
             switch fromAny {
-            case let v     as Float              : setNum(Double(v),visit)
-            case let v     as CGFloat            : setNum(Double(v),visit)
-            case let v     as Double             : setNum(Double(v),visit)
-            case let v     as Int                : setNum(Double(v),visit)
-            case let n     as [(String,Float)]   : setNameNums(n,visit)
-            case let n     as [(String,CGFloat)] : setNameNums(n,visit)
-            case let n     as [(String,Double )] : setNameNums(n,visit)
-            case let n     as [(String,Int    )] : setNameNums(n,visit)
-            case let (n,v) as (String,Double)    : setNameNum(n,Double(v),visit)
-            case let (n,v) as (String,Float)     : setNameNum(n,Double(v),visit)
-            case let (n,v) as (String,CGFloat)   : setNameNum(n,Double(v),visit)
+            case let v     as Float              : setNum(Double(v),setOps,visit)
+            case let v     as CGFloat            : setNum(Double(v),setOps,visit)
+            case let v     as Double             : setNum(Double(v),setOps,visit)
+            case let v     as Int                : setNum(Double(v),setOps,visit)
+            case let n     as [(String,Float)]   : setNameNums(n,setOps,visit)
+            case let n     as [(String,CGFloat)] : setNameNums(n,setOps,visit)
+            case let n     as [(String,Double )] : setNameNums(n,setOps,visit)
+            case let n     as [(String,Int    )] : setNameNums(n,setOps,visit)
+            case let (n,v) as (String,Double)    : setNameNum(n,Double(v),setOps,visit)
+            case let (n,v) as (String,Float)     : setNameNum(n,Double(v),setOps,visit)
+            case let (n,v) as (String,CGFloat)   : setNameNum(n,Double(v),setOps,visit)
             case let (n,a) as (String,Any)       : setNameAnys([(n,a)])
             case let n     as [(String,Any)]     : setNameAnys(n)
             //TODO: the next three are overloading setValues with an evaluation test
-            case let v     as CGPoint            : return evalPoint(v, visit)
-            case let v     as CGRect             : return evalRect(v, visit)
-            case let v     as CGSize             : return evalSize(v, visit)
-            case let v     as Exprs              : return evalExprs(v, false, visit)
+            case let v     as CGPoint            : return evalPoint(v,setOps,visit)
+            case let v     as CGRect             : return evalRect (v,setOps,visit)
+            case let v     as CGSize             : return evalSize (v,setOps,visit)
+            case let v     as Exprs              : return evalExprs(v,false,setOps,visit)
             default: PrintLog("⁉️ mismatched setVal(\(fromAny))"); return false
             }
             return true
 
-            func setNameAnys(_ nameAnys: [(Name,Any)]) {
+            func setNameAnys(_ nameAnys: [(Name,Any)]) { //... no setOps?
                 for (name,any) in nameAnys {
                     nameAny[name] = any
                 }
             }
-            func setNameNum(_ name: String, _ num: Double, _ visit: Visitor) {
+            func setNameNum(_ name: String, _ num: Double, _ setOps: SetOps, _ visit: Visitor) {
                 if let scalar = nameAny[name] as? Scalar {
-                    scalar.setScalarVal(num, flo.scalarOps)
+                    scalar.setScalarVal(num, flo.scalarOps, setOps)
                 } else {
                     nameAny[name] = Scalar(flo, name, num)
                 }
             }
-            func setNameNums(_ nameAnys: [(String,Any)], _ visit: Visitor) {
+            func setNameNums(_ nameAnys: [(String,Any)], _ setOps: SetOps, _ visit: Visitor) {
                 for (name,any) in nameAnys {
                     switch any {
-                    case let v as Double  : setNameNum(name, Double(v), visit)
-                    case let v as Float   : setNameNum(name, Double(v), visit)
-                    case let v as CGFloat : setNameNum(name, Double(v), visit)
-                    case let v as Int     : setNameNum(name, Double(v), visit)
+                    case let v as Double  : setNameNum(name, Double(v), setOps, visit)
+                    case let v as Float   : setNameNum(name, Double(v), setOps, visit)
+                    case let v as CGFloat : setNameNum(name, Double(v), setOps, visit)
+                    case let v as Int     : setNameNum(name, Double(v), setOps, visit)
                     default: break
                     }
                 }
             }
-            func setNum(_ num: Double, _ visit: Visitor) {
+            func setNum(_ num: Double, _ setOps: SetOps, _ visit: Visitor) {
 
                 if let scalar = nameAny["_0"] as? Scalar {
 
-                    scalar.setScalarVal(num, flo.scalarOps)
+                    scalar.setScalarVal(num, flo.scalarOps, setOps)
 
                 } else {
 
                     for any in nameAny.values {
                         if let scalar = any as? Scalar {
-                            scalar.setScalarVal(num, flo.scalarOps)
+                            scalar.setScalarVal(num, flo.scalarOps, setOps)
                         }
                     }
                 }
@@ -284,7 +285,7 @@ public class Exprs: FloVal {
                     nameAny["_0"] = Scalar(flo, name, num)
                 }
             }
-            func evalPoint(_ point: CGPoint, _ visit: Visitor) -> Bool {
+            func evalPoint(_ point: CGPoint, _ setOps: SetOps, _ visit: Visitor) -> Bool {
 
                 if evalAnys.isEmpty {
                     // create a new opVal list
@@ -294,9 +295,9 @@ public class Exprs: FloVal {
                 let copy = copy()
                 copy.injectNameNum("x", Double(point.x))
                 copy.injectNameNum("y", Double(point.y))
-                return evalExprs(copy, false, visit)
+                return evalExprs(copy, false, setOps, visit)
             }
-            func evalSize(_ size: CGSize, _ visit: Visitor) -> Bool {
+            func evalSize(_ size: CGSize, _ setOps: SetOps, _ visit: Visitor) -> Bool {
 
                 if evalAnys.isEmpty {
                     // create a new opVal list
@@ -307,9 +308,9 @@ public class Exprs: FloVal {
                 copy.injectNameNum("w", Double(size.width))
                 copy.injectNameNum("h", Double(size.height))
 
-                return evalExprs(copy, false, visit)
+                return evalExprs(copy, false, setOps, visit)
             }
-            func evalRect(_ rect: CGRect, _ visit: Visitor) -> Bool {
+            func evalRect(_ rect: CGRect, _ setOps: SetOps, _ visit: Visitor) -> Bool {
 
                 if evalAnys.isEmpty {
                     // create a new opVal list
@@ -322,7 +323,7 @@ public class Exprs: FloVal {
                 copy.injectNameNum("w", Double(rect.width))
                 copy.injectNameNum("h", Double(rect.height))
 
-                return evalExprs(copy, false, visit)
+                return evalExprs(copy, false, setOps, visit)
             }
         }
         func newTween() -> Bool {

@@ -332,8 +332,8 @@ extension Flo {
             plugin.startPlugin(id, Visitor(0))
         }
     }
-    func activateAllValues() {
-        activate(Visitor(0))
-        children.forEach { $0.activateAllValues() }
+    func activateAllValues(_ setOps: SetOps) {
+        activate(setOps, Visitor(0))
+        children.forEach { $0.activateAllValues(setOps) }
     }
 }

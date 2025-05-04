@@ -11,7 +11,7 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
                 origin := "=" num
                 now    := ":" num
             }
-            rangeOp := '(\.\.\.|…|_)'
+            rangeOp := '(\.\.\.|…|_|~)'
             exprOp  := '(in|<=|>=|==|<[^>\-:!]|>|[*:=/%,+-,])'
             quote   := '"([^"]*)"'
             tooltip := ''([^']*)''

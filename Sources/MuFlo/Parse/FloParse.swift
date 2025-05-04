@@ -150,8 +150,9 @@ public class FloParse {
                 }
                 func addRangeOp(_ parsed: Parsed) {
                     switch parsed.nextResult {
-                    case "...", "…" : scalar.scalarOps.insert(.thru)
-                    case "_"        : scalar.scalarOps.insert(.thri)
+                    case "...", "…" : scalar.scalarOps.insert(.ranged)
+                    case "_"        : scalar.scalarOps.insert(.rangei)
+                    case "~"        : scalar.scalarOps.insert(.rangea)
                     default         : logDefault(#function, parsed)
                     }
                 }

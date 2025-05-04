@@ -43,6 +43,7 @@ extension Exprs { // + eval
     @discardableResult
     func evalExprs(_ fromExpress: Exprs?,
                    _ fromNode: Bool,
+                   _ setOps: SetOps,
                    _ visit: Visitor) -> Bool {
 
         var mySetters = ExprSetters()
@@ -64,7 +65,7 @@ extension Exprs { // + eval
 
             if i==evalAnys.count {
                 exprFinish()
-                setSetters(mySetters, fromNode, visit)
+                setSetters(mySetters, fromNode, setOps, visit)
                 return true
             }
             let evalAny = evalAnys[i]
@@ -181,6 +182,7 @@ extension Exprs { // + eval
     ///
     func setSetters(_ mySetters: ExprSetters,
                     _ viaEdge: Bool,
+                    _ setOps: SetOps,
                     _ visit: Visitor) {
 
         for (name,val) in mySetters {
@@ -192,7 +194,7 @@ extension Exprs { // + eval
                     if name.first == "_",  viaEdge, toVal.scalarOps.liter {
                         // dont set a(2) in  a(1), b(0…1) >> a(2)
                     } else {
-                        toVal.setScalarVal(scalar, flo.scalarOps)
+                        toVal.setScalarVal(scalar, flo.scalarOps, setOps)
                         toVal.scalarOps |= .value
                     }
                 } else {

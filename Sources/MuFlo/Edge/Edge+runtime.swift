@@ -6,6 +6,7 @@ import Foundation
 extension Edge {
     
     func followEdge(_ fromFlo: Flo,
+                    _ setOps: SetOps,
                     _ visit: Visitor,
                     _ depth: Int) -> Flo? {
 
@@ -22,7 +23,7 @@ extension Edge {
 
             // logEdge()
 
-            if  destFlo.setEdgeVal(edgeExpress, fromFlo, visit) {
+            if  destFlo.setEdgeVal(edgeExpress, fromFlo, setOps, visit) {
                 logDepth("👍")
                 return destFlo
             } else {

@@ -13,8 +13,8 @@ public struct ScalarState: OptionSet {
     /// Otherwise, restoring from a .delta could activate stale values,
     /// such as a stale midi.note.on
     var isTransient: Bool {
-        let defset: ScalarOps = [.tween, .value, .liter]
-        return (self.rawValue & defset.rawValue) == 0
+        let transientOps: ScalarOps = [.tween, .value, .liter]
+        return (self.rawValue & transientOps.rawValue) == 0
     }
 
     public var rawValue: Int

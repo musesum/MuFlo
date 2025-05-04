@@ -62,7 +62,7 @@ extension Flo {
         /// `e` in `a { b { c d } } a { e }`
         for mergeChild in merge.children {
             if mergeChild.type == .base {
-                //print("*** \(mergeChild.name).\(mergeChild.id)")
+                // ok
             } else {
                 mergeDuplicate(mergeChild)
             }
@@ -150,24 +150,24 @@ extension Flo {
 
     func expandPathName() -> [Flo]? {
 
-        guard let found = findAnchors(name) else { return nil }
+        guard let pathNames = findPathNames(name) else { return nil }
 
-        if found.count == 1,
-           found.first?.id == id,
+        if pathNames.count == 1,
+           pathNames.first?.id == id,
            self.children.isEmpty {
 
             type = .name
             return [self]
         }
 
-        if found.count > 0 {
+        if pathNames.count > 0 {
             if edgeDefs.edgeDefs.isEmpty {
                 // b.c in `a { b { c {c1 c2} d } b.c { c3 } }`
-                let results = mergeOrCopy(found)
+                let results = mergeOrCopy(pathNames)
                 return results
             } else {
                 // a.b in `a { b { c } }  a.b(<> c)`
-                pathRefs = found
+                pathRefs = pathNames
                 return [self]
             }
         }
@@ -241,9 +241,9 @@ extension Flo {
             if adoptions.count == 1,
                let adopt = adoptions.first,
                adopt.type == .base,
-               let found = parent?.findAnchors(adopt.name) {
+               let pathNames = parent?.findPathNames(adopt.name) {
                 var expanded = [Flo]()
-                found.forEach { expanded.append(contentsOf: $0.children) }
+                pathNames.forEach { expanded.append(contentsOf: $0.children) }
                 return expanded
             }
             return adoptions
@@ -395,12 +395,11 @@ extension Flo {
     func bindPathName() {
 
         if type == .base,
-            let anchors = parent?.findAnchors(name) {
-            //print("*** base: \(name) \(id)")
+            let pathNames = parent?.findPathNames(name) {
 
             var adoptions: [Flo] = []
-            for anchor in anchors {
-                for child in anchor.children {
+            for pathName in pathNames {
+                for child in pathName.children {
                     adoptions.append(Flo(deepcopy: child, parent: self, via: type))
                 }
             }
@@ -409,19 +408,18 @@ extension Flo {
             return
         }
         else if type == .path,
-                let anchors = parent?.findAnchors(name) {
-            //print("*** path: \(name) \(id)")
+                let pathNames = parent?.findPathNames(name) {
 
-            for anchor in anchors {
+            for pathName in pathNames {
 
                 if children.count == 0 {
-                    anchor.merge(self) /// in `a.b(<> c)` merge `(<> c)` only
+                    pathName.merge(self) /// in `a.b(<> c)` merge `(<> c)` only
                 } else {
                     var adoptions: [Flo] = []
                     for child in children {
-                        adoptions.append(Flo(deepcopy: child, parent: anchor, via: type))
+                        adoptions.append(Flo(deepcopy: child, parent: pathName, via: type))
                     }
-                    anchor.mergeAdoptions(adoptions, .path)
+                    pathName.mergeAdoptions(adoptions, .path)
                     type = .remove
                 }
 
@@ -476,13 +474,13 @@ extension Flo {
         bindChildren()
     }
 
-    public func setFloDefaults(_ visit: Visitor, _ withPrior: Bool) {
-        exprs?.setDefaults(visit, withPrior)
+    public func setFloDefaults(_ setOps: SetOps, _ visit: Visitor, _ withPrior: Bool) {
+        exprs?.setDefaults(setOps, visit, withPrior)
         for edge in floEdges {
-            edge.value.edgeExpress?.setDefaults(visit, withPrior)
+            edge.value.edgeExpress?.setDefaults(setOps, visit, withPrior)
         }
         for child in children {
-            child.setFloDefaults(visit, withPrior)
+            child.setFloDefaults(setOps, visit, withPrior)
         }
     }
     public func bindVals() {

@@ -58,7 +58,7 @@ public class EdgePlugin {
     }
 
     /// Tween is intermediate value for animation plug-in
-    func setTween() -> Bool {
+    func setTween(_ setOps: SetOps) -> Bool {
        // flo.exprs?.logValTweens()
         timeNow = Date().timeIntervalSince1970
         var hasDelta = false
@@ -70,7 +70,7 @@ public class EdgePlugin {
                 hasDelta = hasDelta || abs(floVal.value - floVal.tween) > 1E-9
             }
         }
-        flo.activate(Visitor(plugExpress.id, .tween))
+        flo.activate(setOps, Visitor(plugExpress.id, .tween))
         if hasDelta {
             return true
         } else {
@@ -83,7 +83,7 @@ public class EdgePlugin {
 extension EdgePlugin: NextFrameDelegate {
 
     public func goFrame() -> Bool {
-        return setTween()
+        return setTween([])
     }
     public func cancel(_ key: Int) {
         nextFrame?.removeDelegate(key)

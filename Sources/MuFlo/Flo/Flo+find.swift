@@ -93,7 +93,7 @@ extension Flo { // + find
     }
 
     /// find preexisting item  //TODO: redo after testing is working again
-    public func findAnchors(_ path: String, _ findOps: FloFindOps = [.parents, .children]) -> [Flo]? {
+    public func findPathNames(_ path: String, _ findOps: FloFindOps = [.parents, .children]) -> [Flo]? {
 
         let (prefix, wildcard, suffix) = path.splitWild(".*˚")
         let deeperOps = findOps.intersection([.children, .makePath])
@@ -138,8 +138,8 @@ extension Flo { // + find
                 }
                 var results = [Flo]()
                 found.forEach { flo in
-                    if let anchors = flo.findAnchors(suffix, findOps) {
-                        results.append(contentsOf: anchors)
+                    if let pathNames = flo.findPathNames(suffix, findOps) {
+                        results.append(contentsOf: pathNames)
                     }
                 }
                 if results.isEmpty {
@@ -190,7 +190,7 @@ extension Flo { // + find
         func parentFlos() -> [Flo]? {
             guard findOps.parents else { return nil }
             if let parent {
-                return parent.findAnchors(path, findOps)
+                return parent.findPathNames(path, findOps)
             } else if prefix == "" {
                 return findPathFlos(wildcard + suffix, findOps)
             }
@@ -320,8 +320,8 @@ extension Flo { // + find
                !path.contains("˚"), // cannot make b in `a˚b` or `a.*.b`
                !path.contains("*") {
                 
-                for anchor in findAnchors(prefix) ?? [] {
-                    if let newPath = anchor.makePath(suffix, nil) {
+                for pathNames in findPathNames(prefix) ?? [] {
+                    if let newPath = pathNames.makePath(suffix, nil) {
                         found.append(newPath)
                     }
                 }
