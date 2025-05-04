@@ -10,11 +10,11 @@ public class Scalar: FloVal {
     public var scalarOps = ScalarOps(rawValue: 0)
     public var scalarState: ScalarState { ScalarState(self) }
 
-    public var tween = Double(0) // current value; 2 in 0…3~1=2
+    public var tween = Double(0) // current value; 2 in 0…3=1=2
     public var value = Double(0) // target value
     public var minim = Double(0) // minimum value; 0 in 0…3
     public var maxim = Double(1) // maximum value; 3 in 0…3
-    public var origin = Double(0) // default value; 1 in 0…3~1
+    public var origin = Double(0) // default value; 1 in 0…3=1
     public var prior = Double(0) // prevous value; for animating tween
 
     override init(_ flo: Flo, _ name: String?) {
@@ -153,7 +153,7 @@ public class Scalar: FloVal {
             if scalarOps.thri   { str += "_" } /// integer range for midi
             if scalarOps.modulo { str += "%" } /// modulo
             if scalarOps.maxim  { str += maxim.digits(0...6) }
-            if scalarOps.origin { str += "~" + origin.digits(0...6) }
+            if scalarOps.origin { str += "=" + origin.digits(0...6) }
             if scalarOps.liter  { str += value.digits(0...6) }
         }
         else if !scriptOps.def, scriptOps.now {

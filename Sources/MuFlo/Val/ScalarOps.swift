@@ -16,7 +16,7 @@ public struct ScalarOps: OptionSet {
     public static let modulo = ScalarOps(rawValue: 1 <<  3) // %2 modulo
     public static let minim  = ScalarOps(rawValue: 1 <<  4) // 0 in 0…1, min of range
     public static let maxim  = ScalarOps(rawValue: 1 <<  5) // 1 in 0…1, max of range
-    public static let origin = ScalarOps(rawValue: 1 <<  6) // ~ n default value
+    public static let origin = ScalarOps(rawValue: 1 <<  6) // = n default value
     public static let value  = ScalarOps(rawValue: 1 <<  7) // next value
     public static let tween  = ScalarOps(rawValue: 1 <<  8) // tween animation value
     public static let liter  = ScalarOps(rawValue: 1 <<  9) // literal value

@@ -18,7 +18,7 @@ final class MuFloTests: XCTestCase {
     func testDefaultValues() { headline(#function)
         Par.printParsin = true
         var err = 0
-        err += test("a (z 0_127 = 1)")
+        err += test("a (z 0_127 : 1)")
         err += test("w (x 0, y 0)")
         err += test("b (0)")
         err += test("c (d 0, e 0)")
@@ -140,7 +140,7 @@ final class MuFloTests: XCTestCase {
         err += test("m (1, 2, 3), n(-> m(4, 5, 6))")
         err += test("a { b { c(1) } } a.b.c(2)", "a.b.c(2)")
         err += test("a.b.c(1) z:a { b.c(2) }", "a.b.c(1) z.b.c(2)")
-        err += test("a.b.c(0…1) z:a { b.c(0…1~1) }", "a.b.c(0…1) z.b.c(0…1~1)")
+        err += test("a.b.c(0…1) z:a { b.c(0…1=1) }", "a.b.c(0…1) z.b.c(0…1=1)")
         err += test("a.b { c { d e.f(0…1) g} z:c { g } } ",
                     "a.b { c { d e.f(0…1) g } z { d e.f(0…1) g } }")
         XCTAssertEqual(err, 0)
@@ -236,12 +236,12 @@ final class MuFloTests: XCTestCase {
         err += test("b (x %2, y %2)")
         err += test("m (1, 2, 3)")
 
-        err += test("i (1…2~1.5, 3…4~3.5, 5…6~5.5)")
+        err += test("i (1…2=1.5, 3…4=3.5, 5…6=5.5)")
         err += test("b (x 1, y 2)")
         err += test("a (%2)")
         err += test("a (x 1…2, y 1…2)")
-        err += test("a (x 0…1~0.5, y 0…1~0.5)")
-        err += test("a (x 0…1~0.5, y 0…1~0.5)")
+        err += test("a (x 0…1=0.5, y 0…1=0.5)")
+        err += test("a (x 0…1=0.5, y 0…1=0.5)")
 
         subhead("edges")
         err += test("a(1) b(->a(2))")
@@ -251,35 +251,35 @@ final class MuFloTests: XCTestCase {
         err += test("a { b(2) { c } }", "a.b(2).c")
         err += test("a (1) { b(2) { c(3) } }", "a(1).b(2).c(3)")
         err += test("a(1).b(2).c(3)")
-        err += test("a (0…1~0.5) { b(1…2) { c(2…3) } }", "a(0…1~0.5).b(1…2).c(2…3)")
-        err += test("a(0…1~0.5).b(1…2).c(2…3)")
+        err += test("a (0…1=0.5) { b(1…2) { c(2…3) } }", "a(0…1=0.5).b(1…2).c(2…3)")
+        err += test("a(0…1=0.5).b(1…2).c(2…3)")
         err += test("a (%2) b(%2)")
 
         subhead("tuples")
-        err += test("a (x 0…1~0.5, y 0…1~0.5)")
+        err += test("a (x 0…1=0.5, y 0…1=0.5)")
         err += test("a (x 1…2, y 1…2)")
         err += test("b (x -1, y 2)")
         err += test("c (x 3, y 4)")
         err += test("d (x, y, z)")
         err += test("e (x -16…16, y -16…16)")
         err += test("f (p 0…1, q 0…1, r 0…1)")
-        err += test("g (p 0…1~0.5, q 0…1~0.5, r 0…1~0.5)")
-        err += test("h (p 0…1~0.5, q 0…1~0.5, r 0…1~0.5)")
-        err += test("i (0…1~0.5, 0…1~0.5, 0…1~0.5)")
+        err += test("g (p 0…1=0.5, q 0…1=0.5, r 0…1=0.5)")
+        err += test("h (p 0…1=0.5, q 0…1=0.5, r 0…1=0.5)")
+        err += test("i (0…1=0.5, 0…1=0.5, 0…1=0.5)")
         err += test("j (one 1, two 2)")
         err += test("k (one \"1\", two \"2\")")
 
         subhead("current value")
         err += test("b(0…1)", nil, [.parens, .def])
-        err += test("b(0…1~0.2 : 0.3)")
-        err += test("a(0…1~0 : 1)", nil, [.parens, .def, .now])
-        err += test("a(0…1~0 : 1)", nil, [.parens, .def, .now])
+        err += test("b(0…1=0.2 : 0.3)")
+        err += test("a(0…1=0 : 1)", nil, [.parens, .def, .now])
+        err += test("a(0…1=0 : 1)", nil, [.parens, .def, .now])
         err += test("c(0…1 : 1)", nil, [.parens, .def, .now ])
 
         subhead("miscellaneous")
         err += test("a(\"b\")")
         err += test("abcdefghijklmnopqrstu1 abcdefghijklmnopqrstu2")
-        err += test("i(0...1~0.5, 0...1~0.5, 0...1~0.5)","i(0…1~0.5, 0…1~0.5, 0…1~0.5)")
+        err += test("i(0...1=0.5, 0...1=0.5, 0...1=0.5)","i(0…1=0.5, 0…1=0.5, 0…1=0.5)")
         err += test("value(16777200)")
         err += test("value(1.67772e+07)", "value(16777200)")
         XCTAssertEqual(err, 0)
@@ -1261,7 +1261,7 @@ final class MuFloTests: XCTestCase {
 
         var err = 0
         // selectively set tuples by name, ignore the reset
-        let script = "a(x, y) b(v 0, -> a(x = v))" /// `x` receives `v`
+        let script = "a(x, y) b(v 0, -> a(x : v))" /// `x` receives `v`
         print("\n" + script)
 
         let root = Flo("√")
@@ -1269,10 +1269,10 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let b = root.findPath("b") {
 
-            err += Parsin.testCompare("a(x, y) b(v 0, -> a(x = v))", root.scriptDef)
+            err += Parsin.testCompare("a(x, y) b(v 0, -> a(x : v))", root.scriptDef)
 
             b.setAnyExprs(Exprs(Flo("_t_"), [("v", 1)]), .fire)
-            err += Parsin.testCompare( "a(x : 1, y) b(v 1, -> a(x = v))", root.scriptAll)
+            err += Parsin.testCompare( "a(x : 1, y) b(v 1, -> a(x : v))", root.scriptAll)
 
         } else {
             err += 1
@@ -1283,7 +1283,7 @@ final class MuFloTests: XCTestCase {
         /// test `a(x, y) b(v:0) -> a(x v/2, y v*2)`
         var err = 0
         // selectively set tuples by name, ignore the reset
-        let script = "a(x, y) b(v 0, -> a(x = v/2, y = v*2))"
+        let script = "a(x, y) b(v 0, -> a(x : v/2, y : v*2))"
         print("\n" + script)
 
         let root = Flo("√")
@@ -1291,10 +1291,10 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
             let b = root.findPath("b") {
 
-            err += Parsin.testCompare("a(x, y) b(v 0, -> a(x = v/2, y = v*2))", root.scriptAll)
+            err += Parsin.testCompare("a(x, y) b(v 0, -> a(x : v/2, y : v*2))", root.scriptAll)
 
             b.setAnyExprs(Exprs(Flo("_t_"), [("v", 1)]), .fire)
-            err += Parsin.testCompare("a(x : 0.5, y : 2) b(v 1, -> a(x = v / 2, y = v * 2))", root.scriptAll)
+            err += Parsin.testCompare("a(x : 0.5, y : 2) b(v 1, -> a(x : v / 2, y : v * 2))", root.scriptAll)
 
         } else {
             err += 1
@@ -1305,12 +1305,12 @@ final class MuFloTests: XCTestCase {
     func testMidiGrid() { headline(#function)
         /// test `grid(x num/12, y num % 12) <- note, note(num 0…127 = 50)`
         var err = 0
-        let script = "grid(x = num / 12, y = num % 12, z = num + 1, <- note), note(num 50)"
+        let script = "grid(x : num / 12, y : num % 12, z : num + 1, <- note), note(num 50)"
 
         let root = Flo("√")
         if floParse.parseRoot(root, script) {
             err += Parsin.testCompare(
-            "grid(x = num / 12, y = num % 12, z = num + 1, <- note), note(num 50)",
+            "grid(x : num / 12, y : num % 12, z : num + 1, <- note), note(num 50)",
             root.scriptAll)
 
             if let note = root.findPath("note") {
@@ -1332,7 +1332,7 @@ final class MuFloTests: XCTestCase {
         var err = 0
 
         let script = """
-        grid(num > 20, chan==1, x = num / 12, y = num % 12, <- note),
+        grid(num > 20, chan==1, x : num / 12, y : num % 12, <- note),
         note(num 0_127:0, chan 2)
         """
 
@@ -1342,17 +1342,17 @@ final class MuFloTests: XCTestCase {
            let note = root.findPath("note") {
 
             err += Parsin.testCompare("""
-                grid(num > 20, chan == 1, x = num / 12, y = num % 12, <- note),  note(num 0_127:0, chan 2)
+                grid(num > 20, chan == 1, x : num / 12, y : num % 12, <- note),  note(num 0_127:0, chan 2)
                 """, root.scriptAll)
 
             note.setAnyExprs(Exprs(Flo("_t1_"),[("num",50), ("chan",0)]), .fire)
             err += Parsin.testCompare("""
-                grid(num > 20, chan == 1, x = num / 12, y = num % 12, <- note), note(num 0_127 : 50, chan 0)
+                grid(num > 20, chan == 1, x : num / 12, y : num % 12, <- note), note(num 0_127 : 50, chan 0)
                 """, root.scriptAll)
 
             note.setAnyExprs( Exprs(Flo("_t2_"),[("num",50), ("chan",1)]), .fire)
             err += Parsin.testCompare("""
-                grid(num > 20 : 50, chan == 1, x = num / 12 : 4.166667, y = num % 12 : 2, <- note), note(num 0_127 : 50, chan 1)
+                grid(num > 20 : 50, chan == 1, x : num / 12 : 4.166667, y : num % 12 : 2, <- note), note(num 0_127 : 50, chan 1)
                 """, root.scriptAll)
 
         } else {

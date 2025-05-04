@@ -4,7 +4,6 @@ import SwiftUI
 
 @Observable public class ArchiveVm: Identifiable {
 
-    //.... public static let shared = ArchiveVm()
     public var id = Visitor.nextId()
     public var archiveProto: ArchiveProto?
     public var archiveActs: [ArchiveItem] { getArchiveMus() }

@@ -4,26 +4,7 @@ import QuartzCore
 
 extension Flo {
 
-    public func setDoubles(_ nameDoubles: [(String,Double)]) {
-        guard let exprs else { return err("exprs == nil")}
-        let nameAny = exprs.nameAny
-
-        for (name,double) in nameDoubles {
-            guard let val = nameAny[name] else {
-                return err("\(name) not found") }
-            if let scalar = val as? Scalar {
-                scalar.tween = double
-                scalar.value = double
-            } else {
-                nameAny[name] = Scalar(self,name,double)
-            }
-        }
-        func err(_ msg: String) {
-            //PrintLog("⁉️ Flo::setDoubles \(path()) \(msg)")
-        }
-    }
-
-    //TODO: only used by NodeVm:: var spotlight: Bool {...}
+    //.... TODO: only used by NodeVm:: var spotlight: Bool {...}
     public func setVal(_ name: String,
                        _ value: Double,
                        _ options: SetOptions,

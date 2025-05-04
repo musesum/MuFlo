@@ -121,14 +121,14 @@ Each node may have a value of: scalar, expression, or string
 ```c
 a (1)            // scalar with an initial value of 1
 b (0…1)          // scalar that ranges between 0 and 1
-c (0…127~1)      // scalar between 0 and 127, defaulting to 1
+c (0…127=1)      // scalar between 0 and 127, defaulting to 1
 d ("yo")         // a string value "yo"
 e (x 0…1, y 0…1) // an expression (see below)
 ```
 Flo automatically remaps scalar ranges, given the nodes `b` & `c`
 ```c 
 b (0…1)       // range 0 to 1, with initial value of 0
-c (0…127~1)   // range 0 to 127, with a default value 1
+c (0…127=1)   // range 0 to 127, with a default value 1
 b (<> c)      // synchronize b and c and auto-remap values
 ```
 When the value of `b` is changed to `0.5` it activates `c` and remaps its value to `63`;
@@ -205,12 +205,12 @@ func (a: Type) -> Type { ... }
 ```
 The difference is that, unlike C, each Flo node may have multiple inputs and outputs of different types. Here's a snippet from menu.flo.h
 ```c
-repeat (xy, x -1…1~0, y -1…1~0,
+repeat (xy, x -1…1=0, y -1…1=0,
         <> pipe˚.repeat,
-        -> (midi.cc.skypad.repeatX(val = x),
-            midi.cc.skypad.repeatY(val = y)),
+        -> (midi.cc.skypad.repeatX(val: x),
+            midi.cc.skypad.repeatY(val: y)),
         ^- sky.main.anim)
-mirror (xy, x 0…1~0, y 0…1~0,
+mirror (xy, x 0…1=0, y 0…1=0,
         <> pipe˚.mirror,
         ^- sky.main.anim)
 ```
@@ -222,7 +222,7 @@ An expression is a series of named values and conditionals; they are expessed to
 ```c
 a (x 1, y 2)          // x and y are sent together as a tuple
 b (x 0…1, y 0…1)      // can contain ranges
-c (x 0…1~1, y 0…1~1)  // and default values
+c (x 0…1=1, y 0…1=1)  // and default values
 ```
 A receiver may capture a subset of a send event
 ```c
@@ -241,7 +241,7 @@ i (x in -1…3, y 0, <- z)  // z! activates j(x 1, y 2)
 Here is mapping of MIDI musical notes, where `row` maps notes on a 12-tone scale, and `col` maps each octave:
 
 ```c
-grid (row = note % 12, col = note / 12, <- midi(note 0_127))
+grid (row: note % 12, col: note / 12, <- midi(note 0_127))
 ```
 Note the  `0_127`  range in  `midi(note 0_127)`. MIDI notes numbers are integers. Using 0…127 would not evenly rescale ranges.
 
@@ -289,7 +289,7 @@ At the foundation of an expression is a [Name: Any] dictionary. Most of the Any'
 draw (on 1) {
     in (tex, <- cell.out)
     out (tex, archive)  // save snapshot of drawing surface
-    shift (buf, x 0…1~0.5,  y 0…1~0.5)
+    shift (buf, x 0…1=0.5,  y 0…1=0.5)
 cell (on 1) {
     fake (tex, <- draw.out)
     real (tex, <- (draw.out, camera.out))
@@ -382,7 +382,7 @@ Let's say, for example
   - whereupon, Zha broadcasts a `*(on 0)` to all of its siblings
   - including itself, but since Zha sent the message, 
   - it ignores its own message, and breaks the loop
-  - thus, keeping its `(on = 1)`  
+  - thus, keeping its `(on: 1)`  
   
 So, twisting one of Zha's version control will auto-solo Zha. 
 
@@ -523,7 +523,7 @@ to this
 
 The reason is that multiple edges don't play nice with auto-indentation. Consider this snippet form menu.flo.h:
 ```
- repeat (xy, x -1…1~0, y -1…1~0,
+ repeat (xy, x -1…1=0, y -1…1=0,
          <> pipe˚.repeat,
          -> (midi.cc.skypad.repeatX(val x),
              midi.cc.skypad.repeatY(val y)),

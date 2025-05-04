@@ -48,11 +48,11 @@ public extension String {
             .lowercased()
     }
 
-    func padEqualSign() -> String {
-        if self.hasSuffix("= ") { return ""  }
-        if self.hasSuffix("=")  { return " " }
-        else                    { return " = "}
-    }
+//    func padEqualSign() -> String {
+//        if self.hasSuffix("= ") { return ""  }
+//        if self.hasSuffix("=")  { return " " }
+//        else                    { return " = "}
+//    }
     func padColonSign() -> String {
         if self.hasSuffix(": ") { return ""  }
         if self.hasSuffix(":")  { return " " }
@@ -145,9 +145,9 @@ public extension String {
     ///
     func splitWild(_ wild: String) -> (String, String, String) {
 
-        var prefix    = "" // a in a~b
-        var wildcard  = "" // ~ in a~b
-        var suffix    = "" // b in a~b
+        var prefix    = "" 
+        var wildcard  = "" 
+        var suffix    = "" 
 
         // get non wildcard chars for prefix
         var i = 0

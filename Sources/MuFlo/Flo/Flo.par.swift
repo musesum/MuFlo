@@ -8,7 +8,7 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
         value := (name scalar | scalar | name exprOp | exprOp | name | quote | tooltip)+ {
             scalar := (range | num) (origin | now)* {
                 range  := num rangeOp num
-                origin := "~" num
+                origin := "=" num
                 now    := ":" num
             }
             rangeOp := '(\.\.\.|…|_)'

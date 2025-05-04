@@ -5,7 +5,7 @@ TODO: Blocked was remove -- maybe need to put back in? Test with MIDI
 A flo graph of repeating tiles:
 
 ```c
-model.canvas.tile.repeat (x -1…1~0, y -1…1~0)
+model.canvas.tile.repeat (x -1…1=0, y -1…1=0)
 >> (midi.cc.skypad.repeatX(val x)
     midi.cc.skypad.repeatY(val y))
 ^ sky.main.anim⚡️
@@ -21,8 +21,8 @@ midi {
     output.controller << cc.skypad˚.
 }
 shader {
-    compute.tile.repeat  (x -1…1~0, y -1…1~0)
-    render.flatmap.repeat(x -1…1~0, y -1…1~0)
+    compute.tile.repeat  (x -1…1=0, y -1…1=0)
+    render.flatmap.repeat(x -1…1=0, y -1…1=0)
 }
 ```
 

@@ -23,15 +23,15 @@ b( % 4) <> a      /// will filters input as `a modulo 4`
 c( / 2) <> a      /// will filter input as `a divide by 2`
 
 √ a!               /// `!`activates `a`, let's see what happens
-a(10) => b( % 2 = 2)    /// `a` activates `b` as `10 % 4` assigned as `2`
-a(10) => c( / 2 = 5)    /// and activates `c` as `10 / 2` assigned as `5`
+a(10) => b( % 2 : 2)    /// `a` activates `b` as `10 % 4` assigned as `2`
+a(10) => c( / 2 : 5)    /// and activates `c` as `10 / 2` assigned as `5`
 
 √ b!               /// let's see what happens when we try to activate `b`
 b(2) => a(2)        /// `b` activates `a`, which assigns a `2`, and
 a(2) => c(/2=1)     /// `a` activates `c / 2` assigned as `1`
 
-√ a=10, b=2, c=5   ///a let backtrack to the previous values
-a(10), b(%4=2), c(/2=5)
+√ a: 10, b: 2, c: 5   ///a let backtrack to the previous values
+a(10), b(%4: 2), c(/2: 5)
 
 /// notice that we only assigned values, and not
 /// definitions or links. more on that later.
@@ -45,11 +45,11 @@ a(5) => b(%4=1)   /// `a` activate `b % 4` assigned as `1`
 
 /// But, we can still get into trouble, let's add an edge
 √ b <> c           /// add another edge to  `c`
-b(%4=1) <> (a,c)    /// now `b` is connected to both `a` and `c`
+b(%4: 1) <> (a,c)    /// now `b` is connected to both `a` and `c`
 
 √ a!               /// activate `a`
-a(5) => b(%4=1)     /// `a` activates `b % 4`, same as before
-a(5) => c(/2=2.5)   /// `a` which activates `c`, but
+a(5) => b(%4: 1)     /// `a` activates `b % 4`, same as before
+a(5) => c(/2: 2.5)   /// `a` which activates `c`, but
 b(1) ⁉️> c          /// `b`is blocked from activating `b`
 
 /// so which value is assigned to `c`? depends on whether `a` or `b`
@@ -71,7 +71,7 @@ b >> c
 √ c >> a       /// and the same for `c` to `a`
 c >> a
 
-√ a = 10        /// and assign 10 to a, activating `a`
+√ a : 10        /// and assign 10 to a, activating `a`
 a(10) => b(2)   /// whereupon, `a` activates `b` and
 b(2)  => c(1)   /// `b` activates `c` -- consistently.
 
@@ -79,7 +79,7 @@ b(2)  => c(1)   /// `b` activates `c` -- consistently.
 a(10) >> b      /// type `a`s name with a `?` to return the result
 
 √ b?
-b(%4 = 2) >> c     /// `b` shows both its and a's declaration
+b(%4 : 2) >> c     /// `b` shows both its and a's declaration
 
 √ *            /// list everthing at this level
 a, b, c
@@ -132,8 +132,8 @@ e { d { a, b, c } }
     e {
         d <> (.a, .b, .c) {
             a(10) <> .. >> b << c
-            b(%4=2) <> .. >> c << a
-            c(/2=1) <> .. >> a << b
+            b(%4: 2) <> .. >> c << a
+            c(/2: 1) <> .. >> a << b
         }
     }
 }
@@ -156,8 +156,8 @@ d { a, b, c } }
 √ {
     d <> (.a, .b, .c) {
         a(10) <> .. >> b << c
-        b(%4=2) <> .. >> c << a
-        c(/2=1) <> .. >> a << b
+        b(%4: 2) <> .. >> c << a
+        c(/2: 1) <> .. >> a << b
     }
 }
 /// notice that links are relative and thus preserved
@@ -170,13 +170,13 @@ d { a, b, c } }
 {               /// values and edges are preserved
     d <> (.a, .b, .c) {
         a(10)   <> .. >> b
-        b(%4=2) <> .. >> c
-        c(/2=1) <> .. >> a
+        b(%4: 2) <> .. >> c
+        c(/2: 1) <> .. >> a
     }
     f : d {
         a(10)   <> .. >> b
-        b(%4=2) <> .. >> c
-        c(/2=1) <> .. >> a
+        b(%4: 2) <> .. >> c
+        c(/2: 1) <> .. >> a
     }
 }
 
@@ -187,13 +187,13 @@ d.a, d.b, d.c, f.a, f.b, f.c
 {
     d {
         a(10)
-        b(%4=2)
-        c(/2=1)
+        b(%4: 2)
+        c(/2: 1)
     }
     f : d {
         a(10)
-        b(%4=2)
-        c(/2=1)
+        b(%4: 2)
+        c(/2: 1)
     }
 }
 √ ˚˚--() /// and for simplicy sake, let remove the values

@@ -25,7 +25,7 @@ public enum EvalOp: String {
     case div     = "/"
     case mod     = "%"
     case comma   = ","
-    case assign  = "="
+    case assign  = ":"
 
     public init(_ op: String) { self = EvalOp(rawValue: op) ?? .none }
 }
