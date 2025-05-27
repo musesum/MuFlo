@@ -2,13 +2,9 @@
 
 import Foundation
 import Metal
-
-
-import Metal
+#if canImport(UIKit)
 import UIKit
-
-import Metal
-import UIKit
+#endif
 
 public func textureToPngData(_ tex: MTLTexture) -> Data? {
     let width = tex.width

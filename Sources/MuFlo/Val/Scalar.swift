@@ -207,14 +207,13 @@ public class Scalar: FloVal {
                 if from.scalarOps.rangea {
                     from.minim = min(from.minim, from.value)
                     from.maxim = max(from.maxim, from.value)
-
                 }
                 if self.scalarOps.rangea {
                     self.minim = min(self.minim, from.minim)
                     self.maxim = max(self.maxim, from.maxim)
                 }
-                PrintLog("*** from: \(from.minim.digits(-2)) …\(from.maxim.digits(-2)) = \(from.value.digits(-2)) [\(from.scalarOps.description)] name: \(from.flo.name) id: \(from.flo.id)")
-                PrintLog("*** self: \(self.minim.digits(-2)) …\(self.maxim.digits(-2)) = \(self.value.digits(-2)) [\(self.scalarOps.description)] name: \(flo.name) id: \(flo.id)")
+                PrintLog("🔳 from: \(from.minim.digits(-2)) …\(from.maxim.digits(-2)) = \(from.value.digits(-2)) [\(from.scalarOps.description)] name: \(from.flo.name) id: \(from.flo.id)")
+                PrintLog("🔳 self: \(self.minim.digits(-2)) …\(self.maxim.digits(-2)) = \(self.value.digits(-2)) [\(self.scalarOps.description)] name: \(flo.name) id: \(flo.id)")
             }
             /// both have a range
             if self.scalarOps.hasRange, from.scalarOps.hasRange {

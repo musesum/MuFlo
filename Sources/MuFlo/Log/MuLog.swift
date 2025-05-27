@@ -48,7 +48,7 @@ public func TimeLog(_ key: String,
                     interval: TimeInterval = 0,
                     _ body: (()->())?) {
     
-#if DEBUG
+#if true || DEBUG
     MuLog.TimeLog(key, interval: interval, body)
 #endif
 }
