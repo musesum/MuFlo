@@ -37,6 +37,7 @@ public class DoubleBuffer<Item> {
         guard var delegate else { return false }
 
         lock.lock()
+        
         guard bufs[indexNow].count > 0 else {
             lock.unlock()
             return false
