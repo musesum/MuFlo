@@ -9,7 +9,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .branch("development")),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.0")),
-        .package(url: "https://github.com/apple/swift-numerics",  .upToNextMajor(from: "1.0.0"))
+        .package(url: "https://github.com/apple/swift-numerics",  .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0")
     ],
 
     targets: [
@@ -18,6 +19,7 @@ let package = Package(
                     .product(name: "Numerics", package: "swift-numerics"),
                     .product(name: "Collections", package: "swift-collections"),
                     .product(name: "ZIPFoundation", package: "ZIPFoundation"),
+                    .product(name: "NIO", package: "swift-nio"),
                     ],
                 resources: [.process("Resources")]),
         .testTarget(name: "MuFloTests", dependencies: ["MuFlo"]),

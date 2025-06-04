@@ -9,24 +9,25 @@ public protocol NextFrameDelegate {
 public class NextFrame {
     private var lock = NSLock()
     private var preferredFps = 60
-    private var displayLink: CADisplayLink?
+    private var displayLink: CADisplayLink!
     private var delegates = [Int: NextFrameDelegate]()
 
     public var betweenFrames = [(() -> Void)?]()
     public var fps: TimeInterval { TimeInterval(preferredFps) }
     public var pause = false
+    public var interval: CFTimeInterval = 0
 
     public init() {
         displayLink = CADisplayLink(target: self, selector: #selector(nextFrame))
-        displayLink?.preferredFramesPerSecond = preferredFps
-        displayLink?.add(to: RunLoop.current, forMode: .common)
+        displayLink.preferredFramesPerSecond = preferredFps
+        displayLink.add(to: RunLoop.current, forMode: .common)
     }
 
     public func updateFps(_ newFps: Int?) {
         if let newFps,
            preferredFps != newFps {
             preferredFps = newFps
-            displayLink?.preferredFramesPerSecond = preferredFps
+            displayLink.preferredFramesPerSecond = preferredFps
         }
     }
 
@@ -59,6 +60,9 @@ public class NextFrame {
     }
     @objc public func nextFrame(force: Bool = false) -> Bool  {
         if !force && pause { return false }
+
+        self.interval = displayLink.targetTimestamp - displayLink.timestamp
+
         goBetweenFrames()
         for (key,delegate) in delegates {
             if delegate.goFrame() == false {
