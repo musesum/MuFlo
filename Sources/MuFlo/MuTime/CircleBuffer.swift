@@ -3,24 +3,24 @@
 import Foundation
 import NIOCore
 
-public enum BufferType {
-    case local
-    case remote
+public enum BufType {
+    case localBuf
+    case remoteBuf
 }
 
-public enum FlushState {
-    case done
-    case `continue`
-    case wait
+public enum BufState {
+    case doneBuf
+    case nextBuf
+    case waitBuf
 }
 
 public protocol CircleBufferDelegate {
     associatedtype Item
-    mutating func flushItem<Item>(_ item: Item, _ type: BufferType) -> FlushState
+    mutating func flushItem<Item>(_ item: Item, _ type: BufType) -> BufState
 }
 
 public class CircleBuffer<Item> {
-    private var buffer: CircularBuffer<(Item, BufferType)>
+    private var buffer: CircularBuffer<(Item, BufType)>
     private let capacity: Int
     private var lock = NSLock()
     public var delegate: (any CircleBufferDelegate)?
@@ -45,16 +45,16 @@ public class CircleBuffer<Item> {
         }
     }
     
-    public func addItem(_ item: Item, bufferType: BufferType) {
+    public func addItem(_ item: Item, bufType: BufType) {
         lock.lock()
         defer { lock.unlock() }
-        buffer.append((item, bufferType))
+        buffer.append((item, bufType))
     }
     
-    public func flushBuf() -> FlushState {
-        guard var delegate else { return .continue }
+    public func flushBuf() -> BufState {
+        guard var delegate else { return .nextBuf }
         
-        var state: FlushState = .continue
+        var state: BufState = .nextBuf
         
         lock.lock()
         defer { lock.unlock() }
@@ -67,9 +67,9 @@ public class CircleBuffer<Item> {
             lock.lock()
             
             switch state {
-            case .done, .continue:
+            case .doneBuf, .nextBuf:
                 _ = buffer.removeFirst()
-            case .wait:
+            case .waitBuf:
                 return state // Stop processing remaining items
             }
         }
@@ -79,7 +79,7 @@ public class CircleBuffer<Item> {
     internal func bufferLoop() {
         Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { timer in
             let state = self.flushBuf()
-            if state == .done {
+            if state == .doneBuf {
                 timer.invalidate()
             }
         }
