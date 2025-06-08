@@ -172,7 +172,7 @@ FloPlugin:: setTween
     flo.exprs.nameAny.values<scalar> twe += delta
     flo.activate🚦
 
-MuNodeVm::maybeTapLeaf()
+MuNodeVm::updateNodeValue()
     leafVm.modelFlo.activate(visit)🚦
 __________________________________________________________
 

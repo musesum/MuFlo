@@ -75,6 +75,9 @@ public class Visitor {
         lock.unlock()
         return visited || blocking
     }
+    public func isRemote() -> Bool {
+        return type.has(.remote)
+    }
     public func isLocal() -> Bool {
         return !type.has(.remote)
     }

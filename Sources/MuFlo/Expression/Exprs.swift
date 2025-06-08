@@ -176,7 +176,7 @@ public class Exprs: FloVal {
         }
     }
 
-    public func setOrigin(_ setOps: SetOps, _ visit: Visitor) {
+    public func setOrigin(_ visit: Visitor) {
         var nameVals = [(String,Double)]()
         if nameAny.count > 0 {
             for (name,any) in nameAny {
@@ -185,12 +185,12 @@ public class Exprs: FloVal {
                 }
             }
             if nameVals.count > 0 {
-                setFromAny(nameVals, setOps, visit)
+                setFromAny(nameVals, [], visit)
             }
         }
     }
 
-    public func setPrior(_ setOps: SetOps, _ visit: Visitor) {
+    public func setPrior(_ visit: Visitor) {
         var nameVals = [(String,Double)]()
         if nameAny.count > 0 {
             for (name,any) in nameAny {
@@ -199,7 +199,7 @@ public class Exprs: FloVal {
                 }
             }
             if nameVals.count > 0 {
-                setFromAny(nameVals, setOps, visit)
+                setFromAny(nameVals, [], visit)
             }
         }
     }
