@@ -430,6 +430,8 @@ extension Flo { // + find
         return Flo(path + "?")
     }
 
+    // this closure is for sharing any? binary,
+    // such as a metal textures or joint˚ handpose
     public func superBindPath(_ path: String) -> Flo? {
 
         if let flo = superBind(path) {
@@ -437,11 +439,11 @@ extension Flo { // + find
             flo.soloClosure { flo, visit in
 
                 if let fromExprs = visit.from?.exprs,
-                   let toExprs = self.exprs {
+                   let selfExprs = self.exprs {
 
-                    for name in toExprs.nameAny.keys {
+                    for name in selfExprs.nameAny.keys {
                         if let fromAny = fromExprs.nameAny[name] {
-                            toExprs.nameAny[name] = fromAny
+                            selfExprs.nameAny[name] = fromAny
                         }
                     }
                 }

@@ -24,7 +24,7 @@ public class Flo {
     var pathRefs: [Flo]?            /// `b` in `a.b(<> c)` for `a.b.c a.b(<> c)
     var edgeDefs = EdgeDefs()       /// `b` and `c` in `a(<-(b c)`
     var floEdges = [String: Edge]() /// some edges are defined by another Flo
-    var closures = [FloVisitor]()   /// during activate call a list of closures
+    var closures = [FloVisitor]()   /// activation calls closures
     var comments = FloComments()
     var plugDefs: EdgeDefArray?     /// class reference to [EdgeDef]
     var plugins = [EdgePlugin]()
@@ -234,6 +234,7 @@ public class Flo {
     public func addClosure(_ closure: @escaping FloVisitor) {
         closures.append(closure)
     }
+    /// shared by many flos to change single source of truth
     public func soloClosure(_ closure: @escaping FloVisitor) {
         if closures.isEmpty {
             closures.append(closure)
@@ -308,12 +309,30 @@ extension Flo {
            let mergeFlo = mergeRoot.hashFlo.dict[hash],
            let mergeExprs = mergeFlo.exprs {
 
-            NoDebugLog { P("\(self.scriptOnlyFlo()) <= \(mergeFlo.scriptOnlyFlo())") }
 
+            if mergeFlo.name == "cubemap" ||
+                mergeFlo.name == "mixcube"
+            { //.....
+                DebugLog {
+                    var ss = "??"
+                    var mm = "??"
+                    if let sx = exprs.nameAny["x"] as? Scalar {
+                        ss = "\(sx.value.digits(2))"
+                    }
+                    if let mx = mergeExprs.nameAny["x"] as? Scalar {
+                        mm = "\(mx.value.digits(2))"
+                    }
+                    P("\(mergeFlo.path(9)) \(ss) <= \(mm)")
+                }
+            }
+            let noTweens = plugins.isEmpty
             for (key,value) in mergeExprs.nameAny {
                 if let mergeScalar = value as? Scalar,
                    let selfScalar = exprs.nameAny[key] as? Scalar {
                     selfScalar.value = mergeScalar.value
+                    if noTweens {
+                        selfScalar.tween = selfScalar.value
+                    }
                     merged = true
                 }
             }
@@ -326,14 +345,10 @@ extension Flo {
     }
     func updateClosurePlugins() {
         for closure in closures {
-            closure(self, Visitor(0))
+            closure(self, Visitor(0, .model))
         }
         for plugin in plugins {
-            plugin.startPlugin(id, Visitor(0))
+            plugin.startPlugin(id, Visitor(0, .model))
         }
-    }
-    func activateAllValues(_ setOps: SetOps) {
-        activate(setOps, Visitor(0))
-        children.forEach { $0.activateAllValues(setOps) }
     }
 }

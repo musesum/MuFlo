@@ -7,8 +7,8 @@ struct MultiTapButton<Label>: View where Label: View {
     let tapOnce: () -> Void
     let tapTwice: () -> Void
     let longPress: () -> Void
-    let duration: Double = 0.5 // Duration for single tap or long press
-    let threshold: CGFloat = 8 // Threshold for passing gesture to superview
+    let duration: Double = 0.25 // Duration for single tap or long press
+    let threshold: CGFloat = 20 // Threshold for passing gesture to superview
 
     init(tapOnce: @escaping () -> Void,
          tapTwice: @escaping () -> Void,
@@ -24,8 +24,10 @@ struct MultiTapButton<Label>: View where Label: View {
     @State private var dragOffset: CGSize = .zero
     @State private var isScrolling = false
     @State private var isTriggered = false
-    @State private var tapTime = TimeInterval(0)
-    @State private var timer: Timer?
+    @State private var lastTapTime = TimeInterval(0)
+    @State private var longPressTimer: Timer?
+    @State private var singleTapTimer: Timer?
+    @State private var touchStartTime = TimeInterval(0)
 
     var body: some View {
         label
@@ -39,31 +41,43 @@ struct MultiTapButton<Label>: View where Label: View {
                             return
                         }
 
-                        startTimer() // Start the combined timer
+                        // Record touch start time for long press detection
+                        if touchStartTime == 0 {
+                            touchStartTime = Date().timeIntervalSince1970
+                            startLongPressTimer()
+                        }
 
                         dragOffset = value.translation
                         // Check if threshold has been exceeded
                         if abs(value.translation.height) > threshold || abs(value.translation.width) > threshold {
                             isScrolling = true
-                            cancelTimer()
+                            cancelTimers()
                         }
                     }
                     .onEnded { _ in // end drag
+                        cancelLongPressTimer()
+                        
                         if isTriggered || isScrolling {
                             resetState()
                             return
                         }
 
                         let timeNow = Date().timeIntervalSince1970
-                        let deltaTime = timeNow - tapTime
+                        let timeSinceLastTap = timeNow - lastTapTime
 
-                        if deltaTime < duration {
+                        // Check for double tap
+                        if timeSinceLastTap < duration {
+                            cancelSingleTapTimer()
                             tapTwice()
                             isTriggered = true
                             resetState()
                         } else {
-                            tapTime = timeNow
+                            // Schedule single tap with delay to wait for potential double tap
+                            lastTapTime = timeNow
+                            startSingleTapTimer()
                         }
+                        
+                        touchStartTime = 0
                     }
             )
             .onDisappear {
@@ -71,35 +85,45 @@ struct MultiTapButton<Label>: View where Label: View {
             }
     }
 
-    private func startTimer() {
-
-        if timer != nil { return }
-        timer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false)  {_ in
-
-            cancelTimer()
-
-            if isScrolling { return }
-            isTriggered = true
-
-            if tapTime > 0 {
-                tapOnce()
-            } else {
+    private func startLongPressTimer() {
+        longPressTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { _ in
+            if !isScrolling && !isTriggered {
+                isTriggered = true
                 longPress()
+                cancelSingleTapTimer()
+            }
+        }
+    }
+    
+    private func startSingleTapTimer() {
+        singleTapTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { _ in
+            if !isScrolling && !isTriggered {
+                isTriggered = true
+                tapOnce()
             }
         }
     }
 
-    // Cancel the single tap/long press timer
-    private func cancelTimer() {
-        timer?.invalidate()
-        timer = nil
+    private func cancelLongPressTimer() {
+        longPressTimer?.invalidate()
+        longPressTimer = nil
+    }
+    
+    private func cancelSingleTapTimer() {
+        singleTapTimer?.invalidate()
+        singleTapTimer = nil
+    }
+    
+    private func cancelTimers() {
+        cancelLongPressTimer()
+        cancelSingleTapTimer()
     }
 
     // Reset state for the next gesture interaction
     private func resetState() {
-
-        cancelTimer()
-        tapTime = 0
+        cancelTimers()
+        lastTapTime = 0
+        touchStartTime = 0
         dragOffset = .zero
         isScrolling = false
         isTriggered = false

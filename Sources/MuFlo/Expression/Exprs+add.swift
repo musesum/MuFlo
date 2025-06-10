@@ -9,9 +9,9 @@ extension Exprs { // + add
         let evalAny = EvalAny(scalar: scalar)
         evalAnys.append(evalAny)
         if let name {
-            if [.none,.comma, .In, .EQ].contains(lastOp) {
+            if [.none, .comma, .In, .EQ].contains(lastOp) {
                 nameAny[name] = scalar
-            } 
+            }
         } else {
             nameAny[anonKey] = scalar
         }

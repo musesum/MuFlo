@@ -4,7 +4,7 @@ import QuartzCore
 
 extension Flo {
 
-    //.... TODO: only used by NodeVm:: var spotlight: Bool {...}
+    //... TODO: only used by NodeVm:: var spotlight: Bool {...}
     public func setVal(_ name: String,
                        _ value: Double,
                        _ setOps: SetOps,
@@ -13,13 +13,10 @@ extension Flo {
            let scalar = exprs.nameAny[name] as? Scalar {
 
             if scalar.value != value {
-
                 scalar.value = value
-                if setOps.sneak { return }
+                if setOps.sneak   { return }
                 if setOps.changed { activate(setOps, visit) }
-            } else if setOps.fire {
-                activate(setOps, visit)
-            }
+            } else if setOps.fire { activate(setOps, visit) }
         }
     }
 

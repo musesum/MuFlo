@@ -18,6 +18,7 @@ final class MuFloTests: XCTestCase {
     func testDefaultValues() { headline(#function)
         Par.printParsin = true
         var err = 0
+        err += test("a (z : 1)")
         err += test("a (z 0_127 : 1)")
         err += test("w (x 0, y 0)")
         err += test("b (0)")
