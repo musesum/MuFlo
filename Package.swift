@@ -7,7 +7,7 @@ let package = Package(
     platforms: [.iOS(.v17)],
     products: [.library(name: "MuFlo", targets: ["MuFlo"])],
     dependencies: [
-        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .branch("development")),
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", branch: "development"),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.0")),
         .package(url: "https://github.com/apple/swift-numerics",  .upToNextMajor(from: "1.0.0")),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0")
