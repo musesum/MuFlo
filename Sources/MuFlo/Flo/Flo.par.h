@@ -5,7 +5,7 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
     base := ":" (path | name)
     exprs := "(" (edge | value)+ ")" {
         value := (name scalar | scalar | name exprOp | exprOp | name | quote | tooltip)+ {
-            scalar := (((range | num) (origin | now)*) | now) {
+            scalar := (range | num | now) (origin | now)* {
                 range  := num rangeOp num
                 origin := "=" num
                 now    := ":" num
@@ -14,7 +14,7 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
             exprOp  := '(in|<=|>=|==|<[^>\-:!]|>|[*:=/%,+-,])'
             quote   := '"([^"]*)"'
             tooltip := ''([^']*)''
-                            num     := '([+-]*\d*\.?\d+(e[+-]?\d+)?)'
+            num     := '([+-]*\d*\.?\d+(e[+-]?\d+)?)'
         }
         edge := edgeOp (edgePar | edgeVal) {
             edgeOp  := '(\^-|<-|->|<>|<:>|:>|<:|<!>|<!|!>)'
