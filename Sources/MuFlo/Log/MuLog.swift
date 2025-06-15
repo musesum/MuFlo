@@ -38,7 +38,7 @@ public class MuLog {
     }
     
     /// log when debug
-    public static func PrintLog(_ title: String) {
+    public static func PrintLog(_ title: String, terminator: String = "\n") {
         print("\(timeElapsed().digits(2)): \(title)")
     }
 }

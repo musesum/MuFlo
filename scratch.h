@@ -1,21 +1,19 @@
-| timeNow send rcvd deltaTime    timeLag               timeNext             |
-|     0     A    -                                                          |
-|     1                                                                     |
-|     2     B    A    2                             -> 2+2 = 4              |
-|     3     C    B    1      (2.0+1.0)/2  = 1.50    -> 3+1.50 = 4.5         |
-|     4          C    1      (1.5+1.0)/2  = 1.25    -> 4+1.25 = 5.25        |
-|     5     D    -                                                          |
-|     6     E    D    1      (1.25+1)/2   = 1.125   -> 6+1.24 = 7.25        |
-|     7          -                                                          |
-|     8     F    E    2      (1.125+2)/2  = 1.5625  -> 8+1.5625 = 9.5625    |
-|     9     G    F    1      (1.5625+1)/2 = 1.28125 -> 9+1.28125 = 10.28125 |
+Here is a link to the WWDC25 talk: https://developer.apple.com/videos/play/wwdc2025/301
+```
+sky ('synthesizer') {
+    main ('main controls') {
+        run (x 0…1=1 : 0.2 ,'run shader')
+        anim(x 0…1=0.5 : 0.1 ,'animation transition speed')
+    }
+}
+```
 
-For the sake of simplicity, we are showing time as integers
-whereas `time` is really Date().timeIntervalSince1970
-`time` is shared between sender `send` and receiver `rcvd`
-each symbol A B C D E F G represent a distinct message
-`delta` is rcvd.time - send.time
-`timeLag` is is previous timeLag plus delta / 2
-`timeNext` time in which to process rcvd message is rcvd.time + timeLag
-
-
+here is a verbal description:
+```
+sky comment 'synthesizer'
+sky.main comment 'main controls'
+sky.main.run range 0 to 1 default 1 current value is 0.2 comment 'run shader’
+sky.main.anim range 0 to 1 default 0.5 current value is 0.1 comment 'animation transition speed'
+```
+The model may call a Tool to get the current range and value like so
+`currentValue("sky.main.run") -> (MinVal, MaxVal, NowVal) // returns (0, 1, 0.2)
