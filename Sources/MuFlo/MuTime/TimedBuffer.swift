@@ -142,7 +142,6 @@ public class TimedBuffer<Item: TimedItem> {
                             P("⚡ Backlog: \(currentBacklog.digits(3))s, catch-up: \(dynamicCatchUpRate.digits(2))")
                         }
                     }
-                    
                     // Apply catch-up rate
                     let adjustedDelta = originalDelta * dynamicCatchUpRate
                     
