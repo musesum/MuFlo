@@ -3,6 +3,15 @@ import UIKit
 public extension UITouch.Phase {
     
     var done: Bool { return self == .ended || self == .cancelled }
+
+    var symbol: String {
+        switch self {
+        case .began : "ᴮ"
+        case .moved : "ᴹ"
+        case .ended : "ᴱ"
+        default     : "⁰"
+        }
+    }
 }
 
 public extension Int {

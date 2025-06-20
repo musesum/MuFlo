@@ -311,8 +311,7 @@ extension Flo {
 
 
             if mergeFlo.name == "cubemap" ||
-                mergeFlo.name == "mixcube"
-            { //.....
+                mergeFlo.name == "mixcube" {
                 DebugLog {
                     var ss = "??"
                     var mm = "??"
