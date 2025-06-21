@@ -53,9 +53,7 @@ public class CircleBuffer<Item> {
     
     public func flushBuf() -> BufState {
         guard var delegate else { return .nextBuf }
-        
-        var state: BufState = .nextBuf
-        
+
         lock.lock()
         defer { lock.unlock() }
         
@@ -63,25 +61,16 @@ public class CircleBuffer<Item> {
 
             let (item, type) = buffer.first!
             lock.unlock()
-            state = delegate.flushItem(item, type)
+            _ = delegate.flushItem(item, type)
             lock.lock()
-            
-            switch state {
-            case .doneBuf, .nextBuf:
-                _ = buffer.removeFirst()
-            case .waitBuf:
-                return state // Stop processing remaining items
-            }
+            _ = buffer.removeFirst()
         }
-        return state
+        return .doneBuf
     }
     
     internal func bufferLoop() {
         Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { timer in
-            let state = self.flushBuf()
-            if state == .doneBuf {
-                timer.invalidate()
-            }
+            _ = self.flushBuf()
         }
     }
 }

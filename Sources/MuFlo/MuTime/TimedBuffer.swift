@@ -100,8 +100,6 @@ public class TimedBuffer<Item: TimedItem> {
     
     public func flushBuf() -> BufState {
         guard var delegate else { return .nextBuf }
-        
-        var state: BufState = .nextBuf
         let timeNow = Date().timeIntervalSince1970
         
         lock.lock()
@@ -110,93 +108,97 @@ public class TimedBuffer<Item: TimedItem> {
         while !buffer.isEmpty {
             let (item, type) = buffer.first!
             
-            // Apply time lag check here in flushBuf instead of flushItem
             if type == .remoteBuf {
-                // First remote item - establish baseline delay
-                if baselineDelay == nil {
-                    baselineDelay = timeNow - item.time
-                    timeLag = baselineDelay ?? 0.2
-                    sessionStartTime = timeNow
-                    TimeLog(#function, interval: 4) {
-                        P("⏱️ timeLag: \(self.timeLag.digits(3))")
-                    }
-                }
-                
-                // Calculate when this item should be rendered
-                var targetRenderTime: TimeInterval
-                
-                // Calculate current backlog
-                let currentBacklog = timeNow - item.time
-                
-                if let lastItemTime,
-                   let lastRealTime {
-                    // Calculate original time delta between items
-                    let originalDelta = item.time - lastItemTime
-                    
-                    // Adjust catch-up rate based on backlog
-                    var dynamicCatchUpRate = catchUpRate
-                    if currentBacklog > maxBacklog {
-                        // More aggressive catch-up when backlog exceeds limit
-                        dynamicCatchUpRate = min(0.5, catchUpRate * (maxBacklog / currentBacklog))
-                        TimeLog(#function, interval: 4) {
-                            P("⚡ Backlog: \(currentBacklog.digits(3))s, catch-up: \(dynamicCatchUpRate.digits(2))")
-                        }
-                    }
-                    // Apply catch-up rate
-                    let adjustedDelta = originalDelta * dynamicCatchUpRate
-                    
-                    // Schedule this item relative to last processed item
-                    targetRenderTime = lastRealTime + adjustedDelta
-                } else {
-                    // First item - use standard lag
-                    targetRenderTime = item.time + timeLag
-                }
-                
-                // Check if it's time to render
-                if timeNow < targetRenderTime {
+                if !shouldRender(item: item, type: type, timeNow: timeNow) {
                     return .waitBuf
                 }
-                
-                // Update tracking for next item
-                lastItemTime = item.time
-                lastRealTime = timeNow
-                
-                // Auto-adjust lag based on current delay
+                updateTimingState(item: item, timeNow: timeNow)
                 if autoAdjustLag {
                     let currentDelay = timeNow - item.time
-                    // More aggressive adjustment when negative lag or high backlog
-                    if timeLag < 0 || currentBacklog > maxBacklog {
-                        // Reset to current delay when things get out of sync
-                        timeLag = max(0.05, currentDelay)
-                        TimeLog(#function, interval: 4) {
-                            P("🔄 Reset timeLag to \(self.timeLag.digits(3))s (backlog: \(currentBacklog.digits(3))s)")
-                        }
-                    } else {
-                        // Gradually adjust timeLag towards current conditions
-                        timeLag = timeLag * 0.9 + currentDelay * 0.1
-                    }
+                    adjustTimeLag(currentDelay: currentDelay, currentBacklog: currentDelay)
                 }
             }
             
             lock.unlock()
-            state = delegate.flushItem(item, type)
+            let state = delegate.flushItem(item, type)
             lock.lock()
             
-            switch state {
-            case .doneBuf, .nextBuf:
+            if state != .waitBuf {
                 _ = buffer.removeFirst()
-                // Reset timing when done
-                if state == .doneBuf {
-                    lastItemTime = nil
-                    lastRealTime = nil
-                    baselineDelay = nil
-                    sessionStartTime = nil
-                }
-            case .waitBuf:
-                return state // Stop processing remaining items
+            }
+            if state == .doneBuf {
+                resetSession()
+                return state
             }
         }
-        return state
+        return .nextBuf
+    }
+    
+    // MARK: - Private Helpers
+    
+    /// Decide if the item should be rendered now based on timing logic
+    private func shouldRender(item: Item, type: BufType, timeNow: TimeInterval) -> Bool {
+        if type != .remoteBuf { return true }
+        let targetTime = calculateTargetRenderTime(for: item, type: type, timeNow: timeNow)
+        return timeNow >= targetTime
+    }
+    
+    /// Update internal timing state after processing an item
+    private func updateTimingState(item: Item, timeNow: TimeInterval) {
+        lastItemTime = item.time
+        lastRealTime = timeNow
+    }
+    
+    /// Adjust the timeLag dynamically to adapt to network conditions
+    private func adjustTimeLag(currentDelay: TimeInterval, currentBacklog: TimeInterval) {
+        if timeLag < 0 || currentBacklog > maxBacklog {
+            timeLag = max(0.05, currentDelay)
+            TimeLog(#function, interval: 4) {
+                P("🔄 Reset timeLag to \(self.timeLag.digits(3))s (backlog: \(currentBacklog.digits(3))s)")
+            }
+        } else {
+            timeLag = timeLag * 0.9 + currentDelay * 0.1
+        }
+    }
+    
+    /// Calculate the target time when the item should be rendered
+    private func calculateTargetRenderTime(for item: Item, type: BufType, timeNow: TimeInterval) -> TimeInterval {
+        guard type == .remoteBuf else { return timeNow }
+        
+        // Establish baseline delay if first remote item
+        if baselineDelay == nil {
+            baselineDelay = timeNow - item.time
+            timeLag = baselineDelay ?? 0.2
+            sessionStartTime = timeNow
+            TimeLog(#function, interval: 4) {
+                P("⏱️ timeLag: \(self.timeLag.digits(3))")
+            }
+        }
+        
+        let currentBacklog = timeNow - item.time
+        
+        if let lastItemTime, let lastRealTime {
+            let originalDelta = item.time - lastItemTime
+            var dynamicCatchUpRate = catchUpRate
+            if currentBacklog > maxBacklog {
+                dynamicCatchUpRate = min(0.5, catchUpRate * (maxBacklog / currentBacklog))
+                TimeLog(#function, interval: 4) {
+                    P("⚡ Backlog: \(currentBacklog.digits(3))s, catch-up: \(dynamicCatchUpRate.digits(2))")
+                }
+            }
+            let adjustedDelta = originalDelta * dynamicCatchUpRate
+            return lastRealTime + adjustedDelta
+        } else {
+            return item.time + timeLag
+        }
+    }
+    
+    /// Reset timing state for a new session
+    private func resetSession() {
+        lastItemTime = nil
+        lastRealTime = nil
+        baselineDelay = nil
+        sessionStartTime = nil
     }
     
     internal func bufferLoop() {
