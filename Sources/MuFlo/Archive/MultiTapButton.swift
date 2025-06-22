@@ -87,7 +87,7 @@ struct MultiTapButton<Label>: View where Label: View {
     }
 
     private func startLongPressTimer() {
-        longPressTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false, block: { @Sendable _ in
+        longPressTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false, block: { _ in
             DispatchQueue.main.async {
                 if !isScrolling && !isTriggered {
                     isTriggered = true
@@ -99,7 +99,7 @@ struct MultiTapButton<Label>: View where Label: View {
     }
     
     private func startSingleTapTimer() {
-        singleTapTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false, block: { @Sendable _ in
+        singleTapTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false, block: { _ in
             DispatchQueue.main.async {
                 if !isScrolling && !isTriggered {
                     isTriggered = true
@@ -134,4 +134,3 @@ struct MultiTapButton<Label>: View where Label: View {
         isTriggered = false
     }
 }
-

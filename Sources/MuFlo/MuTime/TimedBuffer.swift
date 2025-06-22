@@ -57,6 +57,7 @@ public protocol TimedItem {
 }
 
 public class TimedBuffer<Item: TimedItem> {
+    private let id = Visitor.nextId()
     private var buffer: CircularBuffer<(Item, BufType)>
     private let capacity: Int
     private var lock = NSLock()
@@ -83,10 +84,13 @@ public class TimedBuffer<Item: TimedItem> {
         defer { lock.unlock() }
         return buffer.count
     }
-    
+    deinit {
+        Panic.remove(id)
+    }
     public init(capacity: Int, internalLoop: Bool) {
         self.capacity = capacity
         self.buffer = CircularBuffer(initialCapacity: capacity)
+        Panic.add(id,self)
         if internalLoop {
             bufferLoop()
         }
@@ -208,5 +212,13 @@ public class TimedBuffer<Item: TimedItem> {
                 timer.invalidate()
             }
         }
+    }
+}
+extension TimedBuffer: PanicReset {
+    public func reset() {
+        lock.lock()
+        buffer.removeAll()
+        lock.unlock()
+        resetSession()
     }
 }
