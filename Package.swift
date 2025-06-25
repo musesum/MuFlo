@@ -4,7 +4,8 @@ import PackageDescription
 
 let package = Package(
     name: "MuFlo",
-    platforms: [.iOS(.v17)],
+    platforms: [.iOS(.v17),
+                .visionOS(.v2)],
     products: [.library(name: "MuFlo", targets: ["MuFlo"])],
     dependencies: [
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", branch: "development"),

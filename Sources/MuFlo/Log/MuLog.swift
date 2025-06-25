@@ -41,6 +41,33 @@ public class MuLog {
     public static func PrintLog(_ title: String, terminator: String = "\n") {
         print("\(timeElapsed().digits(2)): \(title)")
     }
+    
+    /// Allows for weak-object logging, so the closure is only called if the object is alive.
+    public static func TimeLog<Object: AnyObject>(
+        _ key: String,
+        of object: Object?,
+        interval: TimeInterval = 0,
+        _ body: @escaping (Object?) -> ()
+    ) {
+        let elapsedTime = timeElapsed()
+        // next time
+        if let timePrev = prevTime[key] {
+            let timeDelta = elapsedTime - timePrev
+            if timeDelta > interval {
+                print("\(elapsedTime.digits(2)): ", terminator: "")
+                if let object = object {
+                    body(object)
+                    prevTime[key] = elapsedTime
+                }
+            }
+        } else {
+            print("\(elapsedTime.digits(2)): ", terminator: "")
+            if let object = object {
+                body(object)
+                prevTime[key] = elapsedTime
+            }
+        }
+    }
 }
 
 /// log when debug
@@ -50,6 +77,18 @@ public func TimeLog(_ key: String,
     
 #if true || DEBUG
     MuLog.TimeLog(key, interval: interval, body)
+#endif
+}
+
+/// Allows for weak-object logging, so the closure is only called if the object is alive.
+public func TimeLog<Object: AnyObject>(
+    _ key: String,
+    of object: Object?,
+    interval: TimeInterval = 0,
+    _ body: @escaping (Object?) -> ()
+) {
+#if true || DEBUG
+    MuLog.TimeLog(key, of: object, interval: interval, body)
 #endif
 }
 

@@ -21,7 +21,7 @@ public class TimedBuffer<Item: TimedItem> {
     public var delegate: (any TimedBufferDelegate)?
     private var futureLag: TimeInterval = 1.00 // dynamic timelag for future
     private var minimumLag: TimeInterval = 0.20 // static minimum timelag
-    private var maximumLag: TimeInterval = 2.00
+    private var maximumLag: TimeInterval = 2.00 // stay within 2 second delay
     private var filterLag: Double = 0.95
 
     private var prevItem: Item?
@@ -112,8 +112,6 @@ public class TimedBuffer<Item: TimedItem> {
                 lock.lock()
                 _ = buffer.removeFirst()
                 lock.unlock()
-//                prevItem = item
-//                prevItemTime = item.time
             }
         }
         return .nextBuf
