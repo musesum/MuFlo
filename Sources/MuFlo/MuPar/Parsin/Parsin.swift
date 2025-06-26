@@ -6,7 +6,7 @@ import Foundation
 /// Parse a substring `sub` of string `str`
 public class Parsin {
 
-    static var traceMatch = false
+    nonisolated(unsafe) static var traceMatch = false
 
     var whitespace: String
     var str = ""     // original string

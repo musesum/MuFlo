@@ -6,7 +6,6 @@ import Foundation
 
 public class Scalar: FloVal {
 
-    public static let blank = Scalar(Flo(), "blank")
     public var scalarOps = ScalarOps(rawValue: 0)
     public var scalarState: ScalarState { ScalarState(self) }
 

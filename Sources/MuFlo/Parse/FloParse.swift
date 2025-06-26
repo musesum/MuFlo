@@ -2,6 +2,7 @@
 //  created by musesum on 3/10/19.
 
 import Foundation
+
 public class FloParse {
 
     public static let shared = FloParse()

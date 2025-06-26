@@ -3,7 +3,7 @@
 
 import Foundation
 
-public struct EdgeOptions: OptionSet {
+public struct EdgeOptions: OptionSet, Sendable {
 
     public let rawValue: Int
 

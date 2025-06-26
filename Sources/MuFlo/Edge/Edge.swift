@@ -3,7 +3,7 @@
 
 import Foundation
 
-public class Edge: Hashable {
+public class Edge: @MainActor Hashable {
     var id = Visitor.nextId()
     var edgeKey = "" // created with makeKey()
     var edgeOps = EdgeOptions()
@@ -13,7 +13,7 @@ public class Edge: Hashable {
     var edgeExpress: Exprs?
     var plugDefs: EdgeDefArray?  /// reference to EdgePlugin [EdgeDef] array
 
-    public static var LineageDepth = 99 
+    public static let LineageDepth = 99 
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(edgeKey)

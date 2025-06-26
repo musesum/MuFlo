@@ -7,22 +7,23 @@ public protocol PanicReset {
 }
 
 /// akin to MIDI panic which resets all buffers
+
 public class Panic {
-    public static let shared = Panic()
-    var delegates = [Int:PanicReset]()
+
+    static var delegates = [Int:PanicReset]()
 
     public static func reset() {
-        PrintLog("🫨 Panic count: \(shared.delegates.count)")
-        for delegate in shared.delegates.values {
+        PrintLog("🫨 Panic count: \(delegates.count)")
+        for delegate in delegates.values {
             delegate.reset()
         }
     }
     public static func add(_ id: Int, _ reset: PanicReset) {
-        shared.delegates[id] = reset
+        delegates[id] = reset
     }
     public static func remove(_ id: Int) {
 
-        shared.delegates.removeValue(forKey: id)
+        delegates.removeValue(forKey: id)
     }
 
 }

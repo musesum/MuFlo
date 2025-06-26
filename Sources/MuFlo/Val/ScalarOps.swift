@@ -9,7 +9,7 @@ import Foundation
 
  When assigning from another scalar range, the values are remapped to relative position with each respective range. So, a current value of 1 in range 0…2
  */
-public struct ScalarOps: OptionSet {
+public struct ScalarOps: OptionSet, Sendable {
     
     public static let ranged = ScalarOps(rawValue: 1 <<  1) // double m…n range
     public static let rangei = ScalarOps(rawValue: 1 <<  2) // integer m_n range
@@ -47,7 +47,7 @@ public struct ScalarOps: OptionSet {
 }
 extension ScalarOps: CustomStringConvertible {
 
-    static public var debugDescriptions: [(Self, String)] = [
+    static nonisolated(unsafe) public var debugDescriptions: [(Self, String)] = [
         (.ranged, "ranged" ),
         (.rangei, "rangei" ),
         (.rangea, "rangea" ),

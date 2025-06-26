@@ -2,7 +2,7 @@
 
 import Foundation
 
-public struct VisitType: OptionSet {
+public struct VisitType: OptionSet, Sendable{
 
     public let rawValue: Int
 
@@ -15,7 +15,7 @@ public struct VisitType: OptionSet {
     public static let tween  = VisitType(rawValue: 1 << 6) // 64
     public init(rawValue: Int = 0) { self.rawValue = rawValue }
 
-    static public var debugDescriptions: [(Self, String)] = [
+    static nonisolated(unsafe) public var debugDescriptions: [(Self, String)] = [
         (.bind,    "bind"  ),   // parsing in progress
         (.model,   "model" ),   // a non-user update
         (.canvas,  "canvas"),   // user touched a non-menu canvas
@@ -24,7 +24,7 @@ public struct VisitType: OptionSet {
         (.midi,    "midi"  ),   // from a midi device
         (.tween,   "tween" ),   // from an animataion
     ]
-    static public var logDescriptions: [(Self, String)] = [
+    static nonisolated(unsafe) public var logDescriptions: [(Self, String)] = [
         (.bind,    "􁀘"),
         (.model,   "􀬎"),
         (.canvas,  "􀏅"),

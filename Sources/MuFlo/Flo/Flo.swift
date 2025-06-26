@@ -11,6 +11,7 @@ import Metal
 /// which have the same exact graph namespace.
 public class HashFlo { var dict = [Int: Flo]() }
 public enum LogBind { case none, value, def }
+
 public class Flo {
 
     var id = Visitor.nextId()

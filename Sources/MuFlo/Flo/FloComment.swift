@@ -20,7 +20,6 @@ public class FloComment {
         return FloComment(type, name, text, index)
     }
 }
-
 public class FloComments {
 
     var comments = [FloComment]()

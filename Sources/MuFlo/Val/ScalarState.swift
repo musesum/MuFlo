@@ -2,7 +2,7 @@
 
 import Foundation
 
-public struct ScalarState: OptionSet {
+public struct ScalarState: OptionSet, Sendable {
 
     public static let onOrigin  = ScalarState(rawValue: 1 <<  1)
     public static let offOrigin = ScalarState(rawValue: 1 <<  2)

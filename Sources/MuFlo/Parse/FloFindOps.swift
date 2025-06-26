@@ -2,7 +2,7 @@
 
 import Foundation
 
-public struct FloFindOps: OptionSet {
+public struct FloFindOps: OptionSet, Sendable {
 
     public static let parents  = FloFindOps(rawValue: 1 << 0) // General type Scalar
     public static let children = FloFindOps(rawValue: 1 << 1) // General type Scalar
@@ -15,7 +15,7 @@ public struct FloFindOps: OptionSet {
     var children : Bool { contains(.children) }
     var makePath : Bool { contains(.makePath) }
 }
-public struct FloParset: OptionSet {
+public struct FloParset: OptionSet, Sendable {
 
     public static let value  = FloParset(rawValue: 1 << 0)
     public static let name   = FloParset(rawValue: 1 << 1)
@@ -28,7 +28,7 @@ public struct FloParset: OptionSet {
     public var rawValue: Int
     public init(rawValue: Int) { self.rawValue = rawValue }
 
-    static public var debugDescriptions: [(Self, String)] = [
+    static nonisolated(unsafe) public var debugDescriptions: [(Self, String)] = [
         (.value,  "value" ),
         (.name,   "name"  ),
         (.scalar, "scalar"),

@@ -4,6 +4,7 @@
 import Foundation
 
 /// Parse a script into a new graph, using static `Par.par` graph
+
 public class Par {
     public static let shared = Par()
     public static var printParsin = false

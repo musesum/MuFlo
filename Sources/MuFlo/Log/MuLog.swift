@@ -2,6 +2,7 @@
 
 import Foundation
 
+
 public class MuLog {
     
     static var logStart = TimeInterval(0)
@@ -71,6 +72,7 @@ public class MuLog {
 }
 
 /// log when debug
+
 public func TimeLog(_ key: String,
                     interval: TimeInterval = 0,
                     _ body: (()->())?) {
