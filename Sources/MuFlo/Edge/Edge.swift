@@ -3,7 +3,7 @@
 
 import Foundation
 
-public class Edge: @MainActor Hashable {
+public class Edge: Hashable {
     var id = Visitor.nextId()
     var edgeKey = "" // created with makeKey()
     var edgeOps = EdgeOptions()
