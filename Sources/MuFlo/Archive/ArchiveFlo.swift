@@ -118,7 +118,7 @@ open class ArchiveFlo: NSObject {
                let script = dropRoot(String(data: data, encoding: .utf8)) {
 
                 let mergeRoot = Flo("√")
-                if FloParse.shared.parseRoot(mergeRoot, script, nextFrame) {
+                if FloParse().parseRoot(mergeRoot, script, nextFrame) {
                     root˚.mergeFloValues(mergeRoot)
                 }
             } else {
@@ -165,7 +165,7 @@ open class ArchiveFlo: NSObject {
                let script = dropRoot(String(data: data, encoding: .utf8)) {
 
                 let mergeRoot = Flo("√")
-                if FloParse.shared.parseRoot(mergeRoot, script, nextFrame) {
+                if FloParse().parseRoot(mergeRoot, script, nextFrame) {
 
                     root˚.mergeFloValues(mergeRoot) 
                 }

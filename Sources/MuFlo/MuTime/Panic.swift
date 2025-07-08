@@ -8,9 +8,10 @@ public protocol PanicReset {
 
 /// akin to MIDI panic which resets all buffers
 
+
 public class Panic {
 
-    static var delegates = [Int:PanicReset]()
+    nonisolated(unsafe) static var delegates = [Int: PanicReset]()
 
     public static func reset() {
         PrintLog("🫨 Panic count: \(delegates.count)")

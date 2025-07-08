@@ -38,6 +38,7 @@ extension MuFloTests {
     func test(_ script: String,
               _ expected: String? = nil,
               _ scriptOps: FloScriptOps = FloScriptOps.All,
+              parOps: ParOps = [],
               strict: Bool = false) -> Int {
 
         var err = 0
@@ -45,7 +46,7 @@ extension MuFloTests {
         print("\n# " + script)
         let root = Flo("√")
         let expected = expected ?? script
-
+        floParse.par.ops = parOps
         if floParse.parseRoot(root, script) {
             let actual = root.scriptRoot(scriptOps)
             err = Parsin.testCompare(expected, actual, strict: strict)

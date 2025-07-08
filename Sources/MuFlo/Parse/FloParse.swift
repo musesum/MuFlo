@@ -3,21 +3,37 @@
 
 import Foundation
 
+public struct FloParOps: OptionSet, Sendable {
+    public let rawValue: Int
+
+    static let printParsedAll    = FloParOps(rawValue: 1 << 0)
+    static let printParsedTokens = FloParOps(rawValue: 1 << 1)
+    static let logBindChildren   = FloParOps(rawValue: 1 << 2)
+    static let logParsing        = FloParOps(rawValue: 1 << 3)
+    static let logDefaults       = FloParOps(rawValue: 1 << 4)
+    static let logBind           = FloParOps(rawValue: 1 << 5)
+
+    var printParsedAll    : Bool { get { contains(.printParsedAll   )}}
+    var printParsedTokens : Bool { get { contains(.printParsedTokens)}}
+    var logBindChildren   : Bool { get { contains(.logBindChildren  )}}
+    var logParsing        : Bool { get { contains(.logParsing       )}}
+    var logDefaults       : Bool { get { contains(.logDefaults      )}}
+    var logBind           : Bool { get { contains(.logBind          )}}
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+}
+
 public class FloParse {
 
-    public static let shared = FloParse()
-    public static var printParsedAll = false
-    public static var printParsedTokens = false
-    public static var logBindChildren = false
-
-    internal var logParsing = false
-    internal var logDefaults = false
-    internal var logBind = false
     internal var floParser: Parser
+    var ops: FloParOps
+    var par = Par()
 
-    public init() {
+    public init(_ ops: FloParOps = []) {
+        self.ops = ops
         // parse the Flo.par quasi-BNF definition for Flo scripts
-        if let floParser = Par.shared.parse(par: FloPar) {
+        if let floParser = par.parse(par: FloPar) {
             if floParser.subParsers.isEmpty {
                 err("floParser.subParsers.isEmpty")
             }
@@ -32,14 +48,18 @@ public class FloParse {
         }
     }
     @discardableResult
-    public func parseRoot(_ root: Flo, _ script: String, _ nextFrame: NextFrame? = nil) -> Bool {
+    public func parseRoot(_ root: Flo,
+                          _ script: String,
+                          _ nextFrame: NextFrame? = nil,
+                          parOps: ParOps = []) -> Bool {
+        par.ops = parOps
         // parse the script.flo.h
         let parsin = Parsin(script)
         if let parsed = floParser.parseInput(parsin, 0)?.parsed {
 
             parsed.reduce()
-            if FloParse.printParsedAll    { parsed.printAll() }
-            if FloParse.printParsedTokens { parsed.printTokens() }
+            if ops.printParsedAll    { parsed.printAll() }
+            if ops.printParsedTokens { parsed.printTokens() }
 
             parseFlo(root, parsed, 0)
             bindRoot(root, nextFrame, FloScriptOps.All)
@@ -259,15 +279,15 @@ public class FloParse {
     }
 
     func bindRoot(_ root: Flo, _ nextFrame: NextFrame?, _ scriptOps: FloScriptOps = []) {
-        if logBind {  print("bindRoot     ") }
+        if ops.logBind {  print("bindRoot     ") }
         step("bindPathName ") { root.bindPathName() }
-        step("bindTopDown  ") { root.bindTopDown() }
+        step("bindTopDown  ") { root.bindTopDown(self) }
         step("bindHashFlo  ") { root.bindHashFlo() }
         step("bindVals     ") { root.bindVals() }
         step("bindEdges    ") { root.bindEdges(nextFrame) }
 
         func step(_ msg: String, call: @escaping()->()) {
-            if logBind {
+            if ops.logBind {
                 print (msg + "   " + root.scriptFlo(scriptOps))
             }
             call()

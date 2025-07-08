@@ -5,8 +5,8 @@ import Foundation
 import Collections
 
 /// A node in a parse graph with prefix and suffix edges.
-public class Parser {
-    var id = Visitor.nextId()
+public class Parser: @unchecked Sendable {
+    let id = Visitor.nextId()
     var pattern: String         /// name, quote, or regex pattern
     var type: ParType           /// type of operation on parsin
     var repeats: ParRepeats     /// number of allowed repetitions to be true

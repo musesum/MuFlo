@@ -10,6 +10,7 @@ public extension Parsin { // + compare
     ///
     static func testCompare(_ expect: String,
                             _ actual: String,
+                            parOps: ParOps = [],
                             strict: Bool = false,
                             echo: Bool = false) -> Int {
         if echo {

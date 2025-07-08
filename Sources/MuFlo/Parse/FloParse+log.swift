@@ -6,7 +6,7 @@ import Foundation
 extension FloParse {
 
     func logParse(_ t: Flo?, _ parsed: Parsed, _ i: Int) {
-        if !logParsing { return }
+        if !ops.logParsing { return }
         let floName = t?.name ?? "nil"
         let pattern = parsed.parser.pattern
         let nodeId = ""//\(parsed.node!.id)"
@@ -36,7 +36,7 @@ extension FloParse {
     }
 
     func logDefault(_ function: String, _ parsed: Parsed) {
-        if logDefaults {
+        if ops.logDefaults {
             PrintLog("⁉️ FloParse::\(function) unknown keyword: \"\(parsed.parser.pattern)\"")
         }
     }

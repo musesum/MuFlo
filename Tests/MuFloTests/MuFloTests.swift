@@ -16,13 +16,13 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
     func testDefaultValues() { headline(#function)
-        Par.printParsin = true
+        let ops: ParOps = .printParsin
         var err = 0
-        err += test("a (z : 1)")
-        err += test("a (z 0_127 : 1)")
-        err += test("w (x 0, y 0)")
-        err += test("b (0)")
-        err += test("c (d 0, e 0)")
+        err += test("a (z : 1)", parOps: ops)
+        err += test("a (z 0_127 : 1)", parOps: ops)
+        err += test("w (x 0, y 0)", parOps: ops)
+        err += test("b (0)", parOps: ops)
+        err += test("c (d 0, e 0)", parOps: ops)
         XCTAssertEqual(err, 0)
     }
     func testEdgeSession() { headline(#function)
@@ -738,7 +738,7 @@ final class MuFloTests: XCTestCase {
     }
     //MARK: - Filter
     func testFilter() { headline(#function)
-        Par.printParsin = true
+        let ops: ParOps = .printParsin
         var err = 0
 
         let script = "a(x == 10, y, <- b) b(x 0, y 0)"
@@ -748,15 +748,15 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let b = root.findPath("b") {
 
-            err += Parsin.testCompare("a(x == 10, y) b(x : 0, y : 0)", root.scriptNow)
+            err += Parsin.testCompare("a(x == 10, y) b(x : 0, y : 0)", root.scriptNow, parOps: ops)
 
             b.activate([])
-            err += Parsin.testCompare("a(x == 10, y, <- b) b(x 0, y 0)", root.scriptAll)
+            err += Parsin.testCompare("a(x == 10, y, <- b) b(x 0, y 0)", root.scriptAll, parOps: ops)
 
             /// send an anonymous expression to `b` to satisfy filter
             let anonExpress = Exprs(Flo("anonFlo"), [("x", 10), ("y",20)])
             b.setAnyExprs(anonExpress, .fire)
-            err += Parsin.testCompare("a(x == 10, y : 20, <- b) b(x 10, y 20)", root.scriptAll)
+            err += Parsin.testCompare("a(x == 10, y : 20, <- b) b(x 10, y 20)", root.scriptAll, parOps: ops)
 
         } else {
             err += 1
@@ -764,7 +764,8 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
     func testFilter0() { headline(#function)
-        Par.printParsin = true
+
+        let ops: ParOps = .printParsin
         var err = 0
 
         err += test("a (w == 0, x 1, y 0)")
@@ -808,7 +809,7 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
     func testFilter1() { headline(#function)
-        Par.printParsin = true
+        let ops: ParOps = .printParsin
         var err = 0
 
         let script = """
@@ -827,7 +828,7 @@ final class MuFloTests: XCTestCase {
             a { b { d(x==10, y 0, z 0) e(x 0, y==21, z 0) }
                 c { d(x==10, y 0, z 0) e(x 0, y==21, z 0) } }
                     w(x 0,  y 0, z 0, <>( a.b.d, a.b.e, a.c.d, a.c.e))
-            """, root.scriptAll)
+            """, root.scriptAll, parOps: ops)
 
             // 0, 0, 0 --------------------------------------------------
 
@@ -838,7 +839,7 @@ final class MuFloTests: XCTestCase {
             a { b { d(x==10, y 0, z 0)  e(x 0, y==21, z 0) }
                 c { d(x==10, y 0, z 0)  e(x 0, y==21, z 0) } }
                     w(x 0,   y 0, z 0, <> (a.b.d, a.b.e, a.c.d, a.c.e))
-            """, root.scriptAll)
+            """, root.scriptAll, parOps: ops)
 
 
             // 10, 11, 12 --------------------------------------------------
@@ -848,7 +849,7 @@ final class MuFloTests: XCTestCase {
             a { b { d(x==10, y 11, z 12) e(x 0, y==21, z 0) }
                 c { d(x==10, y 11, z 12) e(x 0, y==21, z 0) } }
                     w(x 10, y 11, z 12, <> (a.b.d, a.b.e, a.c.d, a.c.e))
-            """, root.scriptAll)
+            """, root.scriptAll, parOps: ops )
 
             // 20, 21, 22 --------------------------------------------------
             // when match fails, so no change
@@ -858,7 +859,7 @@ final class MuFloTests: XCTestCase {
             a { b { d(x == 10, y 11, z 12) e(x 20, y == 21, z 22) }
                 c { d(x == 10, y 11, z 12) e(x 20, y == 21, z 22) } }
                     w(x 20, y 21, z 22, <> ( a.b.d, a.b.e, a.c.d, a.c.e))
-            """, root.scriptAll)
+            """, root.scriptAll, parOps: ops)
 
             // 10, 21, 33 --------------------------------------------------
             w.setAnyExprs( Exprs(Flo("_t3_"), [("x", 10), ("y", 21), ("z", 33)]), .fire)
@@ -867,7 +868,7 @@ final class MuFloTests: XCTestCase {
             a { b { d(x==10, y 21, z 33) e(x 10, y==21, z 33) }
                 c { d(x==10, y 21, z 33) e(x 10, y==21, z 33) } }
                     w(x 10, y 21, z 33, <> (a.b.d, a.b.e, a.c.d, a.c.e))
-            """, root.scriptAll)
+            """, root.scriptAll, parOps: ops)
 
         } else {
             err += 1
@@ -875,7 +876,7 @@ final class MuFloTests: XCTestCase {
         XCTAssertEqual(err, 0)
     }
     func testFilter2() { headline(#function)
-        Par.printParsin = true
+        let ops: ParOps = .printParsin
         var err = 0
         // selectively set tuples by name, ignore the reset
         let script = """
@@ -896,7 +897,7 @@ final class MuFloTests: XCTestCase {
              a { b { d(x == 10, y, z) e(x, y == 21, z) }
                  c { d(x == 10, y, z) e(x, y == 21, z) } }
             w(x : 0, y : 0, z : 0, <> ( a.b.d, a.b.e, a.c.d, a.c.e))
-            """, root.scriptAll)
+            """, root.scriptAll, parOps: ops )
 
             // 10, 11, 12 --------------------------------------------------
 
@@ -907,7 +908,7 @@ final class MuFloTests: XCTestCase {
             a { b { d(x == 10, y : 11, z : 12) e(x, y== 21, z) }
                 c { d(x == 10, y : 11, z : 12) e(x, y== 21, z) } }
             w(x : 10, y : 11, z : 12, <> (a.b.d, a.b.e, a.c.d, a.c.e))
-            """, root.scriptAll)
+            """, root.scriptAll, parOps: ops )
 
             // 20, 21, 22 --------------------------------------------------
 
@@ -918,7 +919,7 @@ final class MuFloTests: XCTestCase {
             a { b { d(x == 10, y : 11, z : 12) e(x : 20, y == 21, z : 22) }
                 c { d(x == 10, y : 11, z : 12) e(x : 20, y == 21, z : 22) } }
             w(x : 20, y : 21, z : 22, <> (a.b.d, a.b.e, a.c.d, a.c.e))
-            """, root.scriptAll)
+            """, root.scriptAll, parOps: ops )
 
             // 10, 21, 33 --------------------------------------------------
 
@@ -929,7 +930,7 @@ final class MuFloTests: XCTestCase {
             a { b { d(x == 10, y : 21, z : 33) e(x : 10, y==21, z : 33) }
                 c { d(x == 10, y : 21, z : 33) e(x : 10, y==21, z : 33) } }
             w(x : 10, y : 21, z : 33, <> (a.b.d, a.b.e, a.c.d, a.c.e))
-            """, root.scriptAll)
+            """, root.scriptAll, parOps: ops )
 
         } else {
             err += 1
@@ -1002,8 +1003,7 @@ final class MuFloTests: XCTestCase {
     }
     func testExpr3() { headline(#function)
         /// test `a(x:0…2, y:0…2, z:99), b (x:0…2, y:0…2) <- a`
-        Par.printParsin = true
-        Par.traceParser = false
+        let ops: ParOps = .printParsin
         var err = 0
 
         let script = "a(x 0…2, y 0…2, z 99), b(x 0…2, y 0…2, <- a)"
@@ -1015,22 +1015,19 @@ final class MuFloTests: XCTestCase {
             a.setAnyExprs(CGPoint(x: 1, y: 1), .fire)
 
             err += Parsin.testCompare(
-                "a(x 0…2, y 0…2, z 99), b(x 0…2, y 0…2, <- a)", root.scriptDef)
+                "a(x 0…2, y 0…2, z 99), b(x 0…2, y 0…2, <- a)", root.scriptDef, parOps: ops )
 
-            err += Parsin.testCompare("a(x : 1, y : 1, z : 99), b(x : 1, y : 1)", root.scriptNow)
-            err += Parsin.testCompare("a(x 0…2 : 1, y 0…2 : 1, z 99), b(x 0…2 : 1, y 0…2 : 1, <- a)", root.scriptAll)
+            err += Parsin.testCompare("a(x : 1, y : 1, z : 99), b(x : 1, y : 1)", root.scriptNow, parOps: ops )
+            err += Parsin.testCompare("a(x 0…2 : 1, y 0…2 : 1, z 99), b(x 0…2 : 1, y 0…2 : 1, <- a)", root.scriptAll, parOps: ops)
 
         } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
-        Par.printParsin = false
-        Par.traceParser = false
     }
     func testExpr4() { headline(#function)
         /// test `a(x in 2…4, y in 3…5) -> b b(x 1…2, y 2…3)`
-        Par.printParsin = true
-        Par.traceParser = false
+        let ops: ParOps = .printParsin
         var err = 0
 
         let script = "a(x in 2…4, y in 3…5, -> b) b(x 1…2, y 2…3)"
@@ -1040,28 +1037,26 @@ final class MuFloTests: XCTestCase {
            let a = root.findPath("a") {
 
             err += Parsin.testCompare("a(x in 2…4, y in 3…5, -> b)  b(x 1…2, y 2…3)", root.scriptAll)
-            err += Parsin.testCompare("a(x : 2, y : 3) b(x : 1, y : 2)", root.scriptNow)
+            err += Parsin.testCompare("a(x : 2, y : 3) b(x : 1, y : 2)", root.scriptNow, parOps: ops )
 
             // will fail expression, so no current values
             a.setAnyExprs(CGPoint(x: 1, y: 4), .fire)
-            err += Parsin.testCompare("a(x in 2…4, y in 3…5, -> b) b(x 1…2, y 2…3)", root.scriptAll)
+            err += Parsin.testCompare("a(x in 2…4, y in 3…5, -> b) b(x 1…2, y 2…3)", root.scriptAll, parOps: ops )
 
             // will pass exprs, so include current value
             a.setAnyExprs(CGPoint(x: 3, y: 4), .fire)
-            err += Parsin.testCompare("a(x in 2…4 : 3, y in 3…5 : 4, -> b) b(x 1…2 : 1.5, y 2…3 : 2.5)", root.scriptAll)
+            err += Parsin.testCompare("a(x in 2…4 : 3, y in 3…5 : 4, -> b) b(x 1…2 : 1.5, y 2…3 : 2.5)", root.scriptAll, parOps: ops)
 
             err += Parsin.testCompare("a(x : 3, y : 4) b(x : 1.5, y : 2.5)", root.scriptNow)
 
             // fail, will keep last value
             a.setAnyExprs(CGPoint(x:1, y:4), .fire)
-            err += Parsin.testCompare("a(x : 3, y : 4) b(x : 1.5, y : 2.5)", root.scriptNow)
+            err += Parsin.testCompare("a(x : 3, y : 4) b(x : 1.5, y : 2.5)", root.scriptNow, parOps: ops )
 
         } else {
             err += 1
         }
         XCTAssertEqual(err, 0)
-        Par.printParsin = false
-        Par.traceParser = false
     }
     func testExpr5() { headline(#function)
         /// test `b(sum: x + y + z) <- a`
@@ -1230,13 +1225,12 @@ final class MuFloTests: XCTestCase {
     func testClosure() { headline(#function)
         /// test `a(x:0…2, y:0…2, z:99), b (x:0…2, y:0…2) <- a`
         var err = 0
-        Par.printParsin = true
-        Par.traceParser = false
+        let ops: ParOps = .printParsin
 
         let script = "a(x 0…2, y 0…2)"
 
         let root = Flo("√")
-        if floParse.parseRoot(root, script),
+        if floParse.parseRoot(root, script, parOps: ops),
            let a = root.findPath("a") {
 
             let p0 = CGPoint(x:1, y:1)
@@ -1253,8 +1247,6 @@ final class MuFloTests: XCTestCase {
             err += 1
         }
         XCTAssertEqual(err, 0)
-        Par.printParsin = false
-        Par.traceParser = false
     }
     func testAssign0() { headline(#function)
         /// test `a(x, y) b(v 0) -> a(x v)

@@ -250,7 +250,7 @@ extension Flo {
         }
     }
 
-    func bindChildren()  {
+    func bindChildren(_ floParse: FloParse)  {
 
         // add base to children with
         var adoptions = [Flo]()
@@ -269,7 +269,7 @@ extension Flo {
             adoptions.append(contentsOf: adopt)
         }
         mergeAdoptions(adoptions, type)
-        if FloParse.logBindChildren {
+        if floParse.ops.logBindChildren {
             logChildTypes()
         }
 
@@ -465,13 +465,13 @@ extension Flo {
      where first a.b has finally expanded and can now bind
      its children.
      */
-    func bindTopDown() {
+    func bindTopDown(_ floParse: FloParse) {
         for child in children {
             if child.children.count > 0 {
-                child.bindTopDown()
+                child.bindTopDown(floParse)
             }
         }
-        bindChildren()
+        bindChildren(floParse)
     }
 
     public func setFloDefaults(_ setOps: SetOps, _ visit: Visitor, _ withPrior: Bool) {

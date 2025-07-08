@@ -3,7 +3,7 @@
 import Foundation
 
 /// Codable struct for sharing archive data between peers
-public struct ArchiveFrame: Codable {
+public struct ArchiveFrame: Codable, Sendable {
     public let url: URL
     public let data: Data
     public let name: String

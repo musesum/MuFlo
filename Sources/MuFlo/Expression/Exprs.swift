@@ -7,7 +7,7 @@ import Foundation
 
 public class Exprs: FloVal {
 
-   public static var IdExprs = [Int:Exprs]()
+    nonisolated(unsafe) public static var IdExprs = [Int: Exprs]()
 
     /// `t(x 1, y 2)` ⟹ `["x": 1, "y": 2]`
     public var nameAny = NameAny()
