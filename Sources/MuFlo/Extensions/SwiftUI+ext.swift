@@ -26,5 +26,4 @@ extension View {
         self.modifier(DeviceRotationViewModifier(action: action))
     }
 }
-
 #endif

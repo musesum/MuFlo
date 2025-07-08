@@ -482,6 +482,13 @@ extension EdgeInsets {
         "(\(top.digits(digits)),\(leading.digits(digits)), \(bottom.digits(digits)),\(trailing.digits(digits)))"
     }
 
+    public static func + (lhs: EdgeInsets, rhs: CGFloat) -> EdgeInsets {
+        return EdgeInsets(top: lhs.top + rhs,
+                          leading: lhs.leading + rhs,
+                          bottom: lhs.bottom + rhs,
+                          trailing: lhs.trailing + rhs)
+    }
+
 }
 public extension CGSize {
     var aspect: Aspect {
