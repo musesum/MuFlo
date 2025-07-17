@@ -13,12 +13,12 @@ public enum BufState {
     case nextBuf
     case waitBuf
 }
-
+@MainActor
 public protocol CircleBufferDelegate {
     associatedtype Item
     mutating func flushItem<Item>(_ item: Item, _ type: BufType) -> BufState
 }
-
+@MainActor
 public class CircleBuffer<Item> {
     let id = Visitor.nextId()
     private var buffer: CircularBuffer<(Item, BufType)>
@@ -75,11 +75,13 @@ public class CircleBuffer<Item> {
     
     internal func bufferLoop() {
         Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { timer in
-            _ = self.flushBuf()
+            Task { @MainActor in
+                _ = self.flushBuf()
+            }
         }
     }
 }
-extension CircleBuffer: PanicReset {
+extension CircleBuffer: @MainActor PanicReset {
     public func reset() {
         lock.lock()
         buffer.removeAll()

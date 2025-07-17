@@ -7,12 +7,12 @@ public protocol TimedBufferDelegate {
     mutating func flushItem<Item>(_ item: Item, _ type: BufType) -> BufState
 }
 
-public protocol TimedItem {
+public protocol TimedItem: Sendable {
     var time: TimeInterval { get }
 }
 public typealias TimeLag = TimeInterval
 
-public class TimedBuffer<Item: TimedItem> {
+public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
     private let id = Visitor.nextId()
     private var buffer: CircularBuffer<(Item, TimeLag, BufType)>
     private let capacity: Int

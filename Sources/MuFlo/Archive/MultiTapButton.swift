@@ -26,8 +26,8 @@ struct MultiTapButton<Label>: View where Label: View {
     @State private var isScrolling = false
     @State private var isTriggered = false
     @State private var lastTapTime = TimeInterval(0)
-    @State private var longPressTimer: Timer?
-    @State private var singleTapTimer: Timer?
+    @State private var longPressWorkItem: DispatchWorkItem?
+    @State private var singleTapWorkItem: DispatchWorkItem?
     @State private var touchStartTime = TimeInterval(0)
 
     var body: some View {
@@ -57,7 +57,7 @@ struct MultiTapButton<Label>: View where Label: View {
                     }
                     .onEnded { _ in // end drag
                         cancelLongPressTimer()
-                        
+
                         if isTriggered || isScrolling {
                             resetState()
                             return
@@ -77,7 +77,7 @@ struct MultiTapButton<Label>: View where Label: View {
                             lastTapTime = timeNow
                             startSingleTapTimer()
                         }
-                        
+
                         touchStartTime = 0
                     }
             )
@@ -87,38 +87,38 @@ struct MultiTapButton<Label>: View where Label: View {
     }
 
     private func startLongPressTimer() {
-        longPressTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false, block: { _ in
-            DispatchQueue.main.async {
-                if !isScrolling && !isTriggered {
-                    isTriggered = true
-                    longPress()
-                    cancelSingleTapTimer()
-                }
+        let workItem = DispatchWorkItem {
+            if !isScrolling && !isTriggered {
+                isTriggered = true
+                longPress()
+                cancelSingleTapTimer()
             }
-        })
-    }
-    
-    private func startSingleTapTimer() {
-        singleTapTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false, block: { _ in
-            DispatchQueue.main.async {
-                if !isScrolling && !isTriggered {
-                    isTriggered = true
-                    tapOnce()
-                }
-            }
-        })
+        }
+        longPressWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)
     }
 
+    private func startSingleTapTimer() {
+        let workItem = DispatchWorkItem {
+            if !isScrolling && !isTriggered {
+                isTriggered = true
+                tapOnce()
+            }
+        }
+        singleTapWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)
+    }
+    
     private func cancelLongPressTimer() {
-        longPressTimer?.invalidate()
-        longPressTimer = nil
+        longPressWorkItem?.cancel()
+        longPressWorkItem = nil
     }
-    
+
     private func cancelSingleTapTimer() {
-        singleTapTimer?.invalidate()
-        singleTapTimer = nil
+        singleTapWorkItem?.cancel()
+        singleTapWorkItem = nil
     }
-    
+
     private func cancelTimers() {
         cancelLongPressTimer()
         cancelSingleTapTimer()
