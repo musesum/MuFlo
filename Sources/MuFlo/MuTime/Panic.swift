@@ -14,13 +14,13 @@ public class Panic {
     nonisolated(unsafe) static var delegates = [Int: PanicReset]()
 
     public static func reset() {
-        PrintLog("🫨 Panic count: \(delegates.count)")
+        PrintLog("🫨 Panic delgates count: \(delegates.count)")
         for delegate in delegates.values {
             delegate.reset()
         }
     }
     public static func add(_ id: Int, _ reset: PanicReset) {
-        //...... delegates[id] = reset
+        delegates[id] = reset
     }
     public static func remove(_ id: Int) {
 

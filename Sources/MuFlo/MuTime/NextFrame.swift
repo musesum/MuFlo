@@ -50,11 +50,9 @@ public class NextFrame {
 
     private func goBetweenFrames() {
         if betweenFrames.count > 0 {
-            //DebugLog { P("🧭 before") }
             for betweenFrame in betweenFrames {
                 betweenFrame?()
             }
-            //DebugLog { P("🧭 after") }
             betweenFrames.removeAll()
         }
     }

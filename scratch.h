@@ -1,66 +1,80 @@
-Fix TimedBuffer using CubicPoly smoothing. Discard previous implementation, which kept adding 2sec of backlog for every 4sec of elapsed time. Is was smooth but at half speed.
 
-Goals:
+11.93: 🎬 VisionView id: 5804
+12.86: 🎬 SkyView go/is Immersive: false/false id: 5658
+12.94: 🎬 VisionView scenePhase: 🟩 .active id: 5804
+12.94: 🎬 SkyCanvas nextFrame.pause: false
+12.94: 🎬 SkyView scenePhase: 🟩 .active id: 5658
+12.99: 🤲 start handTracking.
+16.96: 🎬 SkyView go/is Immersive: false/false id: 5658
+26.28: 🎬 SkyView go/is Immersive: true/false id: 5658
+26.28: 🎬 SkyApp.onChange goImmersive: true
+26.28: 🎬 SkyCanvas nextFrame.pause: true
+26.32: 🎬 SkyView go/is Immersive: true/false id: 5658
+26.82: 👐 from: right.middle.tip hash: 2014
+27.22: ✋👍1
+27.29: 🎬 SkyView go/is Immersive: true/false id: 5658
+27.45: 🧭 Immmersive CompositorLayer
+27.45: 🎬 SkyView go/is Immersive: true/true id: 5658
+27.50: 🔄 RenderLoop .running id: 5809
+29.91: 🎬 SkyView go/is Immersive: true/true id: 5658
+29.91: 🎬 VisionView scenePhase: 🟥 .inactive
+29.91: 🎬 SkyView scenePhase: 🟥 .inactive
+29.98: 🏛️ savePipe(_:) pipe.draw.out
+30.10: 🎬 SkyView go/is Immersive: true/true id: 5658 // 1/1
+30.11: 🎬 VisionView scenePhase: 🟦 .background
+30.11: 🎬 SkyView scenePhase: 🟦 .background
+30.11: 🎬 SkyApp .onChange showMenu 🤏♦️
 
-1) remove jitter from stochastic delay.
-2) preserve original spacing of events, but allow for some cubic time stretching to accelerate and decelerate inter-item timeline.
-3) Ideally the maximum delay nearly match anticipated future item delay time.
-4) Allow for surprise extra delay with graceful recovery.
-5) Do not drop items.
-6) reduce cyclomatic complexity of code allowing each function to fit with a single page view and variables to track within Human short term memory of 7 +-2.
+// first openWindow(id: "SkyApp")
 
-Often:
+30.75: 🤚 right phase: 0
+30.75: 🎬 SkyApp .onChange showMenu 🤏🔰
+30.81: 🎬 SkyView go/is Immersive: true/true id: 5658
+30.85: 🎬 VisionView scenePhase: 🟩 .active id: 5804
+30.85: 🎬 SkyCanvas nextFrame.pause: true
+30.85: 🎬 SkyView scenePhase: 🟩 .active id: 5658
+30.86: 🎬 SkyView go/is Immersive: true/true id: 5658 // 1/2
+30.88: 🎬 SkyView go/is Immersive: true/true id: 5658 // 2/2
+31.23: 🤚👍1
+33.30: 🎬 SkyView go/is Immersive: true/true id: 5658
+33.30: 🎬 VisionView scenePhase: 🟦 .background
+33.30: 🎬 SkyView scenePhase: 🟦 .background
+33.32: 🎬 SkyApp .onChange showMenu 🤏♦️
 
-The first packet of a sequence has the longest delay before QoS prioritizes followers.
-
-Approach:
-
-Start with the initial packet delay based on difference of clock time stamp of sender item and current clock time of reciver . Notice how CubicPoly.addVal stuff all 4 control points for the first index -- that is find.
-
-For example, TouchCubic uses CubicPoly to smooth three points, whereas we only one to smooth out futureTime.
-
-Do not repeat the past mistake of allowing smoothing to spread out delay; so allow a smooth acceleration of inter-item time to catch up, allowing a total delay to rarely go beyond maximum delay between sender and receiver delta clock time.
-
-
-if type == .remoteBuf {
-    if !shouldRender() {
-        return .waitBuf
-    }
-    ...
-}
-
-func shouldRender() -> Bool {
-    if type != .remoteBuf {
-        return true
-    }
-    ...
-}
-
-
-Advanced Vibe Coding is an Oxymoron.
-
-Here is a snippet of pseudocode that Claude generated:
-
-if type == .remote
-    if !shouldRender()
-         return .wait
-...
-func shouldRender() -> Bool
-    if type != .remote
-          return true
-...
-
-Do you see the problem?
-
-This reminds me of a rather infamous coder who's app was bundled with the first IBM PC. His coding style was described as thus: if there was a bug where `2+2 = 5`, his fix would be `if 2+2=5 then answer = 4` -- that is the vibe I get with Claude Code and ChatGPT.
-
-At first I was impressed. I asked Claude to smooth out musical events over a network. Within a a couple minutes it generated some code that would have taken a day for me to hand code. And it worked! So smooth! I felt like Caude (and ChatGPT) was a new superpower. And then:
-
-I discovered it was accumalating 2 seconds of delay for every 4 seconds of stream. It's taken be a couple days to revert and fix.
-
-And that's what I've been experiencing after applying Claude and ChatGPT on an existing code base: accumalated technical debt. It may work for now. But, cyclomatic complexity accumalates. Your clearly written code become a black box.
-
-If 2+2=5 then answer = 4. // welcome to the vibe!
-
-
-
+// second  openWindow(id: "SkyApp")
+33.88: 🤚 right phase: 0
+33.88: 🎬 SkyApp .onChange showMenu 🤏🔰
+33.93: 🎬 SkyView go/is Immersive: true/true id: 5658
+33.95: 🎬 VisionView scenePhase: 🟩 .active id: 5804
+33.95: 🎬 SkyCanvas nextFrame.pause: true
+33.95: 🎬 SkyView scenePhase: 🟩 .active id: 5658
+33.97: 🎬 SkyView go/is Immersive: true/true id: 5658
+33.98: 🎬 SkyView go/is Immersive: true/true id: 5658
+35.24: ✋👍1
+36.20: 🎬 SkyView go/is Immersive: true/true id: 5658
+36.21: 🎬 VisionView scenePhase: 🟦 .background
+36.21: 🎬 SkyView scenePhase: 🟦 .background
+36.22: 🎬 SkyApp .onChange showMenu 🤏♦️
+36.77: 🤚 right phase: 0
+36.77: 🎬 SkyApp .onChange showMenu 🤏🔰
+36.82: 🎬 SkyView go/is Immersive: true/true id: 5658
+36.84: 🎬 VisionView scenePhase: 🟩 .active id: 5804
+36.84: 🎬 SkyCanvas nextFrame.pause: true
+36.84: 🎬 SkyView scenePhase: 🟩 .active id: 5658
+36.86: 🎬 SkyView go/is Immersive: true/true id: 5658 // 1/2
+36.87: 🎬 SkyView go/is Immersive: true/true id: 5658 // 1/2
+38.78: 🎬 SkyView go/is Immersive: true/true id: 5658 // 1/2
+38.92: 🎬 SkyView go/is Immersive: false/true id: 5658 // 1/2
+38.92: 🎬 SkyView go/is Immersive: false/true id: 5658 // 1/2
+38.92: 🎬 SkyApp.onChange goImmersive: false
+38.92: 🎬 SkyCanvas nextFrame.pause: false
+38.92: 🎬 SkyApp.onChange goImmersive: false
+38.92: 🎬 SkyCanvas nextFrame.pause: false
+38.94: 🎬 SkyView go/is Immersive: false/true id: 5658
+38.98: 🎬 SkyView go/is Immersive: false/true id: 5658
+38.98: 🎬 SkyView go/is Immersive: false/true id: 5658
+38.99: 🎬 SkyView go/is Immersive: false/true id: 5658
+39.06: 🔄 RenderLoop .invalidated id: 5809
+39.07: 🔄 RenderLoop .invalidated return id: 5809
+39.12: 🎬 SkyView go/is Immersive: false/false id: 5658
+39.12: 🎬 SkyView go/is Immersive: false/false id: 5658
