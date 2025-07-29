@@ -19,6 +19,7 @@ public struct ArchivePickerView: View {
             }
             .padding()
         }
+        .scrollDisabled(false)
     }
 }
 
