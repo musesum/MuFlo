@@ -82,15 +82,14 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
             buffer.append((item, timeNow, bufType))
             lock.unlock()
         }
-
-
     }
 
     public func flushBuf() -> BufState {
 
         guard var delegate else { return .nextBuf }
 
-        while !buffer.isEmpty {
+        var state: BufState = .nextBuf
+        while !buffer.isEmpty, state != .doneBuf {
 
             let timeNow = Date().timeIntervalSince1970
 
@@ -101,21 +100,20 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
             if futureTime > timeNow {
                 return .waitBuf
             }
-            let state = delegate.flushItem(item, type)
 
-            switch state {
-            case .waitBuf:         return state
-            case .doneBuf: pop() ; return state
-            case .nextBuf: pop()
-            }
-            func pop() {
+            state = delegate.flushItem(item, type)
+
+           // log
+            let idState = "\(self.id).\(state.description)"
+            NoTimeLog(idState, interval: 0.5 ) { P("⏱️ id.state:\(idState)") }
+
+            if state == .nextBuf {
                 lock.lock()
                 _ = buffer.removeFirst()
                 lock.unlock()
             }
         }
-        return .nextBuf
-
+        return state
     }
 
     internal func bufferLoop() {

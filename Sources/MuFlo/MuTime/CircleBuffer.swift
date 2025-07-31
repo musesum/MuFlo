@@ -9,9 +9,17 @@ public enum BufType {
 }
 
 public enum BufState {
-    case doneBuf
     case nextBuf
     case waitBuf
+    case doneBuf
+    
+    var description: String {
+        switch self {
+        case .nextBuf : return "nextBuf"
+        case .waitBuf : return "waitBuf"
+        case .doneBuf : return "doneBuf"
+        }
+    }
 }
 @MainActor
 public protocol CircleBufferDelegate {
