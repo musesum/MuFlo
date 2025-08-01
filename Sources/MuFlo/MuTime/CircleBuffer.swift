@@ -71,11 +71,8 @@ public class CircleBuffer<Item> {
         defer { lock.unlock() }
         
         while !buffer.isEmpty {
-
             let (item, type) = buffer.first!
-            lock.unlock()
             _ = delegate.flushItem(item, type)
-            lock.lock()
             _ = buffer.removeFirst()
         }
         return .doneBuf

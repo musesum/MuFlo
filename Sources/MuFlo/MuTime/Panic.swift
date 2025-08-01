@@ -18,6 +18,7 @@ public class Panic {
         for delegate in delegates.values {
             delegate.reset()
         }
+        delegates.removeAll()
     }
     public static func add(_ id: Int, _ reset: PanicReset) {
         delegates[id] = reset

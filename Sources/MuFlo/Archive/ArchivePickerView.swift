@@ -11,7 +11,7 @@ public struct ArchivePickerView: View {
         self.archiveVm = archiveVm
     }
     public var body: some View {
-        ScrollView(.vertical) {
+        ScrollView(.vertical, showsIndicators: false) {
             LazyVGrid(columns: gridColumns) {
                 ForEach(archiveVm.archiveActs) {
                     ArchiveItemView(archiveVm, $0)
@@ -39,13 +39,11 @@ public struct ArchiveItemView: View {
     func open(_ archiveItem: ArchiveItem, _ taps: Int) {
         archiveVm.archiveAction(archiveItem, taps)
     }
-
+    func longPress(_ archiveItem: ArchiveItem) {
+        // placeholder for edit
+    }
     public var body: some View {
-
-        MultiTapButton(tapOnce: { open(archiveItem, 1) },
-                       tapTwice: { open(archiveItem, 2) },
-                       longPress: { open(archiveItem, 3) }) {
-
+        Button(action: { open(archiveItem, 1) }) {
             VStack {
                 archiveItem.icon
                     .resizable()
@@ -63,5 +61,8 @@ public struct ArchiveItemView: View {
                     .minimumScaleFactor(0.01)
             }
         }
+        .simultaneousGesture(
+            LongPressGesture().onEnded { _ in longPress(archiveItem) }
+        )
     }
 }
