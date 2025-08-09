@@ -89,7 +89,7 @@ public func TimeLog<Object: AnyObject>(
     interval: TimeInterval = 0,
     _ body: @escaping (Object?) -> ()
 ) {
-#if true || DEBUG
+#if DEBUG
     MuLog.TimeLog(key, of: object, interval: interval, body)
 #endif
 }
