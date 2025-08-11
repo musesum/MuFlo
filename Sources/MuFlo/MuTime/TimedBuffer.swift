@@ -41,15 +41,13 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
         return buffer.count
     }
     deinit {
-        Panic.remove(id)
+        Reset.remove(id)
     }
-    public init(capacity: Int, internalLoop: Bool) {
+    public init(capacity: Int) {
         self.capacity = capacity
         self.buffer = CircularBuffer(initialCapacity: capacity)
-        Panic.add(id,self)
-        if internalLoop {
-            bufferLoop()
-        }
+        Reset.add(id,self)
+
     }
     
     public func addItem(_ item: Item, bufType: BufType) {
@@ -115,18 +113,9 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
         }
         return state
     }
-
-    internal func bufferLoop() {
-        Timer.scheduledTimer(withTimeInterval: 0.0005, repeats: true) { timer in
-            let state = self.flushBuf()
-            if state == .doneBuf {
-                timer.invalidate()
-            }
-        }
-    }
 }
-extension TimedBuffer: PanicReset {
-    public func reset() {
+extension TimedBuffer: ResetDelegate {
+    public func resetAll() {
         lock.lock()
         buffer.removeAll()
         lock.unlock()

@@ -30,7 +30,7 @@ public protocol CircleBufferDelegate {
 public class CircleBuffer<Item> {
     let id = Visitor.nextId()
     private var buffer: CircularBuffer<(Item, BufType)>
-    private let capacity: Int
+    private let capacity: Int = 3
     private var lock = NSLock()
     public var delegate: (any CircleBufferDelegate)?
     
@@ -47,15 +47,12 @@ public class CircleBuffer<Item> {
     }
 
     deinit {
-        Panic.remove(id)
+        Reset.remove(id)
     }
-    public init(capacity: Int, internalLoop: Bool) {
-        self.capacity = capacity
+    public init() {
         self.buffer = CircularBuffer(initialCapacity: capacity)
-        Panic.add(id,self)
-        if internalLoop {
-            bufferLoop()
-        }
+        Reset.add(id,self)
+        bufferLoop()
     }
     
     public func addItem(_ item: Item, bufType: BufType) {
@@ -86,8 +83,8 @@ public class CircleBuffer<Item> {
         }
     }
 }
-extension CircleBuffer: @MainActor PanicReset {
-    public func reset() {
+extension CircleBuffer: @MainActor ResetDelegate {
+    public func resetAll() {
         lock.lock()
         buffer.removeAll()
         lock.unlock()
