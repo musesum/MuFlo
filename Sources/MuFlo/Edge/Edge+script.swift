@@ -33,7 +33,7 @@ extension Edge {
                 rightFlo.scriptLineage(down: leftFlo) ?? "",
                 rightFlo.scriptLineage(up: leftFlo) ?? "",
             ]
-            print("\(flo.name):\(flo.children.count); \(leftFlo.name):\(leftFlo.children.count) \(rightFlo.name):\(rightFlo.children.count) \(scripts) \(script)")
+            PrintLog("\(flo.name):\(flo.children.count); \(leftFlo.name):\(leftFlo.children.count) \(rightFlo.name):\(rightFlo.children.count) \(scripts) \(script)")
 
         }
 

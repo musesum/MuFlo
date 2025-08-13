@@ -44,8 +44,7 @@ open class FloVal {
     }
 
     @discardableResult
-    public func setVal(_ from: Any?,
-                       _ visit: Visitor) -> Bool {
+    public func setVal(_ from: Any?) -> Bool {
 
         assertionFailure("⁉️ setVal needs override")
         return false

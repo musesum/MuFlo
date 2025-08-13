@@ -42,7 +42,7 @@ extension Edge {
             let arrow = fromLeft ? " ⫸ " : " ⫷ "
             let op = edgeOps.script(active: true)
             let edge = "\(leftFlo.id) \(op) \(rightFlo.id)".pad(13)
-            print (edge + arrow + script(leftFlo) + arrow + script(rightFlo))
+            PrintLog(edge + arrow + script(leftFlo) + arrow + script(rightFlo))
 
             func script(_ flo: Flo) -> String {
                 guard let exprs = flo.exprs else { return "()" }

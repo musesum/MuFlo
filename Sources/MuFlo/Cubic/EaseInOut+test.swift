@@ -32,7 +32,7 @@ extension EaseInOut  {
 
             func addPoint(_ to: Double, duration: TimeInterval) {
                 easy.addPoint(to, duration: duration)
-                print("--- valTo: \(to.digits(2)) durationNow: \(duration) durationSum: \(easy.durationSum)")
+                DebugLog { P("--- valTo: \(to.digits(2)) durationNow: \(duration) durationSum: \(easy.durationSum)") }
             }
 
         }

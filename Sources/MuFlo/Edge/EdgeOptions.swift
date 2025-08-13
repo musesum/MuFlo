@@ -61,7 +61,7 @@ public struct EdgeOptions: OptionSet, Sendable {
                 case [.input]: return "<-"
                 case [.output]: return "->"
                 case [.plugin]: return "^-"
-                default: print( "⚠️ unexpected scriptEdgeOps")
+                default: PrintLog( "⚠️ unexpected scriptEdgeOps")
             }
             return ""
         }

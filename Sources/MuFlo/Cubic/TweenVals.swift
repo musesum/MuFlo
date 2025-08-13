@@ -2,13 +2,13 @@
 
 import Foundation
 
-class EasyVals {
+class TweenVals {
 
+    let duration: TimeInterval
     var valsFrom  = [Double]()
     var valsNow   = [Double]()
     var valsTo    = [Double]()
     var easys     = [EaseInOut]()
-    var duration  = TimeInterval(1)
     var timeStart = TimeInterval(0)
     var timeNow   = TimeInterval(0)
     var isDone    = false
@@ -19,7 +19,7 @@ class EasyVals {
     func add(from: [Double], to: [Double]) {
 
         guard from.count == to.count else {
-            return print("EasyVals::add from.count:\(from.count) != to.count:\(to.count)")
+            return PrintLog("EasyVals::add from.count:\(from.count) != to.count:\(to.count)")
         }
         isDone = false
 

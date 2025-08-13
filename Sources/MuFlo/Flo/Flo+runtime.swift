@@ -31,7 +31,7 @@ extension Flo {
                 exprs = fromExprs
             } else if let exprs {
                 // set my val to fromVal, with rescaling
-                if exprs.setFromAny(fromExprs, setOps, visit) == false {
+                if exprs.setFromExprs(fromExprs, setOps, visit) == false {
                     // condition failed, so avoid activatating edges, below
                     return
                 }
@@ -84,15 +84,15 @@ extension Flo {
     }
 
     /// three examples:
-    /// 1. `a(1), b(2) >> a(3)`     // b passes an edge value (3) to a
-    /// 2. `a(1), b(2) >> a`        // b passes its value to a
-    /// 3. `a(1) >> b, b >> c, c(4)`// b is a passthrough node
+    /// 1. `a(1), b(2,-> a(3))`        // b passes an edge value (3) to a
+    /// 2. `a(1), b(2,-> a)`           // b passes its value to a
+    /// 3. `a(1,-> b), b(-> c), c(4)`  // b is a passthrough node
     /// activating `b!` for each example
-    /// 1a. `a(3), b(2) >> a(3)`     // `a(3)` is set from `b`'s `>> a(3)`
-    /// 2a. `a(2), b(2) >> a(3)`     // `a(2)` is set directly from b
-    /// 3a. `a(1) >> b, b >> c(4)`   // nothing happens
+    /// 1a. `a(3), b(2,-> a(3))`       // `a(3)` is set from `b`'s `>> a(3)`
+    /// 2a. `a(2), b(2,-> a)`          // `a(2)` is set directly from b
+    /// 3a. `a(1,-> b), b(-> c), c(4)` // nothing happens
     /// for example 3, activating a
-    /// 3. `a(1) >> b, b >> c(1)`   // `a` passes through `b` to set `a`
+    /// 3. `a(1,-> b), b(-> c), c(1)`  // `a` passes through `b` to set `a`
     @discardableResult
     func setEdgeVal(_ edgeExprs: Exprs?, /// `(2)` in `b(0…1) >> a(2)`
                     _ fromFlo: Flo,      /// `(0…1)` in `b(0…1) >> a`
@@ -108,13 +108,13 @@ extension Flo {
             if let edgeExprs {
                 ///example 1.` b!` for `a(1), b(2, -> a(3))`
                 /// first eval `b -> a` edge
-                edgeExprs.evalExprs(fromExprs, true, setOps, visit)
+                edgeExprs.evalExprs(fromExprs, true, setOps)
                 /// and then pass `(3)` to `a`
-                passed = exprs.setFromAny(edgeExprs, setOps, visit)
+                passed = exprs.setFromExprs(edgeExprs, setOps, visit)
 
             } else if let fromExprs {
                 /// example 2. `b!` for `a(1), b(2, -> a)`
-                passed = exprs.setFromAny(fromExprs, setOps, visit)
+                passed = exprs.setFromExprs(fromExprs, setOps, visit)
             }
             return passed
 

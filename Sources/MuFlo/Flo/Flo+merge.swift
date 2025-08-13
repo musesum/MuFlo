@@ -281,7 +281,7 @@ extension Flo {
                 delim = ", "
             }
             script += " ]"
-            print(script)
+            PrintLog(script)
         }
     }
 

@@ -43,8 +43,7 @@ extension Exprs { // + eval
     @discardableResult
     func evalExprs(_ fromExpress: Exprs?,
                    _ fromNode: Bool,
-                   _ setOps: SetOps,
-                   _ visit: Visitor) -> Bool {
+                   _ setOps: SetOps) -> Bool {
 
         var mySetters = ExprSetters()
         var toAny: Any?
@@ -65,7 +64,7 @@ extension Exprs { // + eval
 
             if i==evalAnys.count {
                 exprFinish()
-                setSetters(mySetters, fromNode, setOps, visit)
+                setSetters(mySetters, fromNode, setOps)
                 return true
             }
             let evalAny = evalAnys[i]
@@ -164,8 +163,7 @@ extension Exprs { // + eval
     /// execute all deferrred setters
     func setSetters(_ mySetters: ExprSetters,
                     _ viaEdge: Bool,
-                    _ setOps: SetOps,
-                    _ visit: Visitor) {
+                    _ setOps: SetOps) {
 
         for (name,val) in mySetters {
 
@@ -191,7 +189,7 @@ extension Exprs { // + eval
                 if let toVal = nameAny[name] as? FloVal {
                     if !string.isEmpty {
                         /// `x` in `a(x in 2…4, <- b), b(x 3)`
-                        toVal.setVal(string, visit)
+                        toVal.setVal(string)
                     }
                 }
             default:

@@ -95,7 +95,7 @@ extension Exprs { // + script
                 let padPath = "\(scalar.flo.path(5))(\(keyStr))".pad(20)
                 let valStr = scalar.value.digits(0...2)
                 let dfltStr = scalar.origin.digits(0...2)
-                print("🧪\n \(padScript) \(padPath) \(scalar.id) \(padOps) next: \(valStr)  origin: \(dfltStr)")
+                PrintLog("🧪\n \(padScript) \(padPath) \(scalar.id) \(padOps) next: \(valStr)  origin: \(dfltStr)")
             }
         }
     }

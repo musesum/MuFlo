@@ -32,7 +32,7 @@ extension OrderedDictionary {
 extension OrderedDictionary<Int,Parser> {
     mutating func replace(_ oldNode: Parser, with newNode: Parser) {
         guard let index = self.index(forKey: oldNode.id)
-        else { return print("⁉️ OrderedDictionary::replace oldNode: \(oldNode.scriptTitle()) not Found") }
+        else { return PrintLog("⁉️ OrderedDictionary::replace oldNode: \(oldNode.scriptTitle()) not Found") }
 
         self.remove(at: index)
         self.updateValue(newNode, forKey: newNode.id, insertingAt: index)

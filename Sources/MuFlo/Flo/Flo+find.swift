@@ -151,7 +151,7 @@ extension Flo { // + find
 
             }
             func err(_ msg: String) -> [Flo]? {
-                print("⁉️ findAnchor: \(msg)")
+                PrintLog("⁉️ findAnchor: \(msg)")
                 return nil
             }
 

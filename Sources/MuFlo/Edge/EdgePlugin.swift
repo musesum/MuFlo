@@ -18,7 +18,7 @@ public class EdgePlugin {
     var timeDelta: TimeInterval { timeNow - timeStart } // 0...duration
     var timeInter: TimeInterval { timeDelta / duration } // 0...1 normalized
     var floScalars = [Scalar]()
-    let easyVals: EasyVals
+    let tweenVals: TweenVals
 
     init(_ flo: Flo,
          _ nextFrame: NextFrame,
@@ -27,9 +27,9 @@ public class EdgePlugin {
         self.flo = flo
         self.nextFrame = nextFrame
         self.plugExpress = plugExprs
-        self.easyVals = EasyVals(duration)
+        self.tweenVals = TweenVals(duration)
         extractFloScalars()
-        //print("\(flo.path(9))(\(plugExprs.name)) +⃣ \(plugExprs.flo.path(9))")
+        //PrintLog("\(flo.path(9))(\(plugExprs.name)) +⃣ \(plugExprs.flo.path(9))")
     }
     
     func extractFloScalars() {
@@ -52,7 +52,7 @@ public class EdgePlugin {
             twes.append(floScalars[i].tween)
             vals.append(floScalars[i].value)
         }
-        easyVals.add(from: twes, to: vals)
+        tweenVals.add(from: twes, to: vals)
         nextFrame.addFrameDelegate(key, self)
     }
 
@@ -61,7 +61,7 @@ public class EdgePlugin {
        // flo.exprs?.logValTweens()
         timeNow = Date().timeIntervalSince1970
         var hasDelta = false
-        let polyTweens = easyVals.getValNow(timeNow)
+        let polyTweens = tweenVals.getValNow(timeNow)
         for i in 0 ..< polyTweens.count  {
             if i < floScalars.count  {
                 let floVal = floScalars[i]
@@ -74,7 +74,7 @@ public class EdgePlugin {
             return true
         } else {
             cancel(flo.id)
-            easyVals.finish()
+            tweenVals.finish()
             return false
         }
     }
