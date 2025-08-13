@@ -310,21 +310,6 @@ extension Flo {
            let mergeFlo = mergeRoot.hashFlo.dict[hash],
            let mergeExprs = mergeFlo.exprs {
 
-            //..... ?huh?
-            if mergeFlo.name == "cubemap" ||
-                mergeFlo.name == "mixcube" {
-                DebugLog {
-                    var ss = "??"
-                    var mm = "??"
-                    if let sx = exprs.nameAny["x"] as? Scalar {
-                        ss = "\(sx.value.digits(2))"
-                    }
-                    if let mx = mergeExprs.nameAny["x"] as? Scalar {
-                        mm = "\(mx.value.digits(2))"
-                    }
-                    P("\(mergeFlo.path(9)) \(ss) <= \(mm)")
-                }
-            }
             let noTweens = plugins.isEmpty
             for (key,value) in mergeExprs.nameAny {
                 if let mergeScalar = value as? Scalar,

@@ -1,23 +1,20 @@
-//  Express.swift
 //  created by musesum on 4/4/19.
 
 import QuartzCore
 import Collections
 import Foundation
 
-public class Exprs: FloVal {
-
-    nonisolated(unsafe) public static var IdExprs = [Int: Exprs]()
+public class Exprs: FloVal, @unchecked Sendable {
 
     /// `t(x 1, y 2)` ⟹ `["x": 1, "y": 2]`
-    public var nameAny = NameAny()
+    public private(set) var nameAny = NameAny()
 
-    /// `t(x/2, y/2) << u(x 1, y 2)` ⟹ `t(x 0.5, y 1.0)` // after u fires
-    public var evalAnys = EvalAnys()
+    /// `t(x/2, y/2, <- u), u(x 1, y 2)` ⟹ `t(x 0.5, y 1.0)` // after u fires
+    public internal(set) var evalAnys = EvalAnys()
 
-    var hasValue: Bool { return !nameAny.isEmpty || !evalAnys.isEmpty }
+    internal var hasValue: Bool { return !nameAny.isEmpty || !evalAnys.isEmpty }
 
-    public func normalize(_ name: String, _ normOp: ScalarOps) -> Double? {
+    public  func normalize(_ name: String, _ normOp: ScalarOps) -> Double? {
         if let scalar = nameAny[name] as? Scalar {
             return scalar.normalized(normOp)
         }
@@ -25,14 +22,9 @@ public class Exprs: FloVal {
     }
 
     /// return _0, _1, ... for anonymous values
-    var anonKey: String { String(format: "_%i", nameAny.keys.count) }
+    internal var anonKey: String { String(format: "_%i", nameAny.keys.count) }
 
-    public func includesOp(_ op: EvalOp) -> Bool {
-        for evalAny in evalAnys {
-            if evalAny.op == op { return true }
-        }
-        return false
-    }
+
     public subscript(_ subName: String, _ scalarOps: ScalarOps) -> Double? {
         if let scalar = nameAny[subName] as? Scalar {
             switch scalarOps {
@@ -57,10 +49,9 @@ public class Exprs: FloVal {
             nameAny[name] = any
         }
     }
-    init(from: Exprs) {
-        
+    private init(from: Exprs) {
+
         super.init(with: from)
-        Exprs.IdExprs[id] = self
 
         //options = from.options
         for (name, val) in from.nameAny {
@@ -84,23 +75,19 @@ public class Exprs: FloVal {
     }
     init(_ flo: Flo, _ point: CGPoint) {
         super.init(flo, "_" + flo.name)
-        Exprs.IdExprs[id] = self
         addPoint(point)
     }
     init(_ flo: Flo, _ size: CGSize) {
         super.init(flo, "_" + flo.name)
-        Exprs.IdExprs[id] = self
         addSize(size)
     }
     public init(_ flo: Flo, _ rect: CGRect) {
         super.init(flo, "_" + flo.name)
-        Exprs.IdExprs[id] = self
         addRect(rect)
     }
     
     public init(_ flo: Flo,_ nameNums: [(String, Double)]) {
         super.init(flo, "nameNums")
-        Exprs.IdExprs[id] = self
         for (name, num) in nameNums {
             if evalAnys.count > 0 {
                 addOpStr(",")
@@ -136,10 +123,10 @@ public class Exprs: FloVal {
         var nums = [Float]()
         for value in nameAny.values {
             switch value {
-            case let v as Scalar : nums.append(Float(v.tween))
-            case let v as CGFloat      : nums.append(Float(v))
-            case let v as Float        : nums.append(v)
-            case let v as Double       : nums.append(Float(v))
+            case let v as Scalar  : nums.append(Float(v.tween))
+            case let v as CGFloat : nums.append(Float(v))
+            case let v as Float   : nums.append(v)
+            case let v as Double  : nums.append(Float(v))
             default : continue // skip strings, tec
             }
         }
@@ -210,6 +197,8 @@ public class Exprs: FloVal {
                            _ visit: Visitor) -> Bool {
 
         guard visit.newVisit(id) else { return false }
+
+        
 
         if updateValues(setOps) {
             if newTween() {
