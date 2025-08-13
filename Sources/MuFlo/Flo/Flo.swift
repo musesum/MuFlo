@@ -39,6 +39,7 @@ public class Flo {
     public var string   : String       { get { StringVal()  ?? "??"  }}
     public var scalar   : Scalar?      { get { ScalarVal()           }}
     public var double   : Double       { get { DoubleVal()  ?? .zero }}
+    public var doubles  : [Double]     { get { DoubleVals()          }}
     public var float    : Float        { get { FloatVal()   ?? .zero }}
     public var cgFloat  : CGFloat      { get { CGFloatVal() ?? .zero }}
     public var cgPoint  : CGPoint      { get { CGPointVal() ?? .zero }}

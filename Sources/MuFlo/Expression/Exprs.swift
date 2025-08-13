@@ -145,48 +145,48 @@ public class Exprs: FloVal, @unchecked Sendable {
     }
 
     func setDefaults(_ setOps: SetOps, _ visit: Visitor, _ withPrior: Bool) {
-        var nameDoubles = [(String,Double)]()
+        var nameNums = [(String,Double)]()
         if nameAny.count > 0 {
             for (name,any) in nameAny {
                 if let scalar = any as? Scalar {
                     if scalar.scalarOps.origin, scalar.value != scalar.origin {
-                        nameDoubles.append((name, scalar.origin))
+                        nameNums.append((name, scalar.origin))
                     } else if withPrior,
                               scalar.prior != scalar.value {
-                        nameDoubles.append((name, scalar.prior))
+                        nameNums.append((name, scalar.prior))
                     }
                 }
             }
-            if nameDoubles.count > 0 {
-                setFromNameDoubles(nameDoubles, setOps, visit)
+            if nameNums.count > 0 {
+                setFromNameNums(nameNums, setOps, visit)
             }
         }
     }
 
     public func setOrigin(_ visit: Visitor) {
-        var nameDoubles = [(String,Double)]()
+        var nameNums = [(String,Double)]()
         if nameAny.count > 0 {
             for (name,any) in nameAny {
                 if let scalar = any as? Scalar {
-                    nameDoubles.append((name, scalar.origin))
+                    nameNums.append((name, scalar.origin))
                 }
             }
-            if nameDoubles.count > 0 {
-                setFromNameDoubles(nameDoubles, [], visit)
+            if nameNums.count > 0 {
+                setFromNameNums(nameNums, [], visit)
             }
         }
     }
 
     public func setPrior(_ visit: Visitor) {
-        var nameDoubles = [(String,Double)]()
+        var nameNums = [(String,Double)]()
         if nameAny.count > 0 {
             for (name,any) in nameAny {
                 if let scalar = any as? Scalar {
-                    nameDoubles.append((name, scalar.prior))
+                    nameNums.append((name, scalar.prior))
                 }
             }
-            if nameDoubles.count > 0 {
-                setFromNameDoubles(nameDoubles, [], visit)
+            if nameNums.count > 0 {
+                setFromNameNums(nameNums, [], visit)
             }
         }
     }
@@ -202,12 +202,12 @@ public class Exprs: FloVal, @unchecked Sendable {
     }
 
     @discardableResult
-    public func setFromNameDoubles(_ nameDoubles: [(String,Double)],
-                                   _ setOps: SetOps,
-                                   _ visit: Visitor) -> Bool {
+    public func setFromNameNums(_ nameNums: [(String,Double)],
+                                _ setOps: SetOps,
+                                _ visit: Visitor) -> Bool {
         guard visit.newVisit(id) else { return false }
-        for (name,double) in nameDoubles {
-            setNameNum(name, double, setOps)
+        for (name,num) in nameNums {
+            setNameNum(name, num, setOps)
         }
         maybeNewTween(visit)
         return true
@@ -239,6 +239,25 @@ public class Exprs: FloVal, @unchecked Sendable {
             nameAny[name] = Scalar(flo, name, num)
         }
     }
+    func setNum(_ num: Double, _ setOps: SetOps) {
+
+        if let scalar = nameAny["_0"] as? Scalar {
+
+            scalar.setScalarVal(num, flo.scalarOps, setOps)
+
+        } else {
+
+            for any in nameAny.values {
+                if let scalar = any as? Scalar {
+                    scalar.setScalarVal(num, flo.scalarOps, setOps)
+                }
+            }
+        }
+        if nameAny.isEmpty {
+            let name = "_" + flo.name
+            nameAny["_0"] = Scalar(flo, name, num)
+        }
+    }
     func updateValues(_ fromAny: Any,
                       _ setOps: SetOps) -> Bool {
         switch fromAny {
@@ -246,10 +265,10 @@ public class Exprs: FloVal, @unchecked Sendable {
         case let v     as CGFloat            : setNum(Double(v),setOps)
         case let v     as Double             : setNum(Double(v),setOps)
         case let v     as Int                : setNum(Double(v),setOps)
-        case let n     as [(String,Float)]   : setNameNums(n,setOps)
-        case let n     as [(String,CGFloat)] : setNameNums(n,setOps)
-        case let n     as [(String,Double )] : setNameNums(n,setOps)
-        case let n     as [(String,Int    )] : setNameNums(n,setOps)
+        case let n     as [(String,Float)]   : setNameAnyNums(n,setOps)
+        case let n     as [(String,CGFloat)] : setNameAnyNums(n,setOps)
+        case let n     as [(String,Double )] : setNameAnyNums(n,setOps)
+        case let n     as [(String,Int    )] : setNameAnyNums(n,setOps)
         case let (n,v) as (String,Double)    : setNameNum(n,Double(v),setOps)
         case let (n,v) as (String,Float)     : setNameNum(n,Double(v),setOps)
         case let (n,v) as (String,CGFloat)   : setNameNum(n,Double(v),setOps)
@@ -269,7 +288,7 @@ public class Exprs: FloVal, @unchecked Sendable {
             }
         }
 
-        func setNameNums(_ nameAnys: [(String,Any)], _ setOps: SetOps) {
+        func setNameAnyNums(_ nameAnys: [(String,Any)], _ setOps: SetOps) {
             for (name,any) in nameAnys {
                 switch any {
                 case let v as Double  : setNameNum(name, Double(v), setOps)
@@ -280,25 +299,7 @@ public class Exprs: FloVal, @unchecked Sendable {
                 }
             }
         }
-        func setNum(_ num: Double, _ setOps: SetOps) {
 
-            if let scalar = nameAny["_0"] as? Scalar {
-
-                scalar.setScalarVal(num, flo.scalarOps, setOps)
-
-            } else {
-
-                for any in nameAny.values {
-                    if let scalar = any as? Scalar {
-                        scalar.setScalarVal(num, flo.scalarOps, setOps)
-                    }
-                }
-            }
-            if nameAny.isEmpty {
-                let name = "_" + flo.name
-                nameAny["_0"] = Scalar(flo, name, num)
-            }
-        }
         func evalPoint(_ point: CGPoint, _ setOps: SetOps) -> Bool {
 
             if evalAnys.isEmpty {

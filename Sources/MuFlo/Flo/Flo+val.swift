@@ -62,6 +62,18 @@ extension Flo {
     func DoubleVal() -> Double? {
         return ScalarVal()?.tween ?? nil
     }
+    func DoubleVals() -> [Double] {
+        var doubles: [Double] = []
+
+        if let exprs {
+            for any in exprs.nameAny.values {
+                if let scalar = any as? Scalar {
+                    doubles.append(Double(scalar.tween))
+                }
+            }
+        }
+        return doubles
+    }
     func IntVal() -> Int? {
         if let v = DoubleVal() { return Int(v) }
         return nil

@@ -4,23 +4,67 @@ import QuartzCore
 
 extension Flo {
 
-    //... TODO: only used by NodeVm:: var spotlight: Bool {...}
-    public func setVal(_ name: String,
-                       _ value: Double,
+    public func setNameNums(_ nameNums: [(String,Double)],
+                            _ setOps: SetOps,
+                            _ visit: Visitor = Visitor(0)) {
+        if let exprs {
+            // any is not a FloVal, so pass onto my FloVal if it exists
+            let fromExprs = Exprs(self, nameNums)
+
+            if exprs.setFromExprs(fromExprs, setOps, visit) == false {
+                // condition failed, so avoid activatating edges, below
+                return
+            }
+        } else {
+            // I don't have a FloVal yet, so maybe create one for me
+            passthrough = false
+            exprs = Exprs(self, nameNums)
+        }
+        // maybe pass along my FloVal to other FloNodes and closures
+        if setOps.fire {
+            activate(setOps, visit)
+        }
+    }
+    public func setFromExprs(_ fromExprs: Exprs,
+                             _ setOps: SetOps,
+                             _ visit: Visitor = Visitor(0)) {
+        if passthrough {
+            // no defined value, so activate will pass fromVal onto edge successors
+            exprs = fromExprs
+        } else if let exprs {
+            // set my val to fromVal, with rescaling
+            if exprs.setFromExprs(fromExprs, setOps, visit) == false {
+                // condition failed, so avoid activatating edges, below
+                return
+            }
+        } else {
+            exprs = fromExprs
+        }
+
+        // maybe pass along my FloVal to other FloNodes and closures
+        if setOps.fire {
+            activate(setOps, visit)
+        }
+    }
+    public func setVal(_ double: Double,
                        _ setOps: SetOps,
                        _ visit: Visitor = Visitor(0)) {
-        if let exprs,
-           let scalar = exprs.nameAny[name] as? Scalar {
+        if let exprs {
+            // any is not a FloVal, so pass onto my FloVal if it exists
+            exprs.setNum(double, setOps)
 
-            if scalar.value != value {
-                scalar.value = value
-                if setOps.sneak   { return }
-                if setOps.changed { activate(setOps, visit) }
-            } else if setOps.fire { activate(setOps, visit) }
+        } else {
+            // I don't have a FloVal yet, so maybe create one for me
+            passthrough = false
+            exprs = Exprs(self, [(name, double)])
+        }
+        // maybe pass along my FloVal to other FloNodes and closures
+        if setOps.fire {
+            activate(setOps, visit)
         }
     }
 
-    public func setAnyExprs(_ any: Any,
+    public func setAnyValue(_ any: Any,
                             _ setOps: SetOps,
                             _ visit: Visitor = Visitor(0)) {
         // any is a Expression
