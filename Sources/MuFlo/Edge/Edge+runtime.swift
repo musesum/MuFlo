@@ -22,7 +22,6 @@ extension Edge {
             (fromRight && edgeOps.hasInput && !visitedLeft )) {
 
             // logEdge()
-
             if  destFlo.setEdgeVal(edgeExpress, fromFlo, setOps, visit) {
                 logDepth("👍")
                 return destFlo
@@ -31,7 +30,7 @@ extension Edge {
                 visit.block(destFlo.id)
             }
             func logDepth(_ icon: String) {
-                //TimeLog("FloEdge::followEdge", interval: 1) { P("".pad(depth*3) + "\(icon) \(destFlo.path(3)): \(destFlo.float)", terminator: "") }
+                NoTimeLog("Edge::followEdge", interval: 1) { P("Edge::followEdge \(icon) \(destFlo.path(3)): \(destFlo.float)") }
             }
         }
         return nil

@@ -1038,7 +1038,6 @@ final class MuFloTests: XCTestCase {
             err += Parsin.testCompare("a(x : 2, y : 3) b(x : 1, y : 2)", root.scriptNow, parOps: ops )
 
             // will fail expression, so no current values
-            //>> a.setAnyValue(CGPoint(x: 1, y: 4), .fire)
             a.setNameNums([("x", 1), ("y", 4)], .fire)
             err += Parsin.testCompare("a(x in 2…4, y in 3…5, -> b) b(x 1…2, y 2…3)", root.scriptAll, parOps: ops )
 
@@ -1070,7 +1069,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let a = root.findPath("a") {
 
-            a.setAnyValue(Exprs(Flo("_t_"), [("x", 1), ("y", 2), ("z", 3)]), .fire)
+            a.setNameNums([("x", 1), ("y", 2), ("z", 3)], .fire)
 
             err += Parsin.testCompare(
             """
@@ -1261,7 +1260,7 @@ final class MuFloTests: XCTestCase {
 
             err += Parsin.testCompare("a(x, y) b(v 0, -> a(x : v))", root.scriptDef)
 
-            b.setAnyValue(Exprs(Flo("_t_"), [("v", 1)]), .fire)
+            b.setNameNums([("v", 1)], .fire)
             err += Parsin.testCompare( "a(x : 1, y) b(v 1, -> a(x : v))", root.scriptAll)
 
         } else {
@@ -1283,7 +1282,7 @@ final class MuFloTests: XCTestCase {
 
             err += Parsin.testCompare("a(x, y) b(v 0, -> a(x : v/2, y : v*2))", root.scriptAll)
 
-            b.setAnyValue(Exprs(Flo("_t_"), [("v", 1)]), .fire)
+            b.setNameNums([("v", 1)], .fire)
             err += Parsin.testCompare("a(x : 0.5, y : 2) b(v 1, -> a(x : v / 2, y : v * 2))", root.scriptAll)
 
         } else {
@@ -1335,12 +1334,12 @@ final class MuFloTests: XCTestCase {
                 grid(num > 20, chan == 1, x : num / 12, y : num % 12, <- note),  note(num 0_127:0, chan 2)
                 """, root.scriptAll)
 
-            note.setAnyValue(Exprs(Flo("_t1_"),[("num",50), ("chan",0)]), .fire)
+            note.setNameNums([("num",50), ("chan",0)], .fire)
             err += Parsin.testCompare("""
                 grid(num > 20, chan == 1, x : num / 12, y : num % 12, <- note), note(num 0_127 : 50, chan 0)
                 """, root.scriptAll)
 
-            note.setAnyValue( Exprs(Flo("_t2_"),[("num",50), ("chan",1)]), .fire)
+            note.setNameNums([("num",50), ("chan",1)], .fire)
             err += Parsin.testCompare("""
                 grid(num > 20 : 50, chan == 1, x : num / 12 : 4.166667, y : num % 12 : 2, <- note), note(num 0_127 : 50, chan 1)
                 """, root.scriptAll)

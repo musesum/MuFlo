@@ -8,13 +8,9 @@ extension Flo {
                             _ setOps: SetOps,
                             _ visit: Visitor = Visitor(0)) {
         if let exprs {
-            // any is not a FloVal, so pass onto my FloVal if it exists
-            let fromExprs = Exprs(self, nameNums)
 
-            if exprs.setFromExprs(fromExprs, setOps, visit) == false {
-                // condition failed, so avoid activatating edges, below
-                return
-            }
+            guard exprs.setFromExprs(Exprs(self, nameNums), setOps, visit) else { return }
+
         } else {
             // I don't have a FloVal yet, so maybe create one for me
             passthrough = false
@@ -29,14 +25,10 @@ extension Flo {
                              _ setOps: SetOps,
                              _ visit: Visitor = Visitor(0)) {
         if passthrough {
-            // no defined value, so activate will pass fromVal onto edge successors
             exprs = fromExprs
         } else if let exprs {
             // set my val to fromVal, with rescaling
-            if exprs.setFromExprs(fromExprs, setOps, visit) == false {
-                // condition failed, so avoid activatating edges, below
-                return
-            }
+            guard exprs.setFromExprs(fromExprs, setOps, visit) else  {  return }
         } else {
             exprs = fromExprs
         }
@@ -57,39 +49,6 @@ extension Flo {
             // I don't have a FloVal yet, so maybe create one for me
             passthrough = false
             exprs = Exprs(self, [(name, double)])
-        }
-        // maybe pass along my FloVal to other FloNodes and closures
-        if setOps.fire {
-            activate(setOps, visit)
-        }
-    }
-
-    public func setAnyValue(_ any: Any,
-                            _ setOps: SetOps,
-                            _ visit: Visitor = Visitor(0)) {
-        // any is a Expression
-        if let fromExprs = any as? Exprs {
-
-            if passthrough {
-                // no defined value, so activate will pass fromVal onto edge successors
-                exprs = fromExprs
-            } else if let exprs {
-                // set my val to fromVal, with rescaling
-                if exprs.setFromExprs(fromExprs, setOps, visit) == false {
-                    // condition failed, so avoid activatating edges, below
-                    return
-                }
-            }
-        } else if let exprs {
-            // any is not a FloVal, so pass onto my FloVal if it exists
-            if exprs.setFromAny(any, setOps, visit) == false {
-                // condition failed, so avoid activatating edges, below
-                return
-            }
-        } else {
-            // I don't have a FloVal yet, so maybe create one for me
-            passthrough = false
-            exprs = makeAnyExprs(any)
         }
         // maybe pass along my FloVal to other FloNodes and closures
         if setOps.fire {
@@ -128,20 +87,20 @@ extension Flo {
     }
 
     /// three examples:
-    /// 1. `a(1), b(2,-> a(3))`        // b passes an edge value (3) to a
-    /// 2. `a(1), b(2,-> a)`           // b passes its value to a
-    /// 3. `a(1,-> b), b(-> c), c(4)`  // b is a passthrough node
-    /// activating `b!` for each example
-    /// 1a. `a(3), b(2,-> a(3))`       // `a(3)` is set from `b`'s `>> a(3)`
-    /// 2a. `a(2), b(2,-> a)`          // `a(2)` is set directly from b
-    /// 3a. `a(1,-> b), b(-> c), c(4)` // nothing happens
+    ///  1. `a(1), b(2,-> a(3))`        // b passes an edge value (3) to a
+    ///  2. `a(1), b(2,-> a)`           // b passes its value to a
+    ///  3. `a(1,-> b), b(-> c), c(4)`  // b is a passthrough node
+    /// activating `b!` for 1,2,3
+    ///  1a. `a(3), b(2,-> a(3))`       // `a(3)` is set from `b`'s `-> a(3)`
+    ///  2a. `a(2), b(2,-> a)`          // `a(2)` is set directly from b
+    ///  3a. `a(1,-> b), b(-> c), c(4)` // nothing happens
     /// for example 3, activating a
-    /// 3. `a(1,-> b), b(-> c), c(1)`  // `a` passes through `b` to set `a`
-    @discardableResult
-    func setEdgeVal(_ edgeExprs: Exprs?, /// `(2)` in `b(0…1) >> a(2)`
-                    _ fromFlo: Flo,      /// `(0…1)` in `b(0…1) >> a`
-                    _ setOps: SetOps,
-                    _ visit: Visitor) -> Bool {
+    ///  3. `a(1,-> b), b(-> c), c(1)`  // `a` passes through `b` to set `a`
+    ///
+    func setEdgeVal(_ edgeExprs : Exprs?,
+                    _ fromFlo   : Flo,
+                    _ setOps    : SetOps,
+                    _ visit     : Visitor) -> Bool {
 
         if visit.wasHere(id) { return false }
 
