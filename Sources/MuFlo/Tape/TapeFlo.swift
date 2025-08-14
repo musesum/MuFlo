@@ -1,6 +1,6 @@
 // created by musesum on 8/12/25
 
-class TapeFlo {
+public class TapeFlo: @unchecked Sendable {
     private var rec˚   : Flo? ; var rec   = false
     private var play˚  : Flo? ; var play  = false
     private var stop˚  : Flo? ; var stop  = false
@@ -8,7 +8,7 @@ class TapeFlo {
     private var loop˚  : Flo? ; var loop  = false
     private var learn˚ : Flo? ; var learn = false
 
-    init(_ root˚: Flo) {
+    public init(_ root˚: Flo) {
         let tape = root˚.bind("tape")
         rec˚   = tape.bind("rec")   { f,_ in self.rec   = f.bool }
         play˚  = tape.bind("play")  { f,_ in self.play  = f.bool }
