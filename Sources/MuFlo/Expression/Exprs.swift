@@ -73,19 +73,7 @@ public class Exprs: FloVal, @unchecked Sendable {
             }
         }
     }
-    init(_ flo: Flo, _ point: CGPoint) {
-        super.init(flo, "_" + flo.name)
-        addPoint(point)
-    }
-    init(_ flo: Flo, _ size: CGSize) {
-        super.init(flo, "_" + flo.name)
-        addSize(size)
-    }
-    public init(_ flo: Flo, _ rect: CGRect) {
-        super.init(flo, "_" + flo.name)
-        addRect(rect)
-    }
-    
+
     public init(_ flo: Flo,_ nameNums: [(String, Double)]) {
         super.init(flo, "nameNums")
         for (name, num) in nameNums {
@@ -201,28 +189,19 @@ public class Exprs: FloVal, @unchecked Sendable {
         return true
     }
 
-    @discardableResult
-    public func setFromNameNums(_ nameNums: [(String,Double)],
-                                _ setOps: SetOps,
-                                _ visit: Visitor) -> Bool {
-        guard visit.newVisit(id) else { return false }
-        for (name,num) in nameNums {
-            setNameNum(name, num, setOps)
+    public func setFromNameNums<T: BinaryFloatingPoint>(
+        _ nameNums: [(String, T)],
+        _ setOps: SetOps,
+        _ visit: Visitor) {
+
+            if visit.newVisit(id) {
+            for (name, num) in nameNums {
+                setNameNum(name, Double(num), setOps)
+            }
+            maybeNewTween(visit)
         }
-        maybeNewTween(visit)
-        return true
     }
 
-    @discardableResult
-    public func setFromAny(_ fromAny: Any,
-                           _ setOps: SetOps,
-                           _ visit: Visitor) -> Bool {
-
-        guard visit.newVisit(id) else { return false}
-        guard updateValues(fromAny,setOps) else { return false }
-        maybeNewTween(visit)
-        return true
-    }
     func maybeNewTween(_ visit: Visitor) {
         if flo.hasPlugDefs,
            flo.hasPlugins,
@@ -258,90 +237,7 @@ public class Exprs: FloVal, @unchecked Sendable {
             nameAny["_0"] = Scalar(flo, name, num)
         }
     }
-    func updateValues(_ fromAny: Any,
-                      _ setOps: SetOps) -> Bool {
-        switch fromAny {
-        case let v     as Float              : setNum(Double(v),setOps)
-        case let v     as CGFloat            : setNum(Double(v),setOps)
-        case let v     as Double             : setNum(Double(v),setOps)
-        case let v     as Int                : setNum(Double(v),setOps)
-        case let n     as [(String,Float)]   : setNameAnyNums(n,setOps)
-        case let n     as [(String,CGFloat)] : setNameAnyNums(n,setOps)
-        case let n     as [(String,Double )] : setNameAnyNums(n,setOps)
-        case let n     as [(String,Int    )] : setNameAnyNums(n,setOps)
-        case let (n,v) as (String,Double)    : setNameNum(n,Double(v),setOps)
-        case let (n,v) as (String,Float)     : setNameNum(n,Double(v),setOps)
-        case let (n,v) as (String,CGFloat)   : setNameNum(n,Double(v),setOps)
-        case let (n,a) as (String,Any)       : setNameAnys([(n,a)])
-        case let n     as [(String,Any)]     : setNameAnys(n)
-            //TODO: the next three are overloading setValues with an evaluation test
-        case let v     as CGPoint            : return evalPoint(v,setOps)
-        case let v     as CGRect             : return evalRect (v,setOps)
-        case let v     as CGSize             : return evalSize (v,setOps)
-        default: PrintLog("⁉️ mismatched setVal(\(fromAny))"); return false
-        }
-        return true
 
-        func setNameAnys(_ nameAnys: [(Name,Any)]) { //... no setOps?
-            for (name,any) in nameAnys {
-                nameAny[name] = any
-            }
-        }
-
-        func setNameAnyNums(_ nameAnys: [(String,Any)], _ setOps: SetOps) {
-            for (name,any) in nameAnys {
-                switch any {
-                case let v as Double  : setNameNum(name, Double(v), setOps)
-                case let v as Float   : setNameNum(name, Double(v), setOps)
-                case let v as CGFloat : setNameNum(name, Double(v), setOps)
-                case let v as Int     : setNameNum(name, Double(v), setOps)
-                default: break
-                }
-            }
-        }
-
-        func evalPoint(_ point: CGPoint, _ setOps: SetOps) -> Bool {
-
-            if evalAnys.isEmpty {
-                // create a new opVal list
-                addPoint(point)
-                return true
-            }
-            let copy = copy()
-            copy.injectNameNum("x", Double(point.x))
-            copy.injectNameNum("y", Double(point.y))
-            return evalExprs(copy, false, setOps)
-        }
-        func evalSize(_ size: CGSize, _ setOps: SetOps) -> Bool {
-
-            if evalAnys.isEmpty {
-                // create a new opVal list
-                addSize(size)
-                return true
-            }
-            let copy = copy()
-            copy.injectNameNum("w", Double(size.width))
-            copy.injectNameNum("h", Double(size.height))
-
-            return evalExprs(copy, false, setOps)
-        }
-        func evalRect(_ rect: CGRect, _ setOps: SetOps) -> Bool {
-
-            if evalAnys.isEmpty {
-                // create a new opVal list
-                addRect(rect)
-                return true
-            }
-            let copy = copy()
-            copy.injectNameNum("x", Double(rect.minX))
-            copy.injectNameNum("y", Double(rect.minY))
-            copy.injectNameNum("w", Double(rect.width))
-            copy.injectNameNum("h", Double(rect.height))
-
-            return evalExprs(copy, false, setOps)
-        }
-
-    }
     // val = origin, twe = origin
     func bindVals() {
         if nameAny.count > 0 {

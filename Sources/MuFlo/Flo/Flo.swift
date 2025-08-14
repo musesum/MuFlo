@@ -289,18 +289,6 @@ extension Flo: Hashable {
         self.name = name
         self.type = type
     }
-    public func makeAnyExprs(_ any: Any) -> Exprs? {
-        switch any {
-        case let v as Int:     return Exprs(self, [(name, Double(v))])
-        case let v as Double:  return Exprs(self, [(name, v)])
-        case let v as CGFloat: return Exprs(self, [(name, Double(v))])
-        case let v as CGPoint: return Exprs(self, v)
-        case let v as CGRect:  return Exprs(self, v)
-        case let v as CGSize:  return Exprs(self, v)
-        case let v as [(String, Double)]: return  Exprs(self, v)
-        default: PrintLog("⁉️ unknown val(\(any))"); return nil
-        }
-    }
 }
 extension Flo {
 

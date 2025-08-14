@@ -5,52 +5,58 @@ import QuartzCore
 extension Flo {
 
     public func setNameNums(_ nameNums: [(String,Double)],
-                            _ setOps: SetOps,
+                            _ setOps: SetOps = .fire,
                             _ visit: Visitor = Visitor(0)) {
         if let exprs {
 
-            guard exprs.setFromExprs(Exprs(self, nameNums), setOps, visit) else { return }
+            let fromExprs = Exprs(self, nameNums)
 
+            if  !exprs.setFromExprs(fromExprs, setOps, visit) {
+                /// for example:
+                ///     `a.setNameNums([("x",0),("y",0)])`
+                /// will fail for:
+                ///     `a(x in 2…4, y in 3…5) -> b`
+                return
+            }
         } else {
-            // I don't have a FloVal yet, so maybe create one for me
             passthrough = false
             exprs = Exprs(self, nameNums)
         }
-        // maybe pass along my FloVal to other FloNodes and closures
         if setOps.fire {
             activate(setOps, visit)
         }
     }
     public func setFromExprs(_ fromExprs: Exprs,
                              _ setOps: SetOps,
-                             _ visit: Visitor = Visitor(0)) {
+                             _ visit: Visitor) {
         if passthrough {
+            /// for example: `b` in `a(0,->b), b(->c), c(1)`
             exprs = fromExprs
         } else if let exprs {
-            // set my val to fromVal, with rescaling
-            guard exprs.setFromExprs(fromExprs, setOps, visit) else  {  return }
+            if !exprs.setFromExprs(fromExprs, setOps, visit) {
+                /// for example:
+                ///     `let fromExpr = Exprs(self,[("x",0),("y",0)])`
+                ///     `a.setFromExprs(fromExprs)`
+                /// will fail for:
+                ///     `a(x in 2…4, y in 3…5) -> b`
+                return
+            }
         } else {
             exprs = fromExprs
         }
-
-        // maybe pass along my FloVal to other FloNodes and closures
         if setOps.fire {
             activate(setOps, visit)
         }
     }
     public func setVal(_ double: Double,
-                       _ setOps: SetOps,
+                       _ setOps: SetOps = .fire,
                        _ visit: Visitor = Visitor(0)) {
         if let exprs {
-            // any is not a FloVal, so pass onto my FloVal if it exists
             exprs.setNum(double, setOps)
-
         } else {
-            // I don't have a FloVal yet, so maybe create one for me
             passthrough = false
             exprs = Exprs(self, [(name, double)])
         }
-        // maybe pass along my FloVal to other FloNodes and closures
         if setOps.fire {
             activate(setOps, visit)
         }
@@ -63,7 +69,9 @@ extension Flo {
         }
     }
     
-    public func activate(_ setOps: SetOps, _ visit: Visitor = Visitor(0), _ depth: Int = 0) {
+    public func activate(_ setOps: SetOps = [],
+                         _ visit: Visitor = Visitor(0),
+                         _ depth: Int = 0) {
         guard visit.newVisit(id) else { return }
         for closure in closures {
             closure(self, visit)

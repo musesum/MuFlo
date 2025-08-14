@@ -17,34 +17,6 @@ extension Exprs { // + add
         }
     }
     
-    func injectNameNum(_ name: String, _ num: Double) {
-        if let val = nameAny[name] as? Scalar {
-            val.tween = num
-            val.value = num
-        } else {
-            nameAny[name] = Scalar(flo, name, num)
-        }
-    }
-
-    func addPoint(_ point: CGPoint) {
-        injectNameNum("x", Double(point.x))
-        addOpStr(",")
-        injectNameNum("y", Double(point.y))
-    }
-    func addSize(_ size: CGSize) {
-        injectNameNum("w", Double(size.width))
-        addOpStr(",")
-        injectNameNum("h", Double(size.height))
-    }
-    public func addRect(_ rect: CGRect) {
-        injectNameNum("x", Double(rect.minX))
-        addOpStr(",")
-        injectNameNum("y", Double(rect.minY))
-        addOpStr(",")
-        injectNameNum("w", Double(rect.width))
-        addOpStr(",")
-        injectNameNum("h", Double(rect.height))
-    }
     @discardableResult
     func addOpStr(_ opStr: String?) -> EvalOp {
         if let opStr = opStr?.without(trailing: " ")  {

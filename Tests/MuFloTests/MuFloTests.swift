@@ -576,7 +576,7 @@ final class MuFloTests: XCTestCase {
             }
             err += Parsin.testCompare("a.b(1) c (<: a).b(1, <: a.b)", root.scriptAll)
 
-            ab.setVal(2, .fire)
+            ab.setVal(2)
             err += Parsin.testCompare("a.b(2) c (<: a).b(2, <: a.b)", root.scriptAll)
         } else {
             err += 1
@@ -616,7 +616,7 @@ final class MuFloTests: XCTestCase {
                        c(2, <: a.c) { d(3, <: a.c.d) e(4, <: a.c.e) }}
             """, root.scriptAll)
 
-            ab.setVal (10, .fire)
+            ab.setVal (10)
             err += Parsin.testCompare("""
             
             a        { b(10)         { d(3)           e(4)           }
@@ -625,7 +625,7 @@ final class MuFloTests: XCTestCase {
                        c( 2, <: a.c) { d(3, <: a.c.d) e(4, <: a.c.e) }}
             """, root.scriptAll)
 
-            ac.setVal (20, .fire)
+            ac.setVal (20)
             err += Parsin.testCompare("""
             
             a        { b(10)         { d(3)           e(4)           }
@@ -634,10 +634,10 @@ final class MuFloTests: XCTestCase {
                        c(20, <: a.c) { d(3, <: a.c.d) e(4, <: a.c.e) }}
             """, root.scriptAll)
 
-            abd.setVal(30, .fire)
-            abe.setVal(40, .fire)
-            acd.setVal(50, .fire)
-            ace.setVal(50, .fire)
+            abd.setVal(30)
+            abe.setVal(40)
+            acd.setVal(50)
+            ace.setVal(50)
             err += Parsin.testCompare("""
 
             a        { b(10)         { d(30)           e(40)           }
@@ -646,12 +646,12 @@ final class MuFloTests: XCTestCase {
                        c(20, <: a.c) { d(50, <: a.c.d) e(50, <: a.c.e) }}
             """, root.scriptAll)
 
-            zb.setVal (11, .fire)
-            zc.setVal (22, .fire)
-            zbd.setVal(33, .fire)
-            zbe.setVal(44, .fire)
-            zcd.setVal(55, .fire)
-            zce.setVal(66, .fire)
+            zb.setVal (11)
+            zc.setVal (22)
+            zbd.setVal(33)
+            zbe.setVal(44)
+            zcd.setVal(55)
+            zce.setVal(66)
             err += Parsin.testCompare("""
 
             a        { b(10)         { d(30)           e(40)           }
@@ -691,12 +691,12 @@ final class MuFloTests: XCTestCase {
            let zcd = zc.findPath("d"),
            let zce = zc.findPath("e") {
 
-            ab.setVal (10, .fire)
-            ac.setVal (20, .fire)
-            abd.setVal(30, .fire)
-            abe.setVal(40, .fire)
-            acd.setVal(50, .fire)
-            ace.setVal(60, .fire)
+            ab.setVal (10)
+            ac.setVal (20)
+            abd.setVal(30)
+            abe.setVal(40)
+            acd.setVal(50)
+            ace.setVal(60)
 
             err += Parsin.testCompare("""
 
@@ -706,12 +706,12 @@ final class MuFloTests: XCTestCase {
                           c(20, <:> a.c) { d(50, <:> a.c.d) e(60, <:> a.c.e) }}
             """, root.scriptAll)
 
-            zb.setVal (11, .fire)
-            zc.setVal (22, .fire)
-            zbd.setVal(33, .fire)
-            zbe.setVal(44, .fire)
-            zcd.setVal(55, .fire)
-            zce.setVal(66, .fire)
+            zb.setVal (11)
+            zc.setVal (22)
+            zbd.setVal(33)
+            zbe.setVal(44)
+            zcd.setVal(55)
+            zce.setVal(66)
             
             err += Parsin.testCompare("""
 
@@ -750,12 +750,11 @@ final class MuFloTests: XCTestCase {
 
             err += Parsin.testCompare("a(x == 10, y) b(x : 0, y : 0)", root.scriptNow, parOps: ops)
 
-            b.activate([])
+            b.activate()
             err += Parsin.testCompare("a(x == 10, y, <- b) b(x 0, y 0)", root.scriptAll, parOps: ops)
 
             /// send an anonymous expression to `b` to satisfy filter
-            let anonExpress = Exprs(Flo("anonFlo"), [("x", 10), ("y",20)])
-            b.setFromExprs(anonExpress, .fire)
+            b.setNameNums([("x", 10), ("y",20)])
             err += Parsin.testCompare("a(x == 10, y : 20, <- b) b(x 10, y 20)", root.scriptAll, parOps: ops)
 
         } else {
@@ -831,8 +830,7 @@ final class MuFloTests: XCTestCase {
 
             // 0, 0, 0 --------------------------------------------------
 
-            let exprs = Exprs(Flo("_t0_"), [("x", 0), ("y", 0), ("z", 0)])
-            w.setFromExprs(exprs, .fire)
+            w.setNameNums( [("x", 0), ("y", 0), ("z", 0)])
             err += Parsin.testCompare("""
 
             a { b { d(x==10, y 0, z 0)  e(x 0, y==21, z 0) }
@@ -842,7 +840,7 @@ final class MuFloTests: XCTestCase {
 
 
             // 10, 11, 12 --------------------------------------------------
-            w.setFromExprs(Exprs(Flo("_t1_"), [("x", 10), ("y", 11), ("z", 12)]), .fire)
+            w.setNameNums([("x", 10), ("y", 11), ("z", 12)])
             err += Parsin.testCompare("""
 
             a { b { d(x==10, y 11, z 12) e(x 0, y==21, z 0) }
@@ -852,7 +850,7 @@ final class MuFloTests: XCTestCase {
 
             // 20, 21, 22 --------------------------------------------------
             // when match fails, so no change
-            w.setNameNums([("x", 20), ("y", 21), ("z", 22)], .fire)
+            w.setNameNums([("x", 20), ("y", 21), ("z", 22)])
             err += Parsin.testCompare("""
 
             a { b { d(x == 10, y 11, z 12) e(x 20, y == 21, z 22) }
@@ -861,7 +859,7 @@ final class MuFloTests: XCTestCase {
             """, root.scriptAll, parOps: ops)
 
             // 10, 21, 33 --------------------------------------------------
-            w.setFromExprs( Exprs(Flo("_t3_"), [("x", 10), ("y", 21), ("z", 33)]), .fire)
+            w.setNameNums([("x", 10), ("y", 21), ("z", 33)])
             err += Parsin.testCompare("""
 
             a { b { d(x==10, y 21, z 33) e(x 10, y==21, z 33) }
@@ -889,7 +887,7 @@ final class MuFloTests: XCTestCase {
 
             // 0, 0, 0 --------------------------------------------------
 
-            w.setFromExprs(Exprs(Flo("_t0_"), [("x", 0), ("y", 0), ("z", 0)]), .fire)
+            w.setNameNums([("x", 0), ("y", 0), ("z", 0)])
 
             err += Parsin.testCompare("""
             
@@ -900,7 +898,7 @@ final class MuFloTests: XCTestCase {
 
             // 10, 11, 12 --------------------------------------------------
 
-            w.setNameNums([("x", 10), ("y", 11), ("z", 12)], .fire)
+            w.setNameNums([("x", 10), ("y", 11), ("z", 12)])
 
             err += Parsin.testCompare("""
 
@@ -911,7 +909,7 @@ final class MuFloTests: XCTestCase {
 
             // 20, 21, 22 --------------------------------------------------
 
-            w.setNameNums([("x", 20), ("y", 21), ("z", 22)], .fire)
+            w.setNameNums([("x", 20), ("y", 21), ("z", 22)])
 
             err += Parsin.testCompare("""
 
@@ -922,7 +920,7 @@ final class MuFloTests: XCTestCase {
 
             // 10, 21, 33 --------------------------------------------------
 
-            w.setNameNums([("x", 10), ("y", 21), ("z", 33)], .fire)
+            w.setNameNums([("x", 10), ("y", 21), ("z", 33)])
 
             err += Parsin.testCompare("""
             
@@ -950,7 +948,7 @@ final class MuFloTests: XCTestCase {
 
             err += Parsin.testCompare("a(x, y), b(x : 0, y : 0)", root.scriptNow)
 
-            b.setNameNums([("x", 1), ("y", 2)], .fire)
+            b.setNameNums([("x", 1), ("y", 2)])
             err += Parsin.testCompare("a(x : 1, y : 2), b(x : 1, y : 2)", root.scriptNow)
             err += Parsin.testCompare("a(x, y, <- b), b(x 1, y 2)", root.scriptDef)
 
@@ -971,7 +969,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let c = root.findPath("c") {
 
-            c.setNameNums([("x", 1), ("y", 2)], .fire)
+            c.setNameNums([("x", 1), ("y", 2)])
             err = Parsin.testCompare("a(x : 1), c(x : 1, y : 2)", root.scriptNow)
         } else {
             err += 1
@@ -990,7 +988,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let c = root.findPath("c") {
 
-            c.setNameNums([("x", 1), ("y", 2)], .fire)
+            c.setNameNums([("x", 1), ("y", 2)])
 
             err += Parsin.testCompare("a(x : 1), b(y : 2), c(x : 1, y : 2)", root.scriptNow)
 
@@ -1010,7 +1008,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let a = root.findPath("a") {
 
-            a.setNameNums([("x", 1), ("y", 1)], .fire)
+            a.setNameNums([("x", 1), ("y", 1)])
 
             err += Parsin.testCompare(
                 "a(x 0…2, y 0…2, z 99), b(x 0…2, y 0…2, <- a)", root.scriptDef, parOps: ops )
@@ -1038,17 +1036,17 @@ final class MuFloTests: XCTestCase {
             err += Parsin.testCompare("a(x : 2, y : 3) b(x : 1, y : 2)", root.scriptNow, parOps: ops )
 
             // will fail expression, so no current values
-            a.setNameNums([("x", 1), ("y", 4)], .fire)
+            a.setNameNums([("x", 1), ("y", 4)])
             err += Parsin.testCompare("a(x in 2…4, y in 3…5, -> b) b(x 1…2, y 2…3)", root.scriptAll, parOps: ops )
 
             // will pass exprs, so include current value
-            a.setNameNums([("x", 3), ("y", 4)], .fire)
+            a.setNameNums([("x", 3), ("y", 4)])
             err += Parsin.testCompare("a(x in 2…4 : 3, y in 3…5 : 4, -> b) b(x 1…2 : 1.5, y 2…3 : 2.5)", root.scriptAll, parOps: ops)
 
             err += Parsin.testCompare("a(x : 3, y : 4) b(x : 1.5, y : 2.5)", root.scriptNow)
 
             // fail, will keep last value
-            a.setNameNums([("x",1), ("y",4)], .fire)
+            a.setNameNums([("x",1), ("y",4)])
             err += Parsin.testCompare("a(x : 3, y : 4) b(x : 1.5, y : 2.5)", root.scriptNow, parOps: ops )
 
         } else {
@@ -1069,7 +1067,7 @@ final class MuFloTests: XCTestCase {
         if floParse.parseRoot(root, script),
            let a = root.findPath("a") {
 
-            a.setNameNums([("x", 1), ("y", 2), ("z", 3)], .fire)
+            a.setNameNums([("x", 1), ("y", 2), ("z", 3)])
 
             err += Parsin.testCompare(
             """
@@ -1098,7 +1096,7 @@ final class MuFloTests: XCTestCase {
             err += Parsin.testCompare(
             "a(x 10, y 20, z 30), b(x < 0.9, y, z, <- a), c(x > 0, y, z, <- a)", root.scriptAll)
 
-            a.setNameNums([("x", 1), ("y", 2), ("z", 3)], .fire)
+            a.setNameNums([("x", 1), ("y", 2), ("z", 3)])
             err += Parsin.testCompare(
             "a(x 1, y 2, z 3), b(x < 0.9, y, z, <- a), c(x > 0 : 1, y : 2, z : 3, <- a)", root.scriptAll)
         } else {
@@ -1126,7 +1124,7 @@ final class MuFloTests: XCTestCase {
            let b = root.findPath("b"),
            let z = root.findPath("z"){
 
-            z.activate([]) // changes a
+            z.activate() // changes a
             err += Parsin.testCompare(
                 """
                 a(x  1, y  2, z 30, <- z)
@@ -1134,7 +1132,7 @@ final class MuFloTests: XCTestCase {
                 z(x  1, y  2)
                 """, root.scriptAll)
 
-            a.activate([]) // no change
+            a.activate() // no change
             err += Parsin.testCompare(
                 """
                 a(x  1, y  2, z 30, <- z)
@@ -1142,7 +1140,7 @@ final class MuFloTests: XCTestCase {
                 z(x  1, y  2)
                 """, root.scriptAll)
 
-            b.activate([]) // changes z, which changes a
+            b.activate() // changes z, which changes a
             err += Parsin.testCompare(
                 """
                 a(x 10, y 20, z 30, <- z)
@@ -1235,7 +1233,7 @@ final class MuFloTests: XCTestCase {
             a.addClosure { flo, _ in
                 doubles = flo.doubles
             }
-            a.setNameNums([("x",1), ("y",1)], .fire)
+            a.setNameNums([("x",1), ("y",1)])
 
             if doubles != [1, 1] {
                 err += 1
@@ -1260,7 +1258,7 @@ final class MuFloTests: XCTestCase {
 
             err += Parsin.testCompare("a(x, y) b(v 0, -> a(x : v))", root.scriptDef)
 
-            b.setNameNums([("v", 1)], .fire)
+            b.setNameNums([("v", 1)])
             err += Parsin.testCompare( "a(x : 1, y) b(v 1, -> a(x : v))", root.scriptAll)
 
         } else {
@@ -1282,7 +1280,7 @@ final class MuFloTests: XCTestCase {
 
             err += Parsin.testCompare("a(x, y) b(v 0, -> a(x : v/2, y : v*2))", root.scriptAll)
 
-            b.setNameNums([("v", 1)], .fire)
+            b.setNameNums([("v", 1)])
             err += Parsin.testCompare("a(x : 0.5, y : 2) b(v 1, -> a(x : v / 2, y : v * 2))", root.scriptAll)
 
         } else {
@@ -1334,12 +1332,12 @@ final class MuFloTests: XCTestCase {
                 grid(num > 20, chan == 1, x : num / 12, y : num % 12, <- note),  note(num 0_127:0, chan 2)
                 """, root.scriptAll)
 
-            note.setNameNums([("num",50), ("chan",0)], .fire)
+            note.setNameNums([("num",50), ("chan",0)])
             err += Parsin.testCompare("""
                 grid(num > 20, chan == 1, x : num / 12, y : num % 12, <- note), note(num 0_127 : 50, chan 0)
                 """, root.scriptAll)
 
-            note.setNameNums([("num",50), ("chan",1)], .fire)
+            note.setNameNums([("num",50), ("chan",1)])
             err += Parsin.testCompare("""
                 grid(num > 20 : 50, chan == 1, x : num / 12 : 4.166667, y : num % 12 : 2, <- note), note(num 0_127 : 50, chan 1)
                 """, root.scriptAll)
@@ -1364,13 +1362,13 @@ final class MuFloTests: XCTestCase {
 
             err += Parsin.testCompare("a(0…1,<-b), b(<-c), c(0…10,<-a)",root.scriptAll)
 
-            c.setVal(5.0, .fire)
+            c.setVal(5.0)
             err += Parsin.testCompare("a(0.5) b(5) c(5)",root.scriptValue)
 
-            a.setVal(0.1, .fire)
+            a.setVal(0.1)
             err += Parsin.testCompare("a(0.1) b(1) c(1)",root.scriptValue)
 
-            b.setVal(0.2, .fire)
+            b.setVal(0.2)
             err += Parsin.testCompare("a(0.02) b(0.2) c(0.2)",root.scriptValue)
         } else {
             err += 1
@@ -1394,7 +1392,7 @@ final class MuFloTests: XCTestCase {
            let radio = root.findPath("radio"),
            let a = radio.findPath("a"),
            let b2 = radio.findPath("b.b2") {
-            a.setNameNums([("on", 1)], .fire)
+            a.setNameNums([("on", 1)])
             err += Parsin.testCompare(
             """
             radio {
@@ -1409,7 +1407,7 @@ final class MuFloTests: XCTestCase {
             }
             """,root.scriptFull)
 
-            b2.setVal(22, .fire)
+            b2.setVal(22)
             print("\n" + root.scriptFull)
             err += Parsin.testCompare(
             """
@@ -1449,7 +1447,7 @@ final class MuFloTests: XCTestCase {
            let b2 = radio.findPath("b.b2") {
 
             print("\n" + root.scriptFull)
-            a.setNameNums([("on", 1)], .fire)
+            a.setNameNums([("on", 1)])
              print("\n" + root.scriptFull)
             err += Parsin.testCompare(
             """
@@ -1465,7 +1463,7 @@ final class MuFloTests: XCTestCase {
             }
             """,root.scriptFull)
 
-            b2.setVal(22, .fire)
+            b2.setVal(22)
             print("\n" + root.scriptFull)
             err += Parsin.testCompare(
             """
@@ -1586,19 +1584,19 @@ final class MuFloTests: XCTestCase {
 
             err += Parsin.testCompare("a { b(0) c(0) d(0…1, ^- f) e(0…1) f } ",root.scriptAll)
 
-            b.setVal(1, .fire)
+            b.setVal(1)
             var now = root.scriptRoot(.Delta)
             err += Parsin.testCompare("a.b(1)",now)
 
-            c.setVal(2, .fire)
+            c.setVal(2)
             now = root.scriptRoot(.Delta)
             err += Parsin.testCompare("a { b(1) c(2) }",now)
 
-            d.setVal(0.3, .fire)
+            d.setVal(0.3)
             now = root.scriptRoot(.Delta)
             err += Parsin.testCompare("a { b(1) c(2) d(0.3) }",now)
 
-            e.setVal(0.4, .fire)
+            e.setVal(0.4)
             now = root.scriptRoot(.Delta)
             err += Parsin.testCompare("a { b(1) c(2) d(0.3) e(0.4)}",now)
 
@@ -1624,19 +1622,19 @@ final class MuFloTests: XCTestCase {
 
             err += Parsin.testCompare("a { b(0) c(0) d(0…1, ^- f) e(0…1) f } ",root.scriptAll)
 
-            b.setVal(1, .fire)
+            b.setVal(1)
             var now = root.scriptRoot( [.now,.parens,.compact,.noLF]  )
             err += Parsin.testCompare("a { b(1) c(0) d(0) e(0) f }",now)
 
-            c.setVal(2, .fire)
+            c.setVal(2)
             now = root.scriptRoot( [.now,.parens,.compact,.noLF]  )
             err += Parsin.testCompare("a { b(1) c(2) d(0) e(0) f }",now)
 
-            d.setVal(0.3, .fire)
+            d.setVal(0.3)
             now = root.scriptRoot( [.now,.parens,.compact,.noLF] )
             err += Parsin.testCompare("a { b(1) c(2) d(0.3) e(0) f }",now)
 
-            e.setVal(0.4, .fire)
+            e.setVal(0.4)
             now = root.scriptRoot( [.now,.parens,.compact,.noLF]  )
             err += Parsin.testCompare("a { b(1) c(2) d(0.3) e(0.4) f }",now)
 
@@ -1658,7 +1656,7 @@ final class MuFloTests: XCTestCase {
         {
             err += Parsin.testCompare("a { b(0~1, -> c) c(0…1) } ",root.scriptAll)
 
-            b.setVal(0.5, .fire)
+            b.setVal(0.5)
             var now = root.scriptRoot( [.now,.parens,.compact,.noLF])
             err += Parsin.testCompare("a { b(0.5) c(0.5) }", now)
 
@@ -1666,7 +1664,7 @@ final class MuFloTests: XCTestCase {
             now = root.scriptRoot( [.now,.parens,.compact,.noLF])
             err += Parsin.testCompare("a { b(2) c(1) }", now)
 
-            b.setVal(0.5, .fire)
+            b.setVal(0.5)
             now = root.scriptRoot( [.now,.parens,.compact,.noLF])
             err += Parsin.testCompare("a { b(0.5) c(0.25) }", now)
 
