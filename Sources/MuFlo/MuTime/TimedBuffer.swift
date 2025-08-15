@@ -101,9 +101,7 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
 
             state = delegate.flushItem(item, type)
 
-           // log
-            let idState = "\(self.id).\(state.description)"
-            NoTimeLog(idState, interval: 0.5 ) { P("⏱️ id.state:\(idState)") }
+            NoTimeLog("\(self.id)", interval: 0.5 ) { P("⏱️ id.state: \(self.id).\(state.description)") }
 
             if state == .nextBuf {
                 lock.lock()
