@@ -115,7 +115,6 @@ midi { // musical instrument device interface
     input { // midi input
 
         note { // note on/off from 0 thru 127
-
             on (num 0…127, velo 0…127, chan 1…32, port 1…16, time 0)
             off (num 0…127, velo 0…127, chan 1…32, port 1…16, time 0)
         }
