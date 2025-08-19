@@ -110,6 +110,11 @@ public extension MTLTexture {
         let rawData = Data.init(bytes: bytes, count: totalSize)
         return rawData
     }
+    func rawDataNoCopy() -> Data? {
+        let (bytes, totalSize) = rawBytes()
+        let rawData = Data.init(bytesNoCopy: bytes, count: totalSize, deallocator: .none)
+        return rawData
+    }
 
     func toImage() -> CGImage? {
         let pixSize = MemoryLayout<UInt32>.size
