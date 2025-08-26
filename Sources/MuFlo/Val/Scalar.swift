@@ -281,6 +281,6 @@ extension Scalar {
         // let id = "\(id)".pad(6)
         let path = flo.path(9).pad(-18) + "(\(name))"
         let vals = " value/tween/prior: \(value.digits(3))/\(tween.digits(3))/\(prior.digits(3)) "
-        print(prefix + path + vals + suffix)
+        PrintLog(prefix + path + vals + suffix)
     }
 }

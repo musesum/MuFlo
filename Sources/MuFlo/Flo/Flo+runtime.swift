@@ -62,13 +62,6 @@ extension Flo {
         }
     }
 
-    public func activate(_ setOps: SetOps, from: Flo?) {
-        if let from {
-            let visit = Visitor(from: from)
-            activateEdges(setOps, visit, 0)
-        }
-    }
-    
     public func activate(_ setOps: SetOps = [],
                          _ visit: Visitor = Visitor(0),
                          _ depth: Int = 0) {
@@ -78,7 +71,13 @@ extension Flo {
         }
          activateEdges(setOps, visit, depth)
     }
-    private func activateEdges(_ setOps: SetOps, _ visit: Visitor, _ depth: Int) {
+    public func reactivate() {
+        let visit = Visitor(from: self)
+        activateEdges([], visit, 0)
+    }
+    private func activateEdges(_ setOps: SetOps,
+                               _ visit: Visitor,
+                               _ depth: Int) {
         // breadth first follow edges
         var passed = [Flo]()
         for floEdge in floEdges.values {
