@@ -13,25 +13,30 @@ public struct VisitType: OptionSet, Sendable{
     public static let remote = VisitType(rawValue: 1 << 4) // 16
     public static let midi   = VisitType(rawValue: 1 << 5) // 32
     public static let tween  = VisitType(rawValue: 1 << 6) // 64
+    public static let pinch  = VisitType(rawValue: 1 << 7) // 128
     public init(rawValue: Int = 0) { self.rawValue = rawValue }
 
+    public var pinch : Bool { get { contains(.pinch ) }}
+
     static nonisolated(unsafe) public var debugDescriptions: [(Self, String)] = [
-        (.bind,    "bind"  ),   // parsing in progress
-        (.model,   "model" ),   // a non-user update
-        (.canvas,  "canvas"),   // user touched a non-menu canvas
-        (.user,    "user"  ),   // a user gesture
-        (.remote,  "remote"),   // from a remote device
-        (.midi,    "midi"  ),   // from a midi device
-        (.tween,   "tween" ),   // from an animataion
+        (.bind   , "bind"  ), // parsing in progress
+        (.model  , "model" ), // a non-user update
+        (.canvas , "canvas"), // user touched a non-menu canvas
+        (.user   , "user"  ), // a user gesture
+        (.remote , "remote"), // from a remote device
+        (.midi   , "midi"  ), // from a midi device
+        (.tween  , "tween" ), // from an animataion
+        (.pinch  , "pinch" ), // from hand pose
     ]
     static nonisolated(unsafe) public var logDescriptions: [(Self, String)] = [
-        (.bind,    "􁀘"),
-        (.model,   "􀬎"),
-        (.canvas,  "􀏅"),
-        (.user,    "􀉩"),
-        (.remote,  "􀤆"),
-        (.midi,    "􀑪"),
-        (.tween,   "􀎶"),
+        (.bind   , "􁀘"),
+        (.model  , "􀬎"),
+        (.canvas , "􀏅"),
+        (.user   , "􀉩"),
+        (.remote , "􀤆"),
+        (.midi   , "􀑪"),
+        (.tween  , "􀎶"),
+        (.pinch  , "👌"),
     ]
 
     public func has(_ candidates: VisitType) -> Bool {
