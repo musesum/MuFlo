@@ -369,12 +369,6 @@ public extension CGSize {
         "(\(width.digits(digits)),\(height.digits(digits)))"
     }
 
-    static var _1080p: CGSize {
-        CGSize(width: 1920, height: 1080)
-    }
-    static var _4K: CGSize {
-        CGSize(width: 3840, height: 2160)
-    }
     init(_ xy: CGPoint) {
         self.init()
         self.width = xy.x
