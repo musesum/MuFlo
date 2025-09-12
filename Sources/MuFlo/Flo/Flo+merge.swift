@@ -187,7 +187,7 @@ extension Flo {
         }
     }
 
-    func bindPath() -> [Flo] {
+    public func bindPath() -> [Flo] {
         if let found = expandPathName() {
             return found
         } else {
