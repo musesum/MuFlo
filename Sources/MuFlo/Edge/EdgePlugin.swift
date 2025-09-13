@@ -62,7 +62,7 @@ public class EdgePlugin {
         timeNow = Date().timeIntervalSince1970
         var hasDelta = false
         let polyTweens = tweenVals.getValNow(timeNow)
-        guard polyTweens.count > 0 else { return false } //....
+        guard polyTweens.count > 0 else { return false }
         for i in 0 ..< polyTweens.count  {
             if i < floScalars.count  {
                 let floVal = floScalars[i]
