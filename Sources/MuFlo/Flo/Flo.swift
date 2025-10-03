@@ -14,7 +14,7 @@ public enum LogBind { case none, value, def }
 
 public class Flo {
 
-    var id = Visitor.nextId()
+    public var id = Visitor.nextId()
     public var hashFlo : HashFlo!
     public var name = ""
     public var type = FloType.unknown

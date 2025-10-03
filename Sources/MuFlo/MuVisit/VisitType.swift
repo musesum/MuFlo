@@ -2,7 +2,7 @@
 
 import Foundation
 
-public struct VisitType: OptionSet, Sendable{
+public struct VisitType: OptionSet, Sendable {
 
     public let rawValue: Int
 
@@ -18,7 +18,7 @@ public struct VisitType: OptionSet, Sendable{
 
     public var pinch : Bool { get { contains(.pinch ) }}
 
-    static nonisolated(unsafe) public var debugDescriptions: [(Self, String)] = [
+    static public let debugDescriptions: [(Self, String)] = [
         (.bind   , "bind"  ), // parsing in progress
         (.model  , "model" ), // a non-user update
         (.canvas , "canvas"), // user touched a non-menu canvas
@@ -28,7 +28,7 @@ public struct VisitType: OptionSet, Sendable{
         (.tween  , "tween" ), // from an animataion
         (.pinch  , "pinch" ), // from hand pose
     ]
-    static nonisolated(unsafe) public var logDescriptions: [(Self, String)] = [
+    static public let logDescriptions: [(Self, String)] = [
         (.bind   , "􁀘"),
         (.model  , "􀬎"),
         (.canvas , "􀏅"),

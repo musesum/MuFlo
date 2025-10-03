@@ -48,11 +48,6 @@ public extension String {
             .lowercased()
     }
 
-//    func padEqualSign() -> String {
-//        if self.hasSuffix("= ") { return ""  }
-//        if self.hasSuffix("=")  { return " " }
-//        else                    { return " = "}
-//    }
     func padColonSign() -> String {
         if self.hasSuffix(": ") { return ""  }
         if self.hasSuffix(":")  { return " " }

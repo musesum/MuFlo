@@ -103,7 +103,7 @@ public extension simd_double4x4 {
 public func project4x4(_ size: CGSize) -> simd_float4x4 {
 
     let aspect = Float(size.width / size.height)
-    let fovy = Float(aspect > 1 ? 60.0 : 90.0) / 180.0 * .pi
+    let fovy = Float(aspect >= 1 ? 60.0 : 90.0) / 180.0 * .pi
     let nearZ = Float(0.1)
     let farZ = Float(100)
 
