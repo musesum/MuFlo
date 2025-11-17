@@ -300,9 +300,11 @@ extension Flo {
            let mergeExprs = mergeFlo.exprs {
 
             let noTweens = plugins.isEmpty
-            for (key,value) in mergeExprs.nameAny {
+            for (name,value) in mergeExprs.nameAny {
                 if let mergeScalar = value as? Scalar,
-                   let selfScalar = exprs.nameAny[key] as? Scalar {
+                   let selfScalar = exprs.nameAny[name] as? Scalar,
+                   selfScalar.value != mergeScalar.value {
+
                     selfScalar.value = mergeScalar.value
                     if noTweens {
                         selfScalar.tween = selfScalar.value
@@ -314,15 +316,8 @@ extension Flo {
         children.forEach { $0.mergeFloValues(mergeRoot) }
 
         if merged {
-            updateClosurePlugins()
+            activate() //... updateClosurePlugins()
         }
     }
-    func updateClosurePlugins() {
-        for closure in closures {
-            closure(self, Visitor(0, .model))
-        }
-        for plugin in plugins {
-            plugin.startPlugin(id, Visitor(0, .model))
-        }
-    }
+
 }
