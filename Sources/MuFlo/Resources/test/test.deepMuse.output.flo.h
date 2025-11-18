@@ -26,7 +26,7 @@ sky { // visual music program
         }
         radius (1…92=9) // finger silhouette
         tilt (0…1) // use tilt
-        force (0…0.5, -> sky.draw.brush.size )// pen pressure
+        force (0…0.5, -> draw.brush.size )// pen pressure
     }
     draw { // draw on metal layer
 
