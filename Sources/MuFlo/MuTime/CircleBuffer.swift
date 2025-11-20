@@ -6,6 +6,7 @@ import NIOCore
 public enum BufType {
     case localBuf
     case remoteBuf
+    case loopBuf
 }
 
 public enum BufState {

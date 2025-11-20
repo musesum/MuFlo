@@ -53,7 +53,14 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
     public func addItem(_ item: Item, bufType: BufType) {
         let timeNow = Date().timeIntervalSince1970
 
-        if bufType == .remoteBuf {
+        switch bufType {
+        case .loopBuf: fallthrough
+        case .localBuf:
+            lock.lock()
+            buffer.append((item, timeNow, bufType))
+            lock.unlock()
+
+        case .remoteBuf:
             let itemLag = timeNow - item.time
             futureLag = futureLag * filterLag + max(minimumLag, itemLag) * (1-filterLag)
             var futureTime = item.time + futureLag
@@ -74,12 +81,9 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
             prevItem = item
             prevFuture = futureTime
 
-            //TimeLog(#function, interval: 2) { P("⚡ itemLag:\(itemLag.digits(3)) futureLag:\(self.futureLag.digits(3))  ")  }
-        } else {
-            lock.lock()
-            buffer.append((item, timeNow, bufType))
-            lock.unlock()
+
         }
+
     }
 
     public func flushBuf() -> BufState {
