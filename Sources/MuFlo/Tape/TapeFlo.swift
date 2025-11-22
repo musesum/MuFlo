@@ -33,55 +33,115 @@ public struct TapeState: OptionSet, Sendable {
             self = self.subtracting(nextState)
         }
     }
+}
 
+public struct TapePlay: Sendable {
+    public let items: [MirrorItem]
+    public let recBegan: TimeInterval
+    public let duration: TimeInterval
+    public let peers: Peers?
 
+    public init(_ items     : [MirrorItem],
+                _ duration  : TimeInterval,
+                _ peers     : Peers?) {
+        self.items     = items
+        self.recBegan  = items.first?.time ?? 0
+        self.duration  = duration
+        self.peers     = peers
+    }
+
+    public func startPlayback(loop: Bool) -> Task<Void, Never> {
+        guard !items.isEmpty else { return Task { } }
+        var playBegan = Date().timeIntervalSince1970
+        var index = 0
+
+        return Task { [items, recBegan, peers] in
+            do {
+                while true {
+                    while index < items.count {
+                        try Task.checkCancellation()
+
+                        let item = items[index]
+                        let itemDelta = item.time - recBegan
+                        let timeNow = Date().timeIntervalSince1970
+                        let timeDelta = timeNow - playBegan
+
+                        let remaining = itemDelta - timeDelta
+                        if remaining > 0 {
+                            let n = UInt64(remaining * 1_000_000_000)
+                            try await Task.sleep(nanoseconds: n)
+                        }
+                        peers?.playback(item.type, item.data)
+                        index += 1
+                    }
+                    if loop {
+                        index = 0
+                        playBegan = Date().timeIntervalSince1970
+                        continue
+                    } else {
+                        break
+                    }
+                }
+            } catch {
+                // Cancellation or sleep error: just exit gracefully
+            }
+        }
+    }
 }
 
 public class TapeDeck {
 
-    var items     : [MirrorItem] = []
-    var recBegan  : TimeInterval = 0
-    var duration  : TimeInterval = 0
-    var playBegan : TimeInterval = 0
-    var timer     : Timer?
-    var peers     : Peers?
+    var items    : [MirrorItem] = []
+    var duration : TimeInterval = 0
+    var peers    : Peers?
+
+    // Playback control
+    private var playbackTask: Task<Void, Never>?
+    private var loop = false
+    private var learn = false
+
+    public func snapshot() -> TapePlay {
+        return TapePlay( items, duration, peers)
+    }
 
     func add(_ item: MirrorItem) {
-        if items.isEmpty {
-            recBegan = item.time
-        }
         items.append(item)
     }
     func record(_ on: Bool) {
-        let timeNow = Date().timeIntervalSinceReferenceDate
+        let timeNow = Date().timeIntervalSince1970
         if on {
-            recBegan = timeNow
             duration = 0
-        } else {
+        } else if let timeRec = items.first?.time {
             // user tapped record to stop, so set duration
-            duration = timeNow - recBegan
+            duration = timeNow - timeRec
         }
     }
     func play(_ on: Bool) {
-        let timeNow = Date().timeIntervalSinceReferenceDate
-        if on, !items.isEmpty {
-            if duration.isZero {
-                duration = timeNow - recBegan
-            }
-            playBegan = timeNow
-
-            timer.flush
-
-
+        if on {
+            startPlayback(loop)
         } else {
-            timer?.invalidate()
+            stopPlayback()
         }
     }
+
     func loop(_ on: Bool) {
+        self.loop = on
     }
     func learn(_ on: Bool) {
+        self.learn = on
     }
     func beat(_ on: Bool) {
+    }
+
+    private func startPlayback(_ loop: Bool) {
+        guard !items.isEmpty else { return }
+        stopPlayback() // cancel any existing task
+        playbackTask = snapshot().startPlayback(loop: loop)
+    }
+
+    private func stopPlayback() {
+        playbackTask?.cancel()
+        playbackTask = nil
     }
 }
 
@@ -118,14 +178,13 @@ public class TapeFlo: @unchecked Sendable, MirrorSink {
             switch nextState {
             case .record : deck.record(on)
             case .play   : deck.play(on)
-            case .loop   : deck.loop (on)
+            case .loop   : deck.loop(on)
             case .learn  : deck.learn(on)
             case .beat   : deck.beat (on)
             default      : break
             }
             state.adjust(on, nextState)
             Task { await peers?.setMirror(on: state.record) }
-
         }
     }
 
@@ -138,3 +197,4 @@ public class TapeFlo: @unchecked Sendable, MirrorSink {
     }
     
 }
+
