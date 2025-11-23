@@ -21,12 +21,12 @@ public class Reset {
         }
         lock.unlock()
     }
-    public static func add(_ id: Int, _ reset: ResetDelegate) {
+    public static func addReset(_ id: Int, _ reset: ResetDelegate) {
         lock.lock()
         resets[id] = reset
         lock.unlock()
     }
-    public static func remove(_ id: Int) {
+    public static func removeReset(_ id: Int) {
         lock.lock()
         resets.removeValue(forKey: id)
         lock.unlock()

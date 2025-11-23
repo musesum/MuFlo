@@ -2,12 +2,7 @@
 
 import Foundation
 import NIOCore
-
-public enum BufType {
-    case localBuf
-    case remoteBuf
-    case loopBuf
-}
+import MuPeers // DataFrom
 
 public enum BufState {
     case nextBuf
@@ -25,12 +20,12 @@ public enum BufState {
 @MainActor
 public protocol CircleBufferDelegate {
     associatedtype Item
-    mutating func flushItem<Item>(_ item: Item, _ type: BufType) -> BufState
+    mutating func flushItem<Item>(_ item: Item, _ from: DataFrom) -> BufState
 }
 @MainActor
 public class CircleBuffer<Item> {
     let id = Visitor.nextId()
-    private var buffer: CircularBuffer<(Item, BufType)>
+    private var buffer: CircularBuffer<(Item, DataFrom)>
     private let capacity: Int = 3
     private var lock = NSLock()
     public var delegate: (any CircleBufferDelegate)?
@@ -48,18 +43,18 @@ public class CircleBuffer<Item> {
     }
 
     deinit {
-        Reset.remove(id)
+        Reset.removeReset(id)
     }
     public init() {
         self.buffer = CircularBuffer(initialCapacity: capacity)
-        Reset.add(id,self)
+        Reset.addReset(id,self)
         bufferLoop()
     }
     
-    public func addItem(_ item: Item, bufType: BufType) {
+    public func addItem(_ item: Item, from: DataFrom) {
         lock.lock()
         defer { lock.unlock() }
-        buffer.append((item, bufType))
+        buffer.append((item, from))
     }
     
     public func flushBuf() -> BufState {
