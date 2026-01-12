@@ -188,7 +188,7 @@ public class TapeFlo: @unchecked Sendable, MirrorSink {
         }
     }
 
-    public func reflect(_ item: MirrorItem) {
+    public func reflectItem(_ item: MirrorItem) {
 
         if state.record {
             deck.add(item)

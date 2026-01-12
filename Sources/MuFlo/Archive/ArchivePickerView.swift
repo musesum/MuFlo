@@ -44,15 +44,10 @@ public struct ArchiveItemView: View {
     }
     public var body: some View {
         Button(action: { open(archiveItem, 1) }) {
-            VStack {
+            VStack(spacing: 8) {
                 archiveItem.icon
                     .resizable()
                     .frame(width: 64, height: 64)
-                    .clipShape(RoundedRectangle(cornerRadius: 16)) // clip corners
-                    .overlay(RoundedRectangle(cornerRadius:  16)
-                        .stroke(stroke, lineWidth: width)
-                        .background(.clear)
-                    )
                     .shadow(color: .black, radius: 1.0)
                 Text(archiveItem.name)
                     .foregroundColor(.white)
@@ -60,7 +55,11 @@ public struct ArchiveItemView: View {
                     .scaledToFit()
                     .minimumScaleFactor(0.01)
             }
+            .padding(12)
+            .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
+        .buttonStyle(.plain)
+        .hoverEffect(.lift)
         .simultaneousGesture(
             LongPressGesture().onEnded { _ in longPress(archiveItem) }
         )
