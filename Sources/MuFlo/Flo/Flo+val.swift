@@ -59,7 +59,7 @@ extension Flo {
         return nil
     }
 
-    func DoubleVal() -> Double? {
+    public func DoubleVal() -> Double? {
         return ScalarVal()?.tween ?? nil
     }
     func DoubleVals() -> [Double] {

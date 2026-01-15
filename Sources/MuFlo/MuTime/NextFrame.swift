@@ -50,10 +50,12 @@ public class NextFrame {
 
     private func goBetweenFrames() {
         if betweenFrames.count > 0 {
+            lock.lock()
             for betweenFrame in betweenFrames {
                 betweenFrame?()
             }
             betweenFrames.removeAll()
+            lock.unlock()
         }
     }
     @objc public func nextFrame(force: Bool = false) -> Bool  {

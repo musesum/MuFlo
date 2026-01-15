@@ -193,7 +193,7 @@ public class TapeFlo: @unchecked Sendable, MirrorSink {
         if state.record {
             deck.add(item)
         }
-        print("TapeFlo::reflect: time: \(item.time) type: \(item.type) count: \(item.data.count)")
+        //.....? print("TapeFlo::reflect: time: \(item.time) type: \(item.type) count: \(item.data.count)")
     }
     
 }

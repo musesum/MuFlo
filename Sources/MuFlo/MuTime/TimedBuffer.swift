@@ -21,7 +21,7 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
     private var lock = NSLock()
 
     public var delegate: (any TimedBufferDelegate)?
-    private var minLag: TimeInterval = 0.20 // static minimum timelag
+    private var minLag: TimeInterval = 0.200 // static minimum timelag 200 msec
     private var maxLag: TimeInterval = 2.00 // stay within 2 second delay
     private var nextLag: TimeInterval = 1.00 // filtered next timelag
     private var filterLag: Double = 0.95
@@ -82,28 +82,23 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
 
             prevItem = item
             prevFuture = futureTime
-
-
         }
-
     }
 
     public func flushBuf() -> BufState {
 
         guard var delegate else { return .nextBuf }
 
-        var state: BufState = .nextBuf
+        var state: BufStƒate = .nextBuf
         while !buffer.isEmpty, state != .doneBuf {
 
             let timeNow = Date().timeIntervalSince1970
 
             lock.lock()
-            let (item, futureTime, type) = buffer.first!
+            let first = buffer.first
             lock.unlock()
-
-            if futureTime > timeNow {
-                return .waitBuf
-            }
+            guard let (item, futureTime, type) = first else { return .doneBuf }
+            if futureTime > timeNow {  return .waitBuf f}
 
             state = delegate.flushItem(item, type)
 
