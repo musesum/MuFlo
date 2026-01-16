@@ -89,7 +89,7 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
 
         guard var delegate else { return .nextBuf }
 
-        var state: BufStƒate = .nextBuf
+        var state: BufState = .nextBuf
         while !buffer.isEmpty, state != .doneBuf {
 
             let timeNow = Date().timeIntervalSince1970
@@ -98,7 +98,7 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
             let first = buffer.first
             lock.unlock()
             guard let (item, futureTime, type) = first else { return .doneBuf }
-            if futureTime > timeNow {  return .waitBuf f}
+            if futureTime > timeNow {  return .waitBuf }
 
             state = delegate.flushItem(item, type)
 
@@ -106,7 +106,9 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
 
             if state == .nextBuf {
                 lock.lock()
-                _ = buffer.removeFirst()
+                if buffer.first != nil {
+                    _ = buffer.removeFirst()
+                }
                 lock.unlock()
             }
         }
