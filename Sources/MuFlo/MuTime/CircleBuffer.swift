@@ -46,11 +46,8 @@ public class CircleBuffer<Item> {
         self.buffer = CircularBuffer(initialCapacity: capacity)
         Reset.addReset(id,self)
         bufferLoop()
-        print("〄 CircleBuffer init \(id)") //.....?
     }
-    deinit {
-        print("〄 CircleBuffer deinit \(id)") //.....?
-    }
+
     public func addItem(_ item: Item, from: DataFrom) {
         lock.lock()
         defer { lock.unlock() }

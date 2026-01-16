@@ -36,14 +36,14 @@ public struct TapeState: OptionSet, Sendable {
 }
 
 public struct TapePlay: Sendable {
-    public let items: [MirrorItem]
-    public let recBegan: TimeInterval
-    public let duration: TimeInterval
-    public let peers: Peers?
+    public let items    : [MirrorItem]
+    public let recBegan : TimeInterval
+    public let duration : TimeInterval
+    public let peers    : Peers?
 
-    public init(_ items     : [MirrorItem],
-                _ duration  : TimeInterval,
-                _ peers     : Peers?) {
+    public init(_ items    : [MirrorItem],
+                _ duration : TimeInterval,
+                _ peers    : Peers?) {
         self.items     = items
         self.recBegan  = items.first?.time ?? 0
         self.duration  = duration

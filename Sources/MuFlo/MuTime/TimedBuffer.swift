@@ -43,14 +43,11 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable, ResetDelegate {
         return buffer.count
     }
     public init(capacity: Int) {
-        print("〄 TimedBuffer init \(id)") //.....?
         self.capacity = capacity
         self.buffer = CircularBuffer(initialCapacity: capacity)
         Reset.addReset(id,self)
     }
-    deinit {
-        print("〄 TimedBuffer deinit \(id)") //.....?
-    }
+
     public func addItem(_ item: Item, from: DataFrom) {
 
         let timeNow = Date().timeIntervalSince1970
