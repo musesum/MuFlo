@@ -4,6 +4,7 @@ import Foundation
 
 public protocol ResetDelegate {
     func resetAll()
+    func tearDown()
 }
 
 /// akin to MIDI panic which resets all buffers

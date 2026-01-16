@@ -13,7 +13,7 @@ public protocol TimedItem: Sendable {
 }
 public typealias TimeLag = TimeInterval
 
-public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
+public class TimedBuffer<Item: TimedItem>: @unchecked Sendable, ResetDelegate {
 
     private let id = Visitor.nextId()
     private var buffer: CircularBuffer<(Item, TimeLag, DataFrom)>
@@ -42,15 +42,15 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
         defer { lock.unlock() }
         return buffer.count
     }
-    deinit {
-        Reset.removeReset(id)
-    }
     public init(capacity: Int) {
+        print("〄 TimedBuffer init \(id)") //.....?
         self.capacity = capacity
         self.buffer = CircularBuffer(initialCapacity: capacity)
         Reset.addReset(id,self)
     }
-    
+    deinit {
+        print("〄 TimedBuffer deinit \(id)") //.....?
+    }
     public func addItem(_ item: Item, from: DataFrom) {
 
         let timeNow = Date().timeIntervalSince1970
@@ -114,11 +114,13 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable {
         }
         return state
     }
-}
-extension TimedBuffer: ResetDelegate {
+    // ResetDelegate
     public func resetAll() {
         lock.lock()
         buffer.removeAll()
         lock.unlock()
+    }
+    public func tearDown() {
+        Reset.removeReset(id)
     }
 }
