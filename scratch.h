@@ -7,4 +7,10 @@ iPhone 17 layer.frame: (0.0, 0.0, 440.0, 956.0) // landscape & portrait
 iPhone 15 layer.frame: (0.0, 0.0, 430.0, 932.0) // landscape & portrait
 
 ToDo
-    Buffer
+    Tape
+        Remove Menu Next
+        Panic stop for play stop
+        Menu Stop stops recording
+        Suppress sendItem for record top
+
+  
