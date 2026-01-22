@@ -15,12 +15,13 @@ public enum LogBind { case none, value, def }
 public class Flo {
 
     public var id = Visitor.nextId()
-    public var hashFlo : HashFlo!
+    public var hashFlo: HashFlo!
     public var name = ""
     public var type = FloType.unknown
     public var exprs: Exprs?
     public var parent: Flo?
     public var children = [Flo]()
+    public var floOps = FloOps()
 
     var pathRefs: [Flo]?            /// `b` in `a.b(<> c)` for `a.b.c a.b(<> c)
     var edgeDefs = EdgeDefs()       /// `b` and `c` in `a(<-(b c)`
@@ -97,7 +98,6 @@ public class Flo {
             else { exprs?.nameAny["buf"] = newValue }
         }
     }
-
     public var passthrough = false // does not have its own FloVal, so pass through events
     public var hasPlugDefs: Bool { plugDefs?.count ?? 0 > 0 }
     public var hasPlugins: Bool { plugins.count > 0 }
@@ -187,6 +187,7 @@ public class Flo {
         exprs = deepcopy.exprs?.copy(self)
         edgeDefs = deepcopy.edgeDefs.copy()
         comments = deepcopy.comments.copy()
+        floOps = deepcopy.floOps
     }
 
     public convenience init(decorate: Flo,

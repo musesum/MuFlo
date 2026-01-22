@@ -12,5 +12,7 @@ ToDo
         Panic stop for play stop
         Menu Stop stops recording
         Suppress sendItem for record top
+    Midi
+        Send Item
 
   

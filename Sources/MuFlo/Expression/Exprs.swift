@@ -4,6 +4,7 @@ import QuartzCore
 import Collections
 import Foundation
 
+
 public class Exprs: FloVal, @unchecked Sendable {
 
     /// `t(x 1, y 2)` ⟹ `["x": 1, "y": 2]`
@@ -23,7 +24,7 @@ public class Exprs: FloVal, @unchecked Sendable {
 
     /// return _0, _1, ... for anonymous values
     internal var anonKey: String { String(format: "_%i", nameAny.keys.count) }
-
+    internal var reflect = true
 
     public subscript(_ subName: String, _ scalarOps: ScalarOps) -> Double? {
         if let scalar = nameAny[subName] as? Scalar {

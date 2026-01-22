@@ -26,7 +26,7 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
         let tape = root˚.bind("tape")
         record˚ = tape.bind("record") { f,_ in update(f,.record) }
         play˚   = tape.bind("play"  ) { f,_ in update(f,.play  ) }
-        loop˚   = tape.bind("_loop" ) { f,_ in update(f,.loop  ) }
+        loop˚   = tape.bind("loop"  ) { f,_ in update(f,.loop  ) }
         learn˚  = tape.bind("learn" ) { f,_ in update(f,.learn ) }
         beat˚   = tape.bind("beat"  ) { f,_ in update(f,.beat  ) }
 

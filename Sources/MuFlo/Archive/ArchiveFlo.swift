@@ -229,7 +229,7 @@ open class ArchiveFlo: NSObject {
                   _ ext: String = "flo.h",
                   _ nextFrame: NextFrame) -> Bool {
 
-        guard let script = read(fname, ext) ?? read(fname, ext) else { return false }
+        guard let script = read(fname, ext) else { return false }
         let success = FloParse().parseRoot(root, script, nextFrame)
         PrintLog(fname + (success ? " ✓" : " ⁉️ parse failed"))
         return success

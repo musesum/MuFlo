@@ -278,8 +278,11 @@ public class FloParse {
         flo.graft(graft)
     }
 
-    func bindRoot(_ root: Flo, _ nextFrame: NextFrame?, _ scriptOps: FloScriptOps = []) {
-        if ops.logBind {  print("bindRoot     ") }
+    func bindRoot(_ root: Flo,
+                  _ nextFrame: NextFrame?,
+                  _ scriptOps: FloScriptOps = []) {
+
+        if ops.logBind        { print("bindRoot     ") }
         step("bindPathName ") { root.bindPathName() }
         step("bindTopDown  ") { root.bindTopDown(self) }
         step("bindHashFlo  ") { root.bindHashFlo() }

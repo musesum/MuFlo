@@ -452,20 +452,23 @@ extension Flo {
             child.bindEdges(nextFrame)
         }
     }
-    /** bind 2nd a.b in `a.b { c d } a.e:a.b { f g }`
 
-     - note: Needs forward pass for prototype subtree that refer to unexpanded paths.
 
-     Since expansion is bottom up, the first a.b in:
+    /// bind 2nd a.b in `a.b { c d } a.e:a.b { f g }`
+    ///
+    /// - note: Needs forward pass for prototype subtree that refer to unexpanded paths.
+    ///
+    /// Since expansion is bottom up, the first a.b in:
+    ///
+    /// a.b { c d } a.e:a.b { f g }
+    ///
+    /// has not been been expanded, when encountering the second a.b.
+    /// So, the deeper a.b was deferred until this forward pass,
+    /// where first a.b has finally expanded and can now bind
+    /// its children.
 
-     a.b { c d } a.e:a.b { f g }
-
-     has not been been expanded, when encountering the second a.b.
-     So, the deeper a.b was deferred until this forward pass,
-     where first a.b has finally expanded and can now bind
-     its children.
-     */
     func bindTopDown(_ floParse: FloParse) {
+        floOps.update(self)
         for child in children {
             if child.children.count > 0 {
                 child.bindTopDown(floParse)
@@ -493,3 +496,4 @@ extension Flo {
         }
     }
 }
+
