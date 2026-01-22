@@ -468,7 +468,6 @@ extension Flo {
     /// its children.
 
     func bindTopDown(_ floParse: FloParse) {
-        policy.update(self)
         for child in children {
             if child.children.count > 0 {
                 child.bindTopDown(floParse)
@@ -493,6 +492,12 @@ extension Flo {
         }
         for child in children {
             child.bindVals()
+        }
+    }
+    public func bindPolicy(){
+        policy.update(self)
+        for child in children {
+            child.bindPolicy()
         }
     }
 }

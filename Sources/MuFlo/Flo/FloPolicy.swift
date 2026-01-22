@@ -8,11 +8,15 @@ public struct Policy: OptionSet, Sendable, Codable {
     public static let menu  = Self(rawValue: 1 << 0)
     public static let share = Self(rawValue: 1 << 1)
     public static let local = Self(rawValue: 1 << 2)
+    //WARNING: always extend mask for new flags
+    private let mask: Int = 0b111
 
     private static let all: [Policy] = [.menu, .share, .local]
 
     public var rawValue: Int
-    public init(rawValue: Int) { self.rawValue = rawValue }
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
 
     var key: String? {
         switch self {
@@ -24,17 +28,8 @@ public struct Policy: OptionSet, Sendable, Codable {
     }
 
     public init() {
-        self.rawValue = (Self.menu.rawValue | Self.share.rawValue)
-    }
-
-    static public func += (lhs: inout Policy, rhs: Policy) {
-        lhs.rawValue |= rhs.rawValue
-    }
-    static public func -= (lhs: inout Policy, rhs: Policy) {
-        lhs.rawValue = lhs.rawValue - rhs.rawValue
-    }
-    static public func - (lhs: Policy, rhs: Policy) -> Policy {
-        return lhs.subtracting(rhs)
+        self.rawValue = (Self.menu.rawValue |
+                         Self.share.rawValue)
     }
 
     /// Policy flows top-down from parent to children
@@ -49,38 +44,50 @@ public struct Policy: OptionSet, Sendable, Codable {
     ///     ```
     /// The default value is 1 so that the following are equivalent
     ///     ```
-    ///     tape (...)
-    ///     tape (share, ...)
-    ///     tape (share 1, ...)
+    ///     tape (...)          // set on
+    ///     tape (share, ...)   // set on
+    ///     tape (share 1, ...) // set on
     ///
     /// TODO:
     ///     add tests to MuFloTest.swift
     ///     live changes so that `menu 0` will hide sub menus
     ///         based on the state of a particular node
     ///
-    func update(_ flo: Flo) {
-        let priorOps = flo.parent?.policy ?? Policy()
-        for whereOp in Policy.all {
-            setOp(getOp())
-            func getOp() -> Int {
-                guard let exprs = flo.exprs, /// if no expression
-                      let key = whereOp.key, /// error with constructin key
-                      let any = exprs.nameAny[key] /// expres does not have key
-                else { /// not found, so continue priorOp
-                    return priorOps.rawValue & whereOp.rawValue
-                }
+    mutating func update(_ flo: Flo) {
+        let parentPolicy = flo.parent?.policy ?? Policy()
+        let oldRawValue = rawValue
+        for wherePolicy in Policy.all {
+            let newFlag = getFlag(wherePolicy)
+            let whereFlag = wherePolicy.rawValue
 
-                guard let val = (any as? Scalar)?.value
-                else { /// has name key no scalar, so set testOp Flag
-                    return whereOp.rawValue
-                }
-                return val > 0 ? whereOp.rawValue : 0
+            setFlag(whereFlag,newFlag)
+        }
+        if rawValue != oldRawValue {
+            print("Policy changed: \(oldRawValue) -> \(rawValue) for \(flo.name)")
+        }
+
+        func getFlag(_ wherePolicy: Policy) -> Int {
+            let whereFlag = wherePolicy.rawValue
+            guard let exprs = flo.exprs, /// if no expression
+                  let key = wherePolicy.key, /// error with constructin key
+                  let any = exprs.nameAny[key] /// expres does not have key
+            else { /// not found, so continue parentPolicy's flag
+                return whereFlag & parentPolicy.rawValue
             }
-            func setOp(_ newOp: Int) {
-                // clear the bit for testOp, then set from newOp
-                let cleared = flo.policy.rawValue & ~whereOp.rawValue
-                flo.policy.rawValue = cleared | newOp
+
+            guard let val = (any as? Scalar)?.value
+            else { /// has name key but no scalar, so set Flag on
+                return whereFlag
             }
+            return val > 0 ? whereFlag : 0
+        }
+        func setFlag(_ whereFlag: Int, // position of flag
+                     _ newFlag: Int)   // new value of flag
+        {
+            let whereMask = mask ^ whereFlag
+            let oldValue = self.rawValue
+            self.rawValue = (oldValue & whereMask) | newFlag
+            //print("\(oldValue)~\(whereFlag)|\(newFlag)=\(self.rawValue)", terminator: " ")
         }
     }
 }

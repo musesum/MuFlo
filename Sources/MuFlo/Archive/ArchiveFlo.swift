@@ -99,6 +99,7 @@ open class ArchiveFlo: NSObject {
         } else {
             //DebugLog { P("√ {\n \(self.root˚.scriptFull) }\n") }
         }
+        root˚.bindPolicy()
     }
 
     /// called via AppSky::
@@ -229,6 +230,9 @@ open class ArchiveFlo: NSObject {
                   _ ext: String = "flo.h",
                   _ nextFrame: NextFrame) -> Bool {
 
+        if fname=="tape" {
+            PrintLog("ℹ️ parsing \(fname).\(ext)")
+        }
         guard let script = read(fname, ext) else { return false }
         let success = FloParse().parseRoot(root, script, nextFrame)
         PrintLog(fname + (success ? " ✓" : " ⁉️ parse failed"))
