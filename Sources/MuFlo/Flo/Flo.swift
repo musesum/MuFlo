@@ -21,7 +21,7 @@ public class Flo {
     public var exprs: Exprs?
     public var parent: Flo?
     public var children = [Flo]()
-    public var floOps = FloOps()
+    public var policy = Policy()
 
     var pathRefs: [Flo]?            /// `b` in `a.b(<> c)` for `a.b.c a.b(<> c)
     var edgeDefs = EdgeDefs()       /// `b` and `c` in `a(<-(b c)`
@@ -187,7 +187,7 @@ public class Flo {
         exprs = deepcopy.exprs?.copy(self)
         edgeDefs = deepcopy.edgeDefs.copy()
         comments = deepcopy.comments.copy()
-        floOps = deepcopy.floOps
+        policy = deepcopy.policy
     }
 
     public convenience init(decorate: Flo,
