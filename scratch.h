@@ -14,5 +14,6 @@ ToDo
         Suppress sendItem for record top
     Midi
         Send Item
+    🫨 Reset delgates count: 12
 
   

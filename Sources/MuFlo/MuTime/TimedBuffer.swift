@@ -118,6 +118,7 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable, ResetDelegate {
         lock.unlock()
     }
     public func tearDown() {
+        resetAll()
         Reset.removeReset(id)
     }
 }
