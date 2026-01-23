@@ -14,7 +14,7 @@ public class TapeDeck {
     private var learn = false
 
     public func snapshot() -> TapePlay {
-        return TapePlay(items, duration, peers)
+        return TapePlay(items, duration)
     }
 
     func add(_ item: TapeItem) {
@@ -44,7 +44,8 @@ public class TapeDeck {
     private func startPlayback(_ loop: Bool) {
         guard !items.isEmpty else { return }
         stopPlayback() // cancel any existing task
-        playbackTask = snapshot().startPlayback(loop: loop)
+        let copy = snapshot()
+        playbackTask = copy.startPlayback(loop: loop)
     }
 
     private func stopPlayback() {

@@ -8,16 +8,13 @@ public struct TapePlay: Sendable {
     let tapeItems : [TapeItem]
     let tapeBegan : TimeInterval
     let duration  : TimeInterval
-    let peers     : Peers?
 
     public init(_ mirrorItems : [TapeItem],
-                _ duration    : TimeInterval,
-                _ peers       : Peers?) {
+                _ duration    : TimeInterval) {
         
         self.tapeItems = mirrorItems
         self.tapeBegan = mirrorItems.first?.time ?? 0
         self.duration  = duration
-        self.peers     = peers
     }
 
     public func startPlayback(loop: Bool) -> Task<Void, Never> {
@@ -29,7 +26,7 @@ public struct TapePlay: Sendable {
         var playBegan = Date().timeIntervalSince1970
         var index = 0
 
-        return Task { [tapeItems, tapeBegan, peers] in
+        return Task { [tapeItems, tapeBegan] in
             do {
                 while true {
                     while index < tapeItems.count {
@@ -44,7 +41,7 @@ public struct TapePlay: Sendable {
                             let n = UInt64(remainDelta * 1_000_000_000)
                             try await Task.sleep(nanoseconds: n)
                         }
-                        peers?.playback(itemNow.type, itemNow.data)
+                        await Peers.shared.playback(itemNow.type, itemNow.data)
                         index += 1
                     }
                     if loop {

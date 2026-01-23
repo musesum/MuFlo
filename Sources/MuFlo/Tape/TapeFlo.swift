@@ -14,14 +14,9 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
 
     private var tapeState = TapeState()
     private var tapeDeck = TapeDeck()
-    private var peers: Peers?
 
     public init() {}
 
-    public func setPeers(_ peers: Peers) {
-        self.peers = peers
-        tapeDeck.peers = peers
-    }
     public func update(_ root˚: Flo) {
 
         let tape = root˚.bind("tape")
@@ -44,7 +39,9 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
             default      : break
             }
             tapeState.adjust(on, nextState)
-            Task { await peers?.setTape(on: tapeState.record) }
+            Task {
+                await Peers.shared.setTape(on: tapeState.record)
+            }
 
             func record(_ on: Bool) {
                 if on {
@@ -71,9 +68,11 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
     public func replayItem(_ item: TapeItem) {
 
         if tapeState.record {
+
             tapeDeck.add(item)
+            //print("〄 TapeFlo::replayItem: time: \(item.time) type: \(item.type) count: \(tapeDeck.items.count)")
         }
-        //.....? print("〄 TapeFlo::reflect: time: \(item.time) type: \(item.type) count: \(item.data.count)")
+
     }
     
 }
