@@ -63,7 +63,7 @@ public struct Policy: OptionSet, Sendable, Codable {
             setFlag(whereFlag,newFlag)
         }
         if rawValue != oldRawValue {
-            print("Policy changed: \(oldRawValue) -> \(rawValue) for \(flo.name)")
+            //print("Policy changed: \(oldRawValue) -> \(rawValue) for \(flo.name)")
         }
 
         func getFlag(_ wherePolicy: Policy) -> Int {

@@ -10,6 +10,7 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
     private var loop˚  : Flo?
     private var learn˚ : Flo?
     private var beat˚  : Flo?
+    private var panic˚ : Flo?
 
     private var tapeState = TapeState()
     private var tapeDeck = TapeDeck()
@@ -29,6 +30,7 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
         loop˚   = tape.bind("loop"  ) { f,_ in update(f,.loop  ) }
         learn˚  = tape.bind("learn" ) { f,_ in update(f,.learn ) }
         beat˚   = tape.bind("beat"  ) { f,_ in update(f,.beat  ) }
+        panic˚  = tape.bind("panic"  ) { f,_ in update(f,.beat ) }
 
         func update(_ flo: Flo, _ nextState: TapeState) {
 
@@ -59,6 +61,9 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
                 } else {
                     tapeDeck.play (false)
                 }
+            }
+            func reset() {
+                panic˚?.setExpr("x", 1)
             }
         }
     }
