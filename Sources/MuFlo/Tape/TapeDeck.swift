@@ -2,16 +2,18 @@
 
 import Foundation
 import MuPeers
+
 public class TapeDeck {
 
     var items    : [TapeItem] = []
     var duration : TimeInterval = 0
-    var peers    : Peers?
 
     // Playback control
     private var playbackTask: Task<Void, Never>?
     private var loop = true
     private var learn = false
+
+    init() {}
 
     public func snapshot() -> TapePlay {
         return TapePlay(items, duration)
@@ -51,5 +53,8 @@ public class TapeDeck {
     private func stopPlayback() {
         playbackTask?.cancel()
         playbackTask = nil
+        NextFrame.shared.addBetweenFrame {
+            Reset.reset()
+        }
     }
 }

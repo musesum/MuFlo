@@ -7,7 +7,8 @@ public protocol NextFrameDelegate {
 }
 
 public class NextFrame {
-    private var lock = NSLock()
+    nonisolated(unsafe) public static let shared = NextFrame()
+    private let lock = NSLock()
     private var preferredFps = 60
     private var displayLink: CADisplayLink!
     private var delegates = [Int: NextFrameDelegate]()
@@ -17,10 +18,10 @@ public class NextFrame {
     public var pause = false
     public var interval: CFTimeInterval = 0
 
-    public init() {
+    private init() {
         displayLink = CADisplayLink(target: self, selector: #selector(nextFrame))
         displayLink.preferredFramesPerSecond = preferredFps
-        displayLink.add(to: RunLoop.current, forMode: .common)
+        displayLink.add(to: .main, forMode: .common)
     }
 
     public func updateFps(_ newFps: Int?) {
@@ -72,3 +73,4 @@ public class NextFrame {
         return true
     }
 }
+

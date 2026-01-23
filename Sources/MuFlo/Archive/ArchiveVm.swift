@@ -9,18 +9,15 @@ import SwiftUI
     public var archiveActs: [ArchiveItem] { getArchiveMus() }
     private let Files = FileManager.default
     public var nameNow = "Archive"
-    public var nextFrame: NextFrame
 
-    public init(_ nextFrame: NextFrame) {
-        self.nextFrame = nextFrame
-    }
+    public init() {}
 
     func archiveAction(_ archiveItem: ArchiveItem,_ taps: Int) {
         switch taps {
         case 1,2:
             if let archiveProto,
                let url = archiveItem.url {
-                archiveProto.readUserArchive(url, nextFrame, local: true)
+                archiveProto.readUserArchive(url, local: true)
             }
             nameNow = archiveItem.name
         default: break

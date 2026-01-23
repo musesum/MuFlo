@@ -50,7 +50,6 @@ public class FloParse {
     @discardableResult
     public func parseRoot(_ root: Flo,
                           _ script: String,
-                          _ nextFrame: NextFrame? = nil,
                           parOps: ParOps = []) -> Bool {
         par.ops = parOps
         // parse the script.flo.h
@@ -62,7 +61,7 @@ public class FloParse {
             if ops.printParsedTokens { parsed.printTokens() }
 
             parseFlo(root, parsed, 0)
-            bindRoot(root, nextFrame, FloScriptOps.All)
+            bindRoot(root, FloScriptOps.All)
             return true
         }
         return false
@@ -279,7 +278,6 @@ public class FloParse {
     }
 
     func bindRoot(_ root: Flo,
-                  _ nextFrame: NextFrame?,
                   _ scriptOps: FloScriptOps = []) {
 
         if ops.logBind        { print("bindRoot     ") }
@@ -287,7 +285,7 @@ public class FloParse {
         step("bindTopDown  ") { root.bindTopDown(self) }
         step("bindHashFlo  ") { root.bindHashFlo() }
         step("bindVals     ") { root.bindVals() }
-        step("bindEdges    ") { root.bindEdges(nextFrame) }
+        step("bindEdges    ") { root.bindEdges() }
 
         func step(_ msg: String, call: @escaping()->()) {
             if ops.logBind {

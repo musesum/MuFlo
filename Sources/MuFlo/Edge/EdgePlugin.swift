@@ -7,7 +7,6 @@ enum EdgeAnimType { case linear, easeinout }
 
 public class EdgePlugin {
     var flo: Flo
-    var nextFrame: NextFrame
     var duration: TimeInterval = 2.0
     var animType = EdgeAnimType.linear
     var plugExpress: Exprs //  -in
@@ -21,11 +20,9 @@ public class EdgePlugin {
     let tweenVals: TweenVals
 
     init(_ flo: Flo,
-         _ nextFrame: NextFrame,
          _ plugExprs: Exprs) {
         
         self.flo = flo
-        self.nextFrame = nextFrame
         self.plugExpress = plugExprs
         self.tweenVals = TweenVals(duration)
         extractFloScalars()
@@ -53,7 +50,7 @@ public class EdgePlugin {
             vals.append(floScalars[i].value)
         }
         tweenVals.add(from: twes, to: vals)
-        nextFrame.addFrameDelegate(key, self)
+        NextFrame.shared.addFrameDelegate(key, self)
     }
 
     /// Tween is intermediate value for animation plug-in
@@ -85,8 +82,10 @@ extension EdgePlugin: NextFrameDelegate {
     public func goFrame() -> Bool {
         return setTween([])
     }
-    nonisolated public func cancel(_ key: Int) {
-        nextFrame.removeDelegate(key)
+    public func cancel(_ key: Int) {
+        Task.detached {
+            await NextFrame.shared.removeDelegate(key)
+        }
     }
 
 }

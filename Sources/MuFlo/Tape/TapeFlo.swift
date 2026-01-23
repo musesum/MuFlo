@@ -12,10 +12,13 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
     private var beat˚  : Flo?
     private var panic˚ : Flo?
 
-    private var tapeState = TapeState()
-    private var tapeDeck = TapeDeck()
+    private var tapeState: TapeState
+    private let tapeDeck: TapeDeck
 
-    public init() {}
+    public init() {
+        self.tapeState = TapeState()
+        self.tapeDeck  = TapeDeck()
+    }
 
     public func update(_ root˚: Flo) {
 
@@ -25,7 +28,7 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
         loop˚   = tape.bind("loop"  ) { f,_ in update(f,.loop  ) }
         learn˚  = tape.bind("learn" ) { f,_ in update(f,.learn ) }
         beat˚   = tape.bind("beat"  ) { f,_ in update(f,.beat  ) }
-        panic˚  = tape.bind("panic"  ) { f,_ in update(f,.beat ) }
+        panic˚  = tape.bind("panic" ) { f,_ in update(f,.beat  ) }
 
         func update(_ flo: Flo, _ nextState: TapeState) {
 
@@ -65,12 +68,12 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
         }
     }
 
-    public func replayItem(_ item: TapeItem) {
+    public func tapeItem(_ item: TapeItem) {
 
         if tapeState.record {
 
             tapeDeck.add(item)
-            //print("〄 TapeFlo::replayItem: time: \(item.time) type: \(item.type) count: \(tapeDeck.items.count)")
+            //print("〄 TapeFlo::tapeItem: time: \(item.time) type: \(item.type) count: \(tapeDeck.items.count)")
         }
 
     }
