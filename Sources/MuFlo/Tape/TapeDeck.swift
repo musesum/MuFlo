@@ -5,8 +5,8 @@ import MuPeers
 
 public class TapeDeck {
 
-    var items    : [TapeItem] = []
-    var duration : TimeInterval = 0
+    var tapeItems : [TapeItem] = []
+    var duration  : TimeInterval = 0
 
     // Playback control
     private var playbackTask: Task<Void, Never>?
@@ -16,17 +16,17 @@ public class TapeDeck {
     init() {}
 
     public func snapshot() -> TapePlay {
-        return TapePlay(items, duration)
+        return TapePlay(tapeItems, duration)
     }
 
     func add(_ item: TapeItem) {
-        items.append(item)
+        tapeItems.append(item)
     }
     func record(_ on: Bool) {
         let timeNow = Date().timeIntervalSince1970
         if on {
             duration = 0
-        } else if let timeRec = items.first?.time {
+        } else if let timeRec = tapeItems.first?.time {
             // user tapped record to stop, so set duration
             duration = timeNow - timeRec
         }
@@ -44,7 +44,7 @@ public class TapeDeck {
     func beat (_ on: Bool) { }
 
     private func startPlayback(_ loop: Bool) {
-        guard !items.isEmpty else { return }
+        guard !tapeItems.isEmpty else { return }
         stopPlayback() // cancel any existing task
         let copy = snapshot()
         playbackTask = copy.startPlayback(loop: loop)

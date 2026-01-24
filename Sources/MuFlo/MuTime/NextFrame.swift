@@ -15,7 +15,7 @@ public class NextFrame {
 
     public var betweenFrames = [(() -> Void)?]()
     public var fps: TimeInterval { TimeInterval(preferredFps) }
-    public var pause = false
+    public var pause = true
     public var interval: CFTimeInterval = 0
 
     private init() {

@@ -15,12 +15,9 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
     private var tapeState: TapeState
     private let tapeDeck: TapeDeck
 
-    public init() {
+    public init(_ root˚: Flo) {
         self.tapeState = TapeState()
         self.tapeDeck  = TapeDeck()
-    }
-
-    public func update(_ root˚: Flo) {
 
         let tape = root˚.bind("tape")
         record˚ = tape.bind("record") { f,_ in update(f,.record) }

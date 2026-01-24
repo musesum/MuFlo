@@ -84,7 +84,7 @@ extension EdgePlugin: NextFrameDelegate {
     }
     public func cancel(_ key: Int) {
         Task.detached {
-            await NextFrame.shared.removeDelegate(key)
+            NextFrame.shared.removeDelegate(key)
         }
     }
 
