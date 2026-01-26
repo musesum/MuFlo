@@ -3,58 +3,62 @@
 import Foundation
 import MuPeers
 
+public class TapeBeat {
+    private var beatPrev = TimeInterval(0)
+    private var beatNext = TimeInterval(0)
+    private var beatAve  = TimeInterval(0)
+}
+
 public class TapeDeck {
+    
+    var tapeClip: TapeClip?
 
-    var tapeItems : [TapeItem] = []
-    var duration  : TimeInterval = 0
-
-    // Playback control
-    private var playbackTask: Task<Void, Never>?
-    private var loop = true
     private var learn = false
+    private var lock  = NSLock()
+    private var playbackTask: Task<Void, Never>?
 
     init() {}
 
-    public func snapshot() -> TapePlay {
-        return TapePlay(tapeItems, duration)
-    }
-
-    func add(_ item: TapeItem) {
-        tapeItems.append(item)
+    func addTapeItem(_ item: TypeItem) {
+        lock.lock()
+        tapeClip?.add(item)
+        lock.unlock()
     }
     func record(_ on: Bool) {
-        let timeNow = Date().timeIntervalSince1970
         if on {
-            duration = 0
-        } else if let timeRec = tapeItems.first?.time {
-            // user tapped record to stop, so set duration
-            duration = timeNow - timeRec
+            lock.lock()
+            tapeClip = TapeClip()
+            lock.unlock()
         }
     }
     func play(_ on: Bool) {
+        guard tapeClip != nil else { return }
         if on {
-            startPlayback(loop)
+            startPlayback()
         } else {
             stopPlayback()
         }
     }
 
-    func loop (_ on: Bool) { self.loop  = on }
+    func loop (_ on: Bool) { self.tapeClip?.loop  = on }
     func learn(_ on: Bool) { self.learn = on }
     func beat (_ on: Bool) { }
 
-    private func startPlayback(_ loop: Bool) {
-        guard !tapeItems.isEmpty else { return }
+    func startPlayback() {
         stopPlayback() // cancel any existing task
-        let copy = snapshot()
-        playbackTask = copy.startPlayback(loop: loop)
+        guard let tapeClip else { return }
+        tapeClip.normalizeTime()
+        var tapeItem = TapeItem(tapeClip)
+        playbackTask = tapeItem.makeTask()
     }
 
-    private func stopPlayback() {
+    func stopPlayback() {
         playbackTask?.cancel()
         playbackTask = nil
         NextFrame.shared.addBetweenFrame {
             Reset.reset()
         }
     }
+
+
 }

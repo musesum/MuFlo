@@ -65,11 +65,11 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
         }
     }
 
-    public func tapeItem(_ item: TapeItem) {
+    public func typeItem(_ item: TypeItem) {
 
         if tapeState.record {
 
-            tapeDeck.add(item)
+            tapeDeck.addTapeItem(item)
             //print("〄 TapeFlo::tapeItem: time: \(item.time) type: \(item.type) count: \(tapeDeck.items.count)")
         }
 
