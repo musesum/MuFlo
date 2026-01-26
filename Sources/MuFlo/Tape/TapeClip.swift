@@ -58,9 +58,17 @@ public struct TapeItem: Codable, Sendable {
                             let n = UInt64(playDelta * 1_000_000_000)
                             try await Task.sleep(nanoseconds: n)
                         }
-                        await Peers.shared.playItem(itemNow.type, itemNow.data)
+                        Peers.shared.playItem(itemNow.type, itemNow.data)
                         index += 1
+                        if index == typeItems.count {
+                            let finalDelta = duration - timeDelta
+                            if finalDelta > 0 {
+                                let n = UInt64(playDelta * 1_000_000_000)
+                                try await Task.sleep(nanoseconds: n)
+                            }
+                        }
                     }
+
                     if status.loop {
                         playBegan = Date().timeIntervalSince1970
                         index = 0
@@ -94,6 +102,12 @@ public class TapeClip: @unchecked Sendable {
             duration = timeNow - tapeBegan
         }
         typeItems.append(item)
+    }
+    func stop() {
+        if state == .recording {
+            let timeNow = Date().timeIntervalSince1970
+            duration = timeNow - tapeBegan
+        }   
     }
 
     func normalizeTime() {

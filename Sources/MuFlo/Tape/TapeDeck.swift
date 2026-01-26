@@ -28,6 +28,7 @@ public class TapeDeck {
         if on {
             lock.lock()
             tapeClip = TapeClip()
+            tapeClip?.setState(.recording)
             lock.unlock()
         }
     }
@@ -53,6 +54,7 @@ public class TapeDeck {
     }
 
     func stopPlayback() {
+        tapeClip?.stop()
         playbackTask?.cancel()
         playbackTask = nil
         NextFrame.shared.addBetweenFrame {
