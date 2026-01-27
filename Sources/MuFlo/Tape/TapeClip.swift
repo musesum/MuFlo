@@ -18,7 +18,7 @@ public struct TapeStatus: Codable, Sendable {
     public let loop      : Bool
 
     init(_ tapeClip: TapeClip) {
-        self.id        = tapeClip.id
+        self.id        = tapeClip.clipId
         self.state     = tapeClip.state
         self.playBegan = tapeClip.playBegan
         self.loop      = tapeClip.loop
@@ -29,13 +29,13 @@ public struct TapeStatus: Codable, Sendable {
 }
 
 public struct TapeItem: Codable, Sendable {
-    public let id        : Int
+    public let clipId: Int
     public let typeItems : [TypeItem]
     public let duration  : TimeInterval
     public var status    : TapeStatus
 
     init( _ tapeClip: TapeClip) {
-        self.id        = tapeClip.id
+        self.clipId    = tapeClip.clipId
         self.typeItems = tapeClip.typeItems
         self.duration  = tapeClip.duration
         self.status    = TapeStatus(tapeClip)
@@ -69,7 +69,6 @@ public struct TapeItem: Codable, Sendable {
                             }
                         }
                     }
-
                     if status.loop {
                         playBegan = Date().timeIntervalSince1970
                         index = 0
@@ -86,7 +85,8 @@ public struct TapeItem: Codable, Sendable {
 }
 
 public class TapeClip: @unchecked Sendable {
-    let id = Visitor.nextId()
+    let clipId    = Visitor.nextId()
+    let deckId    : Int
     var typeItems = [TypeItem]()
     var tapeBegan = TimeInterval(0)
     var playBegan = TimeInterval(0)
@@ -94,7 +94,12 @@ public class TapeClip: @unchecked Sendable {
     var loop      = true
     var state     = TapeClipState.stopped
 
+    init(_ deckId: Int) {
+        self.deckId = deckId
+    }
+
     func add(_ item: TypeItem) {
+
         let timeNow = Date().timeIntervalSince1970
         if typeItems.isEmpty {
             tapeBegan = timeNow
@@ -108,7 +113,7 @@ public class TapeClip: @unchecked Sendable {
         if state == .recording {
             let timeNow = Date().timeIntervalSince1970
             duration = timeNow - tapeBegan
-        }   
+        }
     }
 
     func normalizeTime() {

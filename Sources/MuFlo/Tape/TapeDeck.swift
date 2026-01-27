@@ -10,8 +10,10 @@ public class TapeBeat {
 }
 
 public class TapeDeck {
-    
+
+    let deckId = Visitor.nextId()
     var tapeClip: TapeClip?
+    var tapeClips = [Int: TapeClip]()
 
     private var learn = false
     private var lock  = NSLock()
@@ -20,15 +22,19 @@ public class TapeDeck {
     init() {}
 
     func addTapeItem(_ item: TypeItem) {
+        guard let tapeClip else { return }
         lock.lock()
-        tapeClip?.add(item)
+        tapeClip.add(item)
         lock.unlock()
     }
     func record(_ on: Bool) {
         if on {
+            let clip = TapeClip(deckId)
+            let clipId = clip.clipId
+            clip.setState(.recording)
             lock.lock()
-            tapeClip = TapeClip()
-            tapeClip?.setState(.recording)
+            tapeClip = clip
+            tapeClips[clipId] = clip
             lock.unlock()
         }
     }
