@@ -60,10 +60,11 @@ public struct TapeItem: Codable, Sendable {
                         }
                         Peers.shared.playItem(itemNow.type, itemNow.data)
                         index += 1
+                        // duration may extend past last event 
                         if index == typeItems.count {
                             let finalDelta = duration - timeDelta
                             if finalDelta > 0 {
-                                let n = UInt64(playDelta * 1_000_000_000)
+                                let n = UInt64(finalDelta * 1_000_000_000)
                                 try await Task.sleep(nanoseconds: n)
                             }
                         }
