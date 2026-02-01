@@ -38,7 +38,7 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
             case .beat   : tapeDeck.beat(on)
             default      : break
             }
-            tapeState.adjust(on, nextState)
+            tapeState.adjust(nextState, on)
             Task {
                 await Peers.shared.setTape(on: tapeState.record)
             }
