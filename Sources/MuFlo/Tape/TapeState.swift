@@ -15,6 +15,21 @@ public struct TapeState: OptionSet, Sendable, Codable {
     public var rawValue: UInt8
     public init(rawValue: UInt8 = 0) { self.rawValue = rawValue }
 
+    static nonisolated(unsafe) public var debugDescriptions: [(Self, String)] = [
+        (.stop   , "stop"   ),
+        (.play   , "play"   ),
+        (.record , "record" ),
+        (.loop   , "loop"   ),
+        (.learn  , "learn"  ),
+        (.beat   , "beat"   ),
+    ]
+
+    public var description: String {
+        let result: [String] = Self.debugDescriptions.filter { contains($0.0) }.map { $0.1 }
+        let joined = result.joined(separator: ",")
+        return "[\(joined)]"
+    }
+
     var stop   : Bool { contains(.stop  ) }
     var play   : Bool { contains(.play  ) }
     var record : Bool { contains(.record) }
@@ -29,6 +44,16 @@ public struct TapeState: OptionSet, Sendable, Codable {
         self.contains(value)
     }
 
+    mutating func set(_ state: TapeState,_ on: Bool) {
+        if on {
+            setOn(state)
+        } else {
+            setOff(state)
+        }
+    }
+    mutating func setOff(_ state: TapeState) {
+        self = self.subtracting(state)
+    }
     mutating func setOn(_ state: TapeState) {
         switch state {
         case .stop   : set(on: .stop  , off: [.record, .play, .learn, .beat])
@@ -39,13 +64,11 @@ public struct TapeState: OptionSet, Sendable, Codable {
         case .beat   : set(on: .beat  , off: [.record, .stop, .play, .learn])
         default:  self = state
         }
-        func set(on: TapeState, off: TapeState) {
-            self.insert(on)
-            self = self.subtracting(off)
-        }
-
     }
-
+    mutating func set(on: TapeState, off: TapeState) {
+        self.insert(on)
+        self = self.subtracting(off)
+    }
     mutating func adjust(_ nextState: TapeState, _ on: Bool) {
         if on {
             self.insert(nextState)

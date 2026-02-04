@@ -59,17 +59,18 @@ extension ScalarOps: CustomStringConvertible {
         (.value,  "value"  ),
         (.liter,  "liter"  ),
     ]
-   
-    var hasDef: Bool {
-        let defOps: ScalarOps = [.minim, .ranged, .rangei, .rangea, .modulo, .maxim, .origin]
-        return self.intersection(defOps).rawValue > 0
-    }
-    
+
     public var description: String {
         let result: [String] = Self.debugDescriptions.filter { contains($0.0) }.map { $0.1 }
         let joined = result.joined(separator: ",")
         return "\(joined)"
     }
+    
+    var hasDef: Bool {
+        let defOps: ScalarOps = [.minim, .ranged, .rangei, .rangea, .modulo, .maxim, .origin]
+        return self.intersection(defOps).rawValue > 0
+    }
+
     public static func |= (lhs: inout ScalarOps, rhs: ScalarOps) {
         lhs.rawValue |= rhs.rawValue
     }

@@ -4,103 +4,33 @@ import Foundation
 import MuPeers
 
 public struct TapeStatus: Codable, Sendable {
-    public let trackId    : Int
-    public var state     : TapeState
-    public let playBegan : TimeInterval
-    public let loop      : Bool
+    let deckId  : Int
+    let trackId : Int
+    let state   : TapeState
 
-    init(_ tapeTrack: TapeTrack) {
-        self.trackId    = tapeTrack.trackId
-        self.state     = tapeTrack.state
-        self.playBegan = tapeTrack.playBegan
-        self.loop      = tapeTrack.loop
-    }
-    mutating func setState(_ state: TapeState) {
-        self.state = state
+    init(_ track: TapeTrack) {
+        self.deckId  = track.deckId
+        self.trackId = track.trackId
+        self.state   = track.state
     }
 }
 
-public struct TapeItem: Codable, Sendable {
-    public let deckId    : Int
-    public let trackId    : Int
-    public let typeItems : [TypeItem]
-    public let duration  : TimeInterval
-    public var status    : TapeStatus
-
-    init( _ tapeTrack: TapeTrack) {
-        self.deckId    = tapeTrack.deckId
-        self.trackId    = tapeTrack.trackId
-        self.typeItems = tapeTrack.typeItems
-        self.duration  = tapeTrack.duration
-        self.status    = TapeStatus(tapeTrack)
-    }
-    mutating func makeTask() -> Task<Void, Never>? {
-        var playBegan = Date().timeIntervalSince1970
-        var index = 0
-
-        return Task { [typeItems, status, duration] in
-
-            do {
-                while true {
-                    while index < typeItems.count {
-                        try Task.checkCancellation()
-                        let timeNow = Date().timeIntervalSince1970
-                        let itemNow = typeItems[index]
-                        let timeDelta = fmod(timeNow - playBegan, duration)
-                        let playDelta = itemNow.time - timeDelta // normalized
-                        if playDelta > 0 {
-                            let n = UInt64(playDelta * 1_000_000_000)
-                            try await Task.sleep(nanoseconds: n)
-                        }
-                        Peers.shared.playItem(itemNow.type, itemNow.data)
-                        index += 1
-                        // duration may extend past last event 
-                        if index == typeItems.count {
-                            let finalDelta = duration - timeDelta
-                            if finalDelta > 0 {
-                                let n = UInt64(finalDelta * 1_000_000_000)
-                                try await Task.sleep(nanoseconds: n)
-                            }
-                        }
-                    }
-                    if status.loop {
-                        playBegan = Date().timeIntervalSince1970
-                        index = 0
-                        continue
-                    } else {
-                        break
-                    }
-                }
-            } catch {
-                // Cancellation or sleep error: just exit gracefully
-            }
-        }
-    }
-}
-
-public class TapeTrack: @unchecked Sendable {
+public class TapeTrack: @unchecked Sendable, Codable {
     let deckId    : Int
-    let trackId    : Int
-    var typeItems = [TypeItem]()
+    let trackId   : Int
+    var typeItems : [TypeItem]
+    var state     : TapeState
+
     var tapeBegan = TimeInterval(0)
     var playBegan = TimeInterval(0)
     var duration  = TimeInterval(0)
-    var loop      = true
-    var state     = TapeState.stop
 
     init(_ deckId: Int) {
-        self.deckId = deckId
+        self.deckId  = deckId
+        self.typeItems = []
         self.trackId = UUID().uuidString.hashValue
-    }
-    init (_ item: TapeItem) {
-        self.deckId    = item.deckId
-        self.trackId    = item.trackId
-        self.typeItems = item.typeItems
-        self.tapeBegan = item.duration
-        self.playBegan = item.duration
-        self.duration  = item.duration
-        self.loop      = true
-        self.state     = .stop
+        self.state  = TapeState([.loop,.stop])
+        Peers.shared.addDelegate(self, for: .trackFrame)
     }
 
     func add(_ item: TypeItem) {
@@ -115,51 +45,95 @@ public class TapeTrack: @unchecked Sendable {
         typeItems.append(item)
     }
     func stop() {
-        if state == .record {
+        if state.record {
             let timeNow = Date().timeIntervalSince1970
             duration = timeNow - tapeBegan
         }
     }
 
     func normalizeTime() {
-        guard !typeItems.isEmpty,
-              let firstItem = typeItems.first
+        guard let tapeBegan = typeItems.first?.time,
+              tapeBegan != 0
         else { return }
-        let tapeBegan = firstItem.time
         for item in typeItems {
             item.normalize(tapeBegan)
         }
     }
     func setState(_ nextState: TapeState) -> Void {
+        let oldState = state
         state.setOn(nextState)
-        shareItem(TapeItem(self))
+        print("✇ setState \(oldState.description) -> \(state.description)")
+        shareItem(self)
     }
-    func receiveItem(_ item: TapeItem, from: DataFrom) {
-        self.typeItems = item.typeItems
-        self.tapeBegan = item.duration
-        self.playBegan = item.duration
-        self.duration  = item.duration
-        self.loop      = true
-        self.state     = .stop
+}
+extension TapeTrack { // task
+
+    func makeTask() -> Task<Void, Never>? {
+        var playBegan = Date().timeIntervalSince1970
+        var index = 0
+
+        return Task { [typeItems, state, duration] in
+
+            do {
+                while true {
+                    while index < typeItems.count {
+                        try Task.checkCancellation()
+                        let timeNow = Date().timeIntervalSince1970
+                        let itemNow = typeItems[index]
+                        let timeDelta = fmod(timeNow - playBegan, duration)
+                        let playDelta = itemNow.time - timeDelta // normalized
+                        if playDelta > 0 {
+                            let n = UInt64(playDelta * 1_000_000_000)
+                            try await Task.sleep(nanoseconds: n)
+                        }
+                        Peers.shared.playItem(itemNow)
+                        index += 1
+                        // duration may extend past last event
+                        if index == typeItems.count {
+                            let finalDelta = duration - timeDelta - playDelta
+                            if finalDelta > 0 {
+                                let n = UInt64(finalDelta * 1_000_000_000)
+                                try await Task.sleep(nanoseconds: n)
+                            }
+                        }
+                    }
+                    if state.loop {
+                        playBegan = Date().timeIntervalSince1970
+                        index = 0
+                        continue
+                    } else {
+                        break
+                    }
+                }
+            } catch {
+                // Cancellation or sleep error: just exit gracefully
+            }
+        }
     }
 }
 
 extension TapeTrack: PeersDelegate {
 
     public func received(data: Data, from: DataFrom) {
-
         let decoder = JSONDecoder()
-        if let item = try? decoder.decode(TapeItem.self, from: data) {
-            receiveItem(item, from: from)
-
-        }
-    }
-    public func shareItem(_ item: Any) {
-        guard let item = item as? TapeItem else { return }
-        Task.detached {
-            await Peers.shared.sendItem(.tapeFrame) { @Sendable in
-                try? JSONEncoder().encode(item)
+        if let status = try? decoder.decode(TapeStatus.self, from: data) {
+            self.state = status.state
+            print("✇ shareItem TapeStatus deckId:\(status.deckId) trackId: \(status.trackId)")
+            if from != .remote {
+                shareItem(status)
             }
         }
+    }
+    public func shareItem(_ any: Any) {
+        if let status = any as? TapeStatus {
+            Task.detached {
+                print("✇ share TapeStatus deckId:\(status.deckId) trackId: \(status.trackId)")
+                await Peers.shared.sendItem(.trackFrame) { @Sendable in
+                    try? JSONEncoder().encode(status)
+
+                }
+            }
+        }
+
     }
 }

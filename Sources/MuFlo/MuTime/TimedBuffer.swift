@@ -15,7 +15,7 @@ public typealias TimeLag = TimeInterval
 
 public class TimedBuffer<Item: TimedItem>: @unchecked Sendable, ResetDelegate {
 
-    private let id = Visitor.nextId()
+    private let bufferId = Visitor.nextId() //..... remove?
     private var buffer: CircularBuffer<(Item, TimeLag, DataFrom)>
     private let capacity: Int
     private var lock = NSLock()
@@ -45,7 +45,7 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable, ResetDelegate {
     public init(capacity: Int) {
         self.capacity = capacity
         self.buffer = CircularBuffer(initialCapacity: capacity)
-        Reset.addReset(id,self)
+        Reset.addReset(bufferId,self)
     }
 
     public func addItem(_ item: Item, from: DataFrom) {
@@ -99,7 +99,7 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable, ResetDelegate {
 
             state = delegate.flushItem(item, type)
 
-            NoTimeLog("\(self.id)", interval: 0.5 ) { P("⏱️ id.state: \(self.id).\(state.description)") }
+            NoTimeLog("\(self.bufferId)", interval: 0.5 ) { P("⏱️ id.state: \(self.bufferId).\(state.description)") }
 
             if state == .nextBuf {
                 lock.lock()
@@ -119,6 +119,6 @@ public class TimedBuffer<Item: TimedItem>: @unchecked Sendable, ResetDelegate {
     }
     public func tearDown() {
         resetAll()
-        Reset.removeReset(id)
+        Reset.removeReset(bufferId)
     }
 }
