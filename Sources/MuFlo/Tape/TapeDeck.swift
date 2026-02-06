@@ -14,59 +14,83 @@ public class TapeDeck {
     let deckId = UUID().uuidString.hashValue
     var tapeTrack: TapeTrack?
     var tapeTracks = [Int: TapeTrack]()
+    var trackPlay = [Int: Task<Void, Never>]()
 
     private var learn = false
     private var lock  = NSLock()
-    private var playbackTask: Task<Void, Never>?
 
     init() {
         Peers.shared.addDelegate(self, for: .tapeFrame)
     }
 
     func addTapeItem(_ item: TypeItem) {
-        guard let tapeTrack else { return }
-        lock.lock()
-        tapeTrack.add(item)
-        lock.unlock()
-    }
-    func record(_ on: Bool) {
-        if on {
-            let tapeTrack = TapeTrack(deckId)
-            let trackId = tapeTrack.trackId
-            tapeTrack.setState(.record)
+
+        switch item.type {
+        case .trackFrame,
+                .archiveFrame,
+                .tapeFrame: return
+            default: break
+        }
+        if let tapeTrack {
             lock.lock()
-            self.tapeTrack = tapeTrack
-            tapeTracks[trackId] = tapeTrack
+            tapeTrack.addTrack(item)
             lock.unlock()
-        } else if let tapeTrack, tapeTrack.state.record {
-            tapeTrack.setState(.stop)
-            shareItem(tapeTrack)
         }
     }
-    func play(_ on: Bool) {
-        guard tapeTrack != nil else { return }
+    func recordOn(_ on: Bool) {
+        PrintLog("✇✇ recordOn: \(on)")
+        lock.lock()
+        if let tapeTrack {
+            tapeTrack.trackStatus.trackState.setState(.record, on: on)
+            shareItem(tapeTrack.trackStatus)
+        } else if on {
+            let tapeTrack = TapeTrack(deckId)
+            let trackId = tapeTrack.trackStatus.trackId
+            Peers.shared.addDelegate(self, for: .trackFrame)
+            tapeTrack.setState(.record)
+
+            self.tapeTrack = tapeTrack
+            tapeTracks[trackId] = tapeTrack
+            shareItem(tapeTrack)
+        }
+        lock.unlock()
+    }
+    func playOn(_ on: Bool) {
+        PrintLog("✇✇ playOn: \(on)")
         if on {
             startPlayback()
         } else {
             stopPlayback()
         }
+        if let tapeTrack {
+            tapeTrack.trackStatus.trackState.setState(.play, on: on)
+            shareItem(tapeTrack.trackStatus)
+        }
     }
 
-    func loop (_ on: Bool) { self.tapeTrack?.state.set(.loop, on) }
+    func loop (_ on: Bool) { self.tapeTrack?.trackStatus.trackState.setState(.loop, on: on)
+    }
     func learn(_ on: Bool) { self.learn = on }
     func beat (_ on: Bool) { }
 
     func startPlayback() {
+        PrintLog("✇✇ startPlayback")
         stopPlayback() // cancel any existing task
         guard let tapeTrack else { return }
         tapeTrack.normalizeTime()
-        playbackTask = tapeTrack.makeTask()
+        if let playTask = tapeTrack.makePlayTask(.local) {
+            trackPlay[tapeTrack.trackStatus.trackId] = playTask
+        }
     }
 
     func stopPlayback() {
-        tapeTrack?.stop()
-        playbackTask?.cancel()
-        playbackTask = nil
+        guard let tapeTrack else { return }
+        tapeTrack.stopTrack()
+
+        if let playTask = trackPlay[tapeTrack.trackStatus.trackId] {
+            playTask.cancel()
+            trackPlay.removeValue(forKey: tapeTrack.trackStatus.trackId)
+        }
         NextFrame.shared.addBetweenFrame {
             Reset.reset()
         }
@@ -78,23 +102,80 @@ extension TapeDeck: PeersDelegate {
     public func received(data: Data, from: DataFrom) {
         let decoder = JSONDecoder()
 
-        if let track = try? decoder.decode(TapeTrack.self, from: data) {
-            print("✇ received TapeTrack deckId:\(track.deckId) trackId: \(track.trackId) from:\(from.rawValue)")
+        if let status = try? decoder.decode(TrackStatus.self, from: data) {
+            // Changed Tape Status
+            guard let track = tapeTracks[status.trackId]  else {
+                return PrintLog("✇ received  \(status.script) unmatched trackId ⁉️")
+            }
+            updateTrackStatus(status)
+            track.trackStatus.trackState = status.trackState
 
-            lock.lock()
-            tapeTracks[track.trackId] = track
-            lock.unlock()
+        } else if let track = try? decoder.decode(TapeTrack.self, from: data) {
+            // New Tape Track
+            PrintLog("✇ received  \(track.Script) .\(from.rawValue)")
+            if deckId != track.trackStatus.deckId {
+                lock.lock()
+                tapeTracks[track.trackStatus.trackId] = track
+                lock.unlock()
+            }
         }
-    }
-    public func shareItem(_ any: Any) {
-        guard let track = any as? TapeTrack else { return }
+        func updateTrackStatus(_ trackStatus: TrackStatus) {
+            PrintLog("✇ received  \(trackStatus.Script) .\(from.rawValue)")
+            if trackStatus.trackState.contains([.record,.loop]) {
+                print("yo")
+            }
+            if let tapeTrack = tapeTracks[trackStatus.trackId] {
 
-        Task.detached {
-            print("✇ share TapeTrack deckId:\(track.deckId) trackId: \(track.trackId)")
-            await Peers.shared.sendItem(.tapeFrame) { @Sendable in
-                try? JSONEncoder().encode(track)
+                let trackStatus = tapeTrack.trackStatus
+                let trackState = trackStatus.trackState
+                let trackId = trackStatus.trackId
+
+                if trackState.record ||
+                    trackState.stop ||
+                    trackState.remove {
+
+                    trackPlay[trackId]?.cancel()
+                    lock.lock()
+                    tapeTracks.removeValue(forKey: trackId)
+                    trackPlay.removeValue(forKey: trackId)
+                    lock.unlock()
+
+                } else if trackState.play {
+
+                    // local has same deckId
+                    let from:DataFrom = self.deckId == trackStatus.deckId ? .local: .remote
+
+                    if let playTask = tapeTrack.makePlayTask(from) {
+                        tapeTracks[trackId] = tapeTrack
+                        trackPlay[trackId] = playTask
+                    }
+                } else if trackState.loop {
+                    //TODO:
+                }
+                if trackState.remove {
+                    //TODO:
+                }
+            } else {
+                // remote will always have a different deckId
             }
         }
     }
+    public func shareItem(_ any: Any) {
 
+        if let status = any as? TrackStatus {
+            PrintLog("✇ shareItem \(status.Script)")
+            Task.detached {
+                await Peers.shared.sendItem(.trackFrame) { @Sendable in
+                    try? JSONEncoder().encode(status)
+                }
+            }
+        } else if let track = any as? TapeTrack  {
+            PrintLog("✇ shareItem \(track.Script)")
+            Task.detached {
+                await Peers.shared.sendItem(.tapeFrame) { @Sendable in
+                    try? JSONEncoder().encode(track)
+                }
+            }
+        }
+    }
 }

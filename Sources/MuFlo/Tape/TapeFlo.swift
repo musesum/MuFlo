@@ -3,7 +3,7 @@
 import Foundation
 import MuPeers
 
-public class TapeFlo: @unchecked Sendable, TapeProto {
+public class TapeFlo: @unchecked Sendable {
 
     private var record˚: Flo?
     private var play˚  : Flo?
@@ -12,11 +12,11 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
     private var beat˚  : Flo?
     private var panic˚ : Flo?
 
-    private var tapeState: TapeState
+    private var trackState: TrackState
     private let tapeDeck: TapeDeck
 
     public init(_ root˚: Flo) {
-        self.tapeState = TapeState()
+        self.trackState = TrackState()
         self.tapeDeck  = TapeDeck()
 
         let tape = root˚.bind("tape")
@@ -27,7 +27,7 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
         beat˚   = tape.bind("beat"  ) { f,_ in update(f,.beat  ) }
         panic˚  = tape.bind("panic" ) { f,_ in update(f,.beat  ) }
 
-        func update(_ flo: Flo, _ nextState: TapeState) {
+        func update(_ flo: Flo, _ nextState: TrackState) {
 
             let on = flo.bool
             switch nextState {
@@ -38,25 +38,25 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
             case .beat   : tapeDeck.beat(on)
             default      : break
             }
-            tapeState.adjust(nextState, on)
+            trackState.adjust(nextState, on)
             Task {
-                await Peers.shared.setTape(on: tapeState.record)
+                await Peers.shared.setTape(on: trackState.record)
             }
 
             func record(_ on: Bool) {
                 if on {
-                    tapeDeck.play (false)
-                    tapeDeck.record(true)
+                    tapeDeck.playOn (false)
+                    tapeDeck.recordOn(true)
                 } else {
-                    tapeDeck.record(false)
+                    tapeDeck.recordOn(false)
                 }
             }
             func play(_ on: Bool)   {
                 if on {
-                    tapeDeck.record(false)
-                    tapeDeck.play (true)
+                    tapeDeck.recordOn(false)
+                    tapeDeck.playOn (true)
                 } else {
-                    tapeDeck.play (false)
+                    tapeDeck.playOn (false)
                 }
             }
             func reset() {
@@ -64,15 +64,17 @@ public class TapeFlo: @unchecked Sendable, TapeProto {
             }
         }
     }
+}
+extension TapeFlo: TapeProto {
 
     public func typeItem(_ item: TypeItem) {
 
-        if tapeState.record {
+        if trackState.record {
 
             tapeDeck.addTapeItem(item)
             //print("〄 TapeFlo::tapeItem: time: \(item.time) type: \(item.type) count: \(tapeDeck.items.count)")
         }
 
     }
-    
 }
+
