@@ -12,11 +12,11 @@ public class TapeFlo: @unchecked Sendable {
     private var beat˚  : Flo?
     private var panic˚ : Flo?
 
-    private var trackState: TrackState
+    private var playState: PlayState
     private let tapeDeck: TapeDeck
 
     public init(_ root˚: Flo) {
-        self.trackState = TrackState()
+        self.playState = PlayState()
         self.tapeDeck  = TapeDeck()
 
         let tape = root˚.bind("tape")
@@ -27,7 +27,7 @@ public class TapeFlo: @unchecked Sendable {
         beat˚   = tape.bind("beat"  ) { f,_ in update(f,.beat  ) }
         panic˚  = tape.bind("panic" ) { f,_ in update(f,.beat  ) }
 
-        func update(_ flo: Flo, _ nextState: TrackState) {
+        func update(_ flo: Flo, _ nextState: PlayState) {
 
             let on = flo.bool
             switch nextState {
@@ -38,9 +38,9 @@ public class TapeFlo: @unchecked Sendable {
             case .beat   : tapeDeck.beat(on)
             default      : break
             }
-            trackState.adjust(nextState, on)
+            playState.adjust(nextState, on)
             Task {
-                await Peers.shared.setTape(on: trackState.record)
+                await Peers.shared.setTape(on: playState.record)
             }
 
             func record(_ on: Bool) {
@@ -67,9 +67,9 @@ public class TapeFlo: @unchecked Sendable {
 }
 extension TapeFlo: TapeProto {
 
-    public func typeItem(_ item: TypeItem) {
+    public func playItem(_ item: PlayItem) {
 
-        if trackState.record {
+        if playState.record {
 
             tapeDeck.addTapeItem(item)
             //print("〄 TapeFlo::tapeItem: time: \(item.time) type: \(item.type) count: \(tapeDeck.items.count)")

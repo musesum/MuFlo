@@ -49,17 +49,15 @@ public class CircleBuffer<Item> {
     }
 
     public func addItem(_ item: Item, from: DataFrom) {
-        lock.lock()
-        defer { lock.unlock() }
+        lock.lock(); defer { lock.unlock() }
         buffer.append((item, from))
     }
     
     public func flushBuf() -> BufState {
         guard var delegate else { return .nextBuf }
 
-        lock.lock()
-        defer { lock.unlock() }
-        
+        lock.lock(); defer { lock.unlock() }
+
         while !buffer.isEmpty {
             if let (item, type) = buffer.first {
                 _ = delegate.flushItem(item, type)
