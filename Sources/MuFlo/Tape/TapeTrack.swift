@@ -39,7 +39,7 @@ public class TapeTrack: @unchecked Sendable, Codable  {
         playItems.append(item)
     }
     func stopTrack() {
-        PrintLog("✇✇ stopTrack")
+        PrintLog("🔄✇ stopTrack")
         if playStatus.playState.record {
             let timeNow = Date().timeIntervalSince1970
             duration = timeNow - tapeBegan
@@ -57,7 +57,7 @@ public class TapeTrack: @unchecked Sendable, Codable  {
     func setState(_ nextState: PlayState) -> Void {
         let oldState = playStatus.playState
         playStatus.playState.setOn(nextState)
-        PrintLog("✇ setState \(oldState.description) -> \(playStatus.playState.description)")
+        PrintLog("🔄 setState \(oldState.description) -> \(playStatus.playState.description)")
     }
 }
 extension TapeTrack { // task
@@ -114,7 +114,7 @@ extension TapeTrack { // task
     }
     public func updatePlayStatus(_ state: PlayState, on: Bool) {
         playStatus.updateState(state, on: on)
-        PrintLog("✇ updatePlayStatus \(playStatus.Script)")
+        PrintLog("🔄 updatePlayStatus \(playStatus.Script)")
         Task.detached {
             await Peers.shared.sendItem(.playStatus) { @Sendable in
                 try? JSONEncoder().encode(self.playStatus)

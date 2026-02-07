@@ -4,7 +4,6 @@ import Foundation
 
 public protocol ResetDelegate {
     func resetAll()
-    func tearDown()
 }
 
 /// akin to MIDI panic which resets all buffers
@@ -16,21 +15,16 @@ public class Reset {
 
     public static func reset() {
         DebugLog { P("🫨 Reset delgates count: \(self.resets.count)") }
-        lock.lock()
-        for resetter in resets.values {
-            resetter.resetAll()
-        }
-        lock.unlock()
+        lock.lock(); defer { lock.unlock() }
+        resets.forEach { $1.resetAll() }
     }
     public static func addReset(_ id: Int, _ reset: ResetDelegate) {
-        lock.lock()
+        lock.lock(); defer { lock.unlock() }
         resets[id] = reset
-        lock.unlock()
     }
     public static func removeReset(_ id: Int) {
-        lock.lock()
+        lock.lock(); defer { lock.unlock() }
         resets.removeValue(forKey: id)
-        lock.unlock()
     }
 
 }

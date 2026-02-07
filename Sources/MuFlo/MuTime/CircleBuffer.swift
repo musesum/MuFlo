@@ -9,7 +9,7 @@ public enum BufState {
     case waitBuf
     case doneBuf
     
-    var description: String {
+    public var description: String {
         switch self {
         case .nextBuf : return "nextBuf"
         case .waitBuf : return "waitBuf"
@@ -26,7 +26,6 @@ public protocol CircleBufferDelegate {
 public class CircleBuffer<Item> {
     let id = Visitor.nextId()
     private var buffer: CircularBuffer<(Item, DataFrom)>
-    private let capacity: Int = 3
     private var lock = NSLock()
     public var delegate: (any CircleBufferDelegate)?
     
@@ -43,7 +42,7 @@ public class CircleBuffer<Item> {
     }
 
     public init() {
-        self.buffer = CircularBuffer(initialCapacity: capacity)
+        self.buffer = CircularBuffer(initialCapacity: 3)
         Reset.addReset(id,self)
         bufferLoop()
     }
@@ -80,9 +79,5 @@ extension CircleBuffer: @MainActor ResetDelegate {
         lock.lock()
         buffer.removeAll()
         lock.unlock()
-    }
-    public func tearDown() {
-        //buffer.tearDown()
-        Reset.removeReset(id)
     }
 }

@@ -32,7 +32,7 @@ public class TapeDeck {
         }
     }
     func recordOn(_ on: Bool) {
-        PrintLog("✇✇ recordOn: \(on)")
+        PrintLog("🔄✇ recordOn: \(on)")
         lock.lock()
         if let tapeTrack {
             tapeTrack.updatePlayStatus(.record, on: on)
@@ -49,7 +49,7 @@ public class TapeDeck {
         lock.unlock()
     }
     func playOn(_ on: Bool) {
-        PrintLog("✇✇ playOn: \(on)")
+        PrintLog("🔄✇ playOn: \(on)")
         if on {
             startPlayback()
         } else {
@@ -64,7 +64,7 @@ public class TapeDeck {
     func beat (_ on: Bool) { }
 
     func startPlayback() {
-        PrintLog("✇✇ startPlayback")
+        PrintLog("🔄✇ startPlayback")
         stopPlayback() // cancel any existing task
         guard let tapeTrack else { return }
         tapeTrack.normalizeTime()
@@ -95,14 +95,14 @@ extension TapeDeck: PeersDelegate {
         if let status = try? decoder.decode(PlayStatus.self, from: data) {
             // Changed Tape Status
             guard let track = tapeTracks[status.trackId]  else {
-                return PrintLog("✇ received  \(status.script) unmatched trackId ⁉️")
+                return PrintLog("🔄 received  \(status.script) unmatched trackId ⁉️")
             }
             updateTrackStatus(status)
             track.playStatus.playState = status.playState
 
         } else if let track = try? decoder.decode(TapeTrack.self, from: data) {
             // New Tape Track
-            PrintLog("✇ received  \(track.Script) .\(from.rawValue)")
+            PrintLog("🔄 received  \(track.Script) .\(from.rawValue)")
             if deckId != track.playStatus.deckId {
                 lock.lock()
                 tapeTracks[track.playStatus.trackId] = track
@@ -110,7 +110,7 @@ extension TapeDeck: PeersDelegate {
             }
         }
         func updateTrackStatus(_ playStatus: PlayStatus) {
-            PrintLog("✇ received  \(playStatus.Script) .\(from.rawValue)")
+            PrintLog("🔄 received  \(playStatus.Script) .\(from.rawValue)")
             if let tapeTrack = tapeTracks[playStatus.trackId] {
 
                 let playStatus = tapeTrack.playStatus
@@ -164,7 +164,7 @@ extension TapeDeck: PeersDelegate {
     }
     func shareCurrentTrack() {
         guard let tapeTrack else { return }
-        PrintLog("✇ shareTapeTrack \(tapeTrack.Script)")
+        PrintLog("🔄 shareTapeTrack \(tapeTrack.Script)")
         shareItem(tapeTrack)
     }
 }
