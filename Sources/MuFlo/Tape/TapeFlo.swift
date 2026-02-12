@@ -45,18 +45,18 @@ public class TapeFlo: @unchecked Sendable {
 
             func record(_ on: Bool) {
                 if on {
-                    tapeDeck.playOn (false)
-                    tapeDeck.recordOn(true)
+                    tapeDeck.playOff()
+                    tapeDeck.recordOn()
                 } else {
-                    tapeDeck.recordOn(false)
+                    tapeDeck.recordOff()
                 }
             }
             func play(_ on: Bool)   {
                 if on {
-                    tapeDeck.recordOn(false)
-                    tapeDeck.playOn (true)
+                    tapeDeck.recordOff()
+                    tapeDeck.playOn()
                 } else {
-                    tapeDeck.playOn (false)
+                    tapeDeck.playOff ()
                 }
             }
             func reset() {

@@ -13,10 +13,14 @@ public class Reset {
     nonisolated(unsafe) static var resets = [Int: ResetDelegate]()
     static let lock = NSLock()
 
-    public static func reset() {
+    public static func reset(_ id: Int? = nil ) {
         DebugLog { P("🫨 Reset delgates count: \(self.resets.count)") }
         lock.lock(); defer { lock.unlock() }
-        resets.forEach { $1.resetAll() }
+        if let id {
+            resets[id]?.resetAll()
+        } else {
+            resets.forEach { $1.resetAll() }
+        }
     }
     public static func addReset(_ id: Int, _ reset: ResetDelegate) {
         lock.lock(); defer { lock.unlock() }

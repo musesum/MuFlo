@@ -3,7 +3,7 @@
 import Foundation
 import MuPeers
 
-public class TapeTrack: @unchecked Sendable, Codable  {
+public class TapeTrack: @unchecked Sendable, Codable {
 
     var playStatus : PlayStatus
     var playItems  : [PlayItem]
@@ -15,6 +15,7 @@ public class TapeTrack: @unchecked Sendable, Codable  {
         self.playStatus = PlayStatus(deckId)
         self.playItems  = []
     }
+
     var script: String {
        playStatus.script + " items: \(playItems.count)"
     }
@@ -22,13 +23,9 @@ public class TapeTrack: @unchecked Sendable, Codable  {
         "TapeTrack   " + script
     }
 
-    func reset() {
-        for playItem in playItems {
-            Peers.shared.resetItem(playItem)
-        }
-    }
-    func addTrack(_ item: PlayItem) {
 
+    func addTrack(_ item: PlayItem) {
+        
         let timeNow = Date().timeIntervalSince1970
         if playItems.isEmpty {
             tapeBegan = timeNow
@@ -37,13 +34,6 @@ public class TapeTrack: @unchecked Sendable, Codable  {
             duration = timeNow - tapeBegan
         }
         playItems.append(item)
-    }
-    func stopTrack() {
-        PrintLog("🔄✇ stopTrack")
-        if playStatus.playState.record {
-            let timeNow = Date().timeIntervalSince1970
-            duration = timeNow - tapeBegan
-        }
     }
 
     func normalizeTime() {
@@ -54,9 +44,13 @@ public class TapeTrack: @unchecked Sendable, Codable  {
             item.normalize(tapeBegan)
         }
     }
-    func setState(_ nextState: PlayState) -> Void {
+    func setState_(_ nextState: PlayState) -> Void {
         let oldState = playStatus.playState
         playStatus.playState.setOn(nextState)
+        if oldState.record, !playStatus.playState.record {
+            duration = Date().timeIntervalSince1970 - tapeBegan
+            PrintLog("🔄 setState duration: \(duration)")
+        }
         PrintLog("🔄 setState \(oldState.description) -> \(playStatus.playState.description)")
     }
 }
@@ -65,39 +59,38 @@ extension TapeTrack { // task
     func makePlayTask(_ from: DataFrom) -> Task<Void, Never>? {
         var playBegan = Date().timeIntervalSince1970
         var index = 0
-
+        PrintLog("🔄 makePlayTask \(playStatus.deckId.script5) .\(from.icon) 🟢")
         return Task { [playItems, duration, weak self] in
+            guard let self else { return }
             do {
-                PrintLog("🔄 task \(self?.playStatus.script ?? "")")
                 while index < playItems.count {
+
+                    // wait to play nextItem
                     try Task.checkCancellation()
                     let timeNow = Date().timeIntervalSince1970
-                    let playItem = playItems[index]
                     let timeDelta = fmod(timeNow - playBegan, duration)
+                    let playItem = playItems[index]
                     try await sleep(playItem.time - timeDelta) // normalized
 
+                    Peers.shared.playItem(playStatus.playState, playItem, from)
+
                     index += 1
-                    let isEnding = index == playItems.count
-                    if isEnding {
-                        self?.updatePlayStatus(.ending, on: true)
-                    }
-                    // dispatch playItem via Peers head
-                    if let playState = self?.playStatus.playState {
-                        Peers.shared.playItem(playState, playItem, from)
-                    }
-                    // duration may extend past last event
-                    if isEnding {
+                    // last item may wait to complete duration
+                    if index == playItems.count {
+                        updateStatus(.ending, on: true, from: from)
+
                         let finalDelta = duration - timeDelta
-                        PrintLog("🔄 task \(self?.playStatus.script ?? "") finalDelta: \(finalDelta.digits(2))")
+                        PrintLog("🔄 playTask status \(playStatus.script) .\(from.icon) pause: \(finalDelta.digits(2))")
                         try await sleep(finalDelta)
-                        if self?.playStatus.playState.loop ?? false {
-                            self?.updatePlayStatus(.play, on: true)
-                            PrintLog("🔄 task \(self?.playStatus.script ?? "")")
+
+                        if playStatus.playState.loop {
+                            updateStatus(.play, on: true, from: from)
+
                             playBegan = Date().timeIntervalSince1970
                             index = 0
                             continue
                         } else {
-                            self?.updatePlayStatus(.play, on: false)
+                            updateStatus(.stop, on: true, from: from)
                         }
                     }
                     func sleep(_ duration: TimeInterval) async throws {
@@ -107,17 +100,36 @@ extension TapeTrack { // task
                         }
                     }
                 }
+            } catch is CancellationError {
+                // Explicit cancellation handling: log and update status
+                PrintLog("🔴 playTask cancelled .\(from.icon)")
+                Task.detached { [weak self] in
+                    guard let self else { return }
+                    self.updateStatus(.stop, on: true, from: from)
+                }
             } catch {
-                // Cancellation or sleep error: just exit gracefully
+                // Handle other errors if needed
+                PrintLog("⚠️ playTask error: \(error)")
             }
         }
     }
-    public func updatePlayStatus(_ state: PlayState, on: Bool) {
+    public func updateStatus(_ state: PlayState, on: Bool, from: DataFrom) {
+
+        let oldRecord = playStatus.playState.record
         playStatus.updateState(state, on: on)
-        PrintLog("🔄 updatePlayStatus \(playStatus.Script)")
-        Task.detached {
-            await Peers.shared.sendItem(.playStatus) { @Sendable in
-                try? JSONEncoder().encode(self.playStatus)
+        let newRecord = playStatus.playState.record
+
+        // complete recording duration?
+        if oldRecord, !newRecord {
+            let timeNow = Date().timeIntervalSince1970
+            duration = timeNow - tapeBegan
+        }
+        PrintLog("🔄 update status   \(playStatus.script) .\(from.icon)")
+        if from == .local {
+            Task.detached {
+                await Peers.shared.sendItem(.playStatus) { @Sendable in
+                    try? JSONEncoder().encode(self.playStatus)
+                }
             }
         }
     }
