@@ -8,7 +8,7 @@ public class TapeDeck {
     let deckId = UUID().uuidString.hashValue
     var selfTrack: TapeTrack?
     var tapeTracks = [Int: TapeTrack]()
-    var trackPlay = [Int: Task<Void, Never>]()
+    var tapeTasks = [Int: Task<Void, Never>]()
 
     private var learn = false
     private var lock  = NSLock()
@@ -37,6 +37,8 @@ public class TapeDeck {
         PrintLog("🔄✇ recordOn")
         if let selfTrack {
             stopPlayback(selfTrack)
+            let oldTrackId = selfTrack.playStatus.trackId
+            tapeTracks.removeValue(forKey: oldTrackId)
         }
         let newTrack = TapeTrack(deckId)
         let newTrackId = newTrack.playStatus.trackId
@@ -72,24 +74,21 @@ public class TapeDeck {
 
         guard let tapeTrack else { return }
         let trackId = tapeTrack.playStatus.trackId
-        guard trackPlay[trackId] == nil else { return }
+        guard tapeTasks[trackId] == nil else { return }
         
         PrintLog("🔄 start  \(tapeTrack.script)")
         tapeTrack.normalizeTime()
         if let playTask = tapeTrack.makePlayTask(dataFrom(tapeTrack)) {
-            trackPlay[tapeTrack.playStatus.trackId] = playTask
+            tapeTasks[tapeTrack.playStatus.trackId] = playTask
         }
     }
 
     func stopPlayback(_ tapeTrack: TapeTrack) {
         let trackId = tapeTrack.playStatus.trackId
-        NextFrame.shared.addBetweenFrame { [weak self] in
-            guard let self else { return }
-            if let tapeTrack = self.tapeTracks[trackId] {
-                Peers.shared.resetPlayItems(tapeTrack.playItems)
-                trackPlay[trackId]?.cancel()
-                trackPlay.removeValue(forKey: trackId)
-            }
+        if let tapeTrack = self.tapeTracks[trackId] {
+            Peers.shared.resetPlayItems(tapeTrack.playItems)
+            tapeTasks[trackId]?.cancel()
+            tapeTasks.removeValue(forKey: trackId)
         }
     }
 }
@@ -101,7 +100,7 @@ extension TapeDeck: PeersDelegate {
         if let status = receivedStatus() {
             PrintLog("🔄 received status \(status.script) .\(from.icon)")
         } else if let track = receivedTrack() {
-            PrintLog("🔄 received track  \(track.Script) .\(from.icon)")
+            PrintLog("🔄 received track  \(track.script) .\(from.icon)")
         }
         func receivedTrack() -> TapeTrack? {
             if let track = try? decoder.decode(TapeTrack.self, from: data) {
@@ -131,13 +130,16 @@ extension TapeDeck: PeersDelegate {
 
                 let playState = playStatus.playState
                 let trackId = playStatus.trackId
-                let playTask = trackPlay[trackId]
+                let playTask = tapeTasks[trackId]
 
                 if let tapeTrack = tapeTracks[trackId] {
 
                     if !playState.play, let playTask {
                         PrintLog("🔄 cancelPlayTask \(playStatus.trackId.script5) 🛑")
                         playTask.cancel()
+                        lock.lock()
+                        tapeTasks.removeValue(forKey: trackId)
+                        lock.unlock()
                         Peers.shared.resetPlayItems(tapeTrack.playItems)
                     }
                     else if playState.play, playTask == nil {
@@ -147,7 +149,7 @@ extension TapeDeck: PeersDelegate {
 
                         lock.lock()
                         tapeTracks.removeValue(forKey: trackId)
-                        trackPlay.removeValue(forKey: trackId)
+                        tapeTasks.removeValue(forKey: trackId)
                         lock.unlock()
 
                     }
