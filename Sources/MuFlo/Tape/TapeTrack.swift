@@ -49,9 +49,9 @@ public class TapeTrack: @unchecked Sendable, Codable {
         playStatus.playState.setOn(nextState)
         if oldState.record, !playStatus.playState.record {
             duration = Date().timeIntervalSince1970 - tapeBegan
-            PrintLog("🔄 setState duration: \(duration)")
+            PrintLog("🎞️ setState duration: \(duration)")
         }
-        PrintLog("🔄 setState \(oldState.description) -> \(playStatus.playState.description)")
+        PrintLog("🎞️ setState \(oldState.description) -> \(playStatus.playState.description)")
     }
 }
 extension TapeTrack { // task
@@ -59,7 +59,7 @@ extension TapeTrack { // task
     func makePlayTask(_ from: DataFrom) -> Task<Void, Never>? {
         playBegan = Date().timeIntervalSince1970
         var index = 0
-        PrintLog("🔄 makePlayTask \(playStatus.deckId.script5) .\(from.icon) 🟢")
+        PrintLog("🎞️ makePlayTask \(playStatus.deckId.script5) .\(from.icon) 🟢")
         return Task { [playItems, weak self] in
             guard let self else { return }
             do {
@@ -71,14 +71,14 @@ extension TapeTrack { // task
                 }
             } catch is CancellationError {
                 // Explicit cancellation handling: log and update status
-                PrintLog("🔄 playTask cancelled .\(from.icon) 🔴")
+                PrintLog("🎞️ playTask cancelled .\(from.icon) 🔴")
                 Task.detached { [weak self] in
                     guard let self else { return }
                     self.updateStatus(.stop, on: true, from: from)
                 }
             } catch {
                 // Handle other errors if needed
-                PrintLog("🔄 ⚠️ playTask error: \(error)")
+                PrintLog("🎞️ ⚠️ playTask error: \(error)")
             }
         }
     }
@@ -89,7 +89,7 @@ extension TapeTrack { // task
             let timeNow = Date().timeIntervalSince1970
             let timeDelta = fmod(timeNow - playBegan, duration)
             let finalDelta = duration - timeDelta
-            PrintLog("🔄 playTask status \(playStatus.script) .\(from.icon) pause: \(finalDelta.digits(2))")
+            PrintLog("🎞️ playTask status \(playStatus.script) .\(from.icon) pause: \(finalDelta.digits(2))")
 
             try await sleep(finalDelta)
 
@@ -127,7 +127,7 @@ extension TapeTrack { // task
             let timeNow = Date().timeIntervalSince1970
             duration = timeNow - tapeBegan
         }
-        PrintLog("🔄 update status   \(playStatus.script) .\(from.icon)")
+        PrintLog("🎞️ update status   \(playStatus.script) .\(from.icon)")
         if from == .local {
             Task.detached {
                 await Peers.shared.sendItem(.playStatus) { @Sendable in
