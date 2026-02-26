@@ -9,7 +9,6 @@ public class TapeTrack: @unchecked Sendable, Codable {
     var playItems  : [PlayItem]
     var playBeats  : PlayBeats?
     var tapeBegan = TimeInterval(0)
-    var playBegan = TimeInterval(0)
     var duration  = TimeInterval(0)
     
     init(_ deckId: Int) {
@@ -57,7 +56,7 @@ public class TapeTrack: @unchecked Sendable, Codable {
 extension TapeTrack { // task
     
     func makePlayTask(_ from: DataFrom) -> Task<Void, Never>? {
-        playBegan = Date().timeIntervalSince1970
+        playStatus.playBegan = Date().timeIntervalSince1970  // set playBegan in playStatus for playback synchronization
         var index = 0
         PrintLog("🎞️ makePlayTask \(playStatus.deckId.script5) .\(from.icon) 🟢")
         return Task { [playItems, weak self] in
@@ -87,7 +86,7 @@ extension TapeTrack { // task
         if index == playItems.count {
             updateStatus(.ending, on: true, from: from)
             let timeNow = Date().timeIntervalSince1970
-            let timeDelta = fmod(timeNow - playBegan, duration)
+            let timeDelta = fmod(timeNow - playStatus.playBegan, duration)
             let finalDelta = duration - timeDelta
             PrintLog("🎞️ playTask status \(playStatus.script) .\(from.icon) pause: \(finalDelta.digits(2))")
 
@@ -95,7 +94,7 @@ extension TapeTrack { // task
 
             if playStatus.playState.loop {
                 updateStatus(.play, on: true, from: from)
-                playBegan = Date().timeIntervalSince1970
+                playStatus.playBegan = Date().timeIntervalSince1970  // reset playBegan in playStatus for next loop
                 return 0
             } else {
                 updateStatus(.stop, on: true, from: from)
@@ -106,7 +105,7 @@ extension TapeTrack { // task
     func awaitPlayItem(_ index: Int) async throws -> PlayItem  {
         let playItem = playItems[index]
         let timeNow = Date().timeIntervalSince1970
-        let timeDelta = fmod(timeNow - playBegan, duration)
+        let timeDelta = fmod(timeNow - playStatus.playBegan, duration)
         try await sleep(playItem.time - timeDelta) // normalized
         return playItem
     }
@@ -137,3 +136,4 @@ extension TapeTrack { // task
         }
     }
 }
+

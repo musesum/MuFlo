@@ -50,7 +50,7 @@ public class Visitor {
         } else {
             blocked?.append(id)
         }
-        lock.unlock()
+        lock.unlock() 
     }
     public func nowHeres(_ ids: [Int?]) {
         lock.lock()
