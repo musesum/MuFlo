@@ -25,11 +25,11 @@ import UIKit
 ///
 /// Code details:
 ///
-/// 1 - `SkyBase` inits `ArchiveFlo` with files from Bundle.
+/// 1 - `SkyArchive` inits `ArchiveFlo` with files from Bundle.
 /// When user exits, a Snapshot.mu archive is created and saved
 /// in the Documents directory.
 ///
-/// 2 - `SkyBase` inits `ArchiveFlo` and finds that the date for
+/// 2 - `SkyArchive` inits `ArchiveFlo` and finds that the date for
 /// `Snapshot.mu` file is newer than the bundle.
 ///
 /// 3 - `SkyApp` handles a `.onOpenURL`, which loads from URL.
