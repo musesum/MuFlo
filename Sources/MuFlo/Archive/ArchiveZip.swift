@@ -8,9 +8,9 @@ public class ArchiveZip {
     private var URL: URL
     private var name: String
     private var ext: String
-    private var archive: Archive!
     private let Files = FileManager.default
 
+    internal var archive: Archive!
     public var archiveTime: TimeInterval!
 
     public init?(_ name: String,

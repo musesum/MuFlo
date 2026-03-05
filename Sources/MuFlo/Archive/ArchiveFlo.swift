@@ -25,11 +25,11 @@ import UIKit
 ///
 /// Code details:
 ///
-/// 1 - `SkyBase` inits `ArchiveFlo` with files from Bundle.
+/// 1 - `SkyArchive` inits `ArchiveFlo` with files from Bundle.
 /// When user exits, a Snapshot.mu archive is created and saved
 /// in the Documents directory.
 ///
-/// 2 - `SkyBase` inits `ArchiveFlo` and finds that the date for
+/// 2 - `SkyArchive` inits `ArchiveFlo` and finds that the date for
 /// `Snapshot.mu` file is newer than the bundle.
 ///
 /// 3 - `SkyApp` handles a `.onOpenURL`, which loads from URL.
@@ -71,7 +71,6 @@ import UIKit
 open class ArchiveFlo: NSObject {
 
     private var scriptNames: [String]
-    private var textureNames: [String]
     private var bundles: [Bundle]
     private let Files = FileManager.default
     public var nameTex = [String: MTLTexture?]()
@@ -80,17 +79,11 @@ open class ArchiveFlo: NSObject {
     public init(_ root˚        : Flo,
                 _ bundles      : [Bundle],
                 _ snapName     : String,
-                _ scriptNames  : [String],
-                _ textureNames : [String]) {
+                _ scriptNames  : [String]) {
 
         self.root˚ = root˚
         self.bundles = bundles
         self.scriptNames = scriptNames
-        self.textureNames = textureNames
-        //TODO: get textureNames from pipe.flo
-        for textureName in textureNames {
-            nameTex[textureName] = nil as MTLTexture?
-        }
         super.init()
 
         if !parseSnapshot(snapName) {
@@ -180,11 +173,18 @@ open class ArchiveFlo: NSObject {
 
     func unzipPngTextures (_ zip: ArchiveZip?) {
 
-        guard let zip else { return }
+        guard let archive = zip?.archive else { return }
 
-        for name in nameTex.keys {
-
-            if let data = zip.readFile(name + ".png"),
+        let textureEntries = archive.compactMap {
+            entry -> (path: String, name: String)? in
+            guard entry.path.hasSuffix(".png"),
+                  let range = entry.path.range(of: "texture/")
+            else { return nil }
+            let name = String(entry.path[range.upperBound...].dropLast(".png".count))
+            return (entry.path, name)
+        }
+        for (entryPath, name) in textureEntries {
+            if let data = zip?.readFile(entryPath),
                let tex = pngDataToTexture(data) {
                 tex.label = name
                 self.nameTex[name] = tex
