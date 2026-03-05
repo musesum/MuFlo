@@ -73,7 +73,7 @@ open class ArchiveFlo: NSObject {
     private var scriptNames: [String]
     private var bundles: [Bundle]
     private let Files = FileManager.default
-    public var nameTex = [String: MTLTexture?]()
+    public var nameTex = [String: MTLTexture]()
     public var root˚: Flo
 
     public init(_ root˚        : Flo,

@@ -128,14 +128,6 @@ extension Flo {
             }
             return passed
 
-        } else if let tex = fromFlo.texture {
-
-            self.texture = tex
-
-        } else if let buf = fromFlo.buffer {
-
-            self.buffer = buf
-
         } else { /// example 3.  passthrough
             passthrough = true // does not contain own value
             exprs = edgeExprs ?? fromExprs
