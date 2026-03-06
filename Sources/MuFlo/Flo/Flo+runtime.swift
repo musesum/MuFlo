@@ -81,7 +81,7 @@ extension Flo {
         // breadth first follow edges
         var passed = [Flo]()
         for floEdge in floEdges.values {
-            if floEdge.active { // ⬦⃣
+            if floEdge.active { 
                 if let pass = floEdge.followEdge(self, setOps, visit.via(.model), depth) {
                     passed.append(pass)
                 }

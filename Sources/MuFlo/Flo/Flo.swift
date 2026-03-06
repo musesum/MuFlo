@@ -87,17 +87,22 @@ public class Flo {
     public var bound: Bool { !name.hasSuffix("?") }
 
     public var texture: MTLTexture? {
-        get { (exprs?.nameAny["tex"] as? MTLTexture?) ?? nil }
-        set { if exprs == nil { exprs = Exprs(self, "tex", newValue) }
-            else { exprs?.nameAny["tex"] = newValue }
+        get { (exprs?.nameAny["texture"] as? MTLTexture) ?? nil }
+        set { if exprs == nil { exprs = Exprs(self, "texture", newValue) }
+            else { exprs?.nameAny["texture"] = newValue }
         }
+    }
+    public var texPtr: String {
+        guard let texture else { return "" }
+        return String("\(Unmanaged.passUnretained(texture).toOpaque())".suffix(5))
     }
     public var buffer: MTLBuffer? {
-        get { (exprs?.nameAny["buf"] as? MTLBuffer?) ?? nil }
-        set { if exprs == nil { exprs = Exprs(self, "buf", newValue) }
-            else { exprs?.nameAny["buf"] = newValue }
+        get { (exprs?.nameAny["buffer"] as? MTLBuffer ) ?? nil }
+        set { if exprs == nil { exprs = Exprs(self, "buffer", newValue) }
+            else { exprs?.nameAny["buffer"] = newValue }
         }
     }
+
     public var passthrough = false // does not have its own FloVal, so pass through events
     public var hasPlugDefs: Bool { plugDefs?.count ?? 0 > 0 }
     public var hasPlugins: Bool { plugins.count > 0 }

@@ -122,6 +122,8 @@ public class FloParse {
             switch pattern {
             case "name"    : addName(parse)
             case "scalar"  : addScalar(parse)
+            case "num"     : addScalar(parse)
+            case "shader"  : addShader(parse)
             case "exprOp"  : addOp(parse)
             case "quote"   : exprs.addQuote(parse.nextResult)
             case "tooltip" : exprs.addTooltip(parse.nextResult)
@@ -136,11 +138,16 @@ public class FloParse {
             }
         }
 
+        func addShader(_ parsed: Parsed) {
+            name = parsed.nextResult
+            exprs.addOpStr(name)
+        }
         func addName(_ parsed: Parsed) {
             let hadName = name != nil
             name = parsed.nextResult
             exprs.addOpName(name, hadName)
         }
+
         func addComment(_ parsed: Parsed) {
             flo.addComment(.branch, parsed.nextResult)
             name = nil

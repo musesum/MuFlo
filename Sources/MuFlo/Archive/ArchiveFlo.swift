@@ -228,9 +228,6 @@ open class ArchiveFlo: NSObject {
                   _ fname: String,
                   _ ext: String = "flo.h") -> Bool {
 
-        if fname=="tape" {
-            PrintLog("ℹ️ parsing \(fname).\(ext)")
-        }
         guard let script = read(fname, ext) else { return false }
         let success = FloParse().parseRoot(root, script)
         PrintLog(fname + (success ? " ✓" : " ⁉️ parse failed"))

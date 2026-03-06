@@ -4,12 +4,15 @@ import Foundation
 
 extension Exprs { // + add
 
-    func addDeepScalar(_ scalar: Scalar?,_ name: String? = nil,_ lastOp: EvalOp = .none) {
+    func addDeepScalar(_ scalar : Scalar?,
+                       _ name   : String? = nil,
+                       _ lastOp : EvalOp = .none) {
+
         guard let scalar else { return }
         let evalAny = EvalAny(scalar: scalar)
         evalAnys.append(evalAny)
         if let name {
-            if [.none, .comma, .In, .EQ].contains(lastOp) {
+            if [.none, .comma, .In, .EQ, .texture, .buffer].contains(lastOp) {
                 nameAny[name] = scalar
             }
         } else {

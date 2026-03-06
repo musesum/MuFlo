@@ -5,7 +5,8 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
     name := '(?!\d)\w+'
     base := ":" (path | name)
     exprs := "(" (edge | value)+ ")" {
-        value := (name scalar | scalar | name exprOp | exprOp | name | quote | tooltip)+ {
+        value := (shader num? | name scalar | scalar | name exprOp | exprOp | name | quote | tooltip)+ {
+            shader := '(tex(ture)?|buf(fer)?)'
             scalar := (range | num | now) (origin | now)* {
                 range  := num rangeOp num
                 origin := "=" num

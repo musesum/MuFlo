@@ -70,8 +70,21 @@ extension Exprs { // + eval
             let evalAny = evalAnys[i]
 
             switch evalAny.op {
-            case .none,.tooltip:
+            case .none, .tooltip:
                 break // start here
+            case .texture:
+                break
+//                if  nameAny.keys.contains("texture"),
+//                    let tex = fromExpress?.nameAny["texture"] {
+//                    nameAny["texture"] = tex
+//                }
+            case .buffer:
+                break
+//....
+//                if  nameAny.keys.contains("buffer"),
+//                    let tex = fromExpress?.nameAny["buffer"] {
+//                    nameAny["buffer"] = tex
+//                }
             case .quote,.scalar,.num:
                 if !exprLiteral() { return false }
             case .path,.name:

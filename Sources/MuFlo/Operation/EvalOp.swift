@@ -9,6 +9,8 @@ public enum EvalOp: String {
     case name    = "name"
     case quote   = "quote"
     case tooltip = "tooltip"
+    case texture = "texture"
+    case buffer  = "buffer"
     case scalar  = "scalar"
     case num     = "num"
 

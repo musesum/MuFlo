@@ -176,10 +176,10 @@ extension TapeDeck: PeersDelegate {
         }
     }
     public func resetItem(_ playItem: MuPeers.PlayItem) {
-        //..... Peers.shared.resetPlayItems([playItem])
+        //... Peers.shared.resetPlayItems([playItem])
     }
     public func playItem(_ item: PlayItem, from: DataFrom) {
-        //..... received(data: playItem.data, from: from)
+        //... received(data: playItem.data, from: from)
     }
     public func shareItem(_ any: Any) {
 
