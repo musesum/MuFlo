@@ -442,8 +442,12 @@ extension Flo { // + find
                    let selfExprs = self.exprs {
 
                     for name in selfExprs.nameAny.keys {
-                        if let fromAny = fromExprs.nameAny[name] {
-                            selfExprs.nameAny[name] = fromAny
+                        if let fromAny = fromExprs.nameAny[name] as AnyObject?,
+                           let selfExprs = self.exprs {
+                            let toAny = selfExprs.nameAny[name] as AnyObject?
+                            if !(fromAny===toAny) {
+                                selfExprs.nameAny[name] = fromAny
+                            }
                         }
                     }
                 }
