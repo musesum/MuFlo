@@ -483,9 +483,9 @@ hand˚.(x -0.3…0.3, y 0.8…1.2, z -0.5…0.01, time, phase, joint)
 
 *1980*'s Xerox OPSD (the commercial side of PARC) contracted a design for a project management system, based on their graphical UI based OS. This was the first combination of tree (work breakdown) and graph (activities). Later, wrote a hypertext system also based on this tree + graph approach. 
  
-*1990*'s A Technical Director (TD) at an interactive ad agency wrote a dataflow based media script, called Flow. Flow supported a team, which paired an artist with a coder. The artist would script interactive media and the coder would extend the script with new features in C++. Deployed millions of runtimes on CD's and Floppies. 
+*1990*'s As a Technical Director (TD) at an interactive ad agency, I wrote a dataflow based media script, called Flow. Flow supported a team, which paired an artist with a coder. The artist would script interactive media and the coder would extend the script with new features in C++. It was deployed millions of runtimes on CD's and Floppies. 
 
-*2000*'s As VJ wrote a visual Music synthesizer, written in C++ and OpenGL. The script was created to patch a graphics tablet, MIDI controllers, and a Virtual Puppeteering device, called a [Vuppet](https://www.youtube.com/watch?v=iXLP1B5fzpo).
+*2000*'s As a VJ, I wrote a visual Music synthesizer, written in C++ and OpenGL. The script was created to patch a graphics tablet, MIDI controllers, and a Virtual Puppeteering device, called a [Vuppet](https://www.youtube.com/watch?v=iXLP1B5fzpo).
 
 *2010*'s the Visual music synth was ported to the AppStore. Later deprecated by Apple in its switch to 64bit apps. The ObjectiveC/C++ app was ported to pure Swift in 2019. 
 
@@ -529,7 +529,7 @@ The reason is that multiple edges don't play nice with auto-indentation. Conside
              midi.cc.skypad.repeatY(val y)),
          ^- sky.main.anim)
 ```
-It has three kinds of edges, but folds nicely in XCode.
+It has three kinds of edges, but folds nicely in the XCode editor.
 
 ##### Mobile texting
 
@@ -553,5 +553,3 @@ BTW, you can still use `...` instead of `…`, but the output will be `…`
  It could be as simple as making a menu choice intuitive. Or, it could be as complex as navigating through trillions of tokens. A crude look at what that may look like is [here](https://www.youtube.com/watch?v=a703TTbxghc&t=5s&ab_channel=Ikoino) 
 
 For now: baby steps. The first application of Flo is a toy: a visual music synthesizer. It's predecessor had 2800 parameters.
-
-##### Enjoy
