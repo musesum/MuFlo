@@ -3,6 +3,7 @@
 
 import Foundation
 import Collections
+import OrderedCollections
 
 public class ArrayClass<T>: Sequence {
     var array: [T]
