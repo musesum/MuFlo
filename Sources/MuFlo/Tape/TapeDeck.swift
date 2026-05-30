@@ -1,5 +1,6 @@
 // created by musesum on 1/18/26
 
+#if !os(watchOS)
 import Foundation
 import MuPeers
 
@@ -213,3 +214,4 @@ extension TapeDeck: PeersDelegate {
         shareItem(tapeTrack)
     }
 }
+#endif

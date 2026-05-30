@@ -1,3 +1,4 @@
+#if !os(watchOS)
 import MultipeerConnectivity
 
 public extension MCSessionState {
@@ -22,3 +23,4 @@ public extension MCSessionState {
         }
     }
 }
+#endif

@@ -1,5 +1,6 @@
-import UIKit
 import QuartzCore
+#if !os(watchOS)
+import UIKit
 
 public protocol NextFrameDelegate {
     func goFrame() -> Bool
@@ -73,4 +74,27 @@ public class NextFrame {
         return true
     }
 }
+#else
+// watchOS stub — CADisplayLink is unavailable. Provides a no-op API surface so
+// that callers can still reference NextFrame even though no frame ticks occur.
+public protocol NextFrameDelegate {
+    func goFrame() -> Bool
+    func cancel(_ key: Int)
+}
 
+public class NextFrame {
+    nonisolated(unsafe) public static let shared = NextFrame()
+    public var betweenFrames = [(() -> Void)?]()
+    public var fps: TimeInterval { 0 }
+    public var pause = true
+    public var interval: CFTimeInterval = 0
+
+    private init() {}
+
+    public func updateFps(_ newFps: Int?) {}
+    public func addFrameDelegate(_ key: Int, _ delegate: NextFrameDelegate) {}
+    public func removeDelegate(_ key: Int) {}
+    public func addBetweenFrame(_ closure: @escaping () -> Void) {}
+    @objc public func nextFrame(force: Bool = false) -> Bool { false }
+}
+#endif

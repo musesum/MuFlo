@@ -1,3 +1,6 @@
+import Foundation
+
+#if !os(watchOS)
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -249,6 +252,8 @@ open class ArchiveFlo: NSObject {
         return nil
     }
 }
+#endif
+
 public protocol ArchiveProto {
 
     func readUserArchive(_ url: URL, local: Bool)

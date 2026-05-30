@@ -56,6 +56,7 @@ extension EdgeDef { // + connect
             addPlugins()
         }
         func addPlugins() {
+            #if !os(watchOS)
             guard let plugDefs else { return }
             for plugDef in plugDefs {
                 for edge in plugDef.edges.values {
@@ -66,6 +67,7 @@ extension EdgeDef { // + connect
                     }
                 }
             }
+            #endif
         }
         func excludeEdge() {
             if let oldEdge = edges[newKey] {

@@ -1,5 +1,6 @@
 // created by musesum on 10/6/24
 
+#if !os(watchOS)
 import SwiftUI
 
 public struct ArchivePickerView: View {
@@ -65,3 +66,4 @@ public struct ArchiveItemView: View {
         )
     }
 }
+#endif

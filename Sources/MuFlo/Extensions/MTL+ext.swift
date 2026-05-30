@@ -1,5 +1,6 @@
 // created by musesum on 12/21/23
 
+#if !os(watchOS)
 import simd
 import ModelIO
 import MetalKit
@@ -203,3 +204,4 @@ extension CAMetalLayer {
     public var isLandscape: Bool { aspect == .landscape }
     public var isPortrait: Bool { aspect == .portrait }
 }
+#endif

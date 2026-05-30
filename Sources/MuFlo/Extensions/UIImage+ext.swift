@@ -1,5 +1,6 @@
 //  created by musesum on 7/17/19.
 
+#if !os(watchOS)
 import UIKit
 
 public extension UIImage {
@@ -99,3 +100,4 @@ public extension UIImage {
     }
 
 }
+#endif

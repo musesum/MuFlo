@@ -2,8 +2,10 @@
 
 import Foundation
 import QuartzCore
-import UIKit
 import SwiftUI
+#if !os(watchOS)
+import UIKit
+#endif
 
 public typealias RangeXY = (ClosedRange<CGFloat>, ClosedRange<CGFloat>)
 public enum Aspect: UInt {
@@ -71,30 +73,32 @@ public extension CGRect {
         return pp
     }
     
+    #if !os(watchOS)
     func between(_ p: CGRect, _ insets: UIEdgeInsets = .zero) -> CGRect {
-        
+
         let x = origin.x + insets.left
         let y = origin.y + insets.right
         let w = size.width - insets.left - insets.right
         let h = size.height - insets.top - insets.bottom
-        
+
         var px = p.origin.x
         var py = p.origin.y
         var pw = p.size.width
         var ph = p.size.height
-        
+
         if pw > w { pw = w }
         if ph > h { ph = h }
         if px < insets.left { px = insets.left }
         if py < insets.top { py = insets.top }
         if px + pw > x + w { px = x + w - pw }
         if py + ph > y + h { py = y + h - ph }
-        
+
         let pp = CGRect(x: px, y: py, width: pw, height: ph)
-        
+
         return pp
     }
-    
+    #endif
+
     var center: CGPoint {
         get {
             let x = origin.x

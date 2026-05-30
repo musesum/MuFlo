@@ -1,6 +1,7 @@
 //  Image+ext.swift
 //  created by musesum on 2/18/23.
 
+#if !os(watchOS)
 import Foundation
 import CoreImage
 
@@ -41,3 +42,4 @@ public extension CIImage {
         return cgImage?.pixelData()
     }
 }
+#endif

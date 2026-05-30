@@ -1,5 +1,6 @@
 // created by musesum on 5/31/25
 
+#if !os(watchOS)
 import Foundation
 import NIOCore
 import MuPeers // DataFrom
@@ -81,3 +82,4 @@ extension CircleBuffer: @MainActor ResetDelegate {
         lock.unlock()
     }
 }
+#endif

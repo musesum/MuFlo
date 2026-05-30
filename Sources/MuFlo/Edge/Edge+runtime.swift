@@ -45,7 +45,11 @@ extension Edge {
 
             func script(_ flo: Flo) -> String {
                 guard let exprs = flo.exprs else { return "()" }
+                #if !os(watchOS)
                 let plugged = !flo.plugins.isEmpty ? "⚡️" : "/"
+                #else
+                let plugged = "/"
+                #endif
 
                 var str = "\(flo.path(3))"
                 var del = "("

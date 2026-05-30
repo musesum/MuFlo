@@ -1,3 +1,4 @@
+#if !os(watchOS)
 import UIKit
 
 public extension UITouch.Phase {
@@ -26,3 +27,4 @@ public extension Int {
         }
     }
 }
+#endif

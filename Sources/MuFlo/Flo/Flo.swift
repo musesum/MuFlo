@@ -2,7 +2,9 @@
 //  created by musesum on 3/7/19.
 
 import Foundation
+#if !os(watchOS)
 import Metal
+#endif
 
 /// Dictionary of all Flos in graph based on path based hash.
 /// This is useful for updating state of a flo node from duplicate
@@ -29,10 +31,16 @@ public class Flo {
     var closures = [FloVisitor]()   /// activation calls closures
     var comments = FloComments()
     var plugDefs: EdgeDefArray?     /// class reference to [EdgeDef]
+    #if !os(watchOS)
     var plugins = [EdgePlugin]()
+    #endif
 
     var scalarOps: ScalarOps { //TODO: refactor into Scalar class
+        #if !os(watchOS)
         hasPlugins ? [.value] : [.tween, .value]
+        #else
+        [.tween, .value]
+        #endif
     }
     var deltaTween = false /// any changes to descendants?
 
@@ -86,6 +94,7 @@ public class Flo {
     public func updateTime() { time = Date().timeIntervalSince1970 }
     public var bound: Bool { !name.hasSuffix("?") }
 
+    #if !os(watchOS)
     public var texture: MTLTexture? {
         get { (exprs?.nameAny["texture"] as? MTLTexture) ?? nil }
         set { if exprs == nil { exprs = Exprs(self, "texture", newValue) }
@@ -102,10 +111,15 @@ public class Flo {
             else { exprs?.nameAny["buffer"] = newValue }
         }
     }
+    #endif
 
     public var passthrough = false // does not have its own FloVal, so pass through events
     public var hasPlugDefs: Bool { plugDefs?.count ?? 0 > 0 }
+    #if !os(watchOS)
     public var hasPlugins: Bool { plugins.count > 0 }
+    #else
+    public var hasPlugins: Bool { false }
+    #endif
 
     public var scalarState: ScalarState {
         guard let exprs else { return [] }
@@ -165,8 +179,7 @@ public class Flo {
     }()
     public lazy var hash: Int = {
         if time == 0 { updateTime() }
-        let hashed = path(9999).strHash()
-        return hashed
+        return Int(path(9999).strHash())
     }()
 
     public convenience init(_ name: String, parent: Flo?, type: FloType = .name) {
@@ -305,7 +318,11 @@ extension Flo {
            let mergeFlo = mergeRoot.hashFlo.dict[hash],
            let mergeExprs = mergeFlo.exprs {
 
+            #if !os(watchOS)
             let noTweens = plugins.isEmpty
+            #else
+            let noTweens = true
+            #endif
             for (name,value) in mergeExprs.nameAny {
                 if let mergeScalar = value as? Scalar,
                    let selfScalar = exprs.nameAny[name] as? Scalar,

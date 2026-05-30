@@ -204,6 +204,7 @@ public class Exprs: FloVal, @unchecked Sendable {
     }
 
     func maybeNewTween(_ visit: Visitor) {
+        #if !os(watchOS)
         if flo.hasPlugDefs,
            flo.hasPlugins,
            !visit.type.has(.tween) {
@@ -211,6 +212,7 @@ public class Exprs: FloVal, @unchecked Sendable {
                 plugin.startPlugin(flo.id, visit)
             }
         }
+        #endif
     }
     func setNameNum(_ name: String, _ num: Double, _ setOps: SetOps) {
         if let scalar = nameAny[name] as? Scalar {

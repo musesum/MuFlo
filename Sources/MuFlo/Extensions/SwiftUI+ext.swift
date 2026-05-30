@@ -2,7 +2,7 @@
 //
 //  created by musesum on 7/5/22.
 
-#if !os(visionOS)
+#if !os(visionOS) && !os(watchOS)
 
 import SwiftUI
 

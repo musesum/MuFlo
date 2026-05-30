@@ -1,5 +1,6 @@
 //  created by musesum on 5/13/23.
 
+#if !os(watchOS)
 import UIKit
 import Collections
 
@@ -89,4 +90,5 @@ extension EdgePlugin: NextFrameDelegate {
     }
 
 }
+#endif
 

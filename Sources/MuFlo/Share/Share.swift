@@ -1,4 +1,5 @@
 // created by musesum on 8/14/25
+#if !os(watchOS)
 import Foundation
 import MuPeers
 
@@ -10,4 +11,5 @@ public struct Share: Sendable {
         self.tapeFlo = tapeFlo
     }
 }
+#endif
 

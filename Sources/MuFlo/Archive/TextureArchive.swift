@@ -1,5 +1,6 @@
 // created by musesum on 11/16/24
 
+#if !os(watchOS)
 import Foundation
 import Metal
 #if canImport(UIKit)
@@ -96,4 +97,5 @@ public func pngDataToTexture(_ data: Data) -> MTLTexture? {
     }
 
     return texture
-} 
+}
+#endif

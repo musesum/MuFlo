@@ -1,5 +1,15 @@
 // created by musesum on 10/6/24
 
+#if os(watchOS)
+import Foundation
+
+@Observable public class ArchiveVm: Identifiable {
+    public var id = Visitor.nextId()
+    public var archiveProto: ArchiveProto?
+    public var nameNow = "Archive"
+    public init() {}
+}
+#else
 import SwiftUI
 
 @Observable public class ArchiveVm: Identifiable {
@@ -40,3 +50,4 @@ import SwiftUI
         return archiveActs
     }
 }
+#endif

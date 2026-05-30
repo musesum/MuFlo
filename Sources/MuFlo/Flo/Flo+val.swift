@@ -2,7 +2,9 @@
 
 import QuartzCore
 import Collections
+#if !os(watchOS)
 import UIKit
+#endif
 
 extension Flo {
     

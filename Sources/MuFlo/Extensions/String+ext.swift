@@ -228,17 +228,19 @@ public extension String {
         }
         return str
     }
-
-    func strHash() -> Int {
-  
-        var result = Int (5381)
+    
+    
+    func strHash() -> UInt32 {
+        // 32-bit unsigned hash so values are bit-identical across watch (32-bit
+        // historically) and phone (64-bit), and so the type signals actual size.
+        var result = UInt32(5381)
         let buf = [UInt8](self.utf8)
         for b in buf {
-            result = 127 * (result & 0x00ffffffffffffff) + Int(b)
+            result = 127 * (result & 0x00ffffff) + UInt32(b)
         }
         return result
     }
-
+    
     // Divider to separate listings
     func divider(_ length: Int = 30) -> String {
     
