@@ -66,6 +66,11 @@ public class TapeFlo: @unchecked Sendable {
         }
     }
 }
+extension TapeFlo { // app seam: seed + enumerate the (private) TapeDeck at launch
+
+    public func loadTrack(_ track: TapeTrack) { tapeDeck.loadTrack(track) }
+    public var recordedTracks: [TapeTrack] { tapeDeck.recordedTracks }
+}
 extension TapeFlo: TapeProto {
 
     public func playItem(_ item: PlayItem) {

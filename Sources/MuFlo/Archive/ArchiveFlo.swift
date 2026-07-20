@@ -77,6 +77,8 @@ open class ArchiveFlo: NSObject {
     private var bundles: [Bundle]
     private let Files = FileManager.default
     public var nameTex = [String: MTLTexture]()
+    /// Seam: tracks unzipped from the archive; app seeds these into its live TapeDeck at launch.
+    public private(set) var loadedTapeTracks: [TapeTrack] = []
     public var root˚: Flo
 
     public init(_ root˚        : Flo,
@@ -121,6 +123,7 @@ open class ArchiveFlo: NSObject {
                 parseAppStartupScripts() //TODO: move this up and merge with delta.flo.h
             }
             unzipPngTextures(zip)
+            loadedTapeTracks.append(contentsOf: unzipTapeTracks(zip))
 
             // remove file from Inbox -- but not from downloads
             if url.path.contains("/Inbox") {
@@ -167,6 +170,7 @@ open class ArchiveFlo: NSObject {
                 }
             }
             unzipPngTextures(archive)
+            loadedTapeTracks.append(contentsOf: unzipTapeTracks(archive))
             return true
 
         } else {
@@ -193,6 +197,47 @@ open class ArchiveFlo: NSObject {
                 self.nameTex[name] = tex
             }
         }
+    }
+
+    /// Write each track as a paired `tape/<trackId>.tape.json` (envelope) + `.tape.blob` (sidecar).
+    public func zipTapeTracks(_ zip: ArchiveZip, tracks: [TapeTrack]) {
+        for track in tracks {
+            guard let (envelope, sidecar) = TapeArchive.encodeTrack(track) else { continue }
+            let trackId = track.playStatus.trackId
+            zip.addName("tape/\(trackId)", ext: "tape.json", data: envelope)
+            zip.addName("tape/\(trackId)", ext: "tape.blob", data: sidecar)
+        }
+    }
+
+    /// Scan `tape/` entries (like unzipPngTextures), pair .tape.json/.tape.blob, decode each.
+    /// Decoded tracks carry a synthetic deckId; app re-homes them onto its live TapeDeck.
+    func unzipTapeTracks(_ zip: ArchiveZip?) -> [TapeTrack] {
+
+        guard let archive = zip?.archive else { return [] }
+
+        var jsonPaths = [String: String]() // trackId -> entry path
+        var blobPaths = [String: String]() // trackId -> entry path
+        for entry in archive {
+            guard let range = entry.path.range(of: "tape/") else { continue }
+            let tail = entry.path[range.upperBound...]
+            if tail.hasSuffix(".tape.json") {
+                jsonPaths[String(tail.dropLast(".tape.json".count))] = entry.path
+            } else if tail.hasSuffix(".tape.blob") {
+                blobPaths[String(tail.dropLast(".tape.blob".count))] = entry.path
+            }
+        }
+        let deckId = UUID().uuidString.hashValue
+        var tracks = [TapeTrack]()
+        for (trackId, jsonPath) in jsonPaths {
+            guard let blobPath = blobPaths[trackId],
+                  let envelope = zip?.readFile(jsonPath),
+                  let sidecar = zip?.readFile(blobPath),
+                  let track = TapeArchive.decodeTrack(envelope: envelope,
+                                                      sidecar: sidecar, deckId: deckId)
+            else { continue }
+            tracks.append(track)
+        }
+        return tracks
     }
 
     /// remove ove leading "√ { \n" from script file if it exists

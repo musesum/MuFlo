@@ -70,7 +70,7 @@ public class TapeDeck {
             if let peerId = trackPeerIds[trackId] {
                 return .remote(peerId)
             }
-            return nil
+            return .local   // seeded from archive (loadTrack): local origin, no live deck
         }
         if tapeTrack.playStatus.deckId == selfTrack.playStatus.deckId {
             return .local
@@ -106,6 +106,16 @@ public class TapeDeck {
             tapeTasks.removeValue(forKey: trackId)
         }
     }
+
+    /// Seed a LOCAL track (e.g. from archive). Mirrors received() storage; no trackPeerIds
+    /// (local), does not touch selfTrack, does not auto-play, does not route through received().
+    func loadTrack(_ track: TapeTrack) {
+        let trackId = track.playStatus.trackId
+        lock.lock()
+        tapeTracks[trackId] = track
+        lock.unlock()
+    }
+    var recordedTracks: [TapeTrack] { Array(tapeTracks.values) }
 }
 
 extension TapeDeck: PeersDelegate {

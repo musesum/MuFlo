@@ -42,13 +42,20 @@ public struct TapeFloEvent: FloEventProto, Codable, Equatable, Sendable {
 }
 
 /// Versioned JSON envelope of blob-free events; blobs live in the length-prefixed sidecar.
+/// v2 adds optional `duration`/`provenance`; v1 JSON (no such keys) decodes with nil.
 public struct TapeArchiveEnvelope: Codable, Sendable {
-    public static let currentVersion = 1
+    public static let currentVersion = 2
     public var version: Int
+    public var duration: Double?
+    public var provenance: String?
     public var events: [TapeFloEvent]
     public init(version: Int = TapeArchiveEnvelope.currentVersion,
+                duration: Double? = nil,
+                provenance: String? = nil,
                 events: [TapeFloEvent]) {
         self.version = version
+        self.duration = duration
+        self.provenance = provenance
         self.events = events
     }
 }
@@ -85,7 +92,9 @@ public enum TapeArchive {
     /// Split events into a blob-free JSON envelope and a length-prefixed binary sidecar.
     /// Every event contributes exactly one sidecar frame (empty when it has no blob), so the
     /// two files stay index-aligned. MIDI 2.0 UMP payloads pass through the sidecar untouched.
-    public static func encode(_ events: [TapeFloEvent]) -> (envelope: Data, sidecar: Data)? {
+    public static func encode(_ events: [TapeFloEvent],
+                              duration: Double? = nil,
+                              provenance: String? = nil) -> (envelope: Data, sidecar: Data)? {
         var stripped = events
         var blobs: [Data] = []
         for i in stripped.indices {
@@ -94,7 +103,9 @@ public enum TapeArchive {
         }
         let enc = JSONEncoder()
         enc.outputFormatting = [.sortedKeys]
-        guard let envelope = try? enc.encode(TapeArchiveEnvelope(events: stripped)) else {
+        guard let envelope = try? enc.encode(
+            TapeArchiveEnvelope(duration: duration, provenance: provenance, events: stripped))
+        else {
             return nil
         }
         return (envelope, blobSidecarEncode(blobs))
@@ -112,6 +123,31 @@ public enum TapeArchive {
             events[i].blob = blobs[i].isEmpty ? nil : blobs[i]
         }
         return events
+    }
+
+    // MARK: - TapeTrack <-> envelope+sidecar
+
+    /// Encode a track's PlayItems into a v2 envelope (header `duration = track.duration`) and
+    /// its byte-compatible blob sidecar. Times are made relative via `track.tapeBegan`.
+    public static func encodeTrack(_ track: TapeTrack,
+                                   provenance: String? = nil) -> (envelope: Data, sidecar: Data)? {
+        let events = events(from: track.playItems, tapeBegan: track.tapeBegan)
+        return encode(events, duration: track.duration, provenance: provenance)
+    }
+
+    /// Rebuild a TapeTrack from its envelope+sidecar. Duration comes from the v2 header, else is
+    /// reconstructed as `max(t)` (v1/absent). Fresh `PlayStatus(deckId)`; playState stays stopped.
+    public static func decodeTrack(envelope: Data,
+                                   sidecar: Data,
+                                   deckId: Int) -> TapeTrack? {
+        guard let env = try? JSONDecoder().decode(TapeArchiveEnvelope.self, from: envelope),
+              let events = decode(envelope: envelope, sidecar: sidecar)
+        else { return nil }
+        let track = TapeTrack(deckId)
+        track.playItems = playItems(from: events)
+        track.tapeBegan = 0                    // decoded times are already relative
+        track.duration = env.duration ?? (events.map(\.t).max() ?? 0)
+        return track
     }
 
     // MARK: - Length-prefixed blob framing (local; MuAuthorTimeline.BlobSidecar not importable)
