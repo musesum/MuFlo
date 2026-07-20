@@ -55,4 +55,21 @@ extension Exprs { // + add
             nameAny[name] = ""
         }
     }
+
+    /// fold a prior edge target's map in FRONT of this one, comma-joined:
+    /// `t(x: w), t(y: z)` ⟹ one exprs `t(x: w, y: z)` — identical to the
+    /// single-group form that already evaluates correctly. Prepend (not
+    /// append) because the parser attaches an edge Exprs BEFORE filling its
+    /// tokens — the newer object must stay live to receive them.
+    func prependExprs(_ other: Exprs) {
+        guard !other.evalAnys.isEmpty else { return }
+        var prefix = other.evalAnys
+        prefix.append(EvalAny(str: ","))
+        evalAnys.insert(contentsOf: prefix, at: 0)
+        for (name, any) in other.nameAny {
+            if !nameAny.keys.contains(name) {
+                nameAny[name] = any
+            }
+        }
+    }
 }

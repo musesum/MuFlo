@@ -1288,6 +1288,224 @@ final class MuFloTests: XCTestCase {
         }
         XCTAssertEqual(err, 0)
     }
+    func testAssignSameTarget() { headline(#function)
+        /// two edgeVals with the SAME target path must merge their maps,
+        /// not clobber: `m <> (t(x: w), t(y: z))` ⟹ t.x ← m.w, t.y ← m.z
+        /// (camera.flo.h `mix <> (..., canvas.color(x: w), canvas.color(y: z))`)
+        var err = 0
+        let script = "t(x 0…1, y 0…1) m(x 0…1, y 0…1, z 0…1, w 0…1, <> (t(x : w), t(y : z)))"
+        print("\n" + script)
+
+        let root = Flo("√")
+
+        if floParse.parseRoot(root, script),
+           let m = root.findPath("m"),
+           let t = root.findPath("t") {
+
+            m.setNameNums([("x", 0.1),("y", 0.2),("z", 0.3),("w", 0.4)])
+            let tx = t.val("x") ?? -1
+            let ty = t.val("y") ?? -1
+            if tx != 0.4 { err += 1; print("⁉️ t.x expected 0.4 got \(tx)") }
+            if ty != 0.3 { err += 1; print("⁉️ t.y expected 0.3 got \(ty)") }
+
+        } else {
+            err += 1
+        }
+        XCTAssertEqual(err, 0)
+    }
+    func testAssignSameTargetOrdering() { headline(#function)
+        /// a repeated path with another target between must attach its map
+        /// to the repeated path — not clobber the in-between target's map:
+        /// `m -> (a(x: x), b(y: y), a(y: z))`
+        var err = 0
+        let script = "a(x 0…1, y 0…1) b(y 0…1) m(x 0…1, y 0…1, z 0…1, -> (a(x : x), b(y : y), a(y : z)))"
+        print("\n" + script)
+
+        let root = Flo("√")
+
+        if floParse.parseRoot(root, script),
+           let m = root.findPath("m"),
+           let a = root.findPath("a"),
+           let b = root.findPath("b") {
+
+            m.setNameNums([("x", 0.1),("y", 0.2),("z", 0.3)])
+            let ax = a.val("x") ?? -1
+            let ay = a.val("y") ?? -1
+            let by = b.val("y") ?? -1
+            if ax != 0.1 { err += 1; print("⁉️ a.x expected 0.1 got \(ax)") }
+            if ay != 0.3 { err += 1; print("⁉️ a.y expected 0.3 got \(ay)") }
+            if by != 0.2 { err += 1; print("⁉️ b.y expected 0.2 got \(by)") }
+
+        } else {
+            err += 1
+        }
+        XCTAssertEqual(err, 0)
+    }
+    /// full-fidelity camera.mix graph: buffer nodes, plugin edge, wildcard
+    /// over multiple loops comps, same-target-twice map — mirrors MuSky
+    /// camera.flo.h / pipe.flo.h / canvas.flo.h structure
+    func cameraMixScript(_ edgeOp: String) -> String { """
+        sky { main { anim(x 0…1=0.24) } color { xfade(x 0…1=0.5) } }
+        pipe {
+            camix { mixcam (buffer, x 0…1=1) }
+            cell {
+                rule {
+                    slide(on 1) { version (buffer, x 0…7 : 3)  loops (buffer, y 0) }
+                    zha  (on 0) { version (buffer, x 0…6 : 2)  loops (buffer, y 10) }
+                    ave  (on 0) { version (buffer, x 0…1 : 0.5) loops (buffer, y 0…99=0) }
+                    *(-> *(on 0))
+                    ˚version(-> ..(on 1))
+                }
+            }
+            color { plane (buffer, y 0…1) }
+        }
+        canvas {
+            color (xy, x 0…1, y 0…1,
+                   <> (pipe.color.plane, sky.color.xfade),
+                   ^- sky.main.anim)
+        }
+        camera {
+            mix (xyzw, x 1, y 0…10=0, z 0…1=0, w 0…1=0,
+                 \(edgeOp) (pipe.camix.mixcam(x: x),
+                     pipe.cell.rule˚loops(y: y),
+                     canvas.color(x: w),
+                     canvas.color(y: z)))
+        }
+        """
+    }
+    func cameraMixAssert(_ edgeOp: String) -> Int {
+        var err = 0
+        let root = Flo("√")
+        if floParse.parseRoot(root, cameraMixScript(edgeOp)),
+           let mix = root.findPath("camera.mix"),
+           let mixcam = root.findPath("pipe.camix.mixcam"),
+           let slideLoops = root.findPath("pipe.cell.rule.slide.loops"),
+           let color = root.findPath("canvas.color") {
+
+            mix.setNameNums([("x", 0.6),("y", 5),("z", 0.3),("w", 0.9)])
+
+            func check(_ label: String, _ got: Double?, _ want: Double) {
+                if got != want { err += 1; print("⁉️ \(edgeOp) \(label) expected \(want) got \(String(describing: got))") }
+            }
+            check("mixcam.x", mixcam.val("x"), 0.6)
+            check("slide.loops.y", slideLoops.val("y"), 5)
+            check("color.x", color.val("x"), 0.9)
+            check("color.y", color.val("y"), 0.3)
+        } else {
+            err += 1; print("⁉️ \(edgeOp) parse or findPath failed")
+        }
+        return err
+    }
+    func testCameraMixSync() { headline(#function)
+        XCTAssertEqual(cameraMixAssert("<>"), 0)
+    }
+    func testCameraMixOutput() { headline(#function)
+        XCTAssertEqual(cameraMixAssert("->"), 0)
+    }
+    /// Dev hypothesis (zha strobe): `mix -> pipe.cell.rule˚loops(y: y)` may
+    /// dispatch ALL of mix(x,y,z,w) into each loops target instead of only
+    /// the mapped y — a z-comp loops node (zha `loops z 10`) would pick up
+    /// mix's z and the CellNode inner-loop count would flap → strobe.
+    /// Asserts: zha/slide loops z NEVER change, no stray comps appear, and
+    /// the positional int read (CellNode's `flo.int`) stays stable across
+    /// repeated fires with varying z. Covers -> and <>.
+    func wildcardLoopsAssert(_ edgeOp: String) -> Int {
+        var err = 0
+        let script = """
+        pipe { cell { rule {
+            slide(on 1) { version (buffer, x 0…7 : 3)  loops (buffer, z 0) }
+            zha  (on 0) { version (buffer, x 0…6 : 2)  loops (buffer, z 10) }
+            ave  (on 0) { version (buffer, x 0…1 : 0.5) loops (buffer, y 0…99=0) }
+        } } }
+        canvas { color (xy, x 0…1, y 0…1) }
+        camera { mix (xyzw, x 1, y 0…10=0, z 0…1=0, w 0…1=0,
+                      \(edgeOp) (pipe.cell.rule˚loops(y: y),
+                          canvas.color(x: w),
+                          canvas.color(y: z))) }
+        """
+        let root = Flo("√")
+        guard floParse.parseRoot(root, script),
+              let mix = root.findPath("camera.mix"),
+              let zhaLoops = root.findPath("pipe.cell.rule.zha.loops"),
+              let slideLoops = root.findPath("pipe.cell.rule.slide.loops"),
+              let aveLoops = root.findPath("pipe.cell.rule.ave.loops") else {
+            print("⁉️ \(edgeOp) parse or findPath failed"); return 1
+        }
+        func check(_ label: String, _ cond: Bool) {
+            if !cond { err += 1; print("⁉️ \(edgeOp) \(label)") }
+        }
+        // repeated fires with varying z/w — the strobe pattern
+        for (zi, wi) in [(0.3, 0.6), (0.8, 0.1), (0.1, 0.9)] {
+            mix.setNameNums([("x", 0.9), ("y", 7), ("z", zi), ("w", wi)])
+
+            check("zha loops z != 10 (got \(String(describing: zhaLoops.val("z"))))",
+                  zhaLoops.val("z") == 10)
+            let scalarComps = zhaLoops.exprs?.nameAny.compactMap {
+                $1 is Scalar ? $0 : nil } ?? []
+            check("zha loops scalar comps != [z] (got \(scalarComps))",
+                  scalarComps == ["z"])
+            check("zha loops int != 10 (got \(zhaLoops.int)) — CellNode read",
+                  zhaLoops.int == 10)
+            check("slide loops z != 0", slideLoops.val("z") == 0)
+            check("slide loops int != 0", slideLoops.int == 0)
+        }
+        // sanity: the mapped y DOES land on a y-comp loops node (range 0…10→0…99)
+        let avy = aveLoops.val("y") ?? -1
+        check("ave loops y expected 69.3 got \(avy)", abs(avy - 69.3) < 0.001)
+        return err
+    }
+    func testWildcardLoopsScopedOutput() { headline(#function)
+        XCTAssertEqual(wildcardLoopsAssert("->"), 0)
+    }
+    func testWildcardLoopsScopedSync() { headline(#function)
+        XCTAssertEqual(wildcardLoopsAssert("<>"), 0)
+    }
+    /// Dev question: does `loops (buffer, y == 10)` store a constant 10 and
+    /// IGNORE attempts to set y != 10 (a pin against wildcard maps like
+    /// `˚loops(y: y)` re-driving the inner loop count)? Probes both write
+    /// paths separately: edge-driven (setFromExprs eval walk, where the EQ
+    /// match lives) and direct setNameNums (menu/peer path).
+    func testMatchConstantGuard() { headline(#function)
+        var err = 0
+        let script = """
+        pipe { cell { rule {
+            zha (on 1) { version (buffer, x 0…6 : 2)  loops (buffer, y == 10) }
+        } } }
+        camera { mix (xyzw, x 1, y 0…10=0, z 0…1=0, w 0…1=0,
+                      -> pipe.cell.rule˚loops(y: y)) }
+        """
+        let root = Flo("√")
+        guard floParse.parseRoot(root, script),
+              let mix = root.findPath("camera.mix"),
+              let loops = root.findPath("pipe.cell.rule.zha.loops") else {
+            XCTFail("parse failed"); return
+        }
+        func check(_ label: String, _ cond: Bool) {
+            if !cond { err += 1; print("⁉️ \(label)") }
+        }
+        let y0 = loops.val("y")
+        check("stores constant 10 at parse (val \(String(describing: y0)) int \(loops.int))",
+              y0 == 10 && loops.int == 10)
+
+        // edge-driven writes through the wildcard map (setFromExprs eval walk)
+        for yi in [0.0, 3.0, 7.0] {
+            mix.setNameNums([("y", yi)])
+            let v = loops.val("y"); let i = loops.int
+            check("map y=\(yi) rejected (val \(String(describing: v)) int \(i))",
+                  v == 10 && i == 10)
+        }
+        mix.setNameNums([("y", 10)])
+        check("map y=10 accepted (int \(loops.int))", loops.int == 10)
+
+        // direct writes (menu/peer setNameNums path) — does the guard hold?
+        loops.setNameNums([("y", 3)])
+        let vd = loops.val("y")
+        print("🔎 direct setNameNums y=3 → val \(String(describing: vd)) int \(loops.int)")
+        check("direct y=3 rejected (val \(String(describing: vd)) int \(loops.int))",
+              vd == 10 && loops.int == 10)
+
+        XCTAssertEqual(err, 0)
+    }
     //MARK: - Midi
     func testMidiGrid() { headline(#function)
         /// test `grid(x num/12, y num % 12) <- note, note(num 0…127 = 50)`

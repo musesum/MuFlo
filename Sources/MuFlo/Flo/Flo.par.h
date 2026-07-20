@@ -4,8 +4,7 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
     name := '(?!\d)\w+'
     base := ":" (path | name)
     exprs := "(" (edge | value)+ ")" {
-        value := (shader num? | name scalar | scalar | name exprOp | exprOp | name | quote | tooltip)+ {
-            shader := '(tex(ture)?|buf(fer)?)'
+        value := (name scalar | scalar | name exprOp | exprOp | name | quote | tooltip)+ {
             scalar := (range | num | now) (origin | now)* {
                 range  := num rangeOp num
                 origin := "=" num
@@ -15,7 +14,7 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
             exprOp  := '(in|<=|>=|==|<[^>\-:!]|>|[*:=/%,+-,])'
             quote   := '"([^"]*)"'
             tooltip := ''([^']*)''
-                            num     := '([+-]*\d*\.?\d+(e[+-]?\d+)?)'
+            num     := '([+-]*\d*\.?\d+(e[+-]?\d+)?)'
         }
         edge := edgeOp (edgePar | edgeVal) {
             edgeOp  := '(\^-|<-|->|<>|<:>|:>|<:|<!>|<!|!>)'
