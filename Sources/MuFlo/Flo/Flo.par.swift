@@ -4,8 +4,8 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
     path := '(\w*[.º˚*]+[\w.º˚*]*)'
     name := '(?!\d)\w+'
     base := ":" (path | name)
-    exprs := "(" (edge | value)+ ")" {
-        value := (name scalar | scalar | name exprOp | exprOp | name | quote | tooltip)+ {
+    exprs := "(" (edge | value | embed)+ ")" {
+        value := (name scalar | scalar | name exprOp | exprOp | name | array | quote | tooltip)+ {
             scalar := (range | num | now) (origin | now)* {
                 range  := num rangeOp num
                 origin := "=" num
@@ -13,6 +13,7 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
             }
             rangeOp := '(\.\.\.|…|_|~)'
             exprOp  := '(in|<=|>=|==|<[^>\-:!]|>|[*:=/%,+-,])'
+            array   := "[" quote ("," quote)* "]"
             quote   := '"([^"]*)"'
             tooltip := ''([^']*)''
             num     := '([+-]*\d*\.?\d+(e[+-]?\d+)?)'
@@ -26,7 +27,7 @@ flo := (path | name) (dot | base | exprs | branch | embed | comment)* {
     dot     := "." name exprs? dot? comment*
     branch  := "{" comment* flo+ "}" graft*
     graft   := "." branch
-    embed   := '^\{\{(.*?)\}\}'
+    embed   := '(?s)^\{\{(.*?)\}\}'
     comment := '(,+|//\s*(.*?)$|\/\*+(.*?)\*+\/)'
 }
 """#

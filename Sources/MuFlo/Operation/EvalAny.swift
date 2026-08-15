@@ -13,6 +13,7 @@ public class EvalAny {
     public init(name   : String)  { self.op = .name    ; any = name }
     public init(path   : String)  { self.op = .path    ; any = path }
     public init(quote  : String)  { self.op = .quote   ; any = quote }
+    public init(quotes : [String]) { self.op = .quotes ; any = quotes }
     public init(toolip : String)  { self.op = .tooltip ; any = toolip }
     public init(scalar : Scalar)  { self.op = .scalar  ; any = scalar }
 
@@ -24,6 +25,7 @@ public class EvalAny {
         switch op {
         case .name   : return any as? String ?? ""
         case .quote  : return scriptQuote()
+        case .quotes : return scriptQuotes()
         case .tooltip: return scriptTip()
         case .scalar : return scriptScalar()
         case .comma  : return op.rawValue + " "
@@ -41,6 +43,12 @@ public class EvalAny {
         func scriptQuote() -> String {
             if let str = any as? String {
                 return "\"\(str)\""
+            }
+            return ""
+        }
+        func scriptQuotes() -> String {
+            if let strs = any as? [String] {
+                return "[" + strs.map { "\"\($0)\"" }.joined(separator: ", ") + "]"
             }
             return ""
         }

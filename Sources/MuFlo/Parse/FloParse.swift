@@ -96,7 +96,8 @@ public class FloParse {
             }
         }
         func parseEmbed(_ flo: Flo, _ parsed: Parsed, _ level: Int)  {
-            //TODO
+            let youngest = flo.youngest
+            youngest.embed = Embed(youngest, str: parsed.nextResult)
         }
     }
 
@@ -109,9 +110,17 @@ public class FloParse {
             switch sub.parser.pattern {
             case "edge"  : parseEdge(flo,exprs,sub,level+1)
             case "value" : parseValue(flo,exprs,sub,level+1)
+            case "embed" : parseExprsEmbed(flo, sub)
             default      : logDefault(#function, sub)
             }
         }
+    }
+
+    /// `{{ }}` clause between the exprs parens, as in `a(x 0, {{ @<k.metal> }})`
+    func parseExprsEmbed(_ flo: Flo, _ parsed: Parsed) {
+        let embed = Embed(flo, str: parsed.nextResult)
+        embed.inExprs = true
+        flo.embed = embed
     }
 
     func parseValue(_ flo: Flo, _ exprs: Exprs, _ parsed: Parsed, _ level: Int) {
@@ -126,6 +135,7 @@ public class FloParse {
             case "shader"  : addShader(parse)
             case "exprOp"  : addOp(parse)
             case "quote"   : exprs.addQuote(parse.nextResult)
+            case "array"   : addArray(parse)
             case "tooltip" : exprs.addTooltip(parse.nextResult)
             case "comment" : addComment(parse)
             default        : logDefault(#function, parse)
@@ -151,6 +161,17 @@ public class FloParse {
         func addComment(_ parsed: Parsed) {
             flo.addComment(.branch, parsed.nextResult)
             name = nil
+        }
+
+        func addArray(_ parsed: Parsed) {
+            var quotes = [String]()
+            for parse in parsed.subParse {
+                switch parse.parser.pattern {
+                case "quote" : quotes.append(parse.nextResult ?? "")
+                default      : logDefault(#function, parse)
+                }
+            }
+            exprs.addQuotes(quotes)
         }
 
         func addScalar( _ parsed: Parsed) {

@@ -21,6 +21,7 @@ public class Flo {
     public var name = ""
     public var type = FloType.unknown
     public var exprs: Exprs?
+    public var embed: Embed?
     public var parent: Flo?
     public var children = [Flo]()
     public var policy = Policy()
@@ -46,6 +47,7 @@ public class Flo {
 
     public var youngest : Flo          { get { children.last ?? self }}
     public var string   : String       { get { StringVal()  ?? "??"  }}
+    public var strings  : [String]     { get { StringsVal() ?? []    }}
     public var scalar   : Scalar?      { get { ScalarVal()           }}
     public var double   : Double       { get { DoubleVal()  ?? .zero }}
     public var doubles  : [Double]     { get { DoubleVals()          }}
@@ -75,6 +77,16 @@ public class Flo {
     }
     public func getExpr(_ name: String) -> Any? {
         exprs?.nameAny[name]
+    }
+    /// set or create embed body; runtime-born embeds always count as deltas
+    public func setEmbed(_ str: String) {
+        if let embed {
+            embed.setVal(str)
+        } else {
+            let born = Embed(self, str: str)
+            born.dflt = nil
+            embed = born
+        }
     }
 
     public func val(_ name: String) -> Double? {
@@ -203,6 +215,7 @@ public class Flo {
         }
         passthrough = deepcopy.passthrough
         exprs = deepcopy.exprs?.copy(self)
+        embed = deepcopy.embed?.copy(self)
         edgeDefs = deepcopy.edgeDefs.copy()
         comments = deepcopy.comments.copy()
         policy = deepcopy.policy
@@ -216,6 +229,7 @@ public class Flo {
         self.name = decorate.name
         self.type = decorate.type
         self.exprs = exprs.copy(self)
+        self.embed = decorate.embed?.copy(self)
         parent.children.append(self)
 
         for decorChild in decorate.children {
@@ -314,26 +328,44 @@ extension Flo {
     func mergeFloValues(_ mergeRoot: Flo) {
 
         var merged = false
-        if let exprs,
-           let mergeFlo = mergeRoot.hashFlo.dict[hash],
-           let mergeExprs = mergeFlo.exprs {
+        if let mergeFlo = mergeRoot.hashFlo.dict[hash] {
 
-            #if !os(watchOS)
-            let noTweens = plugins.isEmpty
-            #else
-            let noTweens = true
-            #endif
-            for (name,value) in mergeExprs.nameAny {
-                if let mergeScalar = value as? Scalar,
-                   let selfScalar = exprs.nameAny[name] as? Scalar,
-                   selfScalar.value != mergeScalar.value {
+            if let exprs,
+               let mergeExprs = mergeFlo.exprs {
 
-                    selfScalar.value = mergeScalar.value
-                    if noTweens {
-                        selfScalar.tween = selfScalar.value
+                #if !os(watchOS)
+                let noTweens = plugins.isEmpty
+                #else
+                let noTweens = true
+                #endif
+                for (name,value) in mergeExprs.nameAny {
+                    if let mergeScalar = value as? Scalar,
+                       let selfScalar = exprs.nameAny[name] as? Scalar,
+                       selfScalar.value != mergeScalar.value {
+
+                        selfScalar.value = mergeScalar.value
+                        if noTweens {
+                            selfScalar.tween = selfScalar.value
+                        }
+                        merged = true
                     }
-                    merged = true
                 }
+            }
+            // a referenced embed with no body means "template", not "empty"
+            if let mergeEmbed = mergeFlo.embed,
+               case let mergeBody = (mergeEmbed.fileRef != nil && !mergeEmbed.hasDelta()
+                                     ? (embed?.dflt ?? mergeEmbed.embed)
+                                     : mergeEmbed.embed),
+               mergeBody != embed?.embed {
+
+                if let embed {
+                    embed.setVal(mergeBody)
+                } else {
+                    let born = mergeEmbed.copy(self)
+                    born.dflt = nil // restored embeds stay deltas
+                    embed = born
+                }
+                merged = true
             }
         }
         children.forEach { $0.mergeFloValues(mergeRoot) }

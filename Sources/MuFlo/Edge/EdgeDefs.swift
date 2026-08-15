@@ -9,7 +9,12 @@ typealias EdgeDefArray = ArrayClass<EdgeDef>
 public class EdgeDefs {
 
     var edgeDefs = EdgeDefArray()  /// `a <> ˚˚`
-    var plugDefs = EdgeDefArray()  /// a `<< ˚˚ ^ recorder`
+    var plugDefs = EdgeDefArray()  /// a `<- ˚˚ ^ recorder`
+
+    /// on a wildcard decl only: its authored stamp, read once while the decl
+    /// still types `.path` — `merge` flips it to `.remove` on the first match,
+    /// and every later match still needs the same identity. Never copied.
+    var declProv: EdgeDefProv?
 
     convenience init(with: EdgeDefs) {
         self.init()
@@ -31,6 +36,13 @@ public class EdgeDefs {
             
         } else {
             PrintLog("⁉️ \(#function) no edgeDefs to add edge")
+        }
+    }
+
+    /// mark every def as merged from one authored wildcard declaration
+    func stampProv(_ prov: EdgeDefProv) {
+        for edgeDef in edgeDefs {
+            edgeDef.declProv = prov
         }
     }
 

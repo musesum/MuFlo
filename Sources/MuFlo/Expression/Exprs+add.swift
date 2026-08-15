@@ -36,6 +36,17 @@ extension Exprs { // + add
             nameAny[key] = quote
         }
     }
+    func addQuotes(_ quotes: [String]) {
+        guard !quotes.isEmpty else { return }
+        evalAnys.append(EvalAny(quotes: quotes))
+        // claim the preceding name only while it holds addOpName's "" placeholder;
+        // never clobber a sibling Scalar or prior value
+        if let last = nameAny.keys.last, (nameAny[last] as? String) == "" {
+            nameAny[last] = quotes
+        } else {
+            nameAny[anonKey] = quotes
+        }
+    }
     func addTooltip(_ tip: String?) {
         if let tip = tip?.without(trailing: " ")  {
             evalAnys.append(EvalAny(toolip: tip))

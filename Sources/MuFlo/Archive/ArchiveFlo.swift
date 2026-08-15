@@ -233,7 +233,8 @@ open class ArchiveFlo: NSObject {
                   let envelope = zip?.readFile(jsonPath),
                   let sidecar = zip?.readFile(blobPath),
                   let track = TapeArchive.decodeTrack(envelope: envelope,
-                                                      sidecar: sidecar, deckId: deckId)
+                                                      sidecar: sidecar, deckId: deckId,
+                                                      trackId: Int(trackId))
             else { continue }
             tracks.append(track)
         }
@@ -267,17 +268,19 @@ open class ArchiveFlo: NSObject {
 
     /// New install or user manually removed snapshot file
     func parseAppStartupScripts() {
+        let floParse = FloParse() // one parser reused across every startup script
         for scriptName in scriptNames {
-            _ = parseFlo(root˚, scriptName, "flo.h")
+            _ = parseFlo(floParse, root˚, scriptName, "flo.h")
         }
     }
 
-    func parseFlo(_ root: Flo,
+    func parseFlo(_ floParse: FloParse,
+                  _ root: Flo,
                   _ fname: String,
                   _ ext: String = "flo.h") -> Bool {
 
         guard let script = read(fname, ext) else { return false }
-        let success = FloParse().parseRoot(root, script)
+        let success = floParse.parseRoot(root, script)
         PrintLog(fname + (success ? " ✓" : " ⁉️ parse failed"))
         return success
     }

@@ -10,10 +10,27 @@ extension Flo {
     
     func StringVal() -> String? {
         if let exprs,
-           let str = exprs.evalAnys.first?.any as? String {
+           let any = exprs.evalAnys.first?.any {
             // anonymous String inside expression
             // example `color ("kernel.color.metal")`
-            return str
+            if let str = any as? String {
+                return str
+            }
+            // first element of `(["a", "b"])` is the current value
+            if let strs = any as? [String] {
+                return strs.first
+            }
+        }
+        return nil
+    }
+
+    func StringsVal() -> [String]? {
+        if let exprs {
+            for evalAny in exprs.evalAnys {
+                if let strs = evalAny.any as? [String] {
+                    return strs
+                }
+            }
         }
         return nil
     }

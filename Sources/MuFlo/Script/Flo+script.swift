@@ -181,6 +181,9 @@ extension Flo { // + script
     /// Populate tree hierarchy of total changes made to each subtree.
     /// When using FloScriptFlag .delta, no changes to subtree are printed out
     func hasDeltas() -> Bool {
+        if let embed, embed.hasDelta() {
+            deltaTween = true
+        }
         if let exprs {
             for expr in exprs.nameAny.values {
                 // does expression have a delta
@@ -248,6 +251,15 @@ extension Flo { // + script
             scriptExpr = exprs.scriptVal(self, scriptOps, viaEdge: false)
         } else if let scriptEdge = scriptFloEdges(scriptOps) {
             scriptExpr = "(\(scriptEdge))"
+        }
+        if let embed {
+            let embedScript = embed.scriptVal(self, scriptOps, viaEdge: false)
+            if embed.inExprs, scriptExpr.hasSuffix(")") {
+                // splice back between the parens it was declared in
+                scriptExpr = String(scriptExpr.dropLast()) + "," + embedScript + ")"
+            } else {
+                scriptExpr += embedScript
+            }
         }
         script += scriptExpr
 

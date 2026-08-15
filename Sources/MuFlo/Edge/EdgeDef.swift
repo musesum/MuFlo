@@ -3,11 +3,25 @@
 
 import Foundation
 
+/// Authored wildcard declaration behind a merged EdgeDef.
+///
+/// A wildcard decl (`*`, `˚algo`, leading `.`) never survives to export;
+/// `Flo.merge` copies its edgeDefs onto every matched node instead. The stamp
+/// keeps the authored text plus one identity per declaration, so a consumer can
+/// rejoin the scattered copies. Ordinary base copies `f : d` stay unstamped.
+struct EdgeDefProv {
+    let text: String       /// authored decl name, `*` or `˚algo`
+    let script: String     /// full decl text, `˚algo(-> ..(on 1))`, no comments
+    let declId: Int        /// one identity per declaration, the decl Flo id
+    let declType: FloType  /// declaring Flo type, `.path` for wildcards
+}
+
 public class EdgeDef {
 
     var edgeOps = EdgeOptions()
     var pathExprs = PathExprs()
     var edges = [String: Edge]() // each edge is also shared by two Flos
+    var declProv: EdgeDefProv?  // set by merge; nil when hand written
     
     init() { }
 
@@ -15,6 +29,8 @@ public class EdgeDef {
         self.edgeOps = edgeOps
     }
     
+    /// - note: `declProv` is deliberately not carried; a copy of a copy is a
+    /// new scope, and only the merge site knows which declaration made it.
     init(from: EdgeDef) {
         
         edgeOps = from.edgeOps

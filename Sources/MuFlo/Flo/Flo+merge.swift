@@ -47,8 +47,53 @@ extension Flo {
         children.append(merge)
     }
 
+    /// Stamp for a wildcard decl `*`, `˚name` or leading `.`; nil otherwise.
+    var declProv: EdgeDefProv? {
+        guard type == .path,
+              name.hasChar(in: "*˚") || name.hasPrefix(".")
+        else { return nil }
+        return EdgeDefProv(text: name,
+                           script: scriptDecl(),
+                           declId: id,
+                           declType: type)
+    }
+
+    /// Full authored text of a wildcard decl, comments stripped.
+    ///
+    /// Read at the merge site, the one moment the decl Flo is alive: it turns
+    /// `.remove` on its first match and never reaches export. Edges bind later,
+    /// so the unbound `edgeDefs` are rendered here rather than `floEdges`,
+    /// spaced the way `scriptTypeEdges` spaces a bound one.
+    func scriptDecl() -> String {
+
+        let scriptOps: FloScriptOps = [.def, .now, .parens, .compact, .noLF]
+        var body = exprs?.scriptVal(self, scriptOps, viaEdge: true, noParens: true) ?? ""
+        for edgeDef in edgeDefs.edgeDefs {
+            body.commaPlus(scriptDeclEdge(edgeDef, scriptOps))
+        }
+        return body.isEmpty ? name : name + "(" + body + ")"
+    }
+
+    /// One unbound edgeDef as authored: `-> ..(on 1)`, targets grouped when many.
+    private func scriptDeclEdge(_ edgeDef: EdgeDef,
+                                _ scriptOps: FloScriptOps) -> String {
+
+        var targets = ""
+        for (path, exprs) in edgeDef.pathExprs {
+            let val = exprs?.scriptVal(self, scriptOps, viaEdge: true) ?? ""
+            targets.commaPlus(path + val)
+        }
+        if edgeDef.pathExprs.count > 1 { targets = "(" + targets + ")" }
+        var script = edgeDef.edgeOps.script(active: true)
+        script.spacePlus(targets)
+        return script
+    }
+
     func merge(_ merge: Flo) {
         if self.id == merge.id { return  }
+        if merge.edgeDefs.declProv == nil {
+            merge.edgeDefs.declProv = merge.declProv // authored, before `.remove`
+        }
         merge.type = .remove
         if let mergeExprs = merge.exprs,
            mergeExprs.hasValue {
@@ -57,6 +102,7 @@ extension Flo {
         /// `z.b.f(->c(2)` in `a {b c}.{d e f(-> b(1)) } z:a z.b.f(->c(2))`
         if !merge.edgeDefs.edgeDefs.isEmpty {
             edgeDefs = merge.edgeDefs.copy()
+            if let prov = merge.edgeDefs.declProv { edgeDefs.stampProv(prov) }
         }
         comments.mergeComments(self, merge)
         /// `e` in `a { b { c d } } a { e }`

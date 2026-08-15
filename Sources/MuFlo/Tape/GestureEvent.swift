@@ -13,12 +13,17 @@ public enum GesturePhase: Int, Codable, Sendable {
 
 /// App-neutral gesture/control sample. JSON-encoded into `PlayItem.data`, keyed by
 /// `controlId` (`PlayItem.path`) and typed `.gestureItem`. Scene-normalized `x`/`y` in 0…1.
+/// `ex`/`ey` (element-relative 0…1, fraction of the control's OWN frame) are the
+/// rotation-proof coordinates — replay maps them via the CURRENT frame; nil = legacy
+/// event, replay falls back to the scene-normalized pair.
 public struct GestureEvent: Codable, Equatable, Sendable {
     public var t: Double            // relative time
     public var controlId: String    // maps to PlayItem.path
     public var phase: Int           // GesturePhase raw: began=0/moved=1/ended=2
     public var x: Float             // scene-normalized 0…1
     public var y: Float             // scene-normalized 0…1
+    public var ex: Float?           // element-relative 0…1 (nil = legacy)
+    public var ey: Float?           // element-relative 0…1 (nil = legacy)
     public var velocity: Float?
     public var extras: [String: Float]?
 
@@ -27,6 +32,8 @@ public struct GestureEvent: Codable, Equatable, Sendable {
                 phase: Int,
                 x: Float,
                 y: Float,
+                ex: Float? = nil,
+                ey: Float? = nil,
                 velocity: Float? = nil,
                 extras: [String: Float]? = nil) {
         self.t = t
@@ -34,6 +41,8 @@ public struct GestureEvent: Codable, Equatable, Sendable {
         self.phase = phase
         self.x = x
         self.y = y
+        self.ex = ex
+        self.ey = ey
         self.velocity = velocity
         self.extras = extras
     }
@@ -43,10 +52,12 @@ public struct GestureEvent: Codable, Equatable, Sendable {
                 phase: GesturePhase,
                 x: Float,
                 y: Float,
+                ex: Float? = nil,
+                ey: Float? = nil,
                 velocity: Float? = nil,
                 extras: [String: Float]? = nil) {
         self.init(t: t, controlId: controlId, phase: phase.rawValue,
-                  x: x, y: y, velocity: velocity, extras: extras)
+                  x: x, y: y, ex: ex, ey: ey, velocity: velocity, extras: extras)
     }
 
     /// JSON-encode into a `.gestureItem` PlayItem; `path = controlId`, `time = t`.

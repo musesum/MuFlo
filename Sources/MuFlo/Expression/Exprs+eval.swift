@@ -76,7 +76,7 @@ extension Exprs { // + eval
                 break
             case .buffer:
                 break
-            case .quote,.scalar,.num:
+            case .quote,.quotes,.scalar,.num:
                 if !exprLiteral() { return false }
             case .path,.name:
                 if !exprName() { return false }

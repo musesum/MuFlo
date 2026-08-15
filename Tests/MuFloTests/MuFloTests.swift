@@ -285,6 +285,41 @@ final class MuFloTests: XCTestCase {
         err += test("value(1.67772e+07)", "value(16777200)")
         XCTAssertEqual(err, 0)
     }
+    func testQuoteArray() { headline(#function)
+        var err = 0
+        subhead("round trip")
+        err += test(#"a (["one"])"#)
+        err += test(#"a (["one", "two"])"#)
+        err += test(#"p { text (["one", "two"]) }"#, #"p.text(["one", "two"])"#)
+        err += test(#"a (x 1, ["p", "q"])"#) // array beside a named scalar
+        err += test(#"a ("b")"#) // single quote unchanged
+
+        subhead("sibling scalar survives")
+        let root2 = Flo("√")
+        if floParse.parseRoot(root2, #"a (x 1, ["p", "q"])"#),
+           let a = root2.findPath("a") {
+            XCTAssertEqual(a.double, 1)
+            XCTAssertEqual(a.strings, ["p", "q"])
+        } else {
+            print(" ⁉️ failed parse")
+            err += 1
+        }
+
+        subhead("getters")
+        let octopus = "Beautiful Anthropomorphic Octopus Tree, Natural History"
+        let starry = "Starry Night, Georgia O'Keeffe"
+        let root = Flo("√")
+        let script = "p { text ([\"\(octopus)\", \"\(starry)\"]) }"
+        if floParse.parseRoot(root, script),
+           let text = root.findPath("p.text") {
+            XCTAssertEqual(text.strings, [octopus, starry])
+            XCTAssertEqual(text.string, octopus)
+        } else {
+            print(" ⁉️ failed parse")
+            err += 1
+        }
+        XCTAssertEqual(err, 0)
+    }
     func testParsePaths() { headline(#function)
 
         var err=0
@@ -1212,6 +1247,190 @@ final class MuFloTests: XCTestCase {
         }
         
         """, .Full, strict: true)
+        XCTAssertEqual(err, 0)
+    }
+
+    //MARK: - embed
+    func testEmbedLeaf() { headline(#function)
+        var err = 0
+        err += test("kernel(file \"k.metal\") {{ code }}")
+        XCTAssertEqual(err, 0)
+    }
+    func testEmbedMultiLine() { headline(#function)
+        var err = 0
+        err += test("a(x 0) {{\n s1\n s2\n}}")
+        XCTAssertEqual(err, 0)
+    }
+    func testEmbedBranchSiblings() { headline(#function)
+        var err = 0
+        err += test("a { b(x 0) {{\n s1\n}} c(y 0) }")
+        XCTAssertEqual(err, 0)
+    }
+    func testEmbedDeepcopy() { headline(#function)
+        var err = 0
+        let root = Flo("√")
+        if floParse.parseRoot(root, "a(x 0) {{ fr1 }}") {
+            let copy = Flo(deepcopy: root, parent: nil, via: .base)
+            if copy.findPath("a")?.embed?.embed != " fr1 " { err += 1 }
+        } else { err += 1 }
+        XCTAssertEqual(err, 0)
+    }
+    func testEmbedDecorate() { headline(#function)
+        var err = 0
+        let root = Flo("√")
+        if floParse.parseRoot(root, "t(x 0) {{ fr2 }}"),
+           let t = root.findPath("t"),
+           let texprs = t.exprs {
+            let copy = Flo(decorate: t, parent: Flo("p"), exprs: texprs)
+            if copy.embed?.embed != " fr2 " { err += 1 }
+        } else { err += 1 }
+        XCTAssertEqual(err, 0)
+    }
+    func testEmbedMerge() { headline(#function)
+        var err = 0
+        let rootA = Flo("√")
+        let rootB = Flo("√")
+        if floParse.parseRoot(rootA, "a(x 0) {{ old }}"),
+           floParse.parseRoot(rootB, "a(x 1) {{ new }}") {
+            rootA.bindHashFlo()
+            rootB.bindHashFlo()
+            rootA.mergeFloValues(rootB)
+            if rootA.findPath("a")?.embed?.embed != " new " { err += 1 }
+        } else { err += 1 }
+        XCTAssertEqual(err, 0)
+    }
+    func testEmbedDelta() { headline(#function)
+        var err = 0
+        let root = Flo("√")
+        if floParse.parseRoot(root, "a(x 0) {{ old }}"),
+           let a = root.findPath("a") {
+            if a.embed?.setVal(" new ") != true { err += 1 }
+            if !root.scriptDelta.contains("{{ new }}") { err += 1 }
+        } else { err += 1 }
+        XCTAssertEqual(err, 0)
+    }
+
+    //MARK: - embed inside exprs, file reference
+
+    /// `{{ }}` as an exprs clause, the form cell.flo.h uses
+    func testEmbedInExprs() { headline(#function)
+        var err = 0
+        err += test("a(x 0, {{ body }})")
+        XCTAssertEqual(err, 0)
+    }
+    /// static reference round trips as the reference alone
+    func testEmbedFileRef() { headline(#function)
+        var err = 0
+        let root = Flo("√")
+        if floParse.parseRoot(root, "a(x 0, {{ @<cell.rule.slide.metal> }})"),
+           let embed = root.findPath("a")?.embed {
+
+            if embed.fileRef != "cell.rule.slide.metal" { err += 1 }
+            if embed.embed != "" { err += 1 }
+            if embed.hasDelta() { err += 1 }
+        } else { err += 1 }
+        err += test("a(x 0, {{ @<cell.rule.slide.metal> }})")
+        XCTAssertEqual(err, 0)
+    }
+    /// seeded template is the delta baseline, not a change
+    func testEmbedTemplateSeed() { headline(#function)
+        var err = 0
+        let root = Flo("√")
+        if floParse.parseRoot(root, "a(x 0, {{ @<k.metal> }})"),
+           let embed = root.findPath("a")?.embed {
+
+            embed.setTemplate(" plain ")
+            if embed.embed != " plain " { err += 1 }
+            if embed.hasDelta() { err += 1 }
+            if !root.scriptRoot(.All).contains("{{ @<k.metal> }}") { err += 1 }
+        } else { err += 1 }
+        XCTAssertEqual(err, 0)
+    }
+    /// a tweak keeps the reference and carries the body
+    func testEmbedTweakKeepsRef() { headline(#function)
+        var err = 0
+        let root = Flo("√")
+        if floParse.parseRoot(root, "a(x 0, {{ @<k.metal> }})"),
+           let a = root.findPath("a") {
+
+            a.embed?.setTemplate(" plain ")
+            a.setEmbed(" tweaked ")
+            if a.embed?.hasDelta() != true { err += 1 }
+            if !root.scriptRoot(.All).contains("{{ @<k.metal> tweaked }}") { err += 1 }
+            if !root.scriptDelta.contains("{{ @<k.metal> tweaked }}") { err += 1 }
+        } else { err += 1 }
+        XCTAssertEqual(err, 0)
+    }
+    /// archived tweak reparses as reference plus body
+    func testEmbedTweakRoundTrip() { headline(#function)
+        var err = 0
+        let root = Flo("√")
+        if floParse.parseRoot(root, "a(x 0, {{ @<k.metal> tweaked }})"),
+           let embed = root.findPath("a")?.embed {
+
+            if embed.fileRef != "k.metal" { err += 1 }
+            if embed.embed != " tweaked " { err += 1 }
+            if !embed.hasDelta() { err += 1 } // baseline unseeded, body is a tweak
+        } else { err += 1 }
+        err += test("a(x 0, {{ @<k.metal> tweaked }})")
+        XCTAssertEqual(err, 0)
+    }
+    /// recalling a static archive drops a live tweak back to the template
+    func testEmbedMergeRefRestores() { headline(#function)
+        var err = 0
+        let rootA = Flo("√")
+        let rootB = Flo("√")
+        if floParse.parseRoot(rootA, "a(x 0, {{ @<k.metal> }})"),
+           floParse.parseRoot(rootB, "a(x 0, {{ @<k.metal> }})"),
+           let a = rootA.findPath("a") {
+
+            a.embed?.setTemplate(" plain ")
+            a.setEmbed(" tweaked ")
+            rootA.bindHashFlo()
+            rootB.bindHashFlo()
+            rootA.mergeFloValues(rootB)
+            if a.embed?.embed != " plain " { err += 1 }
+            if a.embed?.hasDelta() != false { err += 1 }
+        } else { err += 1 }
+        XCTAssertEqual(err, 0)
+    }
+    /// recalling a tweaked archive applies the body onto the live template
+    func testEmbedMergeTweakApplies() { headline(#function)
+        var err = 0
+        let rootA = Flo("√")
+        let rootB = Flo("√")
+        if floParse.parseRoot(rootA, "a(x 0, {{ @<k.metal> }})"),
+           floParse.parseRoot(rootB, "a(x 0, {{ @<k.metal> tweaked }})"),
+           let a = rootA.findPath("a") {
+
+            a.embed?.setTemplate(" plain ")
+            rootA.bindHashFlo()
+            rootB.bindHashFlo()
+            rootA.mergeFloValues(rootB)
+            if a.embed?.embed != " tweaked " { err += 1 }
+            if a.embed?.hasDelta() != true { err += 1 }
+        } else { err += 1 }
+        XCTAssertEqual(err, 0)
+    }
+    /// the live cell.flo.h dialect: tooltip, control, icon, edge, embed
+    func testEmbedCellRule() { headline(#function)
+        var err = 0
+        let script = """
+            cell { slide ('Slide Bit Planes',
+                   seg, x 0_7=3,
+                   img "icon.cell.slide",
+                   <> pipe.cell˚slide.version,
+                   {{ @<cell.rule.slide.metal> }}) }
+            """
+        let root = Flo("√")
+        if floParse.parseRoot(root, script),
+           let slide = root.findPath("cell.slide") {
+
+            if slide.embed?.fileRef != "cell.rule.slide.metal" { err += 1 }
+            if slide.getExpr("img") as? String != "icon.cell.slide" { err += 1 }
+            if slide.exprs?.nameAny["seg"] == nil { err += 1 }
+            if slide.val("x") != 3 { err += 1 }
+        } else { err += 1 }
         XCTAssertEqual(err, 0)
     }
 

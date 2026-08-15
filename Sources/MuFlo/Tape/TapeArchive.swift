@@ -69,7 +69,7 @@ public enum TapeArchive {
     public static func events(from items: [PlayItem],
                               tapeBegan: TimeInterval) -> [TapeFloEvent] {
         items.map { item in
-            TapeFloEvent(t: item.time - tapeBegan,
+            TapeFloEvent(t: max(0, item.time - tapeBegan),   // pre-begin capture clamps to take t=0
                          path: item.path,
                          kind: Int(item.type.rawValue),
                          blob: item.data)
@@ -136,14 +136,17 @@ public enum TapeArchive {
     }
 
     /// Rebuild a TapeTrack from its envelope+sidecar. Duration comes from the v2 header, else is
-    /// reconstructed as `max(t)` (v1/absent). Fresh `PlayStatus(deckId)`; playState stays stopped.
+    /// reconstructed as `max(t)` (v1/absent). `trackId` restores the persisted identity (the
+    /// archive entry name) so take↔track associations survive relaunch; nil mints a fresh one.
     public static func decodeTrack(envelope: Data,
                                    sidecar: Data,
-                                   deckId: Int) -> TapeTrack? {
+                                   deckId: Int,
+                                   trackId: Int? = nil) -> TapeTrack? {
         guard let env = try? JSONDecoder().decode(TapeArchiveEnvelope.self, from: envelope),
               let events = decode(envelope: envelope, sidecar: sidecar)
         else { return nil }
         let track = TapeTrack(deckId)
+        if let trackId { track.playStatus = PlayStatus(deckId, trackId: trackId) }
         track.playItems = playItems(from: events)
         track.tapeBegan = 0                    // decoded times are already relative
         track.duration = env.duration ?? (events.map(\.t).max() ?? 0)

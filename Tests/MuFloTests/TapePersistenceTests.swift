@@ -164,6 +164,63 @@ final class TapePersistenceTests: XCTestCase {
         XCTAssertEqual(track.duration, 5)          // guards fmod(x, 0) = nan
     }
 
+    func testRecordOnRetainsTracksWhenOptedIn() {
+        let deck = TapeDeck()
+        deck.retainTracks = true
+        deck.recordOn()
+        guard let first = deck.selfTrack else { return XCTFail("no selfTrack") }
+        let firstId = first.playStatus.trackId
+        deck.recordOff()
+        deck.recordOn()
+        XCTAssertNotNil(deck.tapeTracks[firstId])   // prior take survives
+        XCTAssertNotEqual(deck.selfTrack?.playStatus.trackId, firstId)
+        XCTAssertEqual(deck.recordedTracks.count, 2)
+    }
+
+    func testRecordOnReplacesTrackByDefault() {
+        let deck = TapeDeck()
+        deck.recordOn()
+        guard let firstId = deck.selfTrack?.playStatus.trackId else {
+            return XCTFail("no selfTrack")
+        }
+        deck.recordOff()
+        deck.recordOn()
+        XCTAssertNil(deck.tapeTracks[firstId])      // jam semantics unchanged
+        XCTAssertEqual(deck.recordedTracks.count, 1)
+    }
+
+    func testDecodeTrackRestoresTrackId() {
+        let track = TapeTrack(1)
+        track.playItems = [makeItem(.gestureItem, Data([0x01]), path: "ctrl", time: 0)]
+        track.duration = 1
+        guard let (env, side) = TapeArchive.encodeTrack(track) else {
+            return XCTFail("encodeTrack nil")
+        }
+        guard let out = TapeArchive.decodeTrack(envelope: env, sidecar: side,
+                                                deckId: 2, trackId: 424242) else {
+            return XCTFail("decodeTrack nil")
+        }
+        XCTAssertEqual(out.trackId, 424242)         // persisted identity restored
+        let out2 = TapeArchive.decodeTrack(envelope: env, sidecar: side, deckId: 2)
+        XCTAssertNotEqual(out2?.trackId, 424242)    // nil param still mints fresh
+    }
+
+    func testScopedPlayTrackTargetsOneTrack() {
+        let deck = TapeDeck()
+        let a = TapeTrack(9); a.duration = 60
+        a.playItems = [makeItem(.gestureItem, Data([0x01]), path: "a", time: 0)]
+        let b = TapeTrack(9); b.duration = 60
+        b.playItems = [makeItem(.gestureItem, Data([0x02]), path: "b", time: 0)]
+        deck.loadTrack(a)
+        deck.loadTrack(b)
+        deck.playTrack(a.trackId)
+        XCTAssertNotNil(deck.tapeTasks[a.trackId])  // target playing
+        XCTAssertNil(deck.tapeTasks[b.trackId])     // sibling untouched
+        deck.stopTrack(a.trackId)
+        XCTAssertNil(deck.tapeTasks[a.trackId])     // scoped stop
+        deck.playTrack(999)                         // unknown id: warn, no crash
+    }
+
     func testSeededTrackNotSelf() {
         let deck = TapeDeck()
         XCTAssertNil(deck.selfTrack)
