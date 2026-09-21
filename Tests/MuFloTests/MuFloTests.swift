@@ -285,6 +285,37 @@ final class MuFloTests: XCTestCase {
         err += test("value(1.67772e+07)", "value(16777200)")
         XCTAssertEqual(err, 0)
     }
+    /// a quote keeps its script default while its value moves, and can go back
+    func testStringOrigin() { headline(#function)
+        let root = Flo("√")
+        XCTAssertTrue(floParse.parseRoot(root, #"p { pal ("roygbik") pick (["a", "b"]) }"#))
+        let pal = root.findPath("p.pal")
+        let pick = root.findPath("p.pick")
+        XCTAssertEqual(pal?.stringOrigin, "roygbik")
+        XCTAssertEqual(pick?.stringsOrigin, ["a", "b"])
+
+        pal?.setStringValue("wKZ", Visitor(0))
+        pick?.setStrings(["c"], Visitor(0))
+        XCTAssertEqual(pal?.string, "wKZ")
+        XCTAssertEqual(pick?.strings, ["c"])
+        XCTAssertEqual(pal?.stringOrigin, "roygbik", "the default survives a set")
+        XCTAssertEqual(pick?.stringsOrigin, ["a", "b"])
+
+        var fired = 0
+        pal?.addClosure { _,_ in fired += 1 }
+        pal?.setStringOrigin(Visitor(0))
+        pick?.setStringsOrigin(Visitor(0))
+        XCTAssertEqual(pal?.string, "roygbik")
+        XCTAssertEqual(pick?.strings, ["a", "b"])
+        XCTAssertEqual(fired, 1, "going back fires like any set")
+
+        // a merged copy of the tree carries the default with it
+        let copy = Flo("√")
+        XCTAssertTrue(floParse.parseRoot(copy, #"p { pal ("roygbik") }"#))
+        XCTAssertEqual(copy.findPath("p.pal")?.exprs?.copy().evalAnys.first?.origin as? String, "roygbik")
+        XCTAssertNil(root.findPath("p")?.stringOrigin, "no quote, no default")
+    }
+
     func testQuoteArray() { headline(#function)
         var err = 0
         subhead("round trip")
@@ -2120,6 +2151,70 @@ final class MuFloTests: XCTestCase {
         //err += test("a(x 0…1)","a(x : 0)",.Now)
         err += test("a(x 0…1, 'tip')","a(x 0…1, 'tip')",.All)
         err += test("a(x 0…1, 'tip')","a(x : 0)",.Now)
+        XCTAssertEqual(err, 0)
+    }
+    /// `x 0…1=0 'opacity'` -- a tooltip in a name's own comma group labels
+    /// that name: the script parses, prints back the same, and the print
+    /// parses again to the same flo
+    func testScalarLabels() throws { headline(#function)
+        let script = """
+        plato {
+            material (xyzw,
+                      x 0…1=0 'opacity',
+                      y 0…1=0 'mirror',
+                      z 0…1=1 'zoom',
+                      w 0.9…1.1 : 0.98 'convex',
+                      svg "icon.opacity",
+                      -> phase(z:z),
+                      ^- sky.main.anim(x, y, z))
+            phase (xyzw, x 0…10=1, y 0…6=0, z 0…1=0, w 0…1=0)
+        }
+        sky.main.anim (x 0…1=0.5)
+        """
+        XCTAssertEqual(test(script), 0, "parses and prints back the same")
+
+        let root = Flo("√")
+        XCTAssertTrue(floParse.parseRoot(root, script))
+        let printed = root.scriptRoot(.All)
+        let again = Flo("√")
+        XCTAssertTrue(floParse.parseRoot(again, printed), "the print parses")
+        XCTAssertEqual(again.scriptRoot(.All), printed, "and prints the same")
+
+        for flo in [root, again] {
+            let exprs = try XCTUnwrap(flo.findPath("plato.material")?.exprs)
+            XCTAssertEqual(exprs.labels, ["x": "opacity", "y": "mirror", "z": "zoom", "w": "convex"])
+            XCTAssertEqual(exprs.label("w"), "convex")
+            // a label takes no value slot: one name per comma group
+            XCTAssertEqual(Array(exprs.nameAny.keys), ["xyzw", "x", "y", "z", "w", "svg"])
+        }
+        // so the now script, which archives keep, still names each value
+        let material = try XCTUnwrap(root.findPath("plato.material"))
+        XCTAssertEqual(Parsin.testCompare("material(xyzw, x : 0, y : 0, z : 1, w : 0.98, svg)",
+                                          material.scriptOnlyFlo(.Now)), 0)
+
+        // a changed value prints before its label, and still round trips
+        material.setNameNums([("x", 0.5)], .fire, Visitor(0))
+        let changed = root.scriptRoot(.All)
+        XCTAssertTrue(changed.contains("x 0…1=0 : 0.5 'opacity'"), changed)
+        let reparsed = Flo("√")
+        XCTAssertTrue(floParse.parseRoot(reparsed, changed))
+        XCTAssertEqual(reparsed.scriptRoot(.All), changed)
+        XCTAssertEqual(reparsed.findPath("plato.material")?.exprs?.labels["x"], "opacity")
+    }
+    /// a tooltip that starts its comma group labels nothing: it stays the
+    /// flo's help, or an anonymous value, as before labels
+    func testTooltipsStayHelp() { headline(#function)
+        var err = 0
+        for script in ["a('help', xyzw, x 0…1)", "a(x 0…1, 'tip')", "a(x, 'x does this', y, 'y does that')"] {
+            err += test(script)
+            let root = Flo("√")
+            XCTAssertTrue(floParse.parseRoot(root, script))
+            XCTAssertEqual(root.findPath("a")?.exprs?.labels, [:], script)
+        }
+        let root = Flo("√")
+        XCTAssertTrue(floParse.parseRoot(root, "a('help', xyzw, x 0…1 'ex')"))
+        XCTAssertEqual(root.findPath("a")?.exprs?.labels, ["x": "ex"])
+        XCTAssertEqual(root.findPath("a")?.exprs?.nameAny["_0"] as? String, "help")
         XCTAssertEqual(err, 0)
     }
     func testSkyVal() { headline(#function)

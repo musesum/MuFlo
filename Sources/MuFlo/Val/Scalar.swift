@@ -8,6 +8,7 @@ public class Scalar: FloVal {
 
     public var scalarOps = ScalarOps(rawValue: 0)
     public var scalarState: ScalarState { ScalarState(self) }
+    var plugged = false // captured by an EdgePlugin, which owns tween
 
     public var tween = Double(0) // current value; 2 in 0…3=1=2
     public var value = Double(0) // target value
@@ -184,6 +185,9 @@ public class Scalar: FloVal {
                              _ setOps: SetOps) -> Bool {
 
         guard let any else { return true }
+
+        /// only a plugged scalar defers tween to its plugin
+        let scalarOps = plugged ? scalarOps : scalarOps.union(.tween)
 
         prior = tween
 

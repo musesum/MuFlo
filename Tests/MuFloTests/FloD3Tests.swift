@@ -264,6 +264,24 @@ final class FloD3Tests: XCTestCase {
         XCTAssertNil(a.makeD3Shorthand("->"))
     }
 
+    /// The wildcard written on a named node's own edge, `cc˚.` in
+    /// `controller << cc˚.`, fans onto descendants of every name: no
+    /// provenance stamps it and no same-name anchor fits it, so the written
+    /// path is the shorthand, past the same runtime gate.
+    func testShorthandUsesWrittenWildcard() {
+        let script = """
+        cc { zoom(x 0) fade(x 0) dot { x(x 0) y(x 0) } }
+        controller(<- cc˚.)
+        """
+        guard let root = parseRoot(script),
+              let controller = root.findPath("controller") else { return XCTFail("parse") }
+
+        XCTAssertGreaterThan(controller.makeD3Fan("<-").count, 1)
+        XCTAssertNil(controller.makeD3Authored("<-").first)   // named node: no stamp
+        XCTAssertEqual(controller.makeD3Written("<-"), ["cc˚."])
+        XCTAssertEqual(controller.makeD3Shorthand("<-"), "cc˚.")
+    }
+
     // MARK: - wildcard dispatch export
 
     /// Flos in `root` whose edgeDefs were merged from a wildcard declaration.
@@ -320,6 +338,8 @@ final class FloD3Tests: XCTestCase {
         XCTAssertEqual(hubs.first?.path, "rule.*")
         XCTAssertEqual(hubs.first?.depth, 2)
         XCTAssertNil(hubs.first?.d3Dad) // no tree link reaches an uneliminated hub
+        XCTAssertNil(graph.folds) // nothing eliminated, so the key is omitted
+        XCTAssertFalse(root.makeD3Json().contains("\"folds\":"))
         guard let hub = hubs.first?.id else { return XCTFail("no hub") }
 
         // every matched sibling is still its own node under `rule`
@@ -380,6 +400,18 @@ final class FloD3Tests: XCTestCase {
         XCTAssertEqual(arrows.count, 2) // the 2 converging folded into the hub
         XCTAssertEqual(Set(arrows.map(\.source)), [hub])
         XCTAssertEqual(Set(arrows.map(\.target)), parents)
+
+        // the fold map names the two eliminated flos, resolved from the tree
+        let ids = Set(graph.nodes.map(\.id))
+        let want = ["rule.shape.algo", "rule.wave.algo"]
+            .compactMap { root.findPath($0)?.id }
+            .sorted()
+        guard let folds = graph.folds else { return XCTFail("no folds") }
+        XCTAssertEqual(want.count, 2)
+        XCTAssertEqual(folds.map(\.from), want) // ascending, as encoded
+        XCTAssertEqual(folds.map(\.onto), [hub, hub])
+        XCTAssertTrue(folds.allSatisfy { !ids.contains($0.from) })
+        XCTAssertTrue(root.makeD3Json().contains("\"folds\":"))
 
         // authored text is `˚algo`, the copied target key is only `..`
         let provs = stamped(root)
@@ -550,6 +582,23 @@ final class FloD3Tests: XCTestCase {
             let dads = Set(kids.filter { $0.target == hub }.map(\.source))
             XCTAssertEqual(dads, index == 0 ? Set<Int>() : rules)
         }
+        // six instances folded, each resolved from the tree onto its named hub
+        let ids = Set(graph.nodes.map(\.id))
+        guard let folds = graph.folds else { return XCTFail("no folds") }
+        var wantFold = [Int: Int]() // instance flo id → hub named for its leaf
+        for scope in ["main.rule.slide", "main.rule.wave", "main.rule.field"] {
+            for (leaf, index) in [("version", 1), ("algo", 2)] {
+                guard let flo = root.findPath(scope + "." + leaf)
+                else { return XCTFail("no " + scope + "." + leaf) }
+                wantFold[flo.id] = hubs[index].id
+            }
+        }
+        XCTAssertEqual(wantFold.count, 6)
+        XCTAssertEqual(folds.map(\.from), wantFold.keys.sorted()) // ascending
+        XCTAssertTrue(folds.allSatisfy { wantFold[$0.from] == $0.onto })
+        XCTAssertTrue(folds.allSatisfy { !ids.contains($0.from) })
+        XCTAssertEqual(Set(folds.map(\.onto)).count, 2) // `*` eliminates nothing
+
         // every arrow now touches a hub; none is sibling to sibling
         XCTAssertTrue(arrows.allSatisfy { link in
             hubs.contains { $0.id == link.source || $0.id == link.target }
@@ -619,6 +668,8 @@ final class FloD3Tests: XCTestCase {
         XCTAssertTrue(graph.nodes.allSatisfy { $0.d3Dad == nil })
         XCTAssertFalse(root.makeD3Json().contains("hub"))
         XCTAssertFalse(root.makeD3Json().contains("d3Dad")) // nil omits the key
+        XCTAssertNil(graph.folds)
+        XCTAssertFalse(root.makeD3Json().contains("\"folds\":")) // nil omits the key
     }
 
     static let frozenNodes = "0:√:√:0 1:a:a:1 2:b:a.b:2 3:c:a.b.c:3 4:d:d:1 5:e:d.e:2 6:f:f:1 7:e:f.e:2"

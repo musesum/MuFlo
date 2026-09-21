@@ -99,12 +99,16 @@ public extension simd_double4x4 {
     }
 }
 
-public func project4x4(_ size: CGSize) -> simd_float4x4 {
+/// near, far in eye units; fov scales the 60°/90° aspect default
+public func project4x4(_ size: CGSize,
+                       near: Float = 0.1,
+                       far: Float = 100,
+                       fov: Float = 1) -> simd_float4x4 {
 
     let aspect = Float(size.width / size.height)
-    let fovy = Float(aspect >= 1 ? 60.0 : 90.0) / 180.0 * .pi
-    let nearZ = Float(0.1)
-    let farZ = Float(100)
+    let fovy = Float(aspect >= 1 ? 60.0 : 90.0) * fov / 180.0 * .pi
+    let nearZ = max(0.0001, near)
+    let farZ = max(nearZ + 0.001, far)
 
     return perspective4x4(aspect, fovy, nearZ, farZ)
 }

@@ -280,6 +280,7 @@ open class ArchiveFlo: NSObject {
                   _ ext: String = "flo.h") -> Bool {
 
         guard let script = read(fname, ext) else { return false }
+        floParse.lintPlugOps(fname, script) // startup path, not FloParse+file
         let success = floParse.parseRoot(root, script)
         PrintLog(fname + (success ? " ✓" : " ⁉️ parse failed"))
         return success

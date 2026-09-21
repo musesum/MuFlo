@@ -125,6 +125,8 @@ public class FloParse {
 
     func parseValue(_ flo: Flo, _ exprs: Exprs, _ parsed: Parsed, _ level: Int) {
         var name: String?
+        /// the first name of the current comma group, which a tooltip labels
+        var groupName: String?
         var lastOp = EvalOp.none
         for parse in parsed.subParse {
             let pattern = parse.parser.pattern
@@ -136,7 +138,7 @@ public class FloParse {
             case "exprOp"  : addOp(parse)
             case "quote"   : exprs.addQuote(parse.nextResult)
             case "array"   : addArray(parse)
-            case "tooltip" : exprs.addTooltip(parse.nextResult)
+            case "tooltip" : exprs.addTooltip(parse.nextResult, groupName)
             case "comment" : addComment(parse)
             default        : logDefault(#function, parse)
             }
@@ -145,6 +147,7 @@ public class FloParse {
             lastOp = exprs.addOpStr(parsed.nextResult)
             if lastOp == .comma {
                 name = nil
+                groupName = nil
             }
         }
 
@@ -156,11 +159,13 @@ public class FloParse {
             let hadName = name != nil
             name = parsed.nextResult
             exprs.addOpName(name, hadName)
+            if !hadName { groupName = name }
         }
 
         func addComment(_ parsed: Parsed) {
             flo.addComment(.branch, parsed.nextResult)
             name = nil
+            groupName = nil
         }
 
         func addArray(_ parsed: Parsed) {

@@ -4,7 +4,7 @@ import Foundation
 
 class TweenVals {
 
-    let duration: TimeInterval
+    var duration: TimeInterval // refreshed by EdgePlugin on every arm
     var valsFrom  = [Double]()
     var valsNow   = [Double]()
     var valsTo    = [Double]()

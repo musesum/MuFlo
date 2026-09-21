@@ -13,6 +13,12 @@ public class Exprs: FloVal, @unchecked Sendable {
     /// `t(x/2, y/2, <- u), u(x 1, y 2)` ⟹ `t(x 0.5, y 1.0)` // after u fires
     public internal(set) var evalAnys = EvalAnys()
 
+    /// `material(x 0…1=0 'opacity')` ⟹ `["x": "opacity"]` -- a tooltip in
+    /// a name's own comma group labels that name; it takes no nameAny slot,
+    /// so the `.now` script still reads one name per group
+    public internal(set) var labels = [String: String]()
+    public func label(_ name: String) -> String? { labels[name] }
+
     internal var hasValue: Bool { return !nameAny.isEmpty || !evalAnys.isEmpty }
 
     public  func normalize(_ name: String, _ normOp: ScalarOps) -> Double? {
@@ -55,6 +61,7 @@ public class Exprs: FloVal, @unchecked Sendable {
         super.init(with: from)
 
         //options = from.options
+        labels = from.labels
         for (name, val) in from.nameAny {
             switch val {
             case let v as Scalar : nameAny[name] = v.deepCopy(self)

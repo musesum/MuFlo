@@ -8,7 +8,13 @@ enum EdgeAnimType { case linear, easeinout }
 
 public class EdgePlugin {
     var flo: Flo
-    var duration: TimeInterval = 2.0
+    /// seconds, read per arm from the plug node's first scalar (`sky.main.anim.x`); 0 = instant
+    var duration: TimeInterval {
+        for any in plugExpress.nameAny.values {
+            if let scalar = any as? Scalar { return scalar.value }
+        }
+        return 2.0
+    }
     var animType = EdgeAnimType.linear
     var plugExpress: Exprs //  -in
     var distance = CGFloat.zero
@@ -21,28 +27,39 @@ public class EdgePlugin {
     let tweenVals: TweenVals
 
     init(_ flo: Flo,
-         _ plugExprs: Exprs) {
+         _ plugExprs: Exprs,
+         _ mapExprs: Exprs? = nil) {
         
         self.flo = flo
         self.plugExpress = plugExprs
-        self.tweenVals = TweenVals(duration)
-        extractFloScalars()
+        self.tweenVals = TweenVals(0) // startPlugin refreshes duration on every arm
+        extractFloScalars(mapExprs)
         //PrintLog("\(flo.path(9))(\(plugExprs.name)) +⃣ \(plugExprs.flo.path(9))")
     }
     
-    func extractFloScalars() {
-        if let values = flo.exprs?.nameAny.values {
-            for value in values {
-                if let scalar = value as? Scalar {
-                    floScalars.append(scalar)
-                }
-            }
+    /// tween only continuous scalars; a `m_n` rangei scalar is discrete.
+    /// `^- anim(z: x)` names the host scalars to capture; bare `^- anim` captures all
+    func extractFloScalars(_ mapExprs: Exprs?) {
+        guard let nameAny = flo.exprs?.nameAny else { return }
+        let named = mapExprs?.nameAny.keys
+        for (name, value) in nameAny {
+            guard let scalar = value as? Scalar,
+                  !scalar.scalarOps.rangei,
+                  named?.contains(name) ?? true else { continue }
+            scalar.plugged = true
+            floScalars.append(scalar)
+        }
+        for name in named ?? [] where !floScalars.contains(where: { $0.name == name }) {
+            PrintLog("⁉️ \(flo.path(9)) ^- \(plugExpress.flo.path(9))(\(name):) not a continuous scalar, ignored")
         }
     }
     
     func startPlugin(_ key: Int, _ visit: Visitor) {
         
-        guard duration > 0 else { return }
+        let duration = self.duration
+        /// a plugged scalar defers tween to its plugin, so zero must snap, not bail
+        guard duration > 0 else { return snapTweens() }
+        tweenVals.duration = duration
 
         var vals = [Double]()
         var twes = [Double]()
@@ -52,6 +69,14 @@ public class EdgePlugin {
         }
         tweenVals.add(from: twes, to: vals)
         NextFrame.shared.addFrameDelegate(key, self)
+    }
+
+    func snapTweens() {
+        for scalar in floScalars {
+            scalar.tween = scalar.value
+        }
+        cancel(flo.id)
+        tweenVals.finish()
     }
 
     /// Tween is intermediate value for animation plug-in
@@ -83,10 +108,10 @@ extension EdgePlugin: NextFrameDelegate {
     public func goFrame() -> Bool {
         return setTween([])
     }
+    /// on the calling thread: a detached removal could land after the next
+    /// arm and delete a delegate that had just been re-registered
     public func cancel(_ key: Int) {
-        Task.detached {
-            NextFrame.shared.removeDelegate(key)
-        }
+        NextFrame.shared.removeDelegate(key)
     }
 
 }

@@ -344,7 +344,7 @@ extension Flo {
                        selfScalar.value != mergeScalar.value {
 
                         selfScalar.value = mergeScalar.value
-                        if noTweens {
+                        if noTweens || !selfScalar.plugged {
                             selfScalar.tween = selfScalar.value
                         }
                         merged = true
@@ -371,6 +371,8 @@ extension Flo {
         children.forEach { $0.mergeFloValues(mergeRoot) }
 
         if merged {
+            // a merged value needs a tween driver; activate() never arms plugins
+            exprs?.maybeNewTween(Visitor(0))
             activate() //... updateClosurePlugins()
         }
     }

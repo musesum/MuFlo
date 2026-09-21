@@ -47,8 +47,15 @@ extension Exprs { // + add
             nameAny[anonKey] = quotes
         }
     }
-    func addTooltip(_ tip: String?) {
-        if let tip = tip?.without(trailing: " ")  {
+    /// `name` is the first name of the tooltip's comma group, if any:
+    /// `x 0…1=0 'opacity'` labels x, and scriptExprs prints it back at the
+    /// group's end; a tooltip first in its group (`'help', xyzw` or
+    /// `x, 'tip'`) stays an anonymous value, as before
+    func addTooltip(_ tip: String?, _ name: String? = nil) {
+        guard let tip = tip?.without(trailing: " ") else { return }
+        if let name {
+            labels[name] = tip
+        } else {
             evalAnys.append(EvalAny(toolip: tip))
             nameAny[anonKey] = tip
         }
@@ -81,6 +88,9 @@ extension Exprs { // + add
             if !nameAny.keys.contains(name) {
                 nameAny[name] = any
             }
+        }
+        for (name, label) in other.labels where labels[name] == nil {
+            labels[name] = label
         }
     }
 }

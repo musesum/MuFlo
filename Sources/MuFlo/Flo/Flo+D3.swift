@@ -22,10 +22,28 @@ public struct FloD3Link: Codable, Equatable, Sendable {
     public let kind: String
 }
 
+/// One wildcard instance and the hub node that stands for it.
+/// `from` never equals `onto`, and in `folds` it is never an exported node id;
+/// in `stands` it is, since a hub that eliminates nothing leaves its matches in
+/// the payload. When several declarations match one instance, the first in
+/// declaration order owns it, which is the pairing `makeD3Remap` used on the
+/// links.
+public struct FloD3Fold: Codable, Equatable, Sendable {
+    public let from: Int
+    public let onto: Int
+}
+
 /// Force-directed graph payload for a D3 client.
+/// `folds` names each eliminated instance and its hub; omitted when the
+/// export eliminated nothing, so a wildcard-free payload decodes nil.
+/// `stands` names every instance a hub speaks for, eliminated or not, so a
+/// pattern that eliminates nothing still says which flos its hub stands in
+/// for; a superset of `folds`, and omitted the same way.
 public struct FloD3Graph: Codable, Equatable, Sendable {
     public let nodes: [FloD3Node]
     public let links: [FloD3Link]
+    public let folds: [FloD3Fold]?
+    public let stands: [FloD3Fold]?
 }
 
 /// One authored wildcard declaration, rejoined from the copies `merge`
@@ -244,7 +262,8 @@ extension Flo {
         }
         var onto = [Int: Int]() // instance id → the hub it folds into
         for decl in hubs where !decl.patternLeaf.isEmpty {
-            for instance in decl.instances where onto[instance] == nil {
+            for instance in decl.instances
+            where instance != decl.id && onto[instance] == nil {
                 onto[instance] = decl.id
             }
         }
@@ -255,7 +274,25 @@ extension Flo {
         for decl in hubs {
             nodes.append(makeD3Hub(decl, depths, makeD3Dad(decl.id, links)))
         }
-        return FloD3Graph(nodes: nodes, links: links)
+        // a hub that eliminates nothing still stands for its matches: the decl
+        // flo never fires, so a reader of the wire needs the flos that do
+        var stand = onto
+        for decl in hubs where decl.patternLeaf.isEmpty {
+            for instance in decl.instances
+            where instance != decl.id && stand[instance] == nil {
+                stand[instance] = decl.id
+            }
+        }
+        let folds = onto
+            .map { FloD3Fold(from: $0.key, onto: $0.value) }
+            .sorted { $0.from < $1.from } // dictionary order is unstable
+        let stands = stand
+            .map { FloD3Fold(from: $0.key, onto: $0.value) }
+            .sorted { $0.from < $1.from }
+        return FloD3Graph(nodes: nodes,
+                          links: links,
+                          folds: folds.isEmpty ? nil : folds,
+                          stands: stands.isEmpty ? nil : stands)
     }
 
     /// Deterministic JSON. Client colors: red=child, green=input/observe, blue=output/activate.
@@ -302,16 +339,11 @@ extension Flo {
         return common
     }
 
-    /// Shorthand candidates: authored `˚` targets first, then anchor names
-    /// rising from the fan's common ancestor. The root is never an anchor.
+    /// Synthesized candidates: anchor names rising from the fan's common
+    /// ancestor, `anchor˚leaf`. The root is never an anchor.
     func makeD3Candidates(_ ops: String, _ dests: [Flo], _ leaf: String) -> [String] {
 
         var candidates = [String]()
-        for edgeDef in edgeDefs.edgeDefs where edgeDef.edgeOps.script(active: true) == ops {
-            for path in edgeDef.pathExprs.keys where path.contains("˚") {
-                candidates.append(path)
-            }
-        }
         var anchor = makeD3Common(dests)
         while let at = anchor, at.parent != nil {
             if !at.name.isEmpty, !at.name.hasChar(in: ".*˚") {
@@ -336,6 +368,20 @@ extension Flo {
         return candidates
     }
 
+    /// Wildcard targets written on this node's own edges, `cc˚.` in
+    /// `controller << cc˚.`: no provenance, since the node is named, and no
+    /// same-name rule, since `˚.` fans onto descendants of every name.
+    func makeD3Written(_ ops: String) -> [String] {
+
+        var candidates = [String]()
+        for edgeDef in edgeDefs.edgeDefs where edgeDef.edgeOps.script(active: true) == ops {
+            for path in edgeDef.pathExprs.keys where path.hasChar(in: "*˚") {
+                candidates.append(path)
+            }
+        }
+        return candidates
+    }
+
     /// Verified shorthand for a same-kind fan, else nil.
     ///
     /// The gate is MuFlo's own resolver, never string matching: the candidate
@@ -343,9 +389,10 @@ extension Flo {
     /// no edge is a false inclusion, an edge destination the candidate misses
     /// is a false exclusion, and either one refuses the shorthand.
     ///
-    /// Authored provenance text runs first and ignores `minFan` — showing what
-    /// was written is faithful at any width. The synthesized `anchor˚name`
-    /// still needs a wide fan of same-named destinations.
+    /// Authored provenance text runs first, then the wildcard written on the
+    /// edge itself; both ignore `minFan` — showing what was written is
+    /// faithful at any width. The synthesized `anchor˚name` still needs a
+    /// wide fan of same-named destinations.
     public func makeD3Shorthand(_ ops: String, minFan: Int = 6) -> String? {
 
         let fan = makeD3Fan(ops)
@@ -361,6 +408,9 @@ extension Flo {
         let opsKey = first.edgeOps.script(active: true)
 
         for candidate in makeD3Authored(opsKey) where verify(candidate) {
+            return candidate
+        }
+        for candidate in makeD3Written(opsKey) where verify(candidate) {
             return candidate
         }
         guard fan.count >= minFan,

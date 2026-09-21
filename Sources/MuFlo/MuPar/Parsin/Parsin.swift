@@ -77,7 +77,8 @@ public class Parsin {
             return RangeRegx(range0, range0, str)
         default:
             let range1 = match[0].range(at: 1)
-            if range1.length > 0 {
+            // a participating capture may be empty: `""` captures ("") of length 0
+            if range1.location != NSNotFound {
                 return RangeRegx(range1, range0, str)
             } else {
                 return RangeRegx(range0, range0, str)

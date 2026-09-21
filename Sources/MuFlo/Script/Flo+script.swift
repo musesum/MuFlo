@@ -224,11 +224,16 @@ extension Flo { // + script
     }
 
     public func scriptOnlyFlo() -> String {
+        scriptOnlyFlo(.All)
+    }
+
+    /// one flo's own line under a chosen option set: `.def` and `.now` may be dropped
+    public func scriptOnlyFlo(_ ops: FloScriptOps) -> String {
         var script = name
         var scriptExpr = ""
         if let exprs {
-            scriptExpr = exprs.scriptVal(self, .All, viaEdge: false)
-        } else if let scriptEdge = scriptFloEdges(.All) {
+            scriptExpr = exprs.scriptVal(self, ops, viaEdge: false)
+        } else if let scriptEdge = scriptFloEdges(ops) {
             scriptExpr = "(\(scriptEdge))"
         }
         script += scriptExpr

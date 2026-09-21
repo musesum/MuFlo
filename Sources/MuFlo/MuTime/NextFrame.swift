@@ -16,13 +16,17 @@ public class NextFrame {
 
     public var betweenFrames = [(() -> Void)?]()
     public var fps: TimeInterval { TimeInterval(preferredFps) }
-    public var pause = true
+    /// gates the tick; the link itself parks so a paused app costs no frames
+    public var pause = true {
+        didSet { displayLink.isPaused = pause }
+    }
     public var interval: CFTimeInterval = 0
 
     private init() {
         displayLink = CADisplayLink(target: self, selector: #selector(nextFrame))
         displayLink.preferredFramesPerSecond = preferredFps
         displayLink.add(to: .main, forMode: .common)
+        displayLink.isPaused = pause
     }
 
     public func updateFps(_ newFps: Int?) {
@@ -66,7 +70,15 @@ public class NextFrame {
         self.interval = displayLink.targetTimestamp - displayLink.timestamp
 
         goBetweenFrames()
-        for (key,delegate) in delegates {
+        // iterate a snapshot: `goFrame` may add or drop a delegate, and mutating
+        // the dictionary the loop is reading segfaulted the display link inside
+        // Dictionary.Iterator. The drop stays inside the walk — deferring it to
+        // the end deletes a slot that a later delegate re-armed this same frame
+        lock.lock()
+        let frame = delegates
+        lock.unlock()
+
+        for (key,delegate) in frame {
             if delegate.goFrame() == false {
                 removeDelegate(key)
             }

@@ -56,15 +56,20 @@ public class CircleBuffer<Item> {
     public func flushBuf() -> BufState {
         guard var delegate else { return .nextBuf }
 
-        lock.lock(); defer { lock.unlock() }
-
-        while !buffer.isEmpty {
-            if let (item, type) = buffer.first {
-                _ = delegate.flushItem(item, type)
-                _ = buffer.removeFirst()
+        // take the item under the lock, hand it over outside: the callback
+        // reaches menus, trees, flo and peers, and any path from there back to
+        // `addItem` or `resetAll` re-entered this non-recursive lock and stuck
+        while true {
+            lock.lock()
+            guard let (item, type) = buffer.first else {
+                lock.unlock()
+                return .doneBuf
             }
+            _ = buffer.removeFirst()
+            lock.unlock()
+
+            _ = delegate.flushItem(item, type)
         }
-        return .doneBuf
     }
     
     internal func bufferLoop() {

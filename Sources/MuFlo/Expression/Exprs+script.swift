@@ -82,6 +82,10 @@ extension Exprs { // + script
                     }
                 }
             }
+            // the group's label, after its now value: `w 0.9…1.1 : 0.98 'convex'`
+            if scriptOps.def, named != "", let label = labels[named] {
+                script.spacePlus("'\(label)'")
+            }
             assigned = false
             named = ""
             condition = ""

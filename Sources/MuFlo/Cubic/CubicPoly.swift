@@ -8,7 +8,7 @@ public class CubicPoly<T: FloatingPoint> where T: Comparable {
     var vals = Val4<T>(T.zero,T.zero,T.zero,T.zero) // series values to interpolate
     var coef = Val4<T>(T.zero,T.zero,T.zero,T.zero) // coeficients for cubic
     var index = 0 // current position within series
-    public var distance: T { abs(vals.2 - vals.3) }
+    public var distance: T { abs(vals.1 - vals.2) } // the drawn span: getInter runs vals.1 to vals.2
 
     public init() {}
 

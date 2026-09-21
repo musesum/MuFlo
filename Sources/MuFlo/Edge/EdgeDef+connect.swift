@@ -62,8 +62,17 @@ extension EdgeDef { // + connect
                 for edge in plugDef.edges.values {
                     if edge.edgeOps.hasPlugin,
                        let plugExprs = edge.rightFlo.exprs {
-                        let plugin = EdgePlugin(edge.leftFlo, plugExprs)
-                        leftFlo.plugins.append(plugin)
+                        /// one plugin per plug expression: addPlugins runs on
+                        /// every edge the host connects, and each copy armed the
+                        /// same NextFrame key, so all but the last went unticked
+                        let already = edge.leftFlo.plugins.contains {
+                            $0.plugExpress === plugExprs }
+                        /// `^- anim(z: x)` narrows the capture to the named host scalars
+                        let plugin = EdgePlugin(edge.leftFlo, plugExprs, edge.edgeExpress)
+                        /// a host of only discrete scalars gets no plugin
+                        if plugin.floScalars.count > 0, !already {
+                            edge.leftFlo.plugins.append(plugin)
+                        }
                     }
                 }
             }
